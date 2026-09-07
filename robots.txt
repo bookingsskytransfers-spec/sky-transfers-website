@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /booking-confirmed.html
+
+Sitemap: https://www.skytransfers.com.au/sitemap.xml
