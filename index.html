@@ -69,7 +69,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"Is the price per person or per vehicle?","acceptedAnswer":{"@type":"Answer","text":"Per vehicle. The fare covers everyone in the car — a sedan is one price for 1–3 passengers, and a 15-seat Sprinter is one fixed price for the whole group."}},
-{"@type":"Question","name":"Do prices surge at busy times?","acceptedAnswer":{"@type":"Answer","text":"Never. Fares are fixed by suburb zone and vehicle class — the price quoted is the price you pay. Pick-ups between 11 pm and 5 am carry a flat $50 after-hours surcharge, always shown before you confirm."}},
+{"@type":"Question","name":"Do prices surge at busy times?","acceptedAnswer":{"@type":"Answer","text":"Never. Fares are fixed by suburb zone and vehicle class, day or night — the price quoted is the price you pay, with no surge and no after-hours fee."}},
 {"@type":"Question","name":"Can I cancel or change my booking?","acceptedAnswer":{"@type":"Answer","text":"Changes and cancellation are free up to 24 hours before pick-up with a full refund. Inside 24 hours, call +61 481 437 772 and we'll do our best."}},
 {"@type":"Question","name":"What if my flight is delayed?","acceptedAnswer":{"@type":"Answer","text":"We track your flight number and move the pick-up automatically. Airport pick-ups include meet & greet with a name board and 30 minutes' free waiting after landing — 60 minutes for international arrivals at Brisbane Airport."}},
 {"@type":"Question","name":"How far in advance should I book?","acceptedAnswer":{"@type":"Answer","text":"We recommend booking 24–48 hours ahead to guarantee your preferred vehicle — especially Sprinters and school-holiday dates. Online bookings are confirmed instantly by email. Last-minute? Call +61 481 437 772 — we take same-day transfers whenever a vehicle is free."}},
@@ -80,7 +80,7 @@
 {"@type":"Question","name":"Do you provide baby and child seats?","acceptedAnswer":{"@type":"Answer","text":"Yes — capsules, convertible seats and boosters are $15 each, added during booking and professionally fitted, so young children always travel safe and legal."}},
 {"@type":"Question","name":"How much luggage can you take?","acceptedAnswer":{"@type":"Answer","text":"Sedans take 2 large bags, SUVs 4, minivans 6, and Sprinters 11–16. For oversize luggage, golf bags or prams, add the luggage trailer for $30."}},
 {"@type":"Question","name":"How big a group can you carry?","acceptedAnswer":{"@type":"Answer","text":"Up to 15 passengers in one vehicle with the Mercedes Sprinter 15-Seater — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together."}},
-{"@type":"Question","name":"Do you operate overnight and for early-morning flights?","acceptedAnswer":{"@type":"Answer","text":"24 hours, 7 days. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off. Pick-ups between 11 pm and 5 am carry a flat $50 after-hours surcharge, always shown before you confirm."}},
+{"@type":"Question","name":"Do you operate overnight and for early-morning flights?","acceptedAnswer":{"@type":"Answer","text":"24 hours, 7 days, at the same fixed price any time of day or night. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off."}},
 {"@type":"Question","name":"Do you transfer to the Brisbane International Cruise Terminal?","acceptedAnswer":{"@type":"Answer","text":"Yes. The cruise terminal at Pinkenba is minutes from Brisbane Airport, and cruise transfers are your suburb's Brisbane Airport fare plus a flat $25 — select ‘Brisbane Cruise Terminal’ in the booking form for an instant price. We meet disembarking passengers with a name board and track ship arrivals."}},
 {"@type":"Question","name":"Can you take pets, wheelchairs or extra equipment?","acceptedAnswer":{"@type":"Answer","text":"Assistance animals are always welcome at no charge. Pets travel by prior arrangement in a suitable carrier. Foldable wheelchairs, walkers, prams, golf bags and surfboards are carried free where they fit — or add the trailer for bulky loads."}},
 {"@type":"Question","name":"Do you do theme park transfers and private tours?","acceptedAnswer":{"@type":"Answer","text":"Yes — fixed-price transfers to Movie World, Dreamworld, Sea World and Wet'n'Wild, plus private day tours to Byron Bay, Springbrook and Tamborine Mountain, and hourly charter for weddings, corporate events and cruise days."}},
@@ -406,7 +406,7 @@
       <span class="route-line" id="route-line"></span>
     </div>
     <div class="veh-grid" id="veh-grid"></div>
-    <p class="fine">All prices AUD, one-way, GST inclusive. Brisbane Airport fares include tolls. Meet &amp; greet and 30&nbsp;min airport waiting included. Child seats $15 each. Pick-ups between 11&nbsp;pm and 5&nbsp;am add a flat $50 after-hours surcharge, shown in your total before you confirm.</p>
+    <p class="fine">All prices AUD, one-way, GST inclusive. Brisbane Airport fares include tolls. Meet &amp; greet and 30&nbsp;min airport waiting included. Child seats $15 each. The same fixed fare applies at any hour — no night or after-hours loading.</p>
   </section>
 
   <section class="card" id="custom-card" hidden>
@@ -443,9 +443,6 @@
           <span>Luggage trailer <span class="x-price">+$30</span><br><small class="x-sub">Recommended for oversize or extra luggage, golf bags &amp; prams</small></span>
           <input type="checkbox" id="bf-trailer">
         </label>
-        <div class="extras-row" id="ah-row" hidden>
-          <span>After-hours pick-up <span class="x-price">+$50</span><br><small class="x-sub">Applies to pick-ups between 11&nbsp;pm and 5&nbsp;am</small></span>
-        </div>
         <div class="total-line"><span id="total-label">Total</span><span id="total">$0</span></div>
       </div>
       <div><label for="bf-addr">Exact pick-up or drop-off address (street &amp; number, or hotel name)</label><input id="bf-addr" required></div>
@@ -544,10 +541,6 @@ var GMAPS_KEY = "AIzaSyB_zDXd1YswYLCWeZDmxAb4IYRPAYaiCEo"; // Google Maps Platfo
 
 var ENABLE_ONLINE_PAYMENT = true; // set false to hide the pay button even when SERVER_URL is set
 var SEAT_PRICE = 15, TRAILER_PRICE = 30;
-/* After-hours: the FAQ promises a flat surcharge on pick-ups between 11pm and
-   5am, always shown before the guest confirms. AFTER_HOURS_FROM is inclusive,
-   AFTER_HOURS_TO exclusive, both in whole hours on a 24-hour clock. */
-var AFTER_HOURS_FEE = 50, AFTER_HOURS_FROM = 23, AFTER_HOURS_TO = 5;
 
 var state = {pu:null, dro:null, vehicle:null, price:null};
 
@@ -685,29 +678,17 @@ function postJSON(path, body){
   }).then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); });
 }
 
-function isAfterHours(){
-  var t = $("bf-time").value;           /* "HH:MM", empty until the guest picks one */
-  if(!t) return false;
-  var h = parseInt(t.split(":")[0], 10);
-  if(isNaN(h)) return false;
-  return h >= AFTER_HOURS_FROM || h < AFTER_HOURS_TO;
-}
 function currentTotal(){
   var seats = parseInt($("bf-seats").value, 10) || 0;
-  return state.price + seats * SEAT_PRICE
-    + ($("bf-trailer").checked ? TRAILER_PRICE : 0)
-    + (isAfterHours() ? AFTER_HOURS_FEE : 0);
+  return state.price + seats * SEAT_PRICE + ($("bf-trailer").checked ? TRAILER_PRICE : 0);
 }
 function updateTotal(){
-  $("ah-row").hidden = !isAfterHours();
   if(state.price == null) return;
   $("total-label").textContent = "Total — " + state.vehicle;
   $("total").textContent = "$" + currentTotal();
 }
 $("bf-seats").addEventListener("change", updateTotal);
 $("bf-trailer").addEventListener("change", updateTotal);
-$("bf-time").addEventListener("change", updateTotal);
-$("bf-time").addEventListener("input", updateTotal);
 
 function bookingPayload(){
   return {
@@ -717,9 +698,8 @@ function bookingPayload(){
     pax: $("bf-pax").value, flight: $("bf-flight").value,
     childSeats: $("bf-seats").value,
     trailer: $("bf-trailer").checked,
-    /* The server prices the trip itself; these two say what the guest was
-       actually shown, so a mismatch is visible rather than silent. */
-    afterHours: isAfterHours(),
+    /* What the guest was actually shown, so a price mismatch with the
+       server is visible rather than silent. */
     quotedTotal: currentTotal(),
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
@@ -794,7 +774,6 @@ function buildRequest(){
     "Fare: " + money(state.price) + " one-way",
     "Baby/child seats: " + $("bf-seats").value + " ($" + SEAT_PRICE + " each)",
     "Luggage trailer: " + ($("bf-trailer").checked ? "YES (+$" + TRAILER_PRICE + ")" : "No"),
-    "After-hours pick-up (11pm-5am): " + (isAfterHours() ? "YES (+$" + AFTER_HOURS_FEE + ")" : "No"),
     "TOTAL: " + money(currentTotal()),
     "",
     "Date: " + $("bf-date").value,
@@ -923,7 +902,7 @@ function buildRequest(){
   <h2>Frequently asked questions</h2>
   <div class="faq">
     <details><summary>Is the price per person or per vehicle?</summary><p>Per vehicle. The fare covers everyone in the car — a sedan is one price for 1–3 passengers, and a 15-seat Sprinter is one fixed price for the whole group.</p></details>
-    <details><summary>Do prices surge at busy times?</summary><p>Never. Fares are fixed by suburb zone and vehicle class — the price quoted is the price you pay. Pick-ups between 11&nbsp;pm and 5&nbsp;am carry a flat $50 after-hours surcharge, always shown before you confirm.</p></details>
+    <details><summary>Do prices surge at busy times?</summary><p>Never. Fares are fixed by suburb zone and vehicle class, day or night — the price quoted is the price you pay, with no surge and no after-hours fee.</p></details>
     <details><summary>Can I cancel or change my booking?</summary><p>Changes and cancellation are free up to 24 hours before pick-up with a full refund. Inside 24 hours, call <a href="tel:+61481437772">+61 481 437 772</a> and we'll do our best.</p></details>
     <details><summary>What if my flight is delayed?</summary><p>We track your flight number and move the pick-up automatically. Airport pick-ups include meet &amp; greet with a name board and 30 minutes' free waiting after landing — 60 minutes for international arrivals at Brisbane Airport.</p></details>
     <details><summary>How far in advance should I book?</summary><p>We recommend booking 24–48 hours ahead to guarantee your preferred vehicle — especially Sprinters and school-holiday dates. Online bookings are confirmed instantly by email. Last-minute? Call <a href="tel:+61481437772">+61 481 437 772</a> — we take same-day transfers whenever a vehicle is free.</p></details>
@@ -934,7 +913,7 @@ function buildRequest(){
     <details><summary>Do you provide baby and child seats?</summary><p>Yes — capsules, convertible seats and boosters are $15 each, added during booking and professionally fitted, so young children always travel safe and legal.</p></details>
     <details><summary>How much luggage can you take?</summary><p>Sedans take 2 large bags, SUVs 4, minivans 6, and Sprinters 11–16. For oversize luggage, golf bags or prams, add the luggage trailer for $30.</p></details>
     <details><summary>How big a group can you carry?</summary><p>Up to 15 passengers in one vehicle with the Mercedes Sprinter 15-Seater — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together.</p></details>
-    <details><summary>Do you operate overnight and for early-morning flights?</summary><p>24 hours, 7 days. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off. Pick-ups between 11&nbsp;pm and 5&nbsp;am carry a flat $50 after-hours surcharge, always shown before you confirm.</p></details>
+    <details><summary>Do you operate overnight and for early-morning flights?</summary><p>24 hours, 7 days, at the same fixed price any time of day or night. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off.</p></details>
     <details><summary>Do you transfer to the Brisbane International Cruise Terminal?</summary><p>Yes. The cruise terminal at Pinkenba is minutes from Brisbane Airport, and cruise transfers are your suburb's Brisbane Airport fare plus a flat $25 — select ‘Brisbane Cruise Terminal’ in the booking form for an instant price. We meet disembarking passengers with a name board and track ship arrivals.</p></details>
     <details><summary>Can you take pets, wheelchairs or extra equipment?</summary><p>Assistance animals are always welcome at no charge. Pets travel by prior arrangement in a suitable carrier. Foldable wheelchairs, walkers, prams, golf bags and surfboards are carried free where they fit — or add the trailer for bulky loads.</p></details>
     <details><summary>Do you do theme park transfers and private tours?</summary><p>Yes — fixed-price transfers to Movie World, Dreamworld, Sea World and Wet'n'Wild, plus private day tours to Byron Bay, Springbrook and Tamborine Mountain, and hourly charter for weddings, corporate events and cruise days.</p></details>
