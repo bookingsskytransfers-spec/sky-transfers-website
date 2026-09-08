@@ -529,6 +529,27 @@ var BNE_RATES = {"S1":[280,295,325,410,480],"S2":[265,280,310,395,460],"S3":[255
 var BM_ZONE = {"CBD":["Brisbane CBD","Spring Hill","Fortitude Valley","New Farm","Newstead","Teneriffe","Bowen Hills","Herston","Kelvin Grove","Paddington","Milton","Auchenflower","South Brisbane","West End","Highgate Hill","Kangaroo Point","East Brisbane","Woolloongabba","Dutton Park"],"BN1":["Hamilton","Ascot","Clayfield","Hendra","Albion","Nundah","Northgate","Banyo","Virginia","Wavell Heights","Kedron","Chermside","Stafford","Aspley","Geebung","Zillmere","Boondall","Taigum"],"BN2":["Sandgate","Brighton","Bracken Ridge","Bald Hills","Albany Creek","Eatons Hill","Strathpine","Brendale","Petrie","Kallangur","Murrumba Downs","Mango Hill","North Lakes","Deception Bay","Redcliffe","Scarborough","Margate","Clontarf"],"BE1":["Eagle Farm","Pinkenba","Murarrie","Cannon Hill","Morningside","Bulimba","Hawthorne","Balmoral","Tingalpa","Hemmant","Wynnum","Wynnum West","Manly","Lota","Carina"],"BE2":["Belmont","Gumdale","Wakerley","Capalaba","Birkdale","Thorneside","Alexandra Hills","Wellington Point","Ormiston","Cleveland","Thornlands","Victoria Point","Redland Bay"],"BS1":["Coorparoo","Camp Hill","Carina Heights","Carindale","Greenslopes","Holland Park","Mount Gravatt","Wishart","Mansfield","Annerley","Yeronga","Fairfield","Tarragindi","Moorooka","Salisbury"],"BS2":["Sunnybank","Sunnybank Hills","Robertson","Macgregor","Eight Mile Plains","Rochedale","Acacia Ridge","Calamvale","Parkinson","Browns Plains","Springwood","Underwood","Slacks Creek","Daisy Hill","Shailer Park","Logan Central","Woodridge"],"BW1":["Toowong","St Lucia","Taringa","Indooroopilly","Chapel Hill","Kenmore","Fig Tree Pocket","Graceville","Sherwood","Corinda","Oxley","Ashgrove","Bardon","Red Hill","The Gap","Enoggera","Mitchelton","Keperra","Ferny Grove"],"BW2":["Jindalee","Mount Ommaney","Sinnamon Park","Seventeen Mile Rocks","Darra","Richlands","Inala","Forest Lake","Wacol"],"BW3":["Springfield","Springfield Lakes","Brookwater","Augustine Heights","Goodna","Redbank","Redbank Plains","Moggill","Bellbowrie"],"BW4":["Ipswich","Booval","Bundamba","Ripley","Brassall","Karana Downs","Karalee"]};
 var BM_RATES = {"CBD":[95,105,115,165,230],"BN1":[85,95,105,155,220],"BN2":[125,135,150,195,255],"BE1":[85,95,105,155,220],"BE2":[130,140,155,200,260],"BS1":[105,115,125,175,235],"BS2":[140,150,165,215,270],"BW1":[115,125,140,185,245],"BW2":[135,145,160,205,265],"BW3":[155,170,185,230,285],"BW4":[185,200,220,265,315]};
 var BM_SUBURB = {}; Object.keys(BM_ZONE).forEach(function(z){ BM_ZONE[z].forEach(function(s){ BM_SUBURB[s]=z; }); });
+/* ---- long-distance regional routes -------------------------------------
+   Sunshine Coast, Toowoomba and Byron Bay are real, regularly-asked-for jobs
+   that the metro zone tables cannot express: they are priced per hub, because
+   Gold Coast Airport to Byron Bay and Brisbane Airport to Byron Bay are not
+   remotely the same drive. A zone with no table for the hub the guest picked
+   falls through to an individual quote rather than guessing.
+   Fares are the rate-card line (about $1.73/km on a $75–90 base, which fits
+   every published metro fare within a few dollars) plus the uplift Aman set on
+   9 Sept 2026 for the unpaid return leg: +$40 Sunshine Coast, +$50 Toowoomba,
+   +$50 Byron from Brisbane. Gold Coast Airport to Byron starts at $220 by his
+   instruction, the other classes scaled on his own longest OOL zones.
+   LD_LIVE gates the whole feature; stripe-server.js must carry the same three
+   tables or the widget quotes a fare the Pay button then refuses. */
+var LD_LIVE = true;
+var LD_ZONE = {"SC1":["Caloundra","Golden Beach","Pelican Waters","Currimundi","Wurtulla","Warana","Buddina","Minyama"],"SC2":["Mooloolaba","Alexandra Headland","Maroochydore","Cotton Tree","Sunshine Coast Airport (MCY)","Buderim","Sippy Downs","Mountain Creek","Kuluin"],"SC3":["Coolum Beach","Peregian Beach","Peregian Springs","Marcoola","Mudjimba","Twin Waters","Yaroomba"],"SC4":["Noosa Heads","Noosaville","Noosa Junction","Sunshine Beach","Sunrise Beach","Tewantin","Doonan","Eumundi"],"TWB":["Toowoomba","Highfields","Middle Ridge","Rangeville","Wilsonton","Kearneys Spring","Westbrook"],"BYR":["Byron Bay","Suffolk Park","Ewingsdale","Bangalow","Broken Head"]};
+/* From Brisbane Airport (the cruise terminal adds the usual $25). */
+var LD_BNE_RATES = {"SC1":[280,295,320,390,450],"SC2":[305,320,350,425,495],"SC3":[330,345,380,460,535],"SC4":[375,395,430,525,615],"TWB":[395,415,455,550,640],"BYR":[450,475,520,630,735]};
+/* From Gold Coast Airport. Only Byron is a sensible fixed fare from here —
+   OOL to the Sunshine Coast or Toowoomba is a 3-hour run we quote by hand. */
+var LD_OOL_RATES = {"BYR":[220,235,260,330,385]};
+var LD_SUBURB = {}; Object.keys(LD_ZONE).forEach(function(z){ LD_ZONE[z].forEach(function(s){ LD_SUBURB[s]=z; }); });
 var OOL = "Gold Coast Airport (OOL)", BNE = "Brisbane Airport (BNE)";
 var CRUISE = "Brisbane Cruise Terminal (Pinkenba)", CRUISE_EXTRA = 25;
 var VEHICLES = [
@@ -538,7 +559,8 @@ var VEHICLES = [
   {name:"Mercedes Sprinter 10-Seater", cap:"up to 10 passengers · 11 bags"},
   {name:"Mercedes Sprinter 15-Seater", cap:"up to 15 passengers · 16 bags"}
 ];
-var PLACES = [OOL, BNE, CRUISE].concat(Object.keys(SUBURBS).sort()).concat(Object.keys(BM_SUBURB).sort());
+var PLACES = [OOL, BNE, CRUISE].concat(Object.keys(SUBURBS).sort()).concat(Object.keys(BM_SUBURB).sort())
+  .concat(LD_LIVE ? Object.keys(LD_SUBURB).sort() : []);
 var BOOK_EMAIL = "info@skytransfers.com.au";
 /* Deploy stripe-server.js (see the file that came with this widget), then put its
    base URL here, e.g. "https://sky-pay.onrender.com".
@@ -666,6 +688,11 @@ function getRates(pu, dro){
   if(BM_SUBURB[other]){
     if(bneLike) return {rates: plus(BM_RATES[BM_SUBURB[other]])};
     return {custom:"Brisbane-metro suburbs are served to/from Brisbane Airport and the cruise terminal. For " + other + " to Gold Coast Airport we’ll quote individually — usually within the hour."};
+  }
+  if(LD_LIVE && LD_SUBURB[other]){
+    var ldRates = (bneLike ? LD_BNE_RATES : LD_OOL_RATES)[LD_SUBURB[other]];
+    if(ldRates) return {rates: plus(ldRates)};
+    return {custom:"We do run " + other + " transfers from " + hub + ", but it is too long a trip for a fixed online fare — send the booking through or call +61 481 437 772 and we’ll come straight back with a price."};
   }
   return {custom:"We don’t have an instant rate for “" + other + "” — we’ll quote it individually, usually within the hour."};
 }
@@ -906,7 +933,7 @@ function buildRequest(){
   <p style="margin:20px 0 0;text-align:center">
     <a href="/prices.html" style="display:inline-block;border:1.5px solid var(--gold);color:var(--gold-deep);
        font-weight:700;font-size:15px;padding:11px 22px;border-radius:8px;text-decoration:none">
-      See the full price list — all 233 suburbs, every vehicle →</a>
+      See the full price list — all 277 suburbs, every vehicle →</a>
   </p>
   <div class="area" style="margin-top:22px">
     <h3>Popular routes</h3>
@@ -919,6 +946,10 @@ function buildRequest(){
       <tr><td>Brisbane Airport (BNE) → North Lakes</td><td>≈ 35 min</td><td>from $125</td></tr>
       <tr><td>Brisbane Airport (BNE) → Gold Coast Airport (OOL)</td><td>≈ 80 min</td><td>from $280</td></tr>
       <tr><td>Brisbane Cruise Terminal (Pinkenba) → Gold Coast</td><td>≈ 70–90 min</td><td>from $220</td></tr>
+      <tr><td>Brisbane Airport (BNE) → Noosa Heads</td><td>≈ 1 hr 45 min</td><td>from $375</td></tr>
+      <tr><td>Brisbane Airport (BNE) → Mooloolaba / Maroochydore</td><td>≈ 1 hr 20 min</td><td>from $305</td></tr>
+      <tr><td>Brisbane Airport (BNE) → Toowoomba</td><td>≈ 1 hr 45 min</td><td>from $395</td></tr>
+      <tr><td>Gold Coast Airport (OOL) → Byron Bay</td><td>≈ 50 min</td><td>from $220</td></tr>
     </table></div>
   </div>
 </section>
