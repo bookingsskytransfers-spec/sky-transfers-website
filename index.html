@@ -546,6 +546,33 @@ var state = {pu:null, dro:null, vehicle:null, price:null};
 
 function $(id){return document.getElementById(id);}
 
+/* ---- conversion tracking ----------------------------------------------
+   Fires the events an analytics or Google Ads account needs to tell a real
+   booking from a bounce. Deliberately inert until a tag is installed: with
+   no gtag and no dataLayer on the page these calls do nothing at all, so
+   the site can ship instrumented and be switched on later by pasting one
+   GA4 or Ads snippet into the <head> — no code changes needed then. */
+function track(event, params){
+  try {
+    var data = params || {};
+    if (typeof window.gtag === "function") window.gtag("event", event, data);
+    if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push(Object.assign({event: event}, data));
+    }
+  } catch (e) { /* tracking must never break a booking */ }
+}
+/* Phone, WhatsApp and email are the conversions this business actually runs
+   on, and they leave the page without touching the form — so catch them at
+   the document level rather than wiring each link individually. */
+document.addEventListener("click", function(e){
+  var a = e.target.closest && e.target.closest("a[href]");
+  if (!a) return;
+  var href = a.getAttribute("href") || "";
+  if (href.indexOf("tel:") === 0) track("contact_phone", {method: "phone"});
+  else if (href.indexOf("https://wa.me/") === 0) track("contact_whatsapp", {method: "whatsapp"});
+  else if (href.indexOf("mailto:") === 0) track("contact_email", {method: "email"});
+});
+
 /* ---- autocomplete ---- */
 function attachAC(inputId, listId, onPick){
   var input = $(inputId), list = $(listId), idx = -1, items = [], closeTimer = null;
@@ -637,6 +664,8 @@ function refresh(){
       "<span class='price'>" + money(res.rates[i]) + " <small>one-way</small></span>";
     b.addEventListener("click", function(){
       state.vehicle = v.name; state.price = res.rates[i];
+      track("select_vehicle", {vehicle: v.name, value: res.rates[i], currency: "AUD",
+        route: state.pu + " -> " + state.dro});
       var all = grid.children;
       for(var k=0;k<all.length;k++) all[k].classList.toggle("selected", k===i);
       updateTotal();
@@ -716,6 +745,8 @@ $("book-form").addEventListener("submit", function(e){
     postJSON("/request-booking", bookingPayload()).then(function(res){
       if(res.ok && res.data && res.data.ok){
         btn.textContent = "Request sent ✓";
+        track("booking_request", {value: currentTotal(), currency: "AUD",
+          vehicle: state.vehicle, route: state.pu + " -> " + state.dro});
         $("auto-ok").hidden = false;
         $("auto-ok").scrollIntoView({behavior:"smooth", block:"nearest"});
       } else { throw new Error(res.data && res.data.error); }
@@ -735,7 +766,11 @@ $("pay-btn").addEventListener("click", function(){
   var btn = $("pay-btn");
   btn.disabled = true; btn.textContent = "Opening secure payment…";
   postJSON("/create-checkout", bookingPayload()).then(function(res){
-    if(res.ok && res.data && res.data.url){ location.href = res.data.url; }
+    if(res.ok && res.data && res.data.url){
+      track("begin_checkout", {value: currentTotal(), currency: "AUD",
+        vehicle: state.vehicle, route: state.pu + " -> " + state.dro});
+      location.href = res.data.url;
+    }
     else { throw new Error(res.data && res.data.error); }
   }).catch(function(){
     btn.disabled = false; btn.textContent = "Pay securely & confirm now";

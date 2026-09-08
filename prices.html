@@ -759,6 +759,28 @@
     </div>
   </div>
 </footer>
+<script>
+/* Contact-click tracking, shared by the pages that have no booking widget of
+   their own. Inert until a GA4 or Ads tag is installed — see the fuller
+   comment on track() in the homepage script. */
+(function(){
+  function track(event, params){
+    try {
+      var data = params || {};
+      if (typeof window.gtag === "function") window.gtag("event", event, data);
+      if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
+    } catch (e) {}
+  }
+  document.addEventListener("click", function(e){
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.indexOf("tel:") === 0) track("contact_phone", {method: "phone"});
+    else if (href.indexOf("https://wa.me/") === 0) track("contact_whatsapp", {method: "whatsapp"});
+    else if (href.indexOf("mailto:") === 0) track("contact_email", {method: "email"});
+  });
+})();
+</script>
 <a class="wa-float" aria-label="Chat with Sky Transfers on WhatsApp" title="WhatsApp us"
    href="https://wa.me/61481437772?text=Hi%20Sky%20Transfers%2C%20I%27d%20like%20a%20quote%20for%20an%20airport%20transfer."
    target="_blank" rel="noopener">
