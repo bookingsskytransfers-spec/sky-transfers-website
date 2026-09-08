@@ -20,6 +20,16 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Google tag (gtag.js) — Google Ads AW-18399667511.
+     Injected at build time only, so the Claude artifact previews stay out of
+     the reporting and the numbers reflect real visitors. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18399667511"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18399667511');
+</script>
 <style>
   :root{color-scheme:light dark}
   body{margin:0;padding:0}
@@ -552,10 +562,27 @@ function $(id){return document.getElementById(id);}
    no gtag and no dataLayer on the page these calls do nothing at all, so
    the site can ship instrumented and be switched on later by pasting one
    GA4 or Ads snippet into the <head> — no code changes needed then. */
+/* Which of our events count as a Google Ads conversion, and the label to
+   report them against. Labels come from the conversion actions defined in
+   Ads account 788-206-5168 — if an action is recreated there, its label
+   changes and must be updated here. */
+var ADS_CONVERSIONS = {
+  booking_request: "AW-18399667511/EeMQCNyDv-QcELfK0sVE"   /* submit_lead_form */
+};
 function track(event, params){
   try {
     var data = params || {};
-    if (typeof window.gtag === "function") window.gtag("event", event, data);
+    if (typeof window.gtag === "function") {
+      window.gtag("event", event, data);          /* readable event for GA4 */
+      var label = ADS_CONVERSIONS[event];
+      if (label) {                                 /* and the Ads conversion */
+        window.gtag("event", "conversion", {
+          send_to: label,
+          value: typeof data.value === "number" ? data.value : 1.0,
+          currency: "AUD"
+        });
+      }
+    }
     if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push(Object.assign({event: event}, data));
     }

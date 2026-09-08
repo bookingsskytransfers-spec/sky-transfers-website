@@ -12,6 +12,29 @@
 <meta property="og:url" content="https://www.skytransfers.com.au/">
 <meta property="og:locale" content="en_AU">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
+<!-- Google tag (gtag.js) — Google Ads AW-18399667511 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18399667511"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18399667511');
+</script>
+<script>
+  /* Purchase conversion. This page is only reached after Stripe takes payment,
+     so reporting it on load is correct. Stripe appends its checkout session id
+     to the return URL; pass it as transaction_id so a customer who refreshes
+     or bookmarks the page is not counted as a second sale. */
+  (function(){
+    try {
+      var sid = new URLSearchParams(window.location.search).get('session_id') || '';
+      gtag('event', 'conversion', {
+        send_to: 'AW-18399667511/UQvUCMHMoOYcELfK0sVE',
+        transaction_id: sid
+      });
+    } catch (e) { /* never block the confirmation page */ }
+  })();
+</script>
 <style>
   :root{
     /* Midnight & Champagne — matches the Sky Transfers platform */
