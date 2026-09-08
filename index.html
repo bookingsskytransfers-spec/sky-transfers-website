@@ -548,6 +548,11 @@ var BOOK_EMAIL = "info@skytransfers.com.au";
    Leave empty ("") and the widget falls back to the copy/email-app panel. */
 var SERVER_URL = "https://sky-transfers-booking-server.onrender.com";
 var GMAPS_KEY = "AIzaSyB_zDXd1YswYLCWeZDmxAb4IYRPAYaiCEo"; // Google Maps Platform browser key (public, domain-restricted)
+/* The Places loader lives in a later, separate <script> block, so it cannot see
+   anything declared inside this closure. Publish the key deliberately — without
+   this the loader's `typeof GMAPS_KEY` guard is always "undefined" and address
+   autocomplete silently never loads. */
+window.GMAPS_KEY = GMAPS_KEY;
 
 var ENABLE_ONLINE_PAYMENT = true; // set false to hide the pay button even when SERVER_URL is set
 var SEAT_PRICE = 15, TRAILER_PRICE = 30;
