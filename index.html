@@ -82,7 +82,7 @@
 {"@type":"Question","name":"Do prices surge at busy times?","acceptedAnswer":{"@type":"Answer","text":"Never. Fares are fixed by suburb zone and vehicle class, day or night — the price quoted is the price you pay, with no surge and no after-hours fee."}},
 {"@type":"Question","name":"Can I cancel or change my booking?","acceptedAnswer":{"@type":"Answer","text":"Changes and cancellation are free up to 24 hours before pick-up with a full refund. Inside 24 hours, call +61 481 437 772 and we'll do our best."}},
 {"@type":"Question","name":"What if my flight is delayed?","acceptedAnswer":{"@type":"Answer","text":"We track your flight number and move the pick-up automatically. Airport pick-ups include meet & greet with a name board and 30 minutes' free waiting after landing — 60 minutes for international arrivals at Brisbane Airport."}},
-{"@type":"Question","name":"How far in advance should I book?","acceptedAnswer":{"@type":"Answer","text":"We recommend booking 24–48 hours ahead to guarantee your preferred vehicle — especially Sprinters and school-holiday dates. Online bookings are confirmed instantly by email. Last-minute? Call +61 481 437 772 — we take same-day transfers whenever a vehicle is free."}},
+{"@type":"Question","name":"How far in advance should I book?","acceptedAnswer":{"@type":"Answer","text":"Online bookings close 6 hours before pick-up, so we can be certain a vehicle and chauffeur are actually free for you. We recommend 24–48 hours ahead to guarantee your preferred vehicle — especially Sprinters and school-holiday dates. Inside 6 hours, call +61 481 437 772 — we still take same-day transfers whenever a vehicle is free, we just want to confirm it with you rather than have a booking form promise it."}},
 {"@type":"Question","name":"How long is the drive from the Gold Coast to Brisbane Airport?","acceptedAnswer":{"@type":"Answer","text":"Allow 60–90 minutes from most Gold Coast suburbs via the M1 and Gateway Motorway, and up to 2 hours in weekday peak. When we confirm your booking we recommend a pick-up time with a safe buffer for check-in — and tolls are already in the fare."}},
 {"@type":"Question","name":"How will I find my driver at the airport?","acceptedAnswer":{"@type":"Answer","text":"Your chauffeur meets you inside arrivals holding a name board, and you receive their name and mobile number before pick-up. Anything changes on the day, our 24/7 line connects you straight to dispatch."}},
 {"@type":"Question","name":"How do I pay?","acceptedAnswer":{"@type":"Answer","text":"Securely online by card — Visa, Mastercard, Amex, Apple Pay and Google Pay — processed by Stripe, so card details never touch our website. Approved corporate accounts, travel agents and DMCs can be invoiced monthly."}},
@@ -442,6 +442,7 @@
         <div><label for="bf-date">Pick-up date</label><input id="bf-date" type="date" required></div>
         <div><label for="bf-time">Pick-up time</label><input id="bf-time" type="time" required></div>
       </div>
+      <div class="notice err" id="lead-warn" hidden style="margin:-4px 0 14px"></div>
       <div><label for="bf-flight">Flight number (optional)</label><input id="bf-flight" placeholder="e.g. JQ431"></div>
       <div class="extras">
         <p class="extras-title">Extras</p>
@@ -795,9 +796,53 @@ function bookingPayload(){
   };
 }
 
+/* ---- minimum notice ----------------------------------------------------
+   Online bookings need six hours' notice. Anything tighter has to be checked
+   against a real vehicle by a real person, which is what the FAQ has always
+   said: last-minute goes to the phone.
+   Brisbane is UTC+10 year round with no daylight saving, so the pick-up the
+   guest types is converted to an absolute instant with fixed arithmetic
+   rather than read off the browser's clock â otherwise a traveller booking
+   from London or Singapore is validated against their own midnight. */
+var MIN_LEAD_HOURS = 6;
+var BNE_OFFSET_MS = 10 * 3600 * 1000;
+function pickupInstant(dateStr, timeStr){
+  var d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr || "");
+  var t = /^(\d{1,2}):(\d{2})/.exec(timeStr || "");
+  if(!d || !t) return null;
+  return Date.UTC(+d[1], +d[2] - 1, +d[3], +t[1], +t[2]) - BNE_OFFSET_MS;
+}
+function leadTimeError(){
+  var when = pickupInstant($("bf-date").value, $("bf-time").value);
+  if(when === null) return null;               /* let `required` do its job */
+  var hours = (when - Date.now()) / 3600000;
+  if(hours >= MIN_LEAD_HOURS) return null;
+  if(hours < 0) return "That pick-up time has already passed â please pick a later one.";
+  return "Online bookings need " + MIN_LEAD_HOURS + " hours' notice (Brisbane time). " +
+         "For a pick-up sooner than that call +61 481 437 772 â we take same-day transfers whenever a vehicle is free.";
+}
+function refreshLeadTime(){
+  var msg = leadTimeError(), warn = $("lead-warn");
+  if(msg){
+    warn.innerHTML = msg.replace("+61 481 437 772", "<a href=\"tel:+61481437772\">+61 481 437 772</a>");
+    warn.hidden = false;
+  } else {
+    warn.hidden = true;
+  }
+  return !msg;
+}
+["bf-date", "bf-time"].forEach(function(id){
+  $(id).addEventListener("input", refreshLeadTime);
+  $(id).addEventListener("change", refreshLeadTime);
+});
+/* Today in Brisbane is the earliest date worth offering; the six-hour rule
+   does the finer filtering once a time is entered. */
+$("bf-date").min = new Date(Date.now() + BNE_OFFSET_MS).toISOString().slice(0, 10);
+
 $("book-form").addEventListener("submit", function(e){
   e.preventDefault();
   if(!state.vehicle) return;
+  if(!refreshLeadTime()){ $("lead-warn").scrollIntoView({behavior:"smooth", block:"center"}); return; }
   if(SERVER_URL){
     var btn = $("submit-btn"), orig = btn.textContent;
     btn.disabled = true; btn.textContent = "Sending…";
@@ -821,6 +866,7 @@ $("book-form").addEventListener("submit", function(e){
 $("pay-btn").addEventListener("click", function(){
   var form = $("book-form");
   if(!form.checkValidity()){ form.reportValidity(); return; }
+  if(!refreshLeadTime()){ $("lead-warn").scrollIntoView({behavior:"smooth", block:"center"}); return; }
   if(!state.vehicle || !SERVER_URL) return;
   var btn = $("pay-btn");
   btn.disabled = true; btn.textContent = "Opening secure payment…";
@@ -1003,7 +1049,7 @@ function buildRequest(){
     <details><summary>Do prices surge at busy times?</summary><p>Never. Fares are fixed by suburb zone and vehicle class, day or night — the price quoted is the price you pay, with no surge and no after-hours fee.</p></details>
     <details><summary>Can I cancel or change my booking?</summary><p>Changes and cancellation are free up to 24 hours before pick-up with a full refund. Inside 24 hours, call <a href="tel:+61481437772">+61 481 437 772</a> and we'll do our best.</p></details>
     <details><summary>What if my flight is delayed?</summary><p>We track your flight number and move the pick-up automatically. Airport pick-ups include meet &amp; greet with a name board and 30 minutes' free waiting after landing — 60 minutes for international arrivals at Brisbane Airport.</p></details>
-    <details><summary>How far in advance should I book?</summary><p>We recommend booking 24–48 hours ahead to guarantee your preferred vehicle — especially Sprinters and school-holiday dates. Online bookings are confirmed instantly by email. Last-minute? Call <a href="tel:+61481437772">+61 481 437 772</a> — we take same-day transfers whenever a vehicle is free.</p></details>
+    <details><summary>How far in advance should I book?</summary><p>Online bookings close <b>6 hours before pick-up</b>, so we can be certain a vehicle and chauffeur are actually free for you. We recommend 24–48 hours ahead to guarantee your preferred vehicle — especially Sprinters and school-holiday dates. Inside 6 hours, call <a href="tel:+61481437772">+61 481 437 772</a> — we still take same-day transfers whenever a vehicle is free, we just want to confirm it with you rather than have a booking form promise it.</p></details>
     <details><summary>How long is the drive from the Gold Coast to Brisbane Airport?</summary><p>Allow 60–90 minutes from most Gold Coast suburbs via the M1 and Gateway Motorway, and up to 2 hours in weekday peak. When we confirm your booking we recommend a pick-up time with a safe buffer for check-in — and tolls are already in the fare.</p></details>
     <details><summary>How will I find my driver at the airport?</summary><p>Your chauffeur meets you inside arrivals holding a name board, and you receive their name and mobile number before pick-up. Anything changes on the day, our 24/7 line connects you straight to dispatch.</p></details>
     <details><summary>How do I pay?</summary><p>Securely online by card — Visa, Mastercard, Amex, Apple&nbsp;Pay and Google&nbsp;Pay — processed by Stripe, so card details never touch our website. Approved corporate accounts, travel agents and DMCs can be invoiced monthly.</p></details>
