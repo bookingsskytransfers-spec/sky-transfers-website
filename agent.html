@@ -1,1 +1,443 @@
-<�s�D
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Portal — Sky Transfers</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#101828">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ground:#F7F4ED; --card:#FFFFFF; --ink:#141D30; --text:#333B4C; --muted:#68707F;
+    --line:#E5E0D2; --gold:#C9A227; --gold-deep:#8E701C; --gold-soft:#F6EED9;
+    --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --err:#B0392F;
+    --shadow:0 1px 3px rgba(20,29,48,.06), 0 6px 20px rgba(20,29,48,.06);
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+      --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+      --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
+      --shadow:0 2px 14px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+    --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+    --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
+    --shadow:0 2px 14px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--text);
+    font-family:"Figtree",-apple-system,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.55}
+  .wrap{max-width:900px;margin:0 auto;padding:26px 18px 70px}
+  header.brand{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .brand h1{font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:clamp(22px,4vw,30px);
+    letter-spacing:.05em;color:var(--ink);margin:0}
+  .brand .sub{color:var(--muted);font-size:13.5px;letter-spacing:.12em;text-transform:uppercase}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
+  h2{font-family:"Marcellus",Georgia,serif;font-weight:400;color:var(--ink);font-size:20px;margin:0 0 14px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:0 0 5px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;
+    background:var(--ground);color:var(--text);font:inherit;font-size:15px}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:-1px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .field{margin-bottom:12px}
+  @media (max-width:600px){ .row2{grid-template-columns:1fr} }
+  .cta{display:block;width:100%;padding:13px;border:0;border-radius:8px;cursor:pointer;
+    background:var(--navy);color:var(--navy-text);font:inherit;font-weight:700;font-size:16px}
+  .cta:hover{background:var(--gold);color:#141D30}
+  .cta[disabled]{opacity:.55;cursor:default}
+  .linkbtn{background:none;border:0;color:var(--gold-deep);font:inherit;font-weight:600;cursor:pointer;padding:0}
+  .msg{border-radius:8px;padding:11px 13px;font-size:14.5px;margin-bottom:12px;
+    border-left:3px solid var(--err);background:var(--gold-soft);color:var(--ink)}
+  .msg.ok{border-left-color:var(--ok)}
+  /* wallet */
+  .wallet{background:linear-gradient(180deg,#101828 0%,#1C2A47 100%);color:var(--navy-text);
+    border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .wallet .lbl{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+  .wallet .big{font-family:"Marcellus",Georgia,serif;font-size:clamp(34px,7vw,46px);margin:2px 0 10px;
+    font-variant-numeric:tabular-nums}
+  .wallet .split{display:flex;gap:26px;flex-wrap:wrap;font-size:14px;opacity:.85}
+  .wallet .split b{font-variant-numeric:tabular-nums}
+  /* vehicles */
+  .veh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+  .veh{border:1.5px solid var(--line);background:var(--card);border-radius:9px;padding:12px;cursor:pointer;
+    text-align:left;font:inherit;color:var(--text)}
+  .veh:hover{border-color:var(--gold)}
+  .veh.on{border-color:var(--gold);background:var(--gold-soft)}
+  .veh .n{display:block;font-weight:700;color:var(--ink);font-size:14px}
+  .veh .f{display:block;font-size:19px;font-weight:700;color:var(--ink);margin-top:5px;font-variant-numeric:tabular-nums}
+  .veh .c{display:block;font-size:12.5px;color:var(--gold-deep);font-weight:600}
+  /* autocomplete */
+  .ac{position:relative}
+  .ac-list{position:absolute;z-index:20;left:0;right:0;top:100%;background:var(--card);
+    border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);max-height:260px;overflow:auto}
+  .ac-item{padding:9px 12px;cursor:pointer;font-size:14.5px}
+  .ac-item:hover,.ac-item.active{background:var(--gold-soft)}
+  /* table */
+  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+  th{background:var(--navy);color:var(--navy-text);font-size:12px;letter-spacing:.05em;
+    text-transform:uppercase;padding:9px 11px;text-align:left;white-space:nowrap}
+  td{padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:0}
+  .pill{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold-deep)}
+  .pill.paid{background:rgba(30,127,79,.13);color:var(--ok)}
+  .muted{color:var(--muted);font-size:13.5px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <div>
+      <h1>SKY TRANSFERS</h1>
+      <div class="sub">Agent portal</div>
+    </div>
+    <div id="who" hidden class="muted"></div>
+  </header>
+
+  <!-- ---------- sign in ---------- -->
+  <section id="signin" class="card" style="max-width:420px;margin-inline:auto">
+    <h2>Sign in</h2>
+    <div id="login-msg" class="msg" hidden></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="code">Agent code</label>
+        <input id="code" autocomplete="username" autocapitalize="characters" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="pin">PIN</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      </div>
+      <button class="cta" type="submit" id="login-btn">Sign in</button>
+    </form>
+    <p class="muted" style="margin:14px 0 0">
+      No code yet? Call <a href="tel:+61481437772" style="color:var(--gold-deep);font-weight:600">+61 481 437 772</a>
+      or email <a href="mailto:info@skytransfers.com.au" style="color:var(--gold-deep);font-weight:600">info@skytransfers.com.au</a>.
+    </p>
+  </section>
+
+  <!-- ---------- portal ---------- -->
+  <div id="portal" hidden>
+
+    <div class="wallet">
+      <div class="lbl">Your wallet</div>
+      <div class="big" id="w-balance">$0.00</div>
+      <div class="split">
+        <span>Earned <b id="w-earned">$0.00</b></span>
+        <span>Paid out <b id="w-paid">$0.00</b></span>
+        <span>Commission <b id="w-pct">—</b></span>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2>New booking</h2>
+      <div id="book-msg" class="msg" hidden></div>
+
+      <div class="row2">
+        <div class="ac">
+          <label for="pu">Pick-up</label>
+          <input id="pu" autocomplete="off" placeholder="Airport, suburb or terminal">
+          <div class="ac-list" id="pu-list" hidden></div>
+        </div>
+        <div class="ac">
+          <label for="dro">Drop-off</label>
+          <input id="dro" autocomplete="off" placeholder="Airport, suburb or terminal">
+          <div class="ac-list" id="dro-list" hidden></div>
+        </div>
+      </div>
+
+      <div id="quote" hidden>
+        <label>Vehicle — fare, and what you earn</label>
+        <div class="veh-grid" id="veh-grid"></div>
+      </div>
+      <div id="noquote" class="msg" hidden></div>
+
+      <div class="row2">
+        <div><label for="date">Pick-up date</label><input id="date" type="date"></div>
+        <div><label for="time">Pick-up time</label><input id="time" type="time"></div>
+      </div>
+      <div class="row2">
+        <div><label for="pname">Passenger name</label><input id="pname"></div>
+        <div><label for="pphone">Passenger phone</label><input id="pphone" type="tel"></div>
+      </div>
+      <div class="row2">
+        <div><label for="pax">Passengers</label><input id="pax" type="number" min="1" max="15" value="2"></div>
+        <div><label for="flight">Flight number</label><input id="flight" placeholder="optional"></div>
+      </div>
+      <div class="field">
+        <label for="addr">Exact pick-up or drop-off address</label>
+        <input id="addr" placeholder="Street &amp; number, or hotel name">
+      </div>
+      <div class="row2">
+        <div><label for="seats">Child seats <span class="muted">$15 each</span></label>
+          <select id="seats"><option value="0">None</option><option>1</option><option>2</option><option>3</option></select></div>
+        <div><label for="trailer">Luggage trailer <span class="muted">+$30</span></label>
+          <select id="trailer"><option value="false">No</option><option value="true">Yes</option></select></div>
+      </div>
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea id="notes" rows="2" placeholder="optional"></textarea>
+      </div>
+
+      <button class="cta" id="book-btn" disabled>Choose a route and vehicle</button>
+      <p class="muted" style="margin:12px 0 0">
+        No payment now — these go on your monthly invoice, less your commission.
+        Bookings close 6 hours before pick-up; anything tighter, call us.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Your bookings</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Ref</th><th>Date</th><th>Route</th><th>Passenger</th>
+            <th style="text-align:right">Fare</th><th style="text-align:right">Your commission</th><th></th>
+          </tr></thead>
+          <tbody id="rows"><tr><td colspan="7" class="muted">Nothing booked yet.</td></tr></tbody>
+        </table>
+      </div>
+      <p style="margin:14px 0 0"><button class="linkbtn" id="signout">Sign out</button></p>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var API = "https://sky-transfers-booking-server.onrender.com";
+  var $ = function(id){ return document.getElementById(id); };
+  var money = function(n){ return "$" + Number(n || 0).toFixed(2); };
+
+  /* sessionStorage, not localStorage: agents often work on a shared office
+     machine, and a wallet balance should not still be there tomorrow. */
+  var token = null;
+  try { token = sessionStorage.getItem("sky_agent_token"); } catch (e) {}
+
+  var state = { places: [], vehicle: null, fare: 0, commission: 0, quote: null };
+
+  function show(el, msg, ok){
+    if (!msg) { el.hidden = true; return; }
+    el.textContent = msg;
+    el.className = "msg" + (ok ? " ok" : "");
+    el.hidden = false;
+  }
+
+  function api(path, opts){
+    opts = opts || {};
+    var headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = "Bearer " + token;
+    return fetch(API + path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(data){
+        if (r.status === 401) { signOut(); throw new Error(data.error || "Please sign in again."); }
+        if (!r.ok) throw new Error(data.error || "Something went wrong.");
+        return data;
+      });
+    });
+  }
+
+  /* ---- sign in / out ---- */
+  $("login-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var btn = $("login-btn");
+    btn.disabled = true; btn.textContent = "Signing in…";
+    show($("login-msg"), "");
+    api("/agent/login", { method: "POST", body: { code: $("code").value, pin: $("pin").value } })
+      .then(function(d){
+        token = d.token;
+        try { sessionStorage.setItem("sky_agent_token", token); } catch (e) {}
+        $("pin").value = "";
+        enter();
+      })
+      .catch(function(err){ show($("login-msg"), err.message); })
+      .then(function(){ btn.disabled = false; btn.textContent = "Sign in"; });
+  });
+
+  function signOut(){
+    token = null;
+    try { sessionStorage.removeItem("sky_agent_token"); } catch (e) {}
+    $("portal").hidden = true;
+    $("signin").hidden = false;
+    $("who").hidden = true;
+  }
+  $("signout").addEventListener("click", signOut);
+
+  function enter(){
+    $("signin").hidden = true;
+    $("portal").hidden = false;
+    api("/agent/places").then(function(d){ state.places = d.places || []; }).catch(function(){});
+    refresh();
+  }
+
+  function refresh(){
+    return api("/agent/summary").then(function(d){
+      $("who").hidden = false;
+      $("who").textContent = d.agent.name + " · " + d.agent.code;
+      $("w-balance").textContent = money(d.wallet.balance);
+      $("w-earned").textContent = money(d.wallet.earned);
+      $("w-paid").textContent = money(d.wallet.paid);
+      $("w-pct").textContent = d.agent.commissionPct + "%";
+      var tb = $("rows");
+      if (!d.bookings.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="muted">Nothing booked yet.</td></tr>';
+        return;
+      }
+      tb.innerHTML = "";
+      d.bookings.forEach(function(b){
+        var tr = document.createElement("tr");
+        [b.ref, b.date + " " + b.time, b.route, b.passenger].forEach(function(v){
+          var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+        });
+        [b.total, b.commission].forEach(function(v){
+          var td = document.createElement("td"); td.className = "num"; td.textContent = money(v); tr.appendChild(td);
+        });
+        var td = document.createElement("td");
+        var pill = document.createElement("span");
+        pill.className = "pill" + (b.settled ? " paid" : "");
+        pill.textContent = b.settled ? "paid" : "in wallet";
+        td.appendChild(pill); tr.appendChild(td);
+        tb.appendChild(tr);
+      });
+    }).catch(function(err){ show($("book-msg"), err.message); });
+  }
+
+  /* ---- place picker ---- */
+  function attachAC(inputId, listId){
+    var input = $(inputId), list = $(listId), idx = -1, items = [], timer = null;
+    function close(){ list.hidden = true; idx = -1; }
+    function render(){
+      var q = input.value.trim().toLowerCase();
+      items = state.places.filter(function(p){ return !q || p.toLowerCase().indexOf(q) !== -1; }).slice(0, 40);
+      list.innerHTML = "";
+      if (!items.length) { close(); return; }
+      items.forEach(function(p){
+        var d = document.createElement("div");
+        d.className = "ac-item"; d.textContent = p;
+        d.addEventListener("mousedown", function(e){ e.preventDefault(); input.value = p; close(); quote(); });
+        list.appendChild(d);
+      });
+      list.hidden = false; idx = -1;
+    }
+    input.addEventListener("input", function(){ clearTimeout(timer); render(); quote(); });
+    input.addEventListener("focus", render);
+    input.addEventListener("blur", function(){ timer = setTimeout(close, 150); });
+    input.addEventListener("keydown", function(e){
+      if (list.hidden) return;
+      var els = list.children;
+      if (e.key === "ArrowDown") { e.preventDefault(); idx = Math.min(idx + 1, els.length - 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); idx = Math.max(idx - 1, 0); }
+      else if (e.key === "Enter") { e.preventDefault(); if (idx >= 0) { input.value = items[idx]; close(); quote(); } return; }
+      else if (e.key === "Escape") { close(); return; }
+      else return;
+      for (var i = 0; i < els.length; i++) els[i].classList.toggle("active", i === idx);
+    });
+  }
+  attachAC("pu", "pu-list");
+  attachAC("dro", "dro-list");
+
+  /* ---- quoting ---- */
+  var quoteTimer = null;
+  function quote(){
+    clearTimeout(quoteTimer);
+    quoteTimer = setTimeout(doQuote, 180);
+  }
+  function doQuote(){
+    var pu = $("pu").value.trim(), dro = $("dro").value.trim();
+    state.vehicle = null; state.fare = 0; state.commission = 0;
+    setBookState();
+    if (state.places.indexOf(pu) === -1 || state.places.indexOf(dro) === -1) {
+      $("quote").hidden = true; $("noquote").hidden = true; return;
+    }
+    api("/agent/quote", { method: "POST", body: { pickup: pu, dropoff: dro } })
+      .then(function(d){
+        if (!d.quotable) {
+          $("quote").hidden = true;
+          show($("noquote"), d.message);
+          return;
+        }
+        $("noquote").hidden = true;
+        var grid = $("veh-grid");
+        grid.innerHTML = "";
+        d.vehicles.forEach(function(v){
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "veh";
+          b.innerHTML = '<span class="n"></span><span class="f"></span><span class="c"></span>';
+          b.querySelector(".n").textContent = v.vehicle;
+          b.querySelector(".f").textContent = money(v.fare);
+          b.querySelector(".c").textContent = "you earn " + money(v.commission);
+          b.addEventListener("click", function(){
+            state.vehicle = v.vehicle; state.fare = v.fare; state.commission = v.commission;
+            [].forEach.call(grid.children, function(c){ c.classList.remove("on"); });
+            b.classList.add("on");
+            setBookState();
+          });
+          grid.appendChild(b);
+        });
+        $("quote").hidden = false;
+      })
+      .catch(function(err){ show($("book-msg"), err.message); });
+  }
+
+  function setBookState(){
+    var btn = $("book-btn");
+    btn.disabled = !state.vehicle;
+    btn.textContent = state.vehicle
+      ? "Book " + state.vehicle + " — " + money(state.fare) + " · you earn " + money(state.commission)
+      : "Choose a route and vehicle";
+  }
+
+  /* ---- booking ---- */
+  $("book-btn").addEventListener("click", function(){
+    var required = { "Pick-up": $("pu").value, "Drop-off": $("dro").value, "Pick-up date": $("date").value,
+      "Pick-up time": $("time").value, "Passenger name": $("pname").value, "Passenger phone": $("pphone").value };
+    for (var k in required) {
+      if (!String(required[k]).trim()) { show($("book-msg"), "Please fill in: " + k); return; }
+    }
+    var btn = $("book-btn"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "Booking…";
+    show($("book-msg"), "");
+    api("/agent/book", { method: "POST", body: {
+      pickup: $("pu").value.trim(), dropoff: $("dro").value.trim(), vehicle: state.vehicle,
+      date: $("date").value, time: $("time").value,
+      name: $("pname").value.trim(), phone: $("pphone").value.trim(),
+      pax: $("pax").value, flight: $("flight").value.trim(), address: $("addr").value.trim(),
+      childSeats: $("seats").value, trailer: $("trailer").value, notes: $("notes").value.trim()
+    }}).then(function(d){
+      show($("book-msg"), "Booked — reference " + d.ref + ". " + money(d.commission) + " added to your wallet.", true);
+      ["pname","pphone","flight","addr","notes","pu","dro"].forEach(function(id){ $(id).value = ""; });
+      $("quote").hidden = true;
+      state.vehicle = null;
+      setBookState();
+      refresh();
+    }).catch(function(err){
+      show($("book-msg"), err.message);
+      btn.disabled = false; btn.textContent = label;
+    });
+  });
+
+  /* Today in Brisbane is the earliest date worth offering; the server enforces
+     the six-hour rule once a time is entered. */
+  try {
+    $("date").min = new Date(Date.now() + 10 * 3600 * 1000).toISOString().slice(0, 10);
+  } catch (e) {}
+
+  if (token) enter();
+})();
+</script>
+</body>
+</html>
