@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /booking-confirmed.html
 Disallow: /agent.html
+Disallow: /admin.html
 
 Sitemap: https://www.skytransfers.com.au/sitemap.xml
