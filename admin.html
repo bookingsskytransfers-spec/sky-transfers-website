@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Admin — Sky Transfers</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#101828">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ground:#F7F4ED; --card:#FFFFFF; --ink:#141D30; --text:#333B4C; --muted:#68707F;
+    --line:#E5E0D2; --gold:#C9A227; --gold-deep:#8E701C; --gold-soft:#F6EED9;
+    --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --err:#B0392F;
+    --shadow:0 1px 3px rgba(20,29,48,.06), 0 6px 20px rgba(20,29,48,.06);
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+      --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+      --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
+      --shadow:0 2px 14px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+    --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+    --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
+    --shadow:0 2px 14px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--text);
+    font-family:"Figtree",-apple-system,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.55}
+  .wrap{max-width:1000px;margin:0 auto;padding:26px 18px 70px}
+  header.brand{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+  .brand h1{font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:clamp(22px,4vw,30px);
+    letter-spacing:.05em;color:var(--ink);margin:0}
+  .brand .sub{color:var(--muted);font-size:13.5px;letter-spacing:.12em;text-transform:uppercase}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
+  h2{font-family:"Marcellus",Georgia,serif;font-weight:400;color:var(--ink);font-size:20px;margin:0 0 14px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:0 0 5px}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:7px;
+    background:var(--ground);color:var(--text);font:inherit;font-size:15px}
+  input:focus,select:focus{outline:2px solid var(--gold);outline-offset:-1px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .field{margin-bottom:12px}
+  @media (max-width:700px){ .row3,.row2{grid-template-columns:1fr} }
+  .cta{display:block;width:100%;padding:13px;border:0;border-radius:8px;cursor:pointer;
+    background:var(--navy);color:var(--navy-text);font:inherit;font-weight:700;font-size:16px}
+  .cta:hover{background:var(--gold);color:#141D30}
+  .cta[disabled]{opacity:.55;cursor:default}
+  .linkbtn{background:none;border:0;color:var(--gold-deep);font:inherit;font-weight:600;cursor:pointer;padding:0}
+  .msg{border-radius:8px;padding:11px 13px;font-size:14.5px;margin-bottom:12px;
+    border-left:3px solid var(--err);background:var(--gold-soft);color:var(--ink)}
+  .msg.ok{border-left-color:var(--ok)}
+  .pinbox{background:var(--navy);color:var(--navy-text);border-radius:10px;padding:18px 20px;margin-bottom:16px}
+  .pinbox .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+  .pinbox .val{font-family:"Marcellus",Georgia,serif;font-size:34px;letter-spacing:.18em;margin:4px 0 6px}
+  .pinbox p{margin:0;font-size:13.5px;opacity:.85}
+  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:840px}
+  th{background:var(--navy);color:var(--navy-text);font-size:12px;letter-spacing:.05em;
+    text-transform:uppercase;padding:9px 11px;text-align:left;white-space:nowrap}
+  td{padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr:last-child td{border-bottom:0}
+  tr.off td{opacity:.5}
+  .owing{font-weight:700;color:var(--gold-deep)}
+  .act{background:none;border:1px solid var(--line);border-radius:6px;padding:4px 9px;font:inherit;
+    font-size:12.5px;font-weight:600;color:var(--gold-deep);cursor:pointer;margin-right:5px}
+  .act:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .act.pay{border-color:var(--ok);color:var(--ok)}
+  .muted{color:var(--muted);font-size:13.5px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <div>
+      <h1>SKY TRANSFERS</h1>
+      <div class="sub">Agent admin</div>
+    </div>
+    <div id="who" hidden class="muted"></div>
+  </header>
+
+  <section id="signin" class="card" style="max-width:400px;margin-inline:auto">
+    <h2>Office sign in</h2>
+    <div id="login-msg" class="msg" hidden></div>
+    <form id="login-form">
+      <div class="field">
+        <label for="pin">Admin PIN</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      </div>
+      <button class="cta" type="submit" id="login-btn">Sign in</button>
+    </form>
+  </section>
+
+  <div id="admin" hidden>
+
+    <div id="new-pin" class="pinbox" hidden>
+      <div class="lbl">PIN for <span id="pin-for"></span></div>
+      <div class="val" id="pin-val"></div>
+      <p>Write this down and give it to the agent now — it is not shown again. You can always issue a new one.</p>
+    </div>
+
+    <section class="card">
+      <h2>Agents</h2>
+      <div id="list-msg" class="msg" hidden></div>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Code</th><th>Agency</th><th>Rate</th>
+            <th style="text-align:right">Trips</th><th style="text-align:right">Sales</th>
+            <th style="text-align:right">Earned</th><th style="text-align:right">Owing</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="rows"><tr><td colspan="8" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="form-title">Add an agent</h2>
+      <div id="form-msg" class="msg" hidden></div>
+      <div class="row3">
+        <div><label for="f-code">Agent code</label><input id="f-code" placeholder="NEXUS" autocapitalize="characters" spellcheck="false"></div>
+        <div><label for="f-name">Agency name</label><input id="f-name" placeholder="Nexus Travel"></div>
+        <div><label for="f-pct">Commission %</label><input id="f-pct" type="number" min="0" max="60" step="0.5" value="10"></div>
+      </div>
+      <div class="row2">
+        <div><label for="f-email">Email for booking copies</label><input id="f-email" type="email" placeholder="ops@agency.com"></div>
+        <div><label for="f-active">Status</label>
+          <select id="f-active"><option value="true">Active</option><option value="false">Suspended</option></select></div>
+      </div>
+      <button class="cta" id="save-btn">Create agent &amp; issue a PIN</button>
+      <p style="margin:10px 0 0" hidden id="clear-wrap">
+        <button class="linkbtn" id="clear-form">Cancel — go back to adding a new agent</button>
+      </p>
+      <p class="muted" style="margin:12px 0 0">
+        Changing a rate only affects bookings made from then on — trips already in a wallet keep the rate they were booked at.
+      </p>
+    </section>
+
+    <section class="card" id="bookings-card" hidden>
+      <h2 id="bookings-title">Bookings</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Ref</th><th>Date</th><th>Route</th><th>Passenger</th>
+            <th style="text-align:right">Fare</th><th style="text-align:right">Commission</th><th>Status</th>
+          </tr></thead>
+          <tbody id="brows"></tbody>
+        </table>
+      </div>
+      <p style="margin:14px 0 0"><button class="linkbtn" id="close-bookings">Close</button></p>
+    </section>
+
+    <p><button class="linkbtn" id="signout">Sign out</button></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var API = "https://sky-transfers-booking-server.onrender.com";
+  var $ = function(id){ return document.getElementById(id); };
+  var money = function(n){ return "$" + Number(n || 0).toFixed(2); };
+
+  var token = null;
+  try { token = sessionStorage.getItem("sky_admin_token"); } catch (e) {}
+  var editingCode = null;
+
+  function show(el, msg, ok){
+    if (!msg) { el.hidden = true; return; }
+    el.textContent = msg;
+    el.className = "msg" + (ok ? " ok" : "");
+    el.hidden = false;
+  }
+
+  function api(path, opts){
+    opts = opts || {};
+    var headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = "Bearer " + token;
+    return fetch(API + path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(data){
+        if (r.status === 401) { signOut(); throw new Error(data.error || "Please sign in again."); }
+        if (!r.ok) throw new Error(data.error || "Something went wrong.");
+        return data;
+      });
+    });
+  }
+
+  $("login-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var btn = $("login-btn");
+    btn.disabled = true; btn.textContent = "Signing in…";
+    show($("login-msg"), "");
+    api("/admin/login", { method: "POST", body: { pin: $("pin").value } })
+      .then(function(d){
+        token = d.token;
+        try { sessionStorage.setItem("sky_admin_token", token); } catch (e) {}
+        $("pin").value = "";
+        enter();
+      })
+      .catch(function(err){ show($("login-msg"), err.message); })
+      .then(function(){ btn.disabled = false; btn.textContent = "Sign in"; });
+  });
+
+  function signOut(){
+    token = null;
+    try { sessionStorage.removeItem("sky_admin_token"); } catch (e) {}
+    $("admin").hidden = true;
+    $("signin").hidden = false;
+    $("who").hidden = true;
+  }
+  $("signout").addEventListener("click", signOut);
+
+  function enter(){
+    $("signin").hidden = true;
+    $("admin").hidden = false;
+    $("who").hidden = false;
+    $("who").textContent = "Signed in as office";
+    load();
+  }
+
+  function actionBtn(label, cls, fn){
+    var b = document.createElement("button");
+    b.className = "act" + (cls ? " " + cls : "");
+    b.textContent = label;
+    b.addEventListener("click", fn);
+    return b;
+  }
+
+  function load(){
+    return api("/admin/agents").then(function(d){
+      var tb = $("rows");
+      if (!d.agents.length) {
+        tb.innerHTML = '<tr><td colspan="8" class="muted">No agents yet — add the first one below.</td></tr>';
+        return;
+      }
+      tb.innerHTML = "";
+      d.agents.forEach(function(a){
+        var tr = document.createElement("tr");
+        if (!a.active) tr.className = "off";
+        [a.code, a.name + (a.active ? "" : " (suspended)"), a.commissionPct + "%"].forEach(function(v){
+          var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+        });
+        [String(a.trips), money(a.gross), money(a.earned)].forEach(function(v){
+          var td = document.createElement("td"); td.className = "num"; td.textContent = v; tr.appendChild(td);
+        });
+        var owe = document.createElement("td");
+        owe.className = "num owing"; owe.textContent = money(a.owing);
+        tr.appendChild(owe);
+
+        var acts = document.createElement("td");
+        acts.appendChild(actionBtn("Edit", "", function(){ editAgent(a); }));
+        acts.appendChild(actionBtn("New PIN", "", function(){ resetPin(a); }));
+        acts.appendChild(actionBtn("Bookings", "", function(){ showBookings(a); }));
+        if (a.owing > 0) acts.appendChild(actionBtn("Mark paid", "pay", function(){ settle(a); }));
+        tr.appendChild(acts);
+        tb.appendChild(tr);
+      });
+    }).catch(function(err){ show($("list-msg"), err.message); });
+  }
+
+  function editAgent(a){
+    editingCode = a.code;
+    $("form-title").textContent = "Edit " + a.name;
+    $("f-code").value = a.code; $("f-code").readOnly = true;
+    $("f-name").value = a.name; $("f-pct").value = a.commissionPct;
+    $("f-email").value = a.email || "";
+    $("f-active").value = a.active ? "true" : "false";
+    $("save-btn").textContent = "Save changes";
+    $("clear-wrap").hidden = false;
+    show($("form-msg"), "");
+    $("f-name").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function clearForm(){
+    editingCode = null;
+    $("form-title").textContent = "Add an agent";
+    $("f-code").value = ""; $("f-code").readOnly = false;
+    $("f-name").value = ""; $("f-pct").value = 10; $("f-email").value = "";
+    $("f-active").value = "true";
+    $("save-btn").textContent = "Create agent & issue a PIN";
+    $("clear-wrap").hidden = true;
+  }
+  $("clear-form").addEventListener("click", clearForm);
+
+  function showPin(code, pin){
+    $("pin-for").textContent = code;
+    $("pin-val").textContent = pin;
+    $("new-pin").hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  $("save-btn").addEventListener("click", function(){
+    var body = {
+      code: $("f-code").value.trim().toUpperCase(),
+      name: $("f-name").value.trim(),
+      email: $("f-email").value.trim(),
+      commissionPct: Number($("f-pct").value),
+      active: $("f-active").value === "true"
+    };
+    if (!body.code || !body.name) { show($("form-msg"), "Agent code and agency name are both needed."); return; }
+    var btn = $("save-btn"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "Saving…";
+    show($("form-msg"), "");
+    api("/admin/agent", { method: "POST", body: body })
+      .then(function(d){
+        show($("form-msg"), d.created ? "Agent created." : "Saved.", true);
+        if (d.pin) showPin(d.code, d.pin);
+        clearForm();
+        load();
+      })
+      .catch(function(err){ show($("form-msg"), err.message); })
+      .then(function(){ btn.disabled = false; btn.textContent = label; });
+  });
+
+  function resetPin(a){
+    if (!window.confirm("Issue a new PIN for " + a.name + "?\n\nTheir current PIN stops working straight away.")) return;
+    api("/admin/agent", { method: "POST", body: {
+      code: a.code, name: a.name, email: a.email, commissionPct: a.commissionPct,
+      active: a.active, resetPin: true
+    }}).then(function(d){
+      if (d.pin) showPin(d.code, d.pin);
+      load();
+    }).catch(function(err){ show($("list-msg"), err.message); });
+  }
+
+  function settle(a){
+    if (!window.confirm("Mark " + money(a.owing) + " as paid to " + a.name + "?\n\n" +
+      "This records that you've paid their commission. Their wallet drops to zero and those trips show as paid.")) return;
+    api("/admin/settle", { method: "POST", body: { code: a.code } })
+      .then(function(d){
+        show($("list-msg"), "Recorded " + money(d.amount) + " paid to " + a.name +
+          " across " + d.trips + " trip" + (d.trips === 1 ? "" : "s") + ".", true);
+        load();
+      })
+      .catch(function(err){ show($("list-msg"), err.message); });
+  }
+
+  function showBookings(a){
+    api("/admin/bookings?code=" + encodeURIComponent(a.code)).then(function(d){
+      $("bookings-title").textContent = "Bookings — " + a.name;
+      var tb = $("brows");
+      if (!d.bookings.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="muted">No bookings yet.</td></tr>';
+      } else {
+        tb.innerHTML = "";
+        d.bookings.forEach(function(b){
+          var tr = document.createElement("tr");
+          if (b.status !== "confirmed") tr.className = "off";
+          [b.ref, b.date + " " + b.time, b.route, b.passenger].forEach(function(v){
+            var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+          });
+          [money(b.total), money(b.commission)].forEach(function(v){
+            var td = document.createElement("td"); td.className = "num"; td.textContent = v; tr.appendChild(td);
+          });
+          var st = document.createElement("td");
+          st.textContent = b.status !== "confirmed" ? "cancelled" : (b.settled ? "paid" : "in wallet");
+          tr.appendChild(st);
+          tb.appendChild(tr);
+        });
+      }
+      $("bookings-card").hidden = false;
+      $("bookings-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }).catch(function(err){ show($("list-msg"), err.message); });
+  }
+  $("close-bookings").addEventListener("click", function(){ $("bookings-card").hidden = true; });
+
+  if (token) enter();
+})();
+</script>
+</body>
+</html>
