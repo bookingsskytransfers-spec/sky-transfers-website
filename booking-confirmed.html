@@ -23,16 +23,46 @@
 <script>
   /* Purchase conversion. This page is only reached after Stripe takes payment,
      so reporting it on load is correct. Stripe appends its checkout session id
-     to the return URL; pass it as transaction_id so a customer who refreshes
-     or bookmarks the page is not counted as a second sale. */
+     to the return URL; it is passed as transaction_id so a customer who
+     refreshes or bookmarks the page is not counted as a second sale.
+
+     The fare is looked up from Stripe rather than read out of the URL, so the
+     value reported to Ads is the amount actually charged and cannot be edited
+     in the address bar. Without a value every booking counts as the conversion
+     action's $1 default, which makes the value column meaningless and rules
+     out value-based bidding.
+
+     If the lookup fails for any reason the conversion still fires without a
+     value: an under-reported sale is bad, a missing one is worse. */
   (function(){
-    try {
-      var sid = new URLSearchParams(window.location.search).get('session_id') || '';
-      gtag('event', 'conversion', {
-        send_to: 'AW-18399667511/UQvUCMHMoOYcELfK0sVE',
-        transaction_id: sid
+    var SEND_TO = 'AW-18399667511/UQvUCMHMoOYcELfK0sVE';
+    var API = 'https://sky-transfers-booking-server.onrender.com';
+    var sid = '';
+    try { sid = new URLSearchParams(window.location.search).get('session_id') || ''; } catch (e) {}
+
+    function report(extra){
+      try {
+        var payload = { send_to: SEND_TO, transaction_id: sid };
+        if (extra) { payload.value = extra.value; payload.currency = extra.currency; }
+        gtag('event', 'conversion', payload);
+      } catch (e) { /* never block the confirmation page */ }
+    }
+
+    if (!sid) { report(null); return; }
+    var done = false;
+    var fallback = setTimeout(function(){ if (!done) { done = true; report(null); } }, 4000);
+    fetch(API + '/checkout-value?session_id=' + encodeURIComponent(sid))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (done) return;
+        done = true; clearTimeout(fallback);
+        report(d && d.paid && d.value > 0 ? { value: d.value, currency: d.currency || 'AUD' } : null);
+      })
+      .catch(function(){
+        if (done) return;
+        done = true; clearTimeout(fallback);
+        report(null);
       });
-    } catch (e) { /* never block the confirmation page */ }
   })();
 </script>
 <style>
