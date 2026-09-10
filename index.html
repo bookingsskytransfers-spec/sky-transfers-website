@@ -397,17 +397,17 @@
     <div class="grid">
       <div class="field">
         <label for="pu">Pick-up</label>
-        <input id="pu" type="text" placeholder="Suburb or airport" autocomplete="off" spellcheck="false">
+        <input id="pu" type="text" placeholder="Street address, suburb or airport" autocomplete="off" spellcheck="false">
         <div class="ac-list" id="pu-list" hidden></div>
       </div>
       <button class="swap" id="swap" type="button" title="Swap pick-up and drop-off" aria-label="Swap pick-up and drop-off">&#8645;</button>
       <div class="field">
         <label for="do">Drop-off</label>
-        <input id="do" type="text" placeholder="Suburb or airport" autocomplete="off" spellcheck="false">
+        <input id="do" type="text" placeholder="Street address, suburb or airport" autocomplete="off" spellcheck="false">
         <div class="ac-list" id="do-list" hidden></div>
       </div>
     </div>
-    <p class="hint">Serving all Gold Coast &amp; Brisbane suburbs &harr; Gold Coast Airport (OOL), Brisbane Airport (BNE) and the Brisbane Cruise Terminal. Start typing and pick from the list.</p>
+    <p class="hint">Type a street address, a suburb, or an airport — start typing and pick from the list. Serving all Gold Coast &amp; Brisbane suburbs &harr; Gold Coast Airport (OOL), Brisbane Airport (BNE) and the Brisbane Cruise Terminal.</p>
   </section>
 
   <section class="card" id="quote-card" hidden>
@@ -580,7 +580,7 @@ window.GMAPS_KEY = GMAPS_KEY;
 var ENABLE_ONLINE_PAYMENT = true; // set false to hide the pay button even when SERVER_URL is set
 var SEAT_PRICE = 15, TRAILER_PRICE = 30;
 
-var state = {pu:null, dro:null, vehicle:null, price:null};
+var state = {pu:null, dro:null, puAddr:null, droAddr:null, vehicle:null, price:null};
 
 function $(id){return document.getElementById(id);}
 
@@ -628,41 +628,213 @@ document.addEventListener("click", function(e){
   else if (href.indexOf("mailto:") === 0) track("contact_email", {method: "email"});
 });
 
-/* ---- autocomplete ---- */
-function attachAC(inputId, listId, onPick){
-  var input = $(inputId), list = $(listId), idx = -1, items = [], closeTimer = null;
-  function close(){ list.hidden = true; idx = -1; }
-  function render(q){
-    q = q.trim().toLowerCase();
-    items = PLACES.filter(function(p){ return !q || p.toLowerCase().indexOf(q) !== -1; }).slice(0, 60);
-    list.innerHTML = "";
-    if(!items.length){ close(); return; }
-    items.forEach(function(p, i){
-      var d = document.createElement("div");
-      d.className = "ac-item"; d.setAttribute("role","option");
-      d.textContent = p;
-      if(p === OOL || p === BNE || p === CRUISE){
-        var t = document.createElement("span"); t.className = "tag"; t.textContent = (p === CRUISE ? "CRUISE" : "AIRPORT"); d.appendChild(t);
+/* ---- autocomplete ----
+   Two sources feed one dropdown.
+
+   The priced list comes first: those are the 298 suburbs and three terminals we
+   publish a fare for, and picking one is what the quoting engine actually runs
+   on. Underneath it we offer Google Places street addresses, because customers
+   arrive at this form thinking about where they live, not which suburb zone we
+   filed it under — a caller told us as much. Typing "12 Smith St" used to match
+   nothing and empty the dropdown, which read as "we don't go there".
+
+   A Places pick is resolved back to its suburb before anything else happens, so
+   state.pu / state.dro still hold a name from PLACES and every downstream
+   consumer — pricing, the server's fare check, the Stripe payload, the dispatch
+   email — is unchanged. The street address rides alongside in state.puAddr /
+   state.droAddr so the driver gets a number to pull up at.
+
+   Predictions share one session token with the getDetails() call that follows,
+   which is what keeps Places billed per session rather than per keystroke. */
+
+var GP = { svc: null, det: null, token: null };
+
+/* Suburbs Google names differently from our rate tables. */
+var GP_ALIAS = {
+  "brisbane airport": BNE,
+  "brisbane airport (bne)": BNE,
+  "gold coast airport": OOL,
+  "coolangatta airport": OOL,
+  "gold coast airport (ool)": OOL,
+  "pinkenba": CRUISE
+};
+
+var PLACE_BY_KEY = (function(){
+  var m = {};
+  PLACES.forEach(function(p){ m[p.toLowerCase()] = p; });
+  return m;
+})();
+
+function gpReady(){
+  if (GP.svc) return true;
+  if (!window.google || !google.maps || !google.maps.places) return false;
+  try {
+    GP.svc = new google.maps.places.AutocompleteService();
+    GP.det = new google.maps.places.PlacesService(document.createElement("div"));
+    return true;
+  } catch (e) { return false; }
+}
+function gpToken(){
+  if (!GP.token && window.google && google.maps && google.maps.places) {
+    GP.token = new google.maps.places.AutocompleteSessionToken();
+  }
+  return GP.token;
+}
+
+/* address_components -> one of our priced place names, or null */
+function suburbFromComponents(comps, formatted){
+  var want = ["locality", "sublocality_level_1", "sublocality", "postal_town", "administrative_area_level_2"];
+  var i, j, c;
+  for (i = 0; i < want.length; i++) {
+    for (j = 0; j < (comps || []).length; j++) {
+      c = comps[j];
+      if (c.types && c.types.indexOf(want[i]) !== -1) {
+        var key = (c.long_name || "").toLowerCase();
+        if (GP_ALIAS[key]) return GP_ALIAS[key];
+        if (PLACE_BY_KEY[key]) return PLACE_BY_KEY[key];
       }
-      d.addEventListener("mousedown", function(e){ e.preventDefault(); pick(p); });
+    }
+  }
+  var f = (formatted || "").toLowerCase();
+  for (var k in GP_ALIAS) { if (f.indexOf(k) !== -1) return GP_ALIAS[k]; }
+  return null;
+}
+
+/* the suburb Google thinks it is, for the "we don't price that" message */
+function rawSuburb(comps){
+  for (var j = 0; j < (comps || []).length; j++) {
+    var c = comps[j];
+    if (c.types && (c.types.indexOf("locality") !== -1 || c.types.indexOf("sublocality_level_1") !== -1)) {
+      return c.long_name;
+    }
+  }
+  return "";
+}
+
+function attachAC(inputId, listId, onPick){
+  var input = $(inputId), list = $(listId), idx = -1, items = [], closeTimer = null, gpTimer = null;
+  var noteId = inputId + "-note";
+
+  function close(){ list.hidden = true; idx = -1; }
+
+  function note(msg){
+    var n = document.getElementById(noteId);
+    if (!msg) { if (n) n.remove(); return; }
+    if (!n) {
+      n = document.createElement("p");
+      n.id = noteId;
+      n.className = "hint";
+      n.style.color = "var(--err)";
+      input.parentNode.appendChild(n);
+    }
+    n.textContent = msg;
+  }
+
+  /* items are {label, place, addr} — place is the PLACES name we price on,
+     addr is the street address when the pick came from Places. */
+  function draw(){
+    list.innerHTML = "";
+    if (!items.length) { close(); return; }
+    items.forEach(function(it, i){
+      var d = document.createElement("div");
+      d.className = "ac-item";
+      d.setAttribute("role", "option");
+      d.textContent = it.label;
+      var tag = null;
+      if (it.place === OOL || it.place === BNE) tag = "AIRPORT";
+      else if (it.place === CRUISE) tag = "CRUISE";
+      else if (it.pending) tag = "ADDRESS";
+      if (tag) {
+        var t = document.createElement("span");
+        t.className = "tag"; t.textContent = tag;
+        d.appendChild(t);
+      }
+      d.addEventListener("mousedown", function(e){ e.preventDefault(); choose(it); });
       list.appendChild(d);
     });
     list.hidden = false; idx = -1;
   }
-  function pick(p){ input.value = p; close(); onPick(p); }
-  input.addEventListener("input", function(){ clearTimeout(closeTimer); onPick(null); render(input.value); });
+
+  function render(q){
+    q = q.trim();
+    var lower = q.toLowerCase();
+    items = PLACES.filter(function(p){
+      return !lower || p.toLowerCase().indexOf(lower) !== -1;
+    }).slice(0, 40).map(function(p){ return {label: p, place: p}; });
+    draw();
+    clearTimeout(gpTimer);
+    if (q.length >= 3) gpTimer = setTimeout(function(){ addPredictions(q); }, 280);
+  }
+
+  function addPredictions(q){
+    if (!gpReady()) return;
+    if (input.value.trim() !== q) return;              // moved on already
+    GP.svc.getPlacePredictions({
+      input: q,
+      componentRestrictions: { country: "au" },
+      sessionToken: gpToken()
+    }, function(preds, status){
+      if (input.value.trim() !== q) return;
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !preds) return;
+      var have = {};
+      items.forEach(function(it){ have[it.label.toLowerCase()] = 1; });
+      preds.slice(0, 5).forEach(function(p){
+        var label = p.description || "";
+        if (!label || have[label.toLowerCase()]) return;
+        items.push({label: label, pending: true, placeId: p.place_id});
+      });
+      draw();
+    });
+  }
+
+  function choose(it){
+    close();
+    note("");
+    if (!it.pending) { input.value = it.place; onPick(it.place, null); return; }
+
+    /* a Places pick: resolve it to a suburb we actually price */
+    input.value = it.label;
+    if (!gpReady()) { note("Could not check that address — please pick a suburb from the list."); return; }
+    GP.det.getDetails({
+      placeId: it.placeId,
+      fields: ["address_components", "formatted_address", "name"],
+      sessionToken: gpToken()
+    }, function(place, status){
+      GP.token = null;                                  // session ends with getDetails
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
+        note("Could not check that address — please pick a suburb from the list.");
+        return;
+      }
+      var addr = place.formatted_address || it.label;
+      var sub = suburbFromComponents(place.address_components, addr);
+      if (!sub) {
+        var raw = rawSuburb(place.address_components);
+        note("We don't publish a fare for " + (raw || "that address") +
+             " yet. Call +61 481 437 772 and we'll quote it.");
+        input.value = "";
+        onPick(null, null);
+        return;
+      }
+      input.value = addr;
+      onPick(sub, addr);
+    });
+  }
+
+  input.addEventListener("input", function(){
+    clearTimeout(closeTimer); note(""); onPick(null, null); render(input.value);
+  });
   input.addEventListener("focus", function(){ clearTimeout(closeTimer); render(input.value); });
   input.addEventListener("blur", function(){ closeTimer = setTimeout(close, 150); });
   input.addEventListener("keydown", function(e){
-    if(list.hidden) return;
+    if (list.hidden) return;
     var els = list.children;
-    if(e.key === "ArrowDown"){ e.preventDefault(); idx = Math.min(idx+1, els.length-1); }
-    else if(e.key === "ArrowUp"){ e.preventDefault(); idx = Math.max(idx-1, 0); }
-    else if(e.key === "Enter"){ e.preventDefault(); if(idx >= 0) pick(items[idx]); else if(items.length === 1) pick(items[0]); return; }
-    else if(e.key === "Escape"){ close(); return; }
+    if (e.key === "ArrowDown"){ e.preventDefault(); idx = Math.min(idx+1, els.length-1); }
+    else if (e.key === "ArrowUp"){ e.preventDefault(); idx = Math.max(idx-1, 0); }
+    else if (e.key === "Enter"){ e.preventDefault(); if(idx >= 0) choose(items[idx]); else if(items.length === 1) choose(items[0]); return; }
+    else if (e.key === "Escape"){ close(); return; }
     else return;
-    for(var i=0;i<els.length;i++) els[i].classList.toggle("active", i===idx);
-    if(idx>=0) els[idx].scrollIntoView({block:"nearest"});
+    for (var i=0;i<els.length;i++) els[i].classList.toggle("active", i===idx);
+    if (idx>=0) els[idx].scrollIntoView({block:"nearest"});
   });
 }
 
@@ -737,13 +909,29 @@ function refresh(){
   qc.hidden = false; bc.hidden = true;
 }
 
-attachAC("pu", "pu-list", function(p){ state.pu = p; refresh(); });
-attachAC("do", "do-list", function(p){ state.dro = p; refresh(); });
+/* When a pick-up or drop-off was chosen as a street address, carry it into the
+   "exact address" field further down so the customer is not asked to type the
+   same thing twice. Only ever fills a blank field or one this put there, so a
+   hand-typed address is never overwritten. */
+function syncAddr(){
+  var el = $("bf-addr");
+  if (!el) return;
+  var want = state.puAddr || state.droAddr || "";
+  if (!want) return;
+  if (!el.value || el.value === el.dataset.autofill) {
+    el.value = want;
+    el.dataset.autofill = want;
+  }
+}
+
+attachAC("pu", "pu-list", function(p, addr){ state.pu = p; state.puAddr = addr || null; syncAddr(); refresh(); });
+attachAC("do", "do-list", function(p, addr){ state.dro = p; state.droAddr = addr || null; syncAddr(); refresh(); });
 
 $("swap").addEventListener("click", function(){
   var a = $("pu").value, b = $("do").value;
   $("pu").value = b; $("do").value = a;
   var t = state.pu; state.pu = state.dro; state.dro = t;
+  var ta = state.puAddr; state.puAddr = state.droAddr; state.droAddr = ta;
   refresh();
 });
 
