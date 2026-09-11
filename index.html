@@ -850,8 +850,13 @@ function getRates(pu, dro){
   var bump = (pu === CRUISE || dro === CRUISE) ? CRUISE_EXTRA : 0;
   function plus(r){ return bump ? r.map(function(x){ return x + bump; }) : r; }
   if(isHub(pu) && isHub(dro)){
+    /* Airport to the terminal is a ten-minute run up the road, priced at the
+       Brisbane CBD rate. It does not carry the $25 terminal surcharge that
+       applies when we cross the city to reach a ship, and the booking server
+       has always charged this same rate — the website simply refused to quote
+       it, which sent a high-intent cruise passenger to the phone instead. */
     if((pu === BNE && dro === CRUISE) || (pu === CRUISE && dro === BNE))
-      return {custom:"Brisbane Airport to the cruise terminal is a short local hop — call +61 481 437 772 for a quick quote."};
+      return {rates: BM_RATES["CBD"]};
     return {rates: plus(BNE_RATES["S1"])}; // OOL <-> BNE / cruise terminal
   }
   var hub = isHub(pu) ? pu : (isHub(dro) ? dro : null);
