@@ -12,13 +12,14 @@
 <meta property="og:url" content="https://www.skytransfers.com.au/">
 <meta property="og:locale" content="en_AU">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
-<!-- Google tag (gtag.js) — Google Ads AW-18399667511 -->
+<!-- Google tag (gtag.js) — Google Ads AW-18399667511 and GA4 G-9LYFELNSBK -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18399667511"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'AW-18399667511');
+  gtag('config', 'G-9LYFELNSBK');
 </script>
 <script>
   /* Purchase conversion. This page is only reached after Stripe takes payment,
@@ -45,6 +46,16 @@
         var payload = { send_to: SEND_TO, transaction_id: sid };
         if (extra) { payload.value = extra.value; payload.currency = extra.currency; }
         gtag('event', 'conversion', payload);
+
+        /* The same sale, reported to GA4 as a purchase. Ads tells us a booking
+           happened; only GA4 can say which source, medium or campaign the
+           session came from, which is the question that matters when deciding
+           where the next dollar goes. Same transaction_id, so a refresh is
+           de-duplicated here too. */
+        var ga = { transaction_id: sid, currency: (extra && extra.currency) || 'AUD',
+                   items: [{ item_id: 'transfer', item_name: 'Airport transfer' }] };
+        if (extra) { ga.value = extra.value; ga.items[0].price = extra.value; ga.items[0].quantity = 1; }
+        gtag('event', 'purchase', ga);
       } catch (e) { /* never block the confirmation page */ }
     }
 
