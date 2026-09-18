@@ -1,52 +1,59 @@
-# =============================================================================
-#  DOCUMENTATION ONLY - RENDER DOES NOT READ THIS FILE.
+# Sky Transfers — legacy URL redirects: A RECORD, NOT A LIVE CONFIG FILE
 #
-#  Editing this file has NO EFFECT on the live site. Render static sites
-#  ignore Netlify-style _redirects and serve this as a plain static asset
-#  (https://www.skytransfers.com.au/_redirects returns 200).
+# READ THIS BEFORE EDITING. Nothing in this file redirects anything.
+# The site is hosted on Render, which does not read _redirects — it serves it
+# as an ordinary static asset (GET /_redirects returns 200 with this text).
 #
-#  The redirects that actually run are configured ON THE SERVICE:
-#    Render dashboard -> sky-transfers-website -> Redirects/Rewrites
-#    https://dashboard.render.com/static/srv-daf2cj8u01pc738i3rug
-#  or via the API (GET/PUT /v1/services/{serviceId}/routes).
+# The rules that actually run are entered in the Render dashboard under the
+# sky-transfers-website service > Redirect/Rewrite Rules. Changing a line here
+# changes nothing on the site; change it there, then update this file to match
+# so the two do not drift.
 #
-#  Change them THERE. This file is kept only as a readable record.
-#  Last synced with the service configuration: 2026-09-18 (65 rules).
-# =============================================================================
+# This file is kept because it is the readable record of all 65 rules and why
+# each exists, which the dashboard has no room for.
 #
-# Order matters on the service: first match wins, so the two wildcards at the
-# bottom must stay last. The previous configuration had a single
-# /services/* -> /#services wildcard, which collapsed ~29 distinct service
-# pages into the homepage URL (Google discards fragments). Each now points at
-# a page that matches what the old URL was about.
+# Format below:  <source> <destination> <status>
+# Generated 2026-09-17 from a crawl of all 330 historical URLs on the domain.
+# Verified against the live site 2026-09-19: all 65 rules return 301 to the
+# destination shown.
+#
+# Rules are matched top to bottom, first match wins, so the exact paths come
+# before any wildcard. Fragments (#book, #fleet) are stripped by browsers and
+# ignored by crawlers — they are here only so a human landing on an old link
+# arrives at the right part of the page.
 
-# --- Legal ---
+# ---------------------------------------------------------------------------
+# Legal — these had no destination at all before
+# ---------------------------------------------------------------------------
 /privacy-policy-chauffeur-near-me/            /privacy.html     301
 /privacy-policy/                              /privacy.html     301
-/privacy-policy                               /privacy.html     301
 /privacy/                                     /privacy.html     301
 /terms-conditions-chauffeurs-in-brisbane/     /terms.html       301
 /terms-and-conditions/                        /terms.html       301
-/terms-and-conditions                         /terms.html       301
 /terms/                                       /terms.html       301
 
-# --- Airport transfer service pages ---
-/services/airport-transfers/                  /gold-coast-airport-transfers.html   301
-/services/airport-transfers-brisbane/         /brisbane-airport-transfers.html     301
-/services/airport-transfers-south-brisbane/   /brisbane-airport-transfers.html     301
-/services/airport-transfers-gold-coast/       /gold-coast-airport-transfers.html   301
+# ---------------------------------------------------------------------------
+# Service pages — 29 of these all redirected to /#services. The anchor is real,
+# but Google discards fragments, so all 29 collapsed to the homepage URL.
+# They now point at dedicated pages instead.
+# ---------------------------------------------------------------------------
+/services/                                    /prices.html      301
+/services/airport-transfers/                  /gold-coast-airport-transfers.html      301
+/services/airport-transfers-brisbane/         /brisbane-airport-transfers.html      301
+/services/airport-transfers-south-brisbane/   /brisbane-airport-transfers.html      301
+/services/airport-transfers-gold-coast/       /gold-coast-airport-transfers.html      301
 /services/airport-transfers-in-brisbane-and-gold-coast/  /brisbane-airport-to-gold-coast.html  301
-/services/airport-transfers-broadbeach/       /broadbeach-airport-transfers.html   301
-/services/airport-transfers-main-beach/       /main-beach-airport-transfers.html   301
-/services/airport-transfers-hope-island/      /gold-coast-airport-transfers.html   301
-/services/airport-transfers-surfers-paradise/ /gold-coast-airport-to-surfers-paradise.html  301
-/services/airport-transfers-hamilton/         /brisbane-airport-transfers.html     301
-/airport-transfers-brisbane/                  /brisbane-airport-transfers.html     301
-/airport-car-hire-in-south-brisbane/          /brisbane-airport-transfers.html     301
-/services-chauffeur-gold-coast/               /gold-coast-airport-transfers.html   301
-/chauffeur-car-hire/                          /gold-coast-airport-transfers.html   301
+/services/airport-transfers-broadbeach/       /broadbeach-airport-transfers.html      301
+/services/airport-transfers-main-beach/       /main-beach-airport-transfers.html      301
+/services/airport-transfers-hope-island/      /gold-coast-airport-transfers.html      301
+/services/airport-transfers-surfers-paradise/ /gold-coast-airport-to-surfers-paradise.html      301
+/services/airport-transfers-hamilton/         /brisbane-airport-transfers.html      301
+/airport-transfers-brisbane/                  /brisbane-airport-transfers.html      301
+/airport-car-hire-in-south-brisbane/          /brisbane-airport-transfers.html      301
+/services-chauffeur-gold-coast/               /gold-coast-airport-transfers.html      301
+/chauffeur-car-hire/                          /gold-coast-airport-transfers.html      301
 
-# --- Charters, group and occasion work ---
+# Charters, group and occasion work
 /services/coach-transfers/                    /charters.html    301
 /services/coach-hire-brisbane/                /charters.html    301
 /services/coach-hire-gold-coast/              /charters.html    301
@@ -58,47 +65,65 @@
 /services/toyota-hiace-commuter-hire/         /charters.html    301
 /services/stretch-hummer-hire/                /charters.html    301
 /services/day-tours/                          /charters.html    301
-/services/as-directed/                        /charters.html    301
-/as-directed/                                 /charters.html    301
-/services/event-transfer/                     /charters.html    301
-/services/event-transfers/                    /charters.html    301
-
-# --- Occasion pages with a dedicated destination ---
 /services/wedding-transfer/                   /wedding-transfers.html    301
 /services/wedding-transfers/                  /wedding-transfers.html    301
-/services/cruise-transfer/                    /cruise-transfers.html     301
-/services/cruise-transfers/                   /cruise-transfers.html     301
-/services/theme-parks-transfer/               /theme-park-transfers.html 301
-/services/theme-parks-transfers/              /theme-park-transfers.html 301
-/gold-coast-theme-park-transfers/             /theme-park-transfers.html 301
-/services/corporate-transfer/                 /corporate-transfers.html  301
-/services/corporate-transfers/                /corporate-transfers.html  301
-/services/vip-transfer/                       /corporate-transfers.html  301
-/services/vip-transfers/                      /corporate-transfers.html  301
+/services/event-transfer/                     /charters.html    301
+/services/event-transfers/                    /charters.html    301
+/services/cruise-transfer/                    /cruise-transfers.html    301
+/services/cruise-transfers/                   /cruise-transfers.html    301
+/services/theme-parks-transfer/               /theme-park-transfers.html    301
+/services/theme-parks-transfers/              /theme-park-transfers.html    301
+/gold-coast-theme-park-transfers/             /theme-park-transfers.html    301
+/services/as-directed/                        /charters.html    301
+/as-directed/                                 /charters.html    301
 
-# --- Navigation and conversion pages ---
+# Corporate, VIP and trade
+/services/corporate-transfer/                 /corporate-transfers.html    301
+/services/corporate-transfers/                /corporate-transfers.html    301
+/services/vip-transfer/                       /corporate-transfers.html    301
+/services/vip-transfers/                      /corporate-transfers.html    301
+
+# Navigation and conversion pages
 /our-fleet/                                   /#fleet           301
-/our-fleet                                    /#fleet           301
 /fleet-cheap-car-rental/                      /#fleet           301
 /about-us/                                    /                 301
-/about-us                                     /                 301
 /about-car-hire/                              /                 301
 /contact-us/                                  /                 301
-/contact-us                                   /                 301
 /contact-for-chauffeur/                       /                 301
 /book-your-chauffeur-now/                     /#book            301
 /book-airport-transfers-online-brisbane-goldcoast/  /#book      301
 /blog/                                        /                 301
-/blog                                         /                 301
 /thank-you/                                   /                 301
 /home-copy/                                   /                 301
 
-# --- Wildcards. These MUST stay last. ---
-/services/*                                   /prices.html      301
-/category/*                                   /                 301
+# ---------------------------------------------------------------------------
+# Variants without a trailing slash (the old site served both)
+# ---------------------------------------------------------------------------
+/about-us                                     /                 301
+/contact-us                                   /                 301
+/our-fleet                                    /#fleet           301
+/book-airport-transfers-online-brisbane-goldcoast  /#book       301
+/blog                                         /                 301
+/privacy-policy                               /privacy.html     301
+/terms-and-conditions                         /terms.html       301
 
-# Deliberately NOT redirected: 122 thin legacy blog posts are left to 404.
-# Bulk-redirecting unrelated posts to the homepage reads as a soft 404, passes
-# no value, and dilutes the homepage's topical signal. If Search Console later
-# shows one holding real referring domains, add a targeted rule for that URL
-# above the wildcards - on the service, not in this file.
+# ---------------------------------------------------------------------------
+# Catch-all for any /services/ path not named above.
+# MUST stay last in this section — first match wins, so every explicit rule
+# above still takes precedence. This replaces the old wildcard, which sent
+# everything to /#services.
+# ---------------------------------------------------------------------------
+/services/*                                   /prices.html      301
+
+# ---------------------------------------------------------------------------
+# Deliberately NOT redirected
+# ---------------------------------------------------------------------------
+# 122 thin legacy blog posts (e.g.
+#   /why-every-celebrity-is-choosing-this-vip-transfer-in-gold-coast-and-you-should-too/)
+# are left to 404. Bulk-redirecting unrelated posts to the homepage is treated
+# by Google as a soft 404 — it passes no value and dilutes the homepage's topic
+# signal. If Search Console later shows one of them holding real referring
+# domains, add a single targeted rule for that URL above.
+#
+# The old WordPress paths (/wp-json/, /author/, /category/, /tag/, /*/feed/)
+# already 404 and are now disallowed in robots.txt, so no rules are needed here.
