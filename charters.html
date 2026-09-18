@@ -14,7 +14,7 @@
 <meta property="og:description" content="Private Mercedes Sprinter, V-Class and 53-seat coach charters for weddings, corporate groups, cruise transfers and tours across the Gold Coast, Brisbane and Byron Bay.">
 <meta property="og:url" content="https://www.skytransfers.com.au/charters.html">
 <meta property="og:locale" content="en_AU">
-<meta property="og:image" content="https://www.skytransfers.com.au/social-card.jpg">
+<meta property="og:image" content="https://www.skytransfers.com.au/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -40,22 +40,37 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Sprinter and coach charters",
-  "serviceType": "Private group charter",
-  "url": "https://www.skytransfers.com.au/charters.html",
-  "areaServed": [
-    {"@type": "City", "name": "Gold Coast"},
-    {"@type": "City", "name": "Brisbane"},
-    {"@type": "City", "name": "Byron Bay"}
-  ],
-  "provider": {
-    "@type": "Organization",
-    "name": "Sky Transfers",
-    "url": "https://www.skytransfers.com.au/",
-    "telephone": "+61481437772",
-    "email": "info@skytransfers.com.au"
-  }
+  "@graph": [
+    {
+      "@type": "Service",
+      "@id": "https://www.skytransfers.com.au/charters.html#service",
+      "name": "Sprinter and coach charters",
+      "serviceType": "Private group charter",
+      "url": "https://www.skytransfers.com.au/charters.html",
+      "provider": {"@id": "https://www.skytransfers.com.au/#business"},
+      "areaServed": [
+        {"@type": "City", "name": "Gold Coast"},
+        {"@type": "City", "name": "Brisbane"},
+        {"@type": "City", "name": "Byron Bay"}
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Charter vehicles",
+        "itemListElement": [
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Mercedes V-Class charter"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Mercedes Sprinter 15-seater charter"}},
+          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "53-seat coach charter"}}
+        ]
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.skytransfers.com.au/"},
+        {"@type": "ListItem", "position": 2, "name": "Charters", "item": "https://www.skytransfers.com.au/charters.html"}
+      ]
+    }
+  ]
 }
 </script>
 </head>
@@ -334,6 +349,10 @@
   @media (max-width:600px){.qform .row,.qform .row3{grid-template-columns:1fr}}
   .cta.wa{background:#1EBE5D;color:#fff}
   .cta.wa:hover{background:#25D366;color:#0B3B22}
+  .foot-routes p{margin:0 0 6px}
+  .foot-legal{margin-top:4px}
+  .foot-legal p{margin:0 0 6px}
+  .foot-entity{color:var(--muted);font-size:13px;line-height:1.5;margin-top:10px}
 </style>
 
 <nav class="sitenav">
@@ -412,7 +431,7 @@
   <p class="kick">What are you planning?</p>
   <h2>One charter, everyone together</h2>
   <div class="why-grid">
-    <div class="why"><h3>Weddings</h3><p>Guest shuttles between ceremony, photos and reception, timed to the minute — from $120 per hour with a dedicated coordinator on the day.</p></div>
+    <div class="why"><h3>Weddings</h3><p>Guest shuttles between ceremony, photos and reception, timed to the minute — from $120 per hour with a dedicated coordinator on the day. <a href="/wedding-transfers.html">More on wedding transfers</a>.</p></div>
     <div class="why"><h3>Corporate &amp; conferences</h3><p>Delegate transfers, team offsites and roadshows with GST tax invoices, monthly billing for approved accounts, and NDAs on request.</p></div>
     <div class="why"><h3>Cruise groups</h3><p>Whole-group transfers to the Brisbane International Cruise Terminal — one coach instead of ten taxis, luggage trailer available.</p></div>
     <div class="why"><h3>Airport groups</h3><p>Sports teams, school trips and tour groups met inside arrivals with name boards, flights tracked, fixed prices per vehicle.</p></div>
@@ -505,6 +524,22 @@
       <p><a href="#quote">Get a charter quote</a></p>
       <p><a href="/">Airport transfers &amp; instant prices</a></p>
       <p><a href="https://www.google.com/maps?cid=9657905201752242057" target="_blank" rel="noopener">Review us on Google</a></p>
+    </div>
+    <div class="foot-routes">
+      <p><a href="/gold-coast-airport-transfers.html">Gold Coast Airport transfers</a></p>
+      <p><a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a></p>
+      <p><a href="/brisbane-airport-to-gold-coast.html">Brisbane Airport to Gold Coast</a></p>
+      <p><a href="/gold-coast-airport-to-surfers-paradise.html">Airport to Surfers Paradise</a></p>
+      <p><a href="/theme-park-transfers.html">Theme park transfers</a></p>
+      <p><a href="/cruise-transfers.html">Brisbane Cruise Terminal</a></p>
+      <p><a href="/byron-bay-transfers.html">Byron Bay transfers</a></p>
+      <p><a href="/corporate-transfers.html">Corporate transfers</a></p>
+      <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
+    </div>
+    <div class="foot-legal">
+      <p><a href="/privacy.html">Privacy policy</a></p>
+      <p><a href="/terms.html">Terms &amp; conditions</a></p>
+      <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>
     </div>
   </div>
 </footer>
