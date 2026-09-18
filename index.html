@@ -14,7 +14,7 @@
 <meta property="og:description" content="Fixed-price chauffeur airport transfers to and from Gold Coast (OOL) and Brisbane (BNE) airports. Every suburb priced up-front, meet &amp; greet, flight tracking, 1-15 passengers, 24/7.">
 <meta property="og:url" content="https://www.skytransfers.com.au/">
 <meta property="og:locale" content="en_AU">
-<meta property="og:image" content="https://www.skytransfers.com.au/social-card.jpg">
+<meta property="og:image" content="https://www.skytransfers.com.au/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -41,6 +41,7 @@
 {
   "@context": "https://schema.org",
   "@type": "TaxiService",
+  "@id": "https://www.skytransfers.com.au/#business",
   "name": "Sky Transfers",
   "alternateName": "Australia Wide Car Services Pty Ltd trading as Sky Transfers",
   "url": "https://www.skytransfers.com.au/",
@@ -49,6 +50,10 @@
   "priceRange": "$$",
   "currenciesAccepted": "AUD",
   "paymentAccepted": "Visa, Mastercard, American Express, Apple Pay, Google Pay, Invoice",
+  "image": "https://www.skytransfers.com.au/logo.png",
+  "logo": "https://www.skytransfers.com.au/logo.png",
+  "hasMap": "https://www.google.com/maps?cid=9657905201752242057",
+  "sameAs": ["https://www.google.com/maps?cid=9657905201752242057"],
   "openingHoursSpecification": {
     "@type": "OpeningHoursSpecification",
     "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
@@ -58,10 +63,19 @@
   "areaServed": [
     {"@type": "City", "name": "Gold Coast"},
     {"@type": "City", "name": "Brisbane"},
+    {"@type": "City", "name": "Byron Bay"},
+    {"@type": "City", "name": "Tweed Heads"},
+    {"@type": "City", "name": "Toowoomba"},
+    {"@type": "AdministrativeArea", "name": "Sunshine Coast"},
     {"@type": "AdministrativeArea", "name": "Logan"},
     {"@type": "AdministrativeArea", "name": "Ipswich"},
     {"@type": "AdministrativeArea", "name": "Redlands"}
   ],
+  "serviceArea": {
+    "@type": "GeoCircle",
+    "geoMidpoint": {"@type": "GeoCoordinates", "latitude": -27.9333, "longitude": 153.3667},
+    "geoRadius": "200000"
+  },
   "serviceType": [
     "Airport transfer",
     "Chauffeur service",
@@ -69,10 +83,26 @@
     "Private day tour",
     "Group charter"
   ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Airport transfers and charters",
+    "itemListElement": [
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Gold Coast Airport (OOL) transfers"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Brisbane Airport (BNE) transfers"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Brisbane International Cruise Terminal transfers"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Theme park transfers"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Sprinter and coach charters"}}
+    ]
+  },
   "provider": {
     "@type": "Organization",
-    "name": "Sky Transfers",
+    "@id": "https://www.skytransfers.com.au/#organization",
+    "name": "Australia Wide Car Services Pty Ltd",
+    "alternateName": "Sky Transfers",
+    "url": "https://www.skytransfers.com.au/",
+    "logo": "https://www.skytransfers.com.au/logo.png",
     "telephone": "+61481437772",
+    "email": "info@skytransfers.com.au",
     "sameAs": ["https://www.google.com/maps?cid=9657905201752242057"]
   }
 }
@@ -359,6 +389,16 @@
   .foot-in a:hover{text-decoration:underline}
   .foot-in .fbrand{font-family:"Marcellus",Georgia,serif;font-size:18px;letter-spacing:.06em;margin-bottom:6px}
   .foot-in p{margin:0 0 6px;opacity:.85}
+  .route-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:11px;margin-top:6px}
+  .route-cards a{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow)}
+  .route-cards a:hover{border-color:var(--gold)}
+  .route-cards strong{display:block;font-size:15.5px;margin-bottom:3px}
+  .route-cards span{display:block;font-size:13.5px;color:var(--muted)}
+  .foot-routes p{margin:0 0 6px}
+  .foot-legal{margin-top:4px}
+  .foot-legal p{margin:0 0 6px}
+  .foot-entity{color:var(--muted);font-size:13px;line-height:1.5;margin-top:10px}
 </style>
 
 
@@ -996,7 +1036,7 @@ function bookingPayload(){
    said: last-minute goes to the phone.
    Brisbane is UTC+10 year round with no daylight saving, so the pick-up the
    guest types is converted to an absolute instant with fixed arithmetic
-   rather than read off the browser's clock â otherwise a traveller booking
+   rather than read off the browser's clock — otherwise a traveller booking
    from London or Singapore is validated against their own midnight. */
 var MIN_LEAD_HOURS = 6;
 var BNE_OFFSET_MS = 10 * 3600 * 1000;
@@ -1011,9 +1051,9 @@ function leadTimeError(){
   if(when === null) return null;               /* let `required` do its job */
   var hours = (when - Date.now()) / 3600000;
   if(hours >= MIN_LEAD_HOURS) return null;
-  if(hours < 0) return "That pick-up time has already passed â please pick a later one.";
+  if(hours < 0) return "That pick-up time has already passed — please pick a later one.";
   return "Online bookings need " + MIN_LEAD_HOURS + " hours' notice (Brisbane time). " +
-         "For a pick-up sooner than that call +61 481 437 772 â we take same-day transfers whenever a vehicle is free.";
+         "For a pick-up sooner than that call +61 481 437 772 — we take same-day transfers whenever a vehicle is free.";
 }
 function refreshLeadTime(){
   var msg = leadTimeError(), warn = $("lead-warn");
@@ -1132,8 +1172,32 @@ function buildRequest(){
   <p class="kick">The fleet</p>
   <h2>The right vehicle for every group</h2>
   <p class="lead">From a solo business trip to a 15-person tour group with golf bags — one booking, one fixed price per vehicle, never per person.</p>
-  <div class="fleet-grid" id="fleet-grid"></div>
+  <div class="fleet-grid" id="fleet-grid">
+    <div class="fleet-card"><span class="veh-art" data-veh="0"></span><h3>Sedan</h3><p>1&ndash;3 passengers &middot; 2 large bags. Business trips and couples.</p><div class="from">from $80</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="1"></span><h3>SUV</h3><p>1&ndash;4 passengers &middot; 4 bags. Extra room and comfort.</p><div class="from">from $90</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="2"></span><h3>Luxury Minivan</h3><p>1&ndash;7 passengers &middot; 6 bags. Families and small groups.</p><div class="from">from $105</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="3"></span><h3>Mercedes Sprinter 10-Seater</h3><p>Up to 10 passengers &middot; 11 bags. Crews and tour groups.</p><div class="from">from $150</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="4"></span><h3>Mercedes Sprinter 15-Seater</h3><p>Up to 15 passengers &middot; 16 bags. One vehicle for the whole party.</p><div class="from">from $220</div></div>
+  </div>
   <p style="margin:16px 0 0;font-size:14px;color:var(--muted)">Also in the Sky Transfers family: Mercedes V-Class people movers, Mercedes Sprinter mini buses and a King Long 53-seat luxury coach — <a href="tel:+61481437772" style="color:var(--gold-deep);font-weight:600">call for a coach or group quote</a>.</p>
+</section>
+
+<section class="block" id="routes">
+  <p class="kick">Popular routes</p>
+  <h2>The runs we do most, priced in full</h2>
+  <p class="lead">Every one of these has its own page with the fare for each vehicle, the drive time, and what to expect at the airport.</p>
+  <div class="route-cards">
+    <a href="/gold-coast-airport-transfers.html"><strong>Gold Coast Airport transfers</strong><span>74 suburbs, from $80</span></a>
+    <a href="/brisbane-airport-transfers.html"><strong>Brisbane Airport transfers</strong><span>223 suburbs, from $85</span></a>
+    <a href="/brisbane-airport-to-gold-coast.html"><strong>Brisbane Airport &rarr; Gold Coast</strong><span>86 km M1, from $195</span></a>
+    <a href="/gold-coast-airport-to-surfers-paradise.html"><strong>Airport &rarr; Surfers Paradise</strong><span>28 minutes, $125</span></a>
+    <a href="/theme-park-transfers.html"><strong>Theme park transfers</strong><span>Movie World, Dreamworld, Sea World</span></a>
+    <a href="/cruise-transfers.html"><strong>Brisbane Cruise Terminal</strong><span>Your BNE fare plus $25</span></a>
+    <a href="/byron-bay-transfers.html"><strong>Byron Bay transfers</strong><span>From $220 via Gold Coast Airport</span></a>
+    <a href="/corporate-transfers.html"><strong>Corporate transfers</strong><span>Accounts, monthly invoicing</span></a>
+    <a href="/wedding-transfers.html"><strong>Wedding transfers</strong><span>Guest shuttles from $120/hr</span></a>
+    <a href="/charters.html"><strong>Sprinter &amp; coach charters</strong><span>Weddings, corporate, day tours</span></a>
+  </div>
 </section>
 
 <section class="block" id="areas">
@@ -1279,6 +1343,22 @@ function buildRequest(){
       <p><a href="/charters.html">Sprinter &amp; coach charters</a></p>
       <p><a href="https://www.google.com/maps?cid=9657905201752242057" target="_blank" rel="noopener">Review us on Google</a></p>
     </div>
+    <div class="foot-routes">
+      <p><a href="/gold-coast-airport-transfers.html">Gold Coast Airport transfers</a></p>
+      <p><a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a></p>
+      <p><a href="/brisbane-airport-to-gold-coast.html">Brisbane Airport to Gold Coast</a></p>
+      <p><a href="/gold-coast-airport-to-surfers-paradise.html">Airport to Surfers Paradise</a></p>
+      <p><a href="/theme-park-transfers.html">Theme park transfers</a></p>
+      <p><a href="/cruise-transfers.html">Brisbane Cruise Terminal</a></p>
+      <p><a href="/byron-bay-transfers.html">Byron Bay transfers</a></p>
+      <p><a href="/corporate-transfers.html">Corporate transfers</a></p>
+      <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
+    </div>
+    <div class="foot-legal">
+      <p><a href="/privacy.html">Privacy policy</a></p>
+      <p><a href="/terms.html">Terms &amp; conditions</a></p>
+      <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>
+    </div>
   </div>
 </footer>
 
@@ -1289,20 +1369,17 @@ function buildRequest(){
 </a>
 
 <script>
-/* fleet cards from the same vehicle data the booking engine uses */
+/* The fleet cards are server-rendered above so their names, capacities and
+   entry fares are in the HTML — readable by crawlers and by anyone whose JS
+   does not run. This only drops the vehicle artwork into each card, and the
+   prices live in exactly one place (the markup) rather than two. */
 document.addEventListener("DOMContentLoaded", function(){
-  var data = [
-    {n:"Sedan", d:"1–3 passengers · 2 large bags. Business trips and couples.", f:"from $80"},
-    {n:"SUV", d:"1–4 passengers · 4 bags. Extra room and comfort.", f:"from $90"},
-    {n:"Luxury Minivan", d:"1–7 passengers · 6 bags. Families and small groups.", f:"from $105"},
-    {n:"Mercedes Sprinter 10-Seater", d:"Up to 10 passengers · 11 bags. Crews and tour groups.", f:"from $150"},
-    {n:"Mercedes Sprinter 15-Seater", d:"Up to 15 passengers · 16 bags. One vehicle for the whole party.", f:"from $220"}
-  ];
-  var g = document.getElementById("fleet-grid");
-  if(!g || typeof VEH_SVG === "undefined") return;
-  g.innerHTML = data.map(function(v,i){
-    return "<div class='fleet-card'><span class='veh-art'>"+VEH_SVG[i]+"</span><h3>"+v.n+"</h3><p>"+v.d+"</p><div class='from'>"+v.f+"</div></div>";
-  }).join("");
+  if (typeof VEH_SVG === "undefined") return;
+  var slots = document.querySelectorAll("#fleet-grid .veh-art");
+  Array.prototype.forEach.call(slots, function(slot){
+    var i = parseInt(slot.getAttribute("data-veh"), 10);
+    if (!isNaN(i) && VEH_SVG[i]) slot.innerHTML = VEH_SVG[i];
+  });
 });
 
 /* ---- Google Places address autocomplete (graceful: plain input if unavailable) ---- */
@@ -1325,12 +1402,35 @@ window.initGPlaces = function(){
     });
   }catch(e){}
 };
+/* Places is ~300KB of JS for one address field, so it is not loaded on page
+   load. The address input lives in step 2 of the booking card and is hidden
+   until then, so we warm Places on the first interaction with the booking
+   widget — by the time the user reaches the address step it is ready, and a
+   visitor who never touches the form never pays for it. Falls back to a plain
+   text input if the load fails or never triggers. */
 if (typeof GMAPS_KEY !== "undefined" && GMAPS_KEY) {
-  var gs = document.createElement("script");
-  gs.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GMAPS_KEY) + "&libraries=places&callback=initGPlaces&loading=async&region=AU";
-  gs.async = true;
-  gs.onerror = function(){ /* autocomplete unavailable; field stays a normal input */ };
-  document.head.appendChild(gs);
+  (function(){
+    var requested = false;
+    function loadPlaces(){
+      if (requested) return;
+      requested = true;
+      var gs = document.createElement("script");
+      gs.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(GMAPS_KEY) + "&libraries=places&callback=initGPlaces&loading=async&region=AU";
+      gs.async = true;
+      gs.onerror = function(){ /* autocomplete unavailable; field stays a normal input */ };
+      document.head.appendChild(gs);
+    }
+    var widget = document.getElementById("book") || document.getElementById("book-form");
+    if (widget) {
+      widget.addEventListener("pointerdown", loadPlaces);
+      widget.addEventListener("focusin", loadPlaces);
+      widget.addEventListener("change", loadPlaces);
+    }
+    /* Safety net: any focus on the address field itself, however it is reached. */
+    document.addEventListener("focusin", function(e){
+      if (e.target && e.target.id === "bf-addr") loadPlaces();
+    });
+  })();
 }
 
 </script>
