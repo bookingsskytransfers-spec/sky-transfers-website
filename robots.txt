@@ -4,4 +4,13 @@ Disallow: /booking-confirmed.html
 Disallow: /agent.html
 Disallow: /admin.html
 
+# Legacy WordPress paths — no longer served, no value in crawling
+Disallow: /wp-admin/
+Disallow: /wp-json/
+Disallow: /author/
+Disallow: /category/
+Disallow: /tag/
+Disallow: /*/feed/
+Disallow: /*/embed/
+
 Sitemap: https://www.skytransfers.com.au/sitemap.xml
