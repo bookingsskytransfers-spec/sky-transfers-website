@@ -1,15 +1,96 @@
-/about-us/ / 301
-/about-us / 301
-/contact-us/ / 301
-/contact-us / 301
-/our-fleet/ /#fleet 301
-/our-fleet /#fleet 301
-/book-airport-transfers-online-brisbane-goldcoast/ /#book 301
-/book-airport-transfers-online-brisbane-goldcoast /#book 301
-/services/airport-transfers-in-brisbane-and-gold-coast/ /#book 301
-/services/airport-transfers-gold-coast/ /#book 301
-/services/event-transfers/ /#services 301
-/services/vip-transfers/ /#services 301
-/services/mini-bus-hire-gold-coast/ /charters.html 301
-/services/coach-hire-gold-coast/ /charters.html 301
-/services/* /#services 301
+# Sky Transfers - legacy URL redirects
+# Format: <source> <destination> <status>. First match wins, so the explicit
+# rules below must stay above the /services/* catch-all at the bottom.
+#
+# Fragments (#book, #fleet) are stripped by browsers and ignored by crawlers;
+# they are here only so a person landing on an old link arrives at the right
+# part of the page.
+
+# --- Legal (these had no destination at all before) ---
+/privacy-policy-chauffeur-near-me/            /privacy.html     301
+/privacy-policy/                              /privacy.html     301
+/privacy/                                     /privacy.html     301
+/terms-conditions-chauffeurs-in-brisbane/     /terms.html       301
+/terms-and-conditions/                        /terms.html       301
+/terms/                                       /terms.html       301
+
+# --- Airport transfer service pages -> dedicated landing pages ---
+/services/                                    /prices.html      301
+/services/airport-transfers/                  /gold-coast-airport-transfers.html   301
+/services/airport-transfers-brisbane/         /brisbane-airport-transfers.html     301
+/services/airport-transfers-south-brisbane/   /brisbane-airport-transfers.html     301
+/services/airport-transfers-gold-coast/       /gold-coast-airport-transfers.html   301
+/services/airport-transfers-in-brisbane-and-gold-coast/  /brisbane-airport-to-gold-coast.html  301
+/services/airport-transfers-broadbeach/       /broadbeach-airport-transfers.html   301
+/services/airport-transfers-main-beach/       /main-beach-airport-transfers.html   301
+/services/airport-transfers-hope-island/      /gold-coast-airport-transfers.html   301
+/services/airport-transfers-surfers-paradise/ /gold-coast-airport-to-surfers-paradise.html  301
+/services/airport-transfers-hamilton/         /brisbane-airport-transfers.html     301
+/airport-transfers-brisbane/                  /brisbane-airport-transfers.html     301
+/airport-car-hire-in-south-brisbane/          /brisbane-airport-transfers.html     301
+/services-chauffeur-gold-coast/               /gold-coast-airport-transfers.html   301
+/chauffeur-car-hire/                          /gold-coast-airport-transfers.html   301
+
+# --- Charters, group and occasion work ---
+/services/coach-transfers/                    /charters.html    301
+/services/coach-hire-brisbane/                /charters.html    301
+/services/coach-hire-gold-coast/              /charters.html    301
+/services/goldcoast-bus-hire-and-charter/     /charters.html    301
+/services/brisbane-bus-charters-2026/         /charters.html    301
+/services/mini-bus-hire-brisbane/             /charters.html    301
+/services/mini-bus-hire-gold-coast/           /charters.html    301
+/services/mercedes-benz-sprinter-van-hire/    /charters.html    301
+/services/toyota-hiace-commuter-hire/         /charters.html    301
+/services/stretch-hummer-hire/                /charters.html    301
+/services/day-tours/                          /charters.html    301
+/services/as-directed/                        /charters.html    301
+/as-directed/                                 /charters.html    301
+/services/event-transfer/                     /charters.html    301
+/services/event-transfers/                    /charters.html    301
+
+# --- Occasion pages with their own destination now ---
+/services/wedding-transfer/                   /wedding-transfers.html   301
+/services/wedding-transfers/                  /wedding-transfers.html   301
+/services/cruise-transfer/                    /cruise-transfers.html    301
+/services/cruise-transfers/                   /cruise-transfers.html    301
+/services/theme-parks-transfer/               /theme-park-transfers.html  301
+/services/theme-parks-transfers/              /theme-park-transfers.html  301
+/gold-coast-theme-park-transfers/             /theme-park-transfers.html  301
+/services/corporate-transfer/                 /corporate-transfers.html  301
+/services/corporate-transfers/                /corporate-transfers.html  301
+/services/vip-transfer/                       /corporate-transfers.html  301
+/services/vip-transfers/                      /corporate-transfers.html  301
+
+# --- Navigation and conversion pages ---
+/our-fleet/                                   /#fleet           301
+/fleet-cheap-car-rental/                      /#fleet           301
+/about-us/                                    /                 301
+/about-car-hire/                              /                 301
+/contact-us/                                  /                 301
+/contact-for-chauffeur/                       /                 301
+/book-your-chauffeur-now/                     /#book            301
+/book-airport-transfers-online-brisbane-goldcoast/  /#book      301
+/blog/                                        /                 301
+/thank-you/                                   /                 301
+/home-copy/                                   /                 301
+
+# --- Variants without a trailing slash (the old site served both) ---
+/about-us                                     /                 301
+/contact-us                                   /                 301
+/our-fleet                                    /#fleet           301
+/book-airport-transfers-online-brisbane-goldcoast  /#book       301
+/blog                                         /                 301
+/privacy-policy                               /privacy.html     301
+/terms-and-conditions                         /terms.html       301
+
+# --- Catch-all for any /services/ path not named above.
+#     MUST stay last: first match wins, so every explicit rule above still
+#     takes precedence. Replaces the old wildcard, which sent everything to
+#     /#services. ---
+/services/*                                   /prices.html      301
+
+# Deliberately NOT redirected: 122 thin legacy blog posts are left to 404.
+# Bulk-redirecting unrelated posts to the homepage is treated as a soft 404,
+# passes no value, and dilutes the homepage's topical signal. If Search
+# Console later shows one holding real referring domains, add a targeted rule
+# for that URL above the catch-all.
