@@ -1,21 +1,36 @@
-# Sky Transfers - legacy URL redirects
-# Format: <source> <destination> <status>. First match wins, so the explicit
-# rules below must stay above the /services/* catch-all at the bottom.
+# =============================================================================
+#  DOCUMENTATION ONLY - RENDER DOES NOT READ THIS FILE.
 #
-# Fragments (#book, #fleet) are stripped by browsers and ignored by crawlers;
-# they are here only so a person landing on an old link arrives at the right
-# part of the page.
+#  Editing this file has NO EFFECT on the live site. Render static sites
+#  ignore Netlify-style _redirects and serve this as a plain static asset
+#  (https://www.skytransfers.com.au/_redirects returns 200).
+#
+#  The redirects that actually run are configured ON THE SERVICE:
+#    Render dashboard -> sky-transfers-website -> Redirects/Rewrites
+#    https://dashboard.render.com/static/srv-daf2cj8u01pc738i3rug
+#  or via the API (GET/PUT /v1/services/{serviceId}/routes).
+#
+#  Change them THERE. This file is kept only as a readable record.
+#  Last synced with the service configuration: 2026-09-18 (65 rules).
+# =============================================================================
+#
+# Order matters on the service: first match wins, so the two wildcards at the
+# bottom must stay last. The previous configuration had a single
+# /services/* -> /#services wildcard, which collapsed ~29 distinct service
+# pages into the homepage URL (Google discards fragments). Each now points at
+# a page that matches what the old URL was about.
 
-# --- Legal (these had no destination at all before) ---
+# --- Legal ---
 /privacy-policy-chauffeur-near-me/            /privacy.html     301
 /privacy-policy/                              /privacy.html     301
+/privacy-policy                               /privacy.html     301
 /privacy/                                     /privacy.html     301
 /terms-conditions-chauffeurs-in-brisbane/     /terms.html       301
 /terms-and-conditions/                        /terms.html       301
+/terms-and-conditions                         /terms.html       301
 /terms/                                       /terms.html       301
 
-# --- Airport transfer service pages -> dedicated landing pages ---
-/services/                                    /prices.html      301
+# --- Airport transfer service pages ---
 /services/airport-transfers/                  /gold-coast-airport-transfers.html   301
 /services/airport-transfers-brisbane/         /brisbane-airport-transfers.html     301
 /services/airport-transfers-south-brisbane/   /brisbane-airport-transfers.html     301
@@ -48,14 +63,14 @@
 /services/event-transfer/                     /charters.html    301
 /services/event-transfers/                    /charters.html    301
 
-# --- Occasion pages with their own destination now ---
-/services/wedding-transfer/                   /wedding-transfers.html   301
-/services/wedding-transfers/                  /wedding-transfers.html   301
-/services/cruise-transfer/                    /cruise-transfers.html    301
-/services/cruise-transfers/                   /cruise-transfers.html    301
-/services/theme-parks-transfer/               /theme-park-transfers.html  301
-/services/theme-parks-transfers/              /theme-park-transfers.html  301
-/gold-coast-theme-park-transfers/             /theme-park-transfers.html  301
+# --- Occasion pages with a dedicated destination ---
+/services/wedding-transfer/                   /wedding-transfers.html    301
+/services/wedding-transfers/                  /wedding-transfers.html    301
+/services/cruise-transfer/                    /cruise-transfers.html     301
+/services/cruise-transfers/                   /cruise-transfers.html     301
+/services/theme-parks-transfer/               /theme-park-transfers.html 301
+/services/theme-parks-transfers/              /theme-park-transfers.html 301
+/gold-coast-theme-park-transfers/             /theme-park-transfers.html 301
 /services/corporate-transfer/                 /corporate-transfers.html  301
 /services/corporate-transfers/                /corporate-transfers.html  301
 /services/vip-transfer/                       /corporate-transfers.html  301
@@ -63,34 +78,27 @@
 
 # --- Navigation and conversion pages ---
 /our-fleet/                                   /#fleet           301
+/our-fleet                                    /#fleet           301
 /fleet-cheap-car-rental/                      /#fleet           301
 /about-us/                                    /                 301
+/about-us                                     /                 301
 /about-car-hire/                              /                 301
 /contact-us/                                  /                 301
+/contact-us                                   /                 301
 /contact-for-chauffeur/                       /                 301
 /book-your-chauffeur-now/                     /#book            301
 /book-airport-transfers-online-brisbane-goldcoast/  /#book      301
 /blog/                                        /                 301
+/blog                                         /                 301
 /thank-you/                                   /                 301
 /home-copy/                                   /                 301
 
-# --- Variants without a trailing slash (the old site served both) ---
-/about-us                                     /                 301
-/contact-us                                   /                 301
-/our-fleet                                    /#fleet           301
-/book-airport-transfers-online-brisbane-goldcoast  /#book       301
-/blog                                         /                 301
-/privacy-policy                               /privacy.html     301
-/terms-and-conditions                         /terms.html       301
-
-# --- Catch-all for any /services/ path not named above.
-#     MUST stay last: first match wins, so every explicit rule above still
-#     takes precedence. Replaces the old wildcard, which sent everything to
-#     /#services. ---
+# --- Wildcards. These MUST stay last. ---
 /services/*                                   /prices.html      301
+/category/*                                   /                 301
 
 # Deliberately NOT redirected: 122 thin legacy blog posts are left to 404.
-# Bulk-redirecting unrelated posts to the homepage is treated as a soft 404,
-# passes no value, and dilutes the homepage's topical signal. If Search
-# Console later shows one holding real referring domains, add a targeted rule
-# for that URL above the catch-all.
+# Bulk-redirecting unrelated posts to the homepage reads as a soft 404, passes
+# no value, and dilutes the homepage's topical signal. If Search Console later
+# shows one holding real referring domains, add a targeted rule for that URL
+# above the wildcards - on the service, not in this file.
