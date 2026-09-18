@@ -348,6 +348,8 @@
   .foot-legal{margin-top:4px}
   .foot-legal p{margin:0 0 6px}
   .foot-entity{color:var(--muted);font-size:13px;line-height:1.5;margin-top:10px}
+  .snip{width:100%;margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12.5px;line-height:1.5;resize:vertical;background:var(--ground)}
 
 </style>
 <nav class="sitenav">
@@ -462,6 +464,42 @@
   </p>
 </section>
 
+<section class="block" id="link-to-us">
+  <p class="kick">For partners with a website</p>
+  <h2>Tell your guests who is driving them</h2>
+  <p class="lead">
+    If you already book us, you are welcome to say so on your own site — a “getting here”
+    page, a supplier list, a booking confirmation. Copy any of these straight in. It changes
+    nothing about your commission or your account, and it is not a condition of either.
+  </p>
+
+  <div class="why-grid">
+    <div class="why">
+      <h3>One line, for a “getting here” page</h3>
+      <p>The smallest version. Drop it under your directions or parking information.</p>
+      <textarea class="snip" rows="4" readonly aria-label="One-line HTML snippet">Airport transfers: &lt;a href="https://www.skytransfers.com.au/"&gt;Sky Transfers&lt;/a&gt; — fixed prices to every Gold Coast and Brisbane suburb, GST and tolls included, 24/7.</textarea>
+    </div>
+    <div class="why">
+      <h3>A short paragraph, for a suppliers page</h3>
+      <p>For wedding venues, conference organisers and anyone listing who they work with.</p>
+      <textarea class="snip" rows="5" readonly aria-label="Paragraph HTML snippet">&lt;p&gt;We use &lt;a href="https://www.skytransfers.com.au/"&gt;Sky Transfers&lt;/a&gt; for guest airport transfers. Every fare is published by suburb before you book, flights are tracked, and changes are free up to 24 hours before pick-up.&lt;/p&gt;</textarea>
+    </div>
+    <div class="why">
+      <h3>Plain text, for emails and booking systems</h3>
+      <p>Where HTML is not an option — confirmation emails, PMS templates, printed welcome packs.</p>
+      <textarea class="snip" rows="4" readonly aria-label="Plain text snippet">Airport transfers — Sky Transfers, https://www.skytransfers.com.au/ or +61 481 437 772. Fixed prices to every Gold Coast and Brisbane suburb, 24 hours a day.</textarea>
+    </div>
+  </div>
+
+  <p class="fine">
+    Want something else — your own suburb's actual fare, a particular vehicle, or wording that
+    matches your house style? Email
+    <a href="mailto:info@skytransfers.com.au?subject=Wording%20for%20our%20website">info@skytransfers.com.au</a>
+    and we will write it for you. We will not ask you to link to us in exchange for anything,
+    and nothing here affects your rate.
+  </p>
+</section>
+
 <div class="agents-band">
   <h2>Ready when you are</h2>
   <p>
@@ -534,6 +572,11 @@
     if (href.indexOf("tel:") === 0) track("contact_phone", {method: "phone"});
     else if (href.indexOf("https://wa.me/") === 0) track("contact_whatsapp", {method: "whatsapp"});
     else if (href.indexOf("mailto:") === 0) track("contact_email", {method: "email"});
+  });
+  /* Select a snippet's whole contents on first click — partners copy these,
+     they never edit them. */
+  document.querySelectorAll("textarea.snip").forEach(function(t){
+    t.addEventListener("focus", function(){ t.select(); });
   });
 })();
 </script>
