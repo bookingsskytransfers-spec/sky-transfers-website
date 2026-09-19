@@ -973,6 +973,20 @@ function syncAddr(){
 attachAC("pu", "pu-list", function(p, addr){ state.pu = p; state.puAddr = addr || null; syncAddr(); refresh(); });
 attachAC("do", "do-list", function(p, addr){ state.dro = p; state.droAddr = addr || null; syncAddr(); refresh(); });
 
+/* Deep links from the per-suburb pages (/airport-transfers/<suburb>.html):
+   /?pu=Southport&do=Brisbane%20Airport%20(BNE)#book lands with both ends
+   filled and the fares already on screen. Only names from PLACES are
+   accepted, so a doctored URL can never put an unpriced place into the form. */
+(function(){
+  try {
+    var q = new URLSearchParams(window.location.search);
+    var pu = q.get("pu"), dro = q.get("do");
+    if (pu && PLACES.indexOf(pu) !== -1) { $("pu").value = pu; state.pu = pu; }
+    if (dro && PLACES.indexOf(dro) !== -1) { $("do").value = dro; state.dro = dro; }
+    if (state.pu || state.dro) refresh();
+  } catch (e) {}
+})();
+
 $("swap").addEventListener("click", function(){
   var a = $("pu").value, b = $("do").value;
   $("pu").value = b; $("do").value = a;
@@ -1353,6 +1367,7 @@ function buildRequest(){
       <p><a href="/byron-bay-transfers.html">Byron Bay transfers</a></p>
       <p><a href="/corporate-transfers.html">Corporate transfers</a></p>
       <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
+      <p><a href="/airport-transfers/">Airport transfers by suburb</a></p>
     </div>
     <div class="foot-legal">
       <p><a href="/privacy.html">Privacy policy</a></p>
