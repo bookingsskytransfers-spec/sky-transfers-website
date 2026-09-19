@@ -9,13 +9,13 @@
 # changes nothing on the site; change it there, then update this file to match
 # so the two do not drift.
 #
-# This file is kept because it is the readable record of all 65 rules and why
+# This file is kept because it is the readable record of all 103 rules and why
 # each exists, which the dashboard has no room for.
 #
 # Format below:  <source> <destination> <status>
 # Generated 2026-09-17 from a crawl of all 330 historical URLs on the domain.
 # Verified against the live site 2026-09-19: all 65 rules return 301 to the
-# destination shown.
+# destination shown. 38 more added 2026-09-20 (see the last section).
 #
 # Rules are matched top to bottom, first match wins, so the exact paths come
 # before any wildcard. Fragments (#book, #fleet) are stripped by browsers and
@@ -114,16 +114,83 @@
 # everything to /#services.
 # ---------------------------------------------------------------------------
 /services/*                                   /prices.html      301
+/category/*                                   /                 301
+
+# ---------------------------------------------------------------------------
+# Legacy blog posts that still earn impressions — added 2026-09-20
+# ---------------------------------------------------------------------------
+# Search Console (28 days to 17 Sept) showed these 36 posts still appearing in
+# results while returning 404. Each goes to the landing page on ITS OWN topic,
+# never the homepage, so Google treats it as a real redirect rather than a
+# soft 404. The remaining ~90 thin posts with no impressions stay as 404s
+# (see the note at the end).
+
+# Brisbane Airport
+/brisbane-airport-transfer-service-seamless-travel-experience-guaranteed/        /brisbane-airport-transfers.html   301
+/airport-transfers-brisbane-your-gateway-to-comfortable-travel/                  /brisbane-airport-transfers.html   301
+/elevate-your-journey-hassle-free-brisbane-airport-transfers-with-sky-transfers/ /brisbane-airport-transfers.html   301
+/private-airport-transfers-brisbane-tailored-luxury-just-for-you/                /brisbane-airport-transfers.html   301
+/affordable-airport-transfers-in-brisbane-budget-friendly-options-for-every-traveller/  /brisbane-airport-transfers.html   301
+/how-to-book-the-perfect-airport-transfer-in-brisbane-a-step-by-step-guide/      /brisbane-airport-transfers.html   301
+
+# Gold Coast Airport
+/unlock-unmatched-comfort-with-gold-coast-airport-transfers/                     /gold-coast-airport-transfers.html 301
+/simplifying-your-travel-gold-coast-airport-transfers/                           /gold-coast-airport-transfers.html 301
+
+# Stretch limo, Sprinter, HiAce — all charter work
+/brisbanes-best-stretch-limousine-hire-top-rides-for-any-event/                  /charters.html   301
+/stretch-hummer-limo-hire-taking-brisbane-events-to-the-next-level/              /charters.html   301
+/stretch-hummer-limo-hire-a-complete-guide-to-glamorous-arrivals/                /charters.html   301
+/why-stretch-limo-hire-is-the-hottest-trend-for-events-in-gold-coast/            /charters.html   301
+/how-to-find-the-best-hiace-van-for-hire-near-you/                               /charters.html   301
+/how-to-plan-the-ultimate-road-trip-with-a-mercedes-sprinter-van-hire/           /charters.html   301
+/why-choose-mercedes-sprinter-van-hire-for-your-next-trip/                       /charters.html   301
+/what-you-need-to-know-before-hiring-a-mercedes-sprinter-minibus/                /charters.html   301
+/top-reasons-to-hire-a-toyota-hiace-for-your-next-road-trip-across-australia/    /charters.html   301
+
+# Corporate and VIP
+/top-benefits-of-choosing-corporate-airport-transfers-in-brisbane/               /corporate-transfers.html   301
+/why-brisbane-corporate-transfers-are-the-ultimate-choice-for-professionals/     /corporate-transfers.html   301
+/luxury-corporate-transfers-in-gold-coast-a-must-for-every-business-leader/      /corporate-transfers.html   301
+/simplify-business-trips-with-reliable-corporate-transfers-gold-coast/           /corporate-transfers.html   301
+/gold-coasts-best-kept-secret-vip-transfers-so-luxurious-youll-feel-like-royalty/ /corporate-transfers.html  301
+/this-vip-transfer-service-in-gold-coast-feels-like-a-private-jet-on-wheels/     /corporate-transfers.html   301
+
+# Cruise
+/comparing-different-options-for-cruise-transfers-in-brisbane-a-complete-review/ /cruise-transfers.html   301
+
+# Theme parks
+/best-theme-park-transfers-for-movie-world-dreamworld-sea-world/                 /theme-park-transfers.html   301
+/book-reliable-theme-park-transfers-for-a-stress-free-adventure/                 /theme-park-transfers.html   301
+/how-to-choose-the-best-gold-coast-transfers-to-theme-parks/                     /theme-park-transfers.html   301
+/stress-free-travel-best-theme-park-transfers-gold-coast-has-to-offer/           /theme-park-transfers.html   301
+/theme-park-transfers-made-easy-comfortable-safe-convenient/                     /theme-park-transfers.html   301
+/transfers-to-theme-parks-gold-coast-convenient-options-for-every-budget/        /theme-park-transfers.html   301
+/why-choose-private-theme-park-transfers-for-your-next-adventure/                /theme-park-transfers.html   301
+/your-ultimate-guide-to-hassle-free-theme-park-transfers/                        /theme-park-transfers.html   301
+
+# Weddings
+/luxury-wedding-car-hire-in-brisbane-adding-a-touch-of-opulence-to-your-celebration/       /wedding-transfers.html   301
+/wedding-car-hire-for-brisbanes-iconic-venues-making-a-grand-entrance-at-top-locations/    /wedding-transfers.html   301
+/the-role-of-wedding-car-hire-in-brisbane-why-its-more-than-just-transportation/           /wedding-transfers.html   301
+/how-to-book-the-perfect-wedding-bus-hire-in-brisbane/                                     /wedding-transfers.html   301
+
+# WordPress archives. robots.txt already disallows /tag/ and /author/, so
+# Googlebot never follows these; they exist so a human on an old link lands
+# somewhere useful instead of a 404.
+/tag/*                                        /                 301
+/author/*                                     /                 301
 
 # ---------------------------------------------------------------------------
 # Deliberately NOT redirected
 # ---------------------------------------------------------------------------
-# 122 thin legacy blog posts (e.g.
+# The remaining ~90 thin legacy blog posts (e.g.
 #   /why-every-celebrity-is-choosing-this-vip-transfer-in-gold-coast-and-you-should-too/)
 # are left to 404. Bulk-redirecting unrelated posts to the homepage is treated
 # by Google as a soft 404 — it passes no value and dilutes the homepage's topic
-# signal. If Search Console later shows one of them holding real referring
-# domains, add a single targeted rule for that URL above.
+# signal. If Search Console later shows one of them earning impressions or
+# holding real referring domains, add a single targeted rule for that URL to
+# the section above, pointed at the page on the same topic.
 #
-# The old WordPress paths (/wp-json/, /author/, /category/, /tag/, /*/feed/)
-# already 404 and are now disallowed in robots.txt, so no rules are needed here.
+# The old WordPress paths (/wp-json/, /category/, /*/feed/) already 404 and
+# are disallowed in robots.txt.
