@@ -766,7 +766,7 @@ const REGIONS = [
   {
     slug: 'ipswich-airport-transfers', name: 'Ipswich', zones: ['BW3', 'BW4', 'BW5'],
     title: 'Ipswich Airport Transfers | Fixed Fares to Brisbane Airport | Sky Transfers',
-    desc: 'Private chauffeur transfers between Ipswich, Springfield, Goodna, Ripley, Rosewood and Brisbane Airport. Fixed fares per vehicle from $165, tolls and GST included, pre-booked, any hour.',
+    desc: 'Private chauffeur transfers between Ipswich, Springfield, Goodna, Ripley, Rosewood and Brisbane Airport. Fixed fares per vehicle from $155, tolls and GST included, pre-booked, any hour.',
     h1: 'Ipswich airport transfers, fixed price',
     lead: 'Pre-booked chauffeur transfers between the Ipswich region and Brisbane Airport (BNE), priced by three fare bands: the Springfield and Goodna corridor, Ipswich city, and the towns west to Rosewood and Marburg. One fixed fare per vehicle, published below.',
     notes: [
