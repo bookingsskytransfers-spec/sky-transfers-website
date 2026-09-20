@@ -61,12 +61,18 @@ const OOL = 'Gold Coast Airport (OOL)';
 const BNE = 'Brisbane Airport (BNE)';
 
 const VEH = [
-  ['Sedan',          '1\u20133 passengers \u00b7 2 bags'],
-  ['SUV',            '1\u20134 passengers \u00b7 4 bags'],
-  ['Luxury Minivan', '1\u20137 passengers \u00b7 6 bags'],
-  ['Sprinter 10',    'up to 10 passengers \u00b7 11 bags'],
-  ['Sprinter 15',    'up to 15 passengers \u00b7 16 bags'],
+  ['Sedan',          '1–3 passengers · 2 bags'],
+  ['SUV',            '1–4 passengers · 4 bags'],
+  ['People Mover',   '1–7 passengers · 6 bags'],
+  ['Luxury Sedan',   '1–3 passengers · 2 bags'],
+  ['Luxury Minivan', '1–7 passengers · 6 bags'],
+  ['Sprinter 10',    'up to 10 passengers · 11 bags'],
+  ['Sprinter 14',    'up to 14 passengers · 15 bags'],
 ];
+/* The 18-seat mini coach is deliberately absent: it is quoted per job, so it
+   has no column in the rate tables. The fare notes point at /charters instead
+   of printing a "Quote" cell on all 373 generated pages, which would
+   contradict the published-fare promise the whole site is built on. */
 
 // measured distance/time; missing entries just drop the sentence that needs them
 let FACTS = {};
@@ -572,7 +578,7 @@ function suburbPage(p) {
   <div class="facts">
     <div class="fact"><span class="k">From</span><span class="v">$${p.from}</span><span class="s">Sedan, one way, to ${esc(primary.code)}</span></div>
     ${nearestFact}
-    <div class="fact"><span class="k">Vehicles</span><span class="v">1&ndash;15</span><span class="s">Sedan to Sprinter, one price each</span></div>
+    <div class="fact"><span class="k">Vehicles</span><span class="v">1&ndash;18</span><span class="s">Sedan to mini coach</span></div>
     <div class="fact"><span class="k">Changes</span><span class="v">Free</span><span class="s">Up to 24 hours before pick-up</span></div>
   </div>
 
@@ -598,6 +604,8 @@ ${rows}
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30.
     The cruise terminal fare is the Brisbane Airport fare plus $25.
+    Need more than 14 seats? The 18-seat mini coach and our 53-seat coach are quoted per job —
+    see <a href="/charters.html">charters</a>.
   </p>
 
   <h2>The drive from ${esc(p.name)}</h2>
@@ -853,10 +861,11 @@ ${rows}
     </table>
   </div>
   <p class="fare-note">
-    Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; Luxury Minivan 1&ndash;7 &middot; Sprinter 10 and 15 seats.
+    Sedan and Luxury Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; People Mover and Luxury Minivan 1&ndash;7 &middot; Sprinter 10 and 14 seats.
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals). Child seats $15 each, luggage trailer $30. The Brisbane Cruise Terminal is the
-    airport fare plus $25.
+    airport fare plus $25. Need more than 14 seats? The 18-seat mini coach and our
+    53-seat coach are quoted per job — see <a href="/charters.html">charters</a>.
   </p>
 
   <h2>The drive</h2>
