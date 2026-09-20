@@ -109,7 +109,7 @@
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"Is the price per person or per vehicle?","acceptedAnswer":{"@type":"Answer","text":"Per vehicle. The fare covers everyone in the car — a sedan is one price for 1–3 passengers, and a 15-seat Sprinter is one fixed price for the whole group."}},
+{"@type":"Question","name":"Is the price per person or per vehicle?","acceptedAnswer":{"@type":"Answer","text":"Per vehicle. The fare covers everyone in the car — a sedan is one price for 1–3 passengers, and a 14-seat Sprinter is one fixed price for the whole group."}},
 {"@type":"Question","name":"Do prices surge at busy times?","acceptedAnswer":{"@type":"Answer","text":"Never. Fares are fixed by suburb zone and vehicle class, day or night — the price quoted is the price you pay, with no surge and no after-hours fee."}},
 {"@type":"Question","name":"Can I cancel or change my booking?","acceptedAnswer":{"@type":"Answer","text":"Changes and cancellation are free up to 24 hours before pick-up with a full refund. Inside 24 hours, call +61 481 437 772 and we'll do our best."}},
 {"@type":"Question","name":"What if my flight is delayed?","acceptedAnswer":{"@type":"Answer","text":"We track your flight number and move the pick-up automatically. Airport pick-ups include meet & greet with a name board and 30 minutes' free waiting after landing — 60 minutes for international arrivals at Brisbane Airport."}},
@@ -120,7 +120,7 @@
 {"@type":"Question","name":"Do I get a tax invoice?","acceptedAnswer":{"@type":"Answer","text":"Yes — a GST tax invoice is emailed automatically with every confirmation and receipt, ready for expense claims and business travel reporting."}},
 {"@type":"Question","name":"Do you provide baby and child seats?","acceptedAnswer":{"@type":"Answer","text":"Yes — capsules, convertible seats and boosters are $15 each, added during booking and professionally fitted, so young children always travel safe and legal."}},
 {"@type":"Question","name":"How much luggage can you take?","acceptedAnswer":{"@type":"Answer","text":"Sedans take 2 large bags, SUVs 4, minivans 6, and Sprinters 11–16. For oversize luggage, golf bags or prams, add the luggage trailer for $30."}},
-{"@type":"Question","name":"How big a group can you carry?","acceptedAnswer":{"@type":"Answer","text":"Up to 15 passengers in one vehicle with the Mercedes Sprinter 15-Seater — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together."}},
+{"@type":"Question","name":"How big a group can you carry?","acceptedAnswer":{"@type":"Answer","text":"Up to 14 passengers on a published fare with the Mercedes Sprinter 14-Seater, or up to 18 in our mini coach, which is quoted per job — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together, or on our 53-seat coach."}},
 {"@type":"Question","name":"Do you operate overnight and for early-morning flights?","acceptedAnswer":{"@type":"Answer","text":"24 hours, 7 days, at the same fixed price any time of day or night. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off."}},
 {"@type":"Question","name":"Do you transfer to the Brisbane International Cruise Terminal?","acceptedAnswer":{"@type":"Answer","text":"Yes. The cruise terminal at Pinkenba is minutes from Brisbane Airport, and cruise transfers are a fixed door-to-ship fare from every suburb we serve — select ‘Brisbane Cruise Terminal’ in the booking form for an instant price. We meet disembarking passengers with a name board and track ship arrivals."}},
 {"@type":"Question","name":"Can you take pets, wheelchairs or extra equipment?","acceptedAnswer":{"@type":"Answer","text":"Assistance animals are always welcome at no charge. Pets travel by prior arrangement in a suitable carrier. Foldable wheelchairs, walkers, prams, golf bags and surfboards are carried free where they fit — or add the trailer for bulky loads."}},
@@ -550,6 +550,14 @@ var VEH_SVG = [
   carSvg("M6 34 L6 27 Q6 23 12 22 L20 21 L26 11 Q27 8 32 8 L80 8 Q85 8 88 11 L97 21 L107 22 Q114 23 114 28 L114 34",
     [[30,7],[90,7]],
     "M57 8 L57 21 M27 21 L95 21"),
+  /* People mover — family MPV: short bonnet, three side bays */
+  carSvg("M6 34 L6 16 Q6 11 13 11 L78 11 Q85 11 89 15 L104 24 Q114 26 114 30 L114 34",
+    [[30,6.5],[90,6.5]],
+    "M44 11 L44 22 M66 11 L66 22 M6 22 L100 22"),
+  /* Luxury sedan — longer and lower, extended bonnet and boot */
+  carSvg("M4 34 L4 30 Q4 25 10 24 L26 21 L37 12 Q40 10 46 10 L74 10 Q80 10 84 13 L95 21 L110 24 Q116 25 116 30 L116 34",
+    [[29,6.5],[92,6.5]],
+    "M60 10 L60 21 M39 21 L92 21"),
   /* Luxury minivan — one-box, long roof, sloped nose */
   carSvg("M6 34 L6 13 Q6 8 12 8 L84 8 Q90 8 94 12 L108 23 Q114 25 114 30 L114 34",
     [[30,6.5],[90,6.5]],
@@ -558,18 +566,22 @@ var VEH_SVG = [
   carSvg("M6 34 L6 8 Q6 4 12 4 L86 4 Q92 4 96 8 L110 21 Q114 24 114 29 L114 34",
     [[28,6.5],[92,6.5]],
     "M46 4 L46 19 M74 4 L74 19 M6 19 L102 19"),
-  /* Sprinter 15 — high roof van, dual rear wheels */
+  /* Sprinter 14 — high roof van, dual rear wheels */
   carSvg("M4 34 L4 8 Q4 4 10 4 L88 4 Q94 4 98 8 L112 21 Q116 24 116 29 L116 34",
     [[20,6],[34,6],[94,6.5]],
-    "M44 4 L44 19 M72 4 L72 19 M4 19 L104 19")
+    "M44 4 L44 19 M72 4 L72 19 M4 19 L104 19"),
+  /* Mini coach 18 — flat-fronted small bus, four bays, dual rear wheels */
+  carSvg("M3 34 L3 7 Q3 3 9 3 L108 3 Q116 3 116 10 L116 34",
+    [[22,6],[36,6],[98,6.5]],
+    "M32 3 L32 18 M56 3 L56 18 M80 3 L80 18 M3 18 L110 18")
 ];
 
 window.VEH_SVG = VEH_SVG;
 var SUBURBS = {"Advancetown":["H","H"],"Arundel":["N1","N1"],"Ashmore":["C2","C2"],"Austinville":["H","H"],"Beechmont":["H","H"],"Benowa":["C2","C2"],"Biggera Waters":["N1","N1"],"Bilinga":["S1","S1"],"Bonogin":["C1","C1"],"Broadbeach":["C1","C1"],"Broadbeach Waters":["C1","C1"],"Bundall":["C2","C2"],"Burleigh Heads":["S3","S3"],"Burleigh Waters":["S3","S3"],"Carrara":["C2","C2"],"Clagiraba":["H","H"],"Clear Island Waters":["C1","C1"],"Coolangatta":["S1","S1"],"Coombabah":["N2","N1"],"Coomera":["N4","N3"],"Currumbin":["S1","S1"],"Currumbin Valley":["S2","S2"],"Currumbin Waters":["S1","S1"],"Elanora":["S2","S2"],"Gaven":["N3","N2"],"Gilston":["C2","C2"],"Guanaba":["H","H"],"Helensvale":["N3","N2"],"Highland Park":["C2","C2"],"Hollywell":["N2","N1"],"Hope Island":["N3","N2"],"Jacobs Well":["N5","N3"],"Kingsholme":["N5","N3"],"Kirra":["S1","S1"],"Labrador":["N1","N1"],"Lower Beechmont":["H","H"],"Main Beach":["C2","C2"],"Maudsland":["N3","N2"],"Mermaid Beach":["C1","C1"],"Mermaid Waters":["C1","C1"],"Merrimac":["C1","C1"],"Miami":["S3","S3"],"Molendinar":["N1","N1"],"Mudgeeraba":["C1","C1"],"Natural Bridge":["H","H"],"Nerang":["C2","C2"],"Numinbah Valley":["H","H"],"Ormeau":["N5","N3"],"Ormeau Hills":["N5","N3"],"Oxenford":["N3","N2"],"Pacific Pines":["N3","N2"],"Palm Beach":["S2","S2"],"Paradise Point":["N2","N1"],"Parkwood":["N1","N1"],"Pimpama":["N5","N3"],"Reedy Creek":["S3","S3"],"Robina":["C1","C1"],"Runaway Bay":["N2","N1"],"Sanctuary Cove":["N3","N2"],"Southport":["N1","N1"],"Springbrook":["H","H"],"Stapylton":["N5","N3"],"Surfers Paradise":["C2","C2"],"Tallai":["C1","C1"],"Tallebudgera":["S2","S2"],"Tallebudgera Valley":["S2","S2"],"Tamborine Mountain":["H","H"],"Tugun":["S1","S1"],"Upper Coomera":["N4","N3"],"Varsity Lakes":["S3","S3"],"Willow Vale":["N4","N3"],"Wongawallan":["H","H"],"Worongary":["C1","C1"],"Yatala":["N5","N3"]};
-var OOL_RATES = {"S1":[80,90,105,150,220],"S2":[90,100,110,160,230],"S3":[95,105,120,170,240],"C1":[110,120,130,180,250],"C2":[125,135,145,205,275],"N1":[125,135,150,205,275],"N2":[140,150,170,215,275],"N3":[145,155,175,220,275],"N4":[155,165,185,230,285],"N5":[165,175,195,240,295],"H":[175,190,210,275,300]};
-var BNE_RATES = {"S1":[280,295,325,410,480],"S2":[265,280,310,395,460],"S3":[255,270,295,380,440],"C1":[245,260,280,365,440],"C2":[245,260,280,365,440],"N1":[235,245,265,350,400],"N2":[210,225,240,330,380],"N3":[195,210,225,300,350],"H":[300,320,350,400,480]};
+var OOL_RATES = {"S1":[80,90,100,105,115,165,240],"S2":[90,100,105,115,120,175,255],"S3":[95,105,115,120,130,185,265],"C1":[110,120,125,135,140,200,275],"C2":[125,135,140,150,155,225,305],"N1":[125,135,145,150,160,225,305],"N2":[140,150,160,170,180,235,305],"N3":[145,155,165,175,185,240,305],"N4":[155,165,175,185,195,255,315],"N5":[165,175,185,195,205,265,325],"H":[175,190,200,210,220,305,330]};
+var BNE_RATES = {"S1":[280,295,310,320,335,450,530],"S2":[265,280,295,305,320,435,505],"S3":[255,270,280,295,305,420,485],"C1":[245,260,270,280,290,400,485],"C2":[245,260,270,280,290,400,485],"N1":[235,245,255,265,275,385,440],"N2":[210,225,235,240,250,365,420],"N3":[195,210,220,225,235,330,385],"H":[300,320,335,345,360,440,530]};
 var BM_ZONE = {"CBD":["Brisbane CBD","Spring Hill","Fortitude Valley","New Farm","Newstead","Teneriffe","Bowen Hills","Herston","Kelvin Grove","Paddington","Milton","Auchenflower","South Brisbane","West End","Highgate Hill","Kangaroo Point","East Brisbane","Woolloongabba","Dutton Park"],"BN1":["Hamilton","Ascot","Clayfield","Hendra","Albion","Nundah","Northgate","Banyo","Virginia","Wavell Heights","Kedron","Chermside","Stafford","Aspley","Geebung","Zillmere","Boondall","Taigum"],"BN2":["Sandgate","Brighton","Bracken Ridge","Bald Hills","Albany Creek","Eatons Hill","Strathpine","Brendale","Petrie","Kallangur","Murrumba Downs","Mango Hill","North Lakes","Deception Bay","Redcliffe","Scarborough","Margate","Clontarf"],"BE1":["Eagle Farm","Pinkenba","Murarrie","Cannon Hill","Morningside","Bulimba","Hawthorne","Balmoral","Tingalpa","Hemmant","Wynnum","Wynnum West","Manly","Lota","Carina"],"BE2":["Belmont","Gumdale","Wakerley","Capalaba","Birkdale","Thorneside","Alexandra Hills","Wellington Point","Ormiston","Cleveland","Thornlands","Victoria Point","Redland Bay"],"BS1":["Coorparoo","Camp Hill","Carina Heights","Carindale","Greenslopes","Holland Park","Mount Gravatt","Wishart","Mansfield","Annerley","Yeronga","Fairfield","Tarragindi","Moorooka","Salisbury"],"BS2":["Sunnybank","Sunnybank Hills","Robertson","Macgregor","Eight Mile Plains","Rochedale","Acacia Ridge","Calamvale","Parkinson","Browns Plains","Springwood","Underwood","Slacks Creek","Daisy Hill","Shailer Park","Logan Central","Woodridge"],"BW1":["Toowong","St Lucia","Taringa","Indooroopilly","Chapel Hill","Kenmore","Fig Tree Pocket","Graceville","Sherwood","Corinda","Oxley","Ashgrove","Bardon","Red Hill","The Gap","Enoggera","Mitchelton","Keperra","Ferny Grove"],"BW2":["Jindalee","Mount Ommaney","Sinnamon Park","Seventeen Mile Rocks","Darra","Richlands","Inala","Forest Lake","Wacol"],"BW3":["Springfield","Springfield Lakes","Springfield Central","Spring Mountain","Brookwater","Augustine Heights","Goodna","Gailes","Camira","Carole Park","Bellbird Park","Collingwood Park","Riverview","Redbank","Redbank Plains","Moggill","Bellbowrie"],"BW4":["Ipswich","North Ipswich","East Ipswich","West Ipswich","Booval","Bundamba","Blackstone","Silkstone","Eastern Heights","Raceview","Yamanto","Flinders View","Deebing Heights","Churchill","One Mile","Leichhardt","Wulkuraka","Coalfalls","Sadliers Crossing","Woodend","Tivoli","Dinmore","Swanbank","White Rock","Ripley","South Ripley","Brassall","Karana Downs","Karalee","Chuwar","Barellan Point"],"BW5":["Rosewood","Walloon","Marburg","Karrabin","Thagoona","Haigslea","Grandchester","Amberley","Willowbank","Muirlea","Pine Mountain"],"BN3":["Narangba","Burpengary","Burpengary East","Morayfield","Caboolture","Caboolture South","Upper Caboolture","Elimbah","Wamuran","Beachmere"],"BN4":["Bribie Island","Bongaree","Bellara","Banksia Beach","White Patch","Woorim","Ningi","Sandstone Point","Godwin Beach","Toorbul","Donnybrook"]};
-var BM_RATES = {"CBD":[95,105,115,165,230],"BN1":[85,95,105,155,220],"BN2":[125,135,150,195,255],"BE1":[85,95,105,155,220],"BE2":[130,140,155,200,260],"BS1":[105,115,125,175,235],"BS2":[140,150,165,215,270],"BW1":[115,125,140,185,245],"BW2":[135,145,160,205,265],"BW3":[155,170,185,230,285],"BW4":[185,200,220,265,315],"BW5":[225,240,265,310,360],"BN3":[165,180,195,240,295],"BN4":[225,240,265,310,360]};
+var BM_RATES = {"CBD":[95,105,110,120,125,180,255],"BN1":[85,95,100,110,115,170,240],"BN2":[125,135,145,150,160,215,280],"BE1":[85,95,100,110,115,170,240],"BE2":[130,140,150,155,165,220,285],"BS1":[105,115,120,130,135,195,260],"BS2":[140,150,160,165,175,235,295],"BW1":[115,125,135,140,150,205,270],"BW2":[135,145,155,160,170,225,290],"BW3":[155,170,180,185,195,255,315],"BW4":[185,200,210,220,230,290,345],"BW5":[225,240,250,265,275,340,395],"BN3":[165,180,190,195,205,265,325],"BN4":[225,240,250,265,275,340,395]};
 var BM_SUBURB = {}; Object.keys(BM_ZONE).forEach(function(z){ BM_ZONE[z].forEach(function(s){ BM_SUBURB[s]=z; }); });
 /* ---- long-distance regional routes -------------------------------------
    Sunshine Coast, Toowoomba and Byron Bay are real, regularly-asked-for jobs
@@ -587,19 +599,23 @@ var BM_SUBURB = {}; Object.keys(BM_ZONE).forEach(function(z){ BM_ZONE[z].forEach
 var LD_LIVE = true;
 var LD_ZONE = {"SC1":["Caloundra","Golden Beach","Pelican Waters","Currimundi","Wurtulla","Warana","Buddina","Minyama"],"SC2":["Mooloolaba","Alexandra Headland","Maroochydore","Cotton Tree","Sunshine Coast Airport (MCY)","Buderim","Sippy Downs","Mountain Creek","Kuluin"],"SC3":["Coolum Beach","Peregian Beach","Peregian Springs","Marcoola","Mudjimba","Twin Waters","Yaroomba"],"SC4":["Noosa Heads","Noosaville","Noosa Junction","Sunshine Beach","Sunrise Beach","Tewantin","Doonan","Eumundi"],"TWB":["Toowoomba","East Toowoomba","North Toowoomba","South Toowoomba","Harristown","Darling Heights","Centenary Heights","Rangeville","Middle Ridge","Kearneys Spring","Wilsonton","Wilsonton Heights","Rockville","Harlaxton","Mount Lofty","Mount Kynoch","Prince Henry Heights","Redwood","Cranley","Glenvale","Torrington","Drayton","Cotswold Hills","Top Camp","Athol","Charlton","Wellcamp","Westbrook","Highfields","Blue Mountain Heights","Kleinton","Gowrie Junction","Meringandan West","Hodgson Vale","Vale View","Preston"],"BYR":["Byron Bay","Suffolk Park","Ewingsdale","Bangalow","Broken Head"]};
 /* From Brisbane Airport (the cruise terminal adds the usual $25). */
-var LD_BNE_RATES = {"SC1":[280,295,320,390,450],"SC2":[305,320,350,425,495],"SC3":[330,345,380,460,535],"SC4":[375,395,430,525,615],"TWB":[395,415,455,550,640],"BYR":[450,475,520,630,735]};
+var LD_BNE_RATES = {"SC1":[280,295,305,320,330,430,495],"SC2":[305,320,335,345,360,470,545],"SC3":[330,345,360,375,390,505,590],"SC4":[375,395,410,425,440,580,675],"TWB":[395,415,430,450,465,605,705],"BYR":[450,475,495,510,530,695,810]};
 /* From Gold Coast Airport. Only Byron is a sensible fixed fare from here —
    OOL to the Sunshine Coast or Toowoomba is a 3-hour run we quote by hand. */
-var LD_OOL_RATES = {"BYR":[220,235,260,330,385]};
+var LD_OOL_RATES = {"BYR":[220,235,245,260,270,365,425]};
 var LD_SUBURB = {}; Object.keys(LD_ZONE).forEach(function(z){ LD_ZONE[z].forEach(function(s){ LD_SUBURB[s]=z; }); });
 var OOL = "Gold Coast Airport (OOL)", BNE = "Brisbane Airport (BNE)";
 var CRUISE = "Brisbane Cruise Terminal (Pinkenba)", CRUISE_EXTRA = 25;
 var VEHICLES = [
   {name:"Sedan", cap:"1–3 passengers · 2 bags"},
   {name:"SUV", cap:"1–4 passengers · 4 bags"},
+  {name:"People Mover", cap:"1–7 passengers · 6 bags"},
+  {name:"Luxury Sedan", cap:"1–3 passengers · 2 bags"},
   {name:"Luxury Minivan", cap:"1–7 passengers · 6 bags"},
   {name:"Mercedes Sprinter 10-Seater", cap:"up to 10 passengers · 11 bags"},
-  {name:"Mercedes Sprinter 15-Seater", cap:"up to 15 passengers · 16 bags"}
+  {name:"Mercedes Sprinter 14-Seater", cap:"up to 14 passengers · 15 bags"},
+  /* Priced by hand, never by suburb: it skips the fare engine and Stripe. */
+  {name:"Mini Coach 18-Seater", cap:"up to 18 passengers · 18 bags", quote:true}
 ];
 var PLACES = [OOL, BNE, CRUISE].concat(Object.keys(SUBURBS).sort()).concat(Object.keys(BM_SUBURB).sort())
   .concat(LD_LIVE ? Object.keys(LD_SUBURB).sort() : []);
@@ -939,8 +955,23 @@ function refresh(){
     var b = document.createElement("button");
     b.type = "button"; b.className = "veh";
     b.innerHTML = "<span class='veh-art'>" + VEH_SVG[i] + "</span><span class='name'>" + v.name + "</span><span class='cap'>" + v.cap + "</span>" +
-      "<span class='price'>" + money(res.rates[i]) + " <small>one-way</small></span>";
+      "<span class='price'>" + (v.quote ? "Quote <small>on request</small>"
+        : money(res.rates[i]) + " <small>one-way</small>") + "</span>";
     b.addEventListener("click", function(){
+      /* The mini coach is quoted by hand, so it never touches the fare
+         engine or Stripe — hand the guest to the custom-quote panel. */
+      if (v.quote) {
+        state.vehicle = null; state.price = null;
+        $("book-card").hidden = true;
+        $("custom-msg").textContent = "The " + v.name + " is quoted per job rather than by suburb — tell us the date, pick-up and drop-off and we will come straight back with a fixed price.";
+        $("custom-card").hidden = false;
+        track("select_vehicle", {vehicle: v.name, route: state.pu + " -> " + state.dro});
+        var qs = grid.children;
+        for (var qi = 0; qi < qs.length; qi++) qs[qi].classList.toggle("selected", qi === i);
+        $("custom-card").scrollIntoView({behavior:"smooth", block:"start"});
+        return;
+      }
+      $("custom-card").hidden = true;
       state.vehicle = v.name; state.price = res.rates[i];
       track("select_vehicle", {vehicle: v.name, value: res.rates[i], currency: "AUD",
         route: state.pu + " -> " + state.dro});
@@ -1185,13 +1216,16 @@ function buildRequest(){
 <section class="block" id="fleet">
   <p class="kick">The fleet</p>
   <h2>The right vehicle for every group</h2>
-  <p class="lead">From a solo business trip to a 15-person tour group with golf bags — one booking, one fixed price per vehicle, never per person.</p>
+  <p class="lead">From a solo business trip to an 18-person tour group with golf bags — one booking, one fixed price per vehicle, never per person.</p>
   <div class="fleet-grid" id="fleet-grid">
     <div class="fleet-card"><span class="veh-art" data-veh="0"></span><h3>Sedan</h3><p>1&ndash;3 passengers &middot; 2 large bags. Business trips and couples.</p><div class="from">from $80</div></div>
     <div class="fleet-card"><span class="veh-art" data-veh="1"></span><h3>SUV</h3><p>1&ndash;4 passengers &middot; 4 bags. Extra room and comfort.</p><div class="from">from $90</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="2"></span><h3>Luxury Minivan</h3><p>1&ndash;7 passengers &middot; 6 bags. Families and small groups.</p><div class="from">from $105</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="3"></span><h3>Mercedes Sprinter 10-Seater</h3><p>Up to 10 passengers &middot; 11 bags. Crews and tour groups.</p><div class="from">from $150</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="4"></span><h3>Mercedes Sprinter 15-Seater</h3><p>Up to 15 passengers &middot; 16 bags. One vehicle for the whole party.</p><div class="from">from $220</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="2"></span><h3>People Mover</h3><p>1&ndash;7 passengers &middot; 6 bags. Families, prams and holiday luggage.</p><div class="from">from $100</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="3"></span><h3>Luxury Sedan</h3><p>1&ndash;3 passengers &middot; 2 bags. Mercedes E-Class or S-Class.</p><div class="from">from $105</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="4"></span><h3>Luxury Minivan</h3><p>1&ndash;7 passengers &middot; 6 bags. Mercedes V-Class comfort.</p><div class="from">from $115</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="5"></span><h3>Mercedes Sprinter 10-Seater</h3><p>Up to 10 passengers &middot; 11 bags. Crews and tour groups.</p><div class="from">from $165</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="6"></span><h3>Mercedes Sprinter 14-Seater</h3><p>Up to 14 passengers &middot; 15 bags. One vehicle for the whole party.</p><div class="from">from $240</div></div>
+    <div class="fleet-card"><span class="veh-art" data-veh="7"></span><h3>Mini Coach 18-Seater</h3><p>Up to 18 passengers &middot; 18 bags. Conferences, clubs and school groups.</p><div class="from">quoted per job</div></div>
   </div>
   <p style="margin:16px 0 0;font-size:14px;color:var(--muted)">Also in the Sky Transfers family: Mercedes V-Class people movers, Mercedes Sprinter mini buses and a King Long 53-seat luxury coach — <a href="tel:+61481437772" style="color:var(--gold-deep);font-weight:600">call for a coach or group quote</a>.</p>
 </section>
@@ -1317,7 +1351,7 @@ function buildRequest(){
   <p class="kick">Good to know</p>
   <h2>Frequently asked questions</h2>
   <div class="faq">
-    <details><summary>Is the price per person or per vehicle?</summary><p>Per vehicle. The fare covers everyone in the car — a sedan is one price for 1–3 passengers, and a 15-seat Sprinter is one fixed price for the whole group.</p></details>
+    <details><summary>Is the price per person or per vehicle?</summary><p>Per vehicle. The fare covers everyone in the car — a sedan is one price for 1–3 passengers, and a 14-seat Sprinter is one fixed price for the whole group.</p></details>
     <details><summary>Do prices surge at busy times?</summary><p>Never. Fares are fixed by suburb zone and vehicle class, day or night — the price quoted is the price you pay, with no surge and no after-hours fee.</p></details>
     <details><summary>Can I cancel or change my booking?</summary><p>Changes and cancellation are free up to 24 hours before pick-up with a full refund. Inside 24 hours, call <a href="tel:+61481437772">+61 481 437 772</a> and we'll do our best.</p></details>
     <details><summary>What if my flight is delayed?</summary><p>We track your flight number and move the pick-up automatically. Airport pick-ups include meet &amp; greet with a name board and 30 minutes' free waiting after landing — 60 minutes for international arrivals at Brisbane Airport.</p></details>
@@ -1328,7 +1362,7 @@ function buildRequest(){
     <details><summary>Do I get a tax invoice?</summary><p>Yes — a GST tax invoice is emailed automatically with every confirmation and receipt, ready for expense claims and business travel reporting.</p></details>
     <details><summary>Do you provide baby and child seats?</summary><p>Yes — capsules, convertible seats and boosters are $15 each, added during booking and professionally fitted, so young children always travel safe and legal.</p></details>
     <details><summary>How much luggage can you take?</summary><p>Sedans take 2 large bags, SUVs 4, minivans 6, and Sprinters 11–16. For oversize luggage, golf bags or prams, add the luggage trailer for $30.</p></details>
-    <details><summary>How big a group can you carry?</summary><p>Up to 15 passengers in one vehicle with the Mercedes Sprinter 15-Seater — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together.</p></details>
+    <details><summary>How big a group can you carry?</summary><p>Up to 14 passengers on a published fare with the Mercedes Sprinter 14-Seater, or up to 18 in our mini coach, which is quoted per job — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together, or on our 53-seat coach.</p></details>
     <details><summary>Do you operate overnight and for early-morning flights?</summary><p>24 hours, 7 days, at the same fixed price any time of day or night. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off.</p></details>
     <details><summary>Do you transfer to the Brisbane International Cruise Terminal?</summary><p>Yes. The cruise terminal at Pinkenba is minutes from Brisbane Airport, and cruise transfers are a fixed door-to-ship fare from every suburb we serve — select ‘Brisbane Cruise Terminal’ in the booking form for an instant price. We meet disembarking passengers with a name board and track ship arrivals.</p></details>
     <details><summary>Can you take pets, wheelchairs or extra equipment?</summary><p>Assistance animals are always welcome at no charge. Pets travel by prior arrangement in a suitable carrier. Foldable wheelchairs, walkers, prams, golf bags and surfboards are carried free where they fit — or add the trailer for bulky loads.</p></details>
