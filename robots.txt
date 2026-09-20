@@ -1,16 +1,23 @@
 User-agent: *
 Allow: /
+
+# Private surfaces. These are the only paths that should ever be blocked:
+# nothing links to them and none of them should rank.
 Disallow: /booking-confirmed.html
 Disallow: /agent.html
 Disallow: /admin.html
-
-# Legacy WordPress paths — no longer served, no value in crawling
 Disallow: /wp-admin/
-Disallow: /wp-json/
-Disallow: /author/
-Disallow: /category/
-Disallow: /tag/
-Disallow: /*/feed/
-Disallow: /*/embed/
+
+# DELIBERATELY NOT BLOCKED: /author/, /category/, /tag/, /*/feed/
+#
+# Every one of those paths now returns a 301 to a live page. Disallowing a
+# path stops Googlebot CRAWLING it, which does not remove it from the index —
+# it strands the URL there as "Indexed, though blocked by robots.txt" and the
+# redirect is never seen, so it passes nothing on.
+#
+# They were blocked here until 21 Sept 2026, which is what triggered the
+# "Blocked by robots.txt" notices from Search Console. Leave them crawlable
+# until Search Console shows them gone; after that they can stay crawlable,
+# since a 301 costs nothing to serve.
 
 Sitemap: https://www.skytransfers.com.au/sitemap.xml
