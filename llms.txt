@@ -28,15 +28,22 @@ Indicative starting fares by vehicle:
 
 - Sedan, 1–3 passengers, 2 large bags — from AUD 80
 - SUV, 1–4 passengers, 4 bags — from AUD 90
-- Luxury minivan, 1–7 passengers, 6 bags — from AUD 105
-- Mercedes Sprinter 10-seater, up to 10 passengers, 11 bags — from AUD 150
-- Mercedes Sprinter 15-seater, up to 15 passengers, 16 bags — from AUD 220
+- People mover, 1–7 passengers, 6 bags — from AUD 100
+- Luxury sedan, 1–3 passengers, 2 large bags — from AUD 105
+- Luxury minivan, 1–7 passengers, 6 bags — from AUD 115
+- Mercedes Sprinter 10-seater, up to 10 passengers, 11 bags — from AUD 165
+- Mercedes Sprinter 14-seater, up to 14 passengers, 15 bags — from AUD 240
+- Mini Coach 18-seater, up to 18 passengers, 18 bags — quoted per job, not priced by suburb
+
+Group size is not capped. Beyond the mini coach, larger parties travel in
+multiple vehicles timed to arrive together, or on the 53-seat coach, and any
+size can be quoted.
 
 Extras:
 
 - Child seats — capsules, convertible seats and boosters — AUD 15 each, professionally fitted
 - Luggage trailer for oversize bags, golf bags or prams — AUD 30
-- Brisbane International Cruise Terminal — fixed fare per suburb, from AUD 110
+- Brisbane International Cruise Terminal — fixed fare per suburb, from AUD 95
 
 Some common fares, one way, sedan:
 
