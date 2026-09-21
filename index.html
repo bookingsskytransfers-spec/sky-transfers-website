@@ -148,7 +148,15 @@
   .meetpoints div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:400 13px/1.45 "Figtree",sans-serif;color:var(--muted)}
   .meetpoints h3{margin:0 0 4px;font:600 13.5px/1.3 "Figtree",sans-serif;color:var(--ink)}
   @media(max-width:860px){.howto-steps{grid-template-columns:1fr 1fr}.meetpoints{grid-template-columns:1fr}}
-  @media(max-width:520px){.howto-steps{grid-template-columns:1fr}}
+  /* On a phone five stacked cards put the booking form ~1100px down the page,
+     which is worse than the problem this strip solves. Two columns, labels
+     only - the sequence still reads at a glance and the form stays close. */
+  @media(max-width:520px){
+    .howto-steps{grid-template-columns:1fr 1fr;gap:8px}
+    .howto-steps li{padding:9px 10px 9px 29px;font-size:12.5px}
+    .howto-steps li::before{top:9px;left:9px}
+    .howto-steps span{display:none}
+  }
 </style>
 </head>
 <body>
