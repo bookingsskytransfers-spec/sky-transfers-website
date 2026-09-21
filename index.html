@@ -133,6 +133,12 @@
      the FAQ below it. Deliberately slim - the booking card has to stay above
      the fold on a laptop, so this must not push it down. */
   .howto{max-width:1120px;margin:0 auto 18px;padding:0 4px}
+  /* .booklift already pulls the form up over the hero by 150px, so anything
+     placed above the form gives that overlap away. The sequence reassures
+     just as well below the route inputs; the same-day notice rides under
+     them, where someone who cannot book online sees it before filling in. */
+  .howto-below{margin:24px auto 4px}
+  .howto-now.standalone{margin:12px 0 0}
   .howto-h{font:600 12px/1 "Figtree",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
   .howto-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:0;padding:0;list-style:none;counter-reset:ht}
   .howto-steps li{position:relative;padding:11px 12px 11px 34px;background:var(--card);border:1px solid var(--line);border-radius:10px;font:400 13px/1.35 "Figtree",sans-serif;color:var(--ink)}
@@ -462,23 +468,6 @@
 <div class="booklift" id="book">
 <div class="wrap">
 
-  <div class="howto">
-    <p class="howto-h">How it works</p>
-    <ol class="howto-steps">
-      <li><b>Your route</b><span>Any address, suburb or airport.</span></li>
-      <li><b>Fixed price</b><span>All vehicles, tolls and GST in.</span></li>
-      <li><b>Book it</b><span>Card now, or pay the driver.</span></li>
-      <li><b>Driver details</b><span>Name and mobile, in advance.</span></li>
-      <li><b>Met at arrivals</b><span>Name board inside the hall.</span></li>
-    </ol>
-    <p class="howto-now">
-      <b>Travelling in the next six hours?</b>
-      Online booking needs six hours&rsquo; notice (Brisbane time &mdash; Queensland has no daylight
-      saving). For anything sooner call <a href="tel:+61481437772">+61 481 437 772</a> or
-      <a href="https://wa.me/61481437772?text=Hi%20Sky%20Transfers%2C%20I%20need%20a%20transfer%20today." target="_blank" rel="noopener">WhatsApp us</a>
-      &mdash; we answer 24/7 and will tell you straight away whether we have a car free.
-    </p>
-  </div>
   
 
   <section class="card">
@@ -498,6 +487,14 @@
     </div>
     <p class="hint">Type a street address, a suburb, or an airport — start typing and pick from the list. Serving all Gold Coast &amp; Brisbane suburbs &harr; Gold Coast Airport (OOL), Brisbane Airport (BNE) and the Brisbane Cruise Terminal.</p>
   </section>
+
+  <p class="howto-now standalone">
+    <b>Travelling in the next six hours?</b>
+    Online booking needs six hours&rsquo; notice (Brisbane time &mdash; Queensland has no daylight
+    saving). For anything sooner call <a href="tel:+61481437772">+61 481 437 772</a> or
+    <a href="https://wa.me/61481437772?text=Hi%20Sky%20Transfers%2C%20I%20need%20a%20transfer%20today." target="_blank" rel="noopener">WhatsApp us</a>
+    &mdash; we answer 24/7 and will tell you straight away whether we have a car free.
+  </p>
 
   <section class="card" id="quote-card" hidden>
     <p class="step-label">2 &middot; Choose your vehicle</p>
@@ -571,6 +568,17 @@
     </div>
     <p class="fine" id="pay-note">Pay by card now, or request the booking and pay your chauffeur later &mdash; either way you get an email straight away.</p>
   </section>
+
+  <div class="howto howto-below">
+    <p class="howto-h">How it works</p>
+    <ol class="howto-steps">
+      <li><b>Your route</b><span>Any address, suburb or airport.</span></li>
+      <li><b>Fixed price</b><span>All vehicles, tolls and GST in.</span></li>
+      <li><b>Book it</b><span>Card now, or pay the driver.</span></li>
+      <li><b>Driver details</b><span>Name and mobile, in advance.</span></li>
+      <li><b>Met at arrivals</b><span>Name board inside the hall.</span></li>
+    </ol>
+  </div>
 
   <div class="meetpoints">
     <div>
