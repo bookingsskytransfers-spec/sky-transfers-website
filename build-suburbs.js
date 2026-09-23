@@ -404,6 +404,7 @@ const FOOTER = `<footer class="site">
       <p><a href="/sunshine-coast-airport-transfers.html">Sunshine Coast transfers</a></p>
       <p><a href="/toowoomba-airport-transfers.html">Toowoomba transfers</a></p>
       <p><a href="/ipswich-airport-transfers.html">Ipswich transfers</a></p>
+      <p><a href="/logan-airport-transfers.html">Logan transfers</a></p>
       <p><a href="/${DIR}/">Airport transfers by suburb</a></p>
     </div>
     <div class="foot-legal">
@@ -718,6 +719,7 @@ ${list.map(p => `    <a href="${p.url}">${esc(p.name)}<span>From $${p.from}</spa
   <p class="fare-note">
     By region: <a href="/gold-coast-airport-transfers.html">Gold Coast</a> &middot;
     <a href="/brisbane-airport-transfers.html">Brisbane</a> &middot;
+    <a href="/logan-airport-transfers.html">Logan</a> &middot;
     <a href="/ipswich-airport-transfers.html">Ipswich</a> &middot;
     <a href="/sunshine-coast-airport-transfers.html">Sunshine Coast</a> &middot;
     <a href="/toowoomba-airport-transfers.html">Toowoomba</a> &middot;
@@ -746,7 +748,45 @@ ${FOOTER}
 // Brisbane and Byron Bay already have hand-written pages; these three cover
 // the fare bands that were only reachable through the price list.
 // ---------------------------------------------------------------------------
+/* Logan City Council's 59 localities, which is not the same set as any one fare
+   zone: BS2 also holds nine Brisbane City suburbs (Sunnybank through Parkinson)
+   that have no business on a Logan page, while BS3 and BS4 are entirely Logan. */
+const LOGAN = [
+  'Bahrs Scrub', 'Bannockburn', 'Beenleigh', 'Belivah', 'Berrinba', 'Bethania', 'Boronia Heights',
+  'Browns Plains', 'Buccan', 'Carbrook', 'Cedar Creek', 'Cedar Grove', 'Cedar Vale', 'Chambers Flat',
+  'Cornubia', 'Crestmead', 'Daisy Hill', 'Eagleby', 'Edens Landing', 'Flagstone', 'Forestdale',
+  'Greenbank', 'Heritage Park', 'Hillcrest', 'Holmview', 'Jimboomba', 'Kingston', 'Logan Central',
+  'Logan Reserve', 'Logan Village', 'Loganholme', 'Loganlea', 'Lyons', 'Marsden', 'Meadowbrook',
+  'Mount Warren Park', 'Munruben', 'New Beith', 'North Maclean', 'Park Ridge', 'Park Ridge South',
+  'Priestdale', 'Regents Park', 'Rochedale South', 'Shailer Park', 'Slacks Creek', 'South Maclean',
+  'Springwood', 'Stockleigh', 'Tanah Merah', 'Underwood', 'Undullah', 'Waterford', 'Waterford West',
+  'Windaroo', 'Wolffdene', 'Woodhill', 'Woodridge', 'Yarrabilba',
+];
+
 const REGIONS = [
+  {
+    slug: 'logan-airport-transfers', name: 'Logan', zones: ['BS2', 'BS3', 'BS4'], only: LOGAN,
+    labels: {
+      BS2: 'Springwood, Loganholme and the northern suburbs',
+      BS3: 'Beenleigh, Waterford and the Logan River',
+      BS4: 'Logan Village, Jimboomba and the rural south',
+    },
+    title: 'Logan Airport Transfers | Fixed Fares to Brisbane Airport | Sky Transfers',
+    desc: 'Private chauffeur transfers between Logan and Brisbane Airport — Springwood, Logan Central, Beenleigh, Loganholme, Logan Village, Jimboomba and 53 more suburbs. Fixed fares per vehicle from $140, tolls and GST included, flight tracking, any hour.',
+    h1: 'Logan airport transfers, fixed price',
+    lead: 'Private chauffeur transfers between the Logan City suburbs and Brisbane Airport (BNE), priced by three fare bands: the northern suburbs around Springwood and Loganholme, the Beenleigh and Waterford belt on the Logan River, and the rural south out through Logan Village and Jimboomba. One fixed fare per vehicle, published below.',
+    notes: [
+      'Logan sits between Brisbane and the Gold Coast, and that is the single most useful thing to know about a transfer from here. Brisbane Airport is the published fare on this page: the Logan Motorway or the Pacific Motorway north, then the Gateway, with every toll already inside the price. Gold Coast Airport is the M1 south and is quoted on request — from the southern half of Logan it is not much further than Brisbane, so it is worth asking before you book the flight rather than after.',
+      'The three bands below follow the drive rather than the council map. The northern band, from Rochedale South and Springwood out to Loganholme and Marsden, is close enough in to carry the same fare as Sunnybank. The middle band is the Logan River country either side of the motorway — Beenleigh, Waterford, Bethania and the Park Ridge shelf. The third is the rural south, out through Logan Village, Yarrabilba, Flagstone and Jimboomba, where a driveway can be a few hundred metres of gravel behind a gate and we suggest a slightly earlier pick-up than the raw drive time implies.',
+      'The Brisbane International Cruise Terminal at Pinkenba is a fixed door-to-ship fare from every Logan suburb — the Brisbane Airport fare plus $25, quoted instantly in the booking form when you choose it as your drop-off. We track ship arrivals and meet disembarking passengers inside with a name board.',
+    ],
+    faq: [
+      ['How long is Logan to Brisbane Airport?', 'From about {MIN_LOW} at the northern end to about {MIN_HIGH} from the rural south, outside peak. Every suburb page below shows its own measured distance and drive time.'],
+      ['Which airport should I use from Logan?', 'Brisbane Airport is the published fare and the usual answer. Gold Coast Airport is genuinely close from the southern half of Logan and we do run it, but it is quoted on request rather than priced online — call or WhatsApp us with the date and we fix the price before you book.'],
+      ['Is the fare the same for a 4am pick-up?', 'Yes. The published fare applies at any hour, any day, including public holidays, with no after-hours loading and no surge. Early departures are a large share of the Logan work.'],
+      ['Can you find an acreage address out past Jimboomba?', 'Yes. Type the street address into the booking form and it prices the trip by suburb while keeping the exact address for your chauffeur; add the gate code in the notes if there is one. Tell us if the driveway is steep, narrow or unsealed and we will send the right vehicle or meet you at the gate.'],
+    ],
+  },
   {
     slug: 'sunshine-coast-airport-transfers', name: 'Sunshine Coast', zones: ['SC1', 'SC2', 'SC3', 'SC4'],
     title: 'Sunshine Coast Airport Transfers | Brisbane Airport to Noosa, Maroochydore, Caloundra | Sky Transfers',
@@ -804,20 +844,35 @@ const REGIONS = [
 ];
 
 function regionPage(r) {
+  /* `only` restricts every band to named suburbs, for a region that shares a
+     fare zone with somewhere else: Logan sits in BS2 alongside nine Brisbane
+     City suburbs, and listing Sunnybank on a Logan page would be wrong.
+     `labels` renames a band whose zone label is written for the wider band.
+     lo/hi are null when no suburb in the band has a measured drive time —
+     without that, Math.min of an empty list is Infinity and the page prints
+     "Infinity minutes". */
   const bands = r.zones.map(zk => {
-    const list = places.filter(p => p.zoneKey === zk).sort((a, b) => a.name.localeCompare(b.name));
+    let list = places.filter(p => p.zoneKey === zk);
+    if (r.only) list = list.filter(p => r.only.indexOf(p.name) !== -1);
+    list = list.sort((a, b) => a.name.localeCompare(b.name));
+    if (!list.length) throw new Error('region ' + r.slug + ': no suburbs left in zone ' + zk);
     const secs = list.map(p => p.facts.bne && p.facts.bne.s).filter(Boolean);
-    return { zk, label: Z[zk].label, list, fares: list[0].fares.bne, lo: Math.min.apply(null, secs), hi: Math.max.apply(null, secs) };
+    return { zk, label: (r.labels && r.labels[zk]) || Z[zk].label, list, fares: list[0].fares.bne,
+             lo: secs.length ? Math.min.apply(null, secs) : null,
+             hi: secs.length ? Math.max.apply(null, secs) : null };
   });
   const all = bands.reduce((a, b) => a.concat(b.list), []);
   const from = Math.min.apply(null, bands.map(b => b.fares[0]));
-  const lo = Math.min.apply(null, bands.map(b => b.lo)), hi = Math.max.apply(null, bands.map(b => b.hi));
+  const los = bands.map(b => b.lo).filter(v => v !== null), his = bands.map(b => b.hi).filter(v => v !== null);
+  const lo = los.length ? Math.min.apply(null, los) : null, hi = his.length ? Math.max.apply(null, his) : null;
   const url = '/' + r.slug + '.html';
   const ctaHref = '/?do=' + encodeURIComponent(BNE) + '#book';
-  const fillR = t => t.replace(/\{MIN_LOW\}/g, mins(lo)).replace(/\{MIN_HIGH\}/g, mins(hi));
+  const brief = v => mins(v).replace(' minutes', ' min').replace(/ h /, 'h ');
+  const fillR = t => t.replace(/\{MIN_LOW\}/g, lo === null ? 'the usual drive time' : mins(lo))
+                      .replace(/\{MIN_HIGH\}/g, hi === null ? 'the usual drive time' : mins(hi));
   const faqs = r.faq.map(([q, a]) => [fillR(q), fillR(a)]);
 
-  const rows = bands.map(b => `        <tr><th scope="row">${esc(b.label.charAt(0).toUpperCase() + b.label.slice(1))}<span class="s"> ${b.list.length} suburbs &middot; ${mins(b.lo)}&ndash;${mins(b.hi)}</span></th>${b.fares.map(f => `<td>${money(f)}</td>`).join('')}</tr>`).join('\n');
+  const rows = bands.map(b => `        <tr><th scope="row">${esc(b.label.charAt(0).toUpperCase() + b.label.slice(1))}<span class="s"> ${b.list.length} suburbs${b.lo === null ? '' : ` &middot; ${mins(b.lo)}&ndash;${mins(b.hi)}`}</span></th>${b.fares.map(f => `<td>${money(f)}</td>`).join('')}</tr>`).join('\n');
 
   const ld = {
     '@context': 'https://schema.org',
@@ -851,7 +906,7 @@ function regionPage(r) {
   <div class="facts">
     <div class="fact"><span class="k">From</span><span class="v">$${from}</span><span class="s">Sedan, one way, to BNE</span></div>
     <div class="fact"><span class="k">Suburbs priced</span><span class="v">${all.length}</span><span class="s">Each with its own page</span></div>
-    <div class="fact"><span class="k">Drive to BNE</span><span class="v">${mins(lo).replace(' minutes', ' min').replace(/ h /, 'h ')}&ndash;${mins(hi).replace(' minutes', ' min').replace(/ h /, 'h ')}</span><span class="s">Measured, outside peak</span></div>
+    ${lo === null ? '' : `<div class="fact"><span class="k">Drive to BNE</span><span class="v">${brief(lo)}&ndash;${brief(hi)}</span><span class="s">Measured, outside peak</span></div>`}
     <div class="fact"><span class="k">Free waiting</span><span class="v">60 min</span><span class="s">International arrivals</span></div>
   </div>
 
