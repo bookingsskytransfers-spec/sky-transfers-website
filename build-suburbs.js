@@ -992,6 +992,78 @@ ${FOOTER}
 }
 
 // ---------------------------------------------------------------------------
+// prices.html is committed, but every fare row in it is a pure function of the
+// rate tables above - 752 rows across six tables, all of them derived. Nothing
+// regenerated it, which is how it went stale twice: a suburb count, a cruise
+// "from" price, and a vehicle name that had been retired. So rebuild its table
+// bodies here at deploy time, the same way sitemap.xml is rewritten below, and
+// the page can no longer disagree with the engine that quotes the fares.
+// ---------------------------------------------------------------------------
+function pricesRows() {
+  const row = (name, r) => '        <tr><th scope="row">' + esc(name) + '</th>'
+    + r.map((v) => '<td>' + money(v) + '</td>').join('') + '</tr>';
+  const gc = Object.keys(SUBURBS).sort();
+  const bmn = Object.keys(BM_SUBURB).sort();
+  const ldn = Object.keys(LD_SUBURB).sort();
+  return {
+    ool:   gc.map((n) => row(n, OOL_RATES[SUBURBS[n][0]])),
+    gcbne: gc.map((n) => row(n, BNE_RATES[SUBURBS[n][1]])),
+    bne:   bmn.map((n) => row(n, BM_RATES[BM_SUBURB[n]])),
+    bmool: bmn.filter((n) => BM_OOL_SUBURB[n]).map((n) => row(n, BM_OOL_RATES[BM_OOL_SUBURB[n]])),
+    ldbne: ldn.filter((n) => LD_BNE_RATES[LD_SUBURB[n]]).map((n) => row(n, LD_BNE_RATES[LD_SUBURB[n]])),
+    ldool: ldn.filter((n) => LD_OOL_RATES[LD_SUBURB[n]]).map((n) => row(n, LD_OOL_RATES[LD_SUBURB[n]])),
+  };
+}
+
+function refreshPrices() {
+  const file = path.join(ROOT, 'prices.html');
+  let html;
+  try { html = fs.readFileSync(file, 'utf8'); }
+  catch (e) { console.warn('build-suburbs: no prices.html, skipping the price list'); return; }
+  const rows = pricesRows();
+  const COLS = '<thead><tr><th scope="col">Suburb</th>'
+    + VEH.map((v) => '<th scope="col">' + esc(v[0]) + '</th>').join('') + '</tr></thead>';
+
+  /* Brisbane -> Gold Coast Airport is a newer table than the page, so add it
+     once, immediately after the Brisbane -> Brisbane Airport one. */
+  if (!/id="bmool"/.test(html)) {
+    const after = /(<div class="tbl-scroll">\s*<table class="pricetable" id="bne">[\s\S]*?<\/table>\s*<\/div>\n)/;
+    if (!after.test(html)) throw new Error('prices.html: cannot find the #bne table to insert after');
+    html = html.replace(after, '$1' + [
+      '',
+      '  <div class="tbl-scroll">',
+      '    <table class="pricetable" id="bmool">',
+      '      <caption>Brisbane &amp; surrounds &rarr; Gold Coast Airport (OOL) &mdash; one way</caption>',
+      '      ' + COLS,
+      '      <tbody>',
+      '      </tbody>',
+      '    </table>',
+      '  </div>',
+      '  <p class="fine" style="margin-top:-8px">',
+      '    Measured road distance to Gold Coast Airport sets the band, which is why these do not',
+      '    follow the Brisbane Airport order above: Logan and Beenleigh are closest to OOL and the',
+      '    cheapest, while the inner north is among the dearest. Caboolture, Bribie Island and',
+      '    Grandchester are quoted by hand rather than listed &mdash;',
+      '    <a href="tel:+61481437772">call us</a> and we fix the price before you book.',
+      '  </p>',
+      '',
+    ].join('\n'));
+  }
+
+  for (const id of Object.keys(rows)) {
+    const re = new RegExp('(id="' + id + '"[\\s\\S]*?<tbody>\\n)[\\s\\S]*?(      </tbody>)');
+    if (!re.test(html)) throw new Error('prices.html: no table body for #' + id);
+    html = html.replace(re, '$1' + rows[id].join('\n') + '\n$2');
+  }
+  const got = (html.match(/<tr><th scope="row">/g) || []).length;
+  const want = Object.keys(rows).reduce((a, k) => a + rows[k].length, 0);
+  if (got !== want) throw new Error('prices.html: wrote ' + got + ' rows, expected ' + want);
+  fs.writeFileSync(file, html);
+  console.log('build-suburbs: prices.html refreshed, ' + got + ' fare rows across '
+    + Object.keys(rows).length + ' tables');
+}
+
+// ---------------------------------------------------------------------------
 // write everything
 // ---------------------------------------------------------------------------
 fs.mkdirSync(OUT, { recursive: true });
@@ -1002,6 +1074,7 @@ for (const p of places) {
 }
 fs.writeFileSync(path.join(OUT, 'index.html'), hubPage());
 for (const r of REGIONS) fs.writeFileSync(path.join(ROOT, r.slug + '.html'), regionPage(r));
+refreshPrices();
 
 // sitemap: keep every committed entry, drop any earlier generated ones, append ours
 const smPath = path.join(ROOT, 'sitemap.xml');
