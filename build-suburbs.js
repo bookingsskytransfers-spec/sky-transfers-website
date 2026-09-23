@@ -1002,16 +1002,21 @@ ${FOOTER}
 function pricesRows() {
   const row = (name, r) => '        <tr><th scope="row">' + esc(name) + '</th>'
     + r.map((v) => '<td>' + money(v) + '</td>').join('') + '</tr>';
+  /* BM_SUBURB and LD_SUBURB do not exist in this file - the page builders
+     iterate BM_ZONE and LD_ZONE directly - so derive the name -> zone maps here
+     rather than assuming the shape index.html and stripe-server.js happen to use. */
+  const bmSub = {}; Object.keys(BM_ZONE).forEach((z) => BM_ZONE[z].forEach((s) => { bmSub[s] = z; }));
+  const ldSub = {}; Object.keys(LD_ZONE).forEach((z) => LD_ZONE[z].forEach((s) => { ldSub[s] = z; }));
   const gc = Object.keys(SUBURBS).sort();
-  const bmn = Object.keys(BM_SUBURB).sort();
-  const ldn = Object.keys(LD_SUBURB).sort();
+  const bmn = Object.keys(bmSub).sort();
+  const ldn = Object.keys(ldSub).sort();
   return {
     ool:   gc.map((n) => row(n, OOL_RATES[SUBURBS[n][0]])),
     gcbne: gc.map((n) => row(n, BNE_RATES[SUBURBS[n][1]])),
-    bne:   bmn.map((n) => row(n, BM_RATES[BM_SUBURB[n]])),
+    bne:   bmn.map((n) => row(n, BM_RATES[bmSub[n]])),
     bmool: bmn.filter((n) => BM_OOL_SUBURB[n]).map((n) => row(n, BM_OOL_RATES[BM_OOL_SUBURB[n]])),
-    ldbne: ldn.filter((n) => LD_BNE_RATES[LD_SUBURB[n]]).map((n) => row(n, LD_BNE_RATES[LD_SUBURB[n]])),
-    ldool: ldn.filter((n) => LD_OOL_RATES[LD_SUBURB[n]]).map((n) => row(n, LD_OOL_RATES[LD_SUBURB[n]])),
+    ldbne: ldn.filter((n) => LD_BNE_RATES[ldSub[n]]).map((n) => row(n, LD_BNE_RATES[ldSub[n]])),
+    ldool: ldn.filter((n) => LD_OOL_RATES[ldSub[n]]).map((n) => row(n, LD_OOL_RATES[ldSub[n]])),
   };
 }
 
@@ -1029,7 +1034,7 @@ function refreshPrices() {
   if (!/id="bmool"/.test(html)) {
     const after = /(<div class="tbl-scroll">\s*<table class="pricetable" id="bne">[\s\S]*?<\/table>\s*<\/div>\n)/;
     if (!after.test(html)) throw new Error('prices.html: cannot find the #bne table to insert after');
-    html = html.replace(after, '$1' + [
+    html = html.replace(after, (m, block) => block + [
       '',
       '  <div class="tbl-scroll">',
       '    <table class="pricetable" id="bmool">',
@@ -1053,7 +1058,9 @@ function refreshPrices() {
   for (const id of Object.keys(rows)) {
     const re = new RegExp('(id="' + id + '"[\\s\\S]*?<tbody>\\n)[\\s\\S]*?(      </tbody>)');
     if (!re.test(html)) throw new Error('prices.html: no table body for #' + id);
-    html = html.replace(re, '$1' + rows[id].join('\n') + '\n$2');
+    /* A function replacer, not a string: every row contains text like
+       "<td>$225</td>", and in a replacement string $2 means capture group 2. */
+    html = html.replace(re, (m, open, close) => open + rows[id].join('\n') + '\n' + close);
   }
   const got = (html.match(/<tr><th scope="row">/g) || []).length;
   const want = Object.keys(rows).reduce((a, k) => a + rows[k].length, 0);
