@@ -34,7 +34,7 @@ const path = require('path');
 const ROOT    = __dirname;
 const SITE    = 'https://www.skytransfers.com.au';
 const DIR     = 'airport-transfers';
-const LASTMOD = '2026-09-20';               // bump when the template or the copy changes
+const LASTMOD = '2026-09-23';               // bump when the template or the copy changes
 const OUT     = path.join(ROOT, DIR);
 
 // ---------------------------------------------------------------------------
@@ -52,6 +52,10 @@ const OOL_RATES    = table('OOL_RATES');
 const BNE_RATES    = table('BNE_RATES');
 const BM_ZONE      = table('BM_ZONE');        // Brisbane metro: zone -> [names]
 const BM_RATES     = table('BM_RATES');
+const BM_OOL_ZONE  = table('BM_OOL_ZONE');   // Brisbane metro -> OOL: band -> [names]
+const BM_OOL_RATES = table('BM_OOL_RATES');
+const BM_OOL_SUBURB = {};
+Object.keys(BM_OOL_ZONE).forEach((z) => BM_OOL_ZONE[z].forEach((s) => { BM_OOL_SUBURB[s] = z; }));
 const LD_ZONE      = table('LD_ZONE');        // regional: zone -> [names]
 const LD_BNE_RATES = table('LD_BNE_RATES');
 const LD_OOL_RATES = table('LD_OOL_RATES');
@@ -156,7 +160,7 @@ const Z = {
   // Brisbane metro, keyed by BM zone
   CBD: { region: 'Brisbane', label: 'the Brisbane CBD and inner city',
     notes: ['{S} is in the inner-city band around the Brisbane CBD, South Bank and the Valley. Brisbane Airport is a short run via the Airport Link tunnel or Kingsford Smith Drive along the river, and the tunnel toll is inside the fare. Most jobs here are hotel and office pick-ups with a name-board meet on the way back.',
-            'Gold Coast Airport from here is quoted on request: the M1 south the whole way, about an hour and a half outside peak. Call or WhatsApp us with the date and we fix the price before you book.'],
+            'Gold Coast Airport is a fixed fare from here too: the M1 south the whole way, about an hour and a half outside peak, so both airports are priced in the table above.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM}; longer in the weekday morning peak, which we allow for in the recommended pick-up time.'],
           ['Is the Airport Link toll extra?', 'No. Tolls and GST are inside the fixed fare.'],
           ['Do you pick up from hotels and offices?', 'Yes. Give us the building and the driver will be at the entrance; on arrivals your chauffeur meets you inside the terminal with a name board.']] },
@@ -165,13 +169,13 @@ const Z = {
             'Short trips are where a fixed fare matters most: there is no minimum charge and no flag-fall, so a 10-minute run to the terminal at 5am costs exactly what the table says.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM}.'],
           ['Is there a minimum fare for such a short trip?', 'No. The published fare is the whole price, at any hour.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request \u2014 call or WhatsApp us with the date and we fix the price. The drive is {OOL_KM} down the Gateway and the M1, roughly {OOL_MIN}.']] },
+          ['Gold Coast Airport from {S}?', 'The drive is {OOL_KM} down the Gateway and the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BN2: { region: 'Brisbane', label: 'the northern suburbs and the Redcliffe peninsula',
     notes: ['{S} is in the northern band running from Sandgate and Bald Hills up to North Lakes and across the bridge to Redcliffe. Brisbane Airport is reached via the Gateway Motorway or the Bruce Highway and Gympie Arterial, toll included in the fare.',
             'The peninsula adds the Houghton Highway crossing; it rarely delays a trip, but we allow for it in the pick-up time we recommend on departures.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak.'],
           ['Do you cover early flights?', 'Yes, at the same fare. Most of our northern work is the first wave of departures.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} down the Gateway and the M1, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM} down the Gateway and the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BN3: { region: 'Brisbane', label: 'the Caboolture corridor',
     notes: ['{S} is on the Caboolture corridor north of Brisbane, where the Bruce Highway is the road to everything. Brisbane Airport is south on the Bruce and then the Gateway Motorway, toll included; it is a comfortable run outside the weekday peak and we allow for the peak when we recommend a pick-up time.',
             'This band is often quoted per-kilometre by others, which is how a $165 trip turns into $220 on the meter. Ours is fixed, per vehicle, and includes the toll.'],
@@ -189,67 +193,67 @@ const Z = {
             'This band is also the closest to the Brisbane Cruise Terminal at Pinkenba, so cruise-day transfers are common here; the terminal fare is the airport fare plus $25 and is shown in the table.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM}.'],
           ['And to the cruise terminal?', 'Minutes further than the airport; the fare is the airport fare plus $25, shown above.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} via the Gateway and the M1, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM} via the Gateway and the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BE2: { region: 'Brisbane', label: 'the Redlands',
     notes: ['{S} is in the Redlands, the bayside band from Capalaba out to Cleveland and Redland Bay. Brisbane Airport is north on the Gateway Motorway, toll included, and outside peak it is a steady run; the Cleveland ferries to North Stradbroke Island mean a good share of our work here is island holidays with luggage.',
             'A Luxury Minivan or Sprinter takes the surfboards, the esky and everyone in one trip at one fixed price.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak, Gateway toll included.'],
           ['Do you meet the ferry?', 'Yes. Tell us the sailing and we time the pick-up at the Cleveland terminal.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} via the Gateway and the M1, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM} via the Gateway and the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BS1: { region: 'Brisbane', label: 'the inner south',
     notes: ['{S} is in the inner-southern band \u2014 Coorparoo, Mount Gravatt, Annerley and around \u2014 with Brisbane Airport reached via the Gateway Motorway or the Clem7 and Airport Link tunnels, whichever is moving. Tolls are inside the fare either way.',
             'Griffith University, the Princess Alexandra and Mater hospitals and the Gabba all sit in or beside this band, so we see a lot of conference, medical and event travel; a tax invoice is issued on every trip.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak.'],
           ['Are the tunnel tolls included?', 'Yes. Tolls and GST are inside the fixed fare on every Brisbane route.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} via the M1, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM} via the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BS2: { region: 'Brisbane', label: 'Sunnybank, Logan and the southern suburbs',
-    notes: ['{S} is in the southern band from Sunnybank and Eight Mile Plains through Springwood and Logan Central to Loganholme, Marsden and Cornubia. Brisbane Airport is the Gateway Motorway north, toll included, and is the published fare; Gold Coast Airport is the Pacific Motorway south and is quoted on request. From here the two are closer in time than most people expect.',
+    notes: ['{S} is in the southern band from Sunnybank and Eight Mile Plains through Springwood and Logan Central to Loganholme, Marsden and Cornubia. Brisbane Airport is the Gateway Motorway north, toll included, and is the published fare; Gold Coast Airport is the Pacific Motorway south, and is a fixed fare as well, so both are priced in the table above. From here the two are closer in time than most people expect.',
             'The Sunnybank precinct and the Logan business parks generate steady corporate and family travel; accounts are available for regular bookers.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak, Gateway toll included.'],
-          ['How long from {S} to Gold Coast Airport?', 'About {OOL_MIN} for {OOL_KM} down the M1. That run is quoted on request \u2014 call or WhatsApp us with the date.'],
+          ['How long from {S} to Gold Coast Airport?', 'About {OOL_MIN} for {OOL_KM} down the M1. {OOL_PRICING}'],
           ['Can I book a return in one go?', 'Book each leg with its own flight number; we track both and the fare is the same each way.']] },
   BS3: { region: 'Brisbane', label: 'Beenleigh, Waterford and the Logan River',
-    notes: ['{S} sits in the Logan River band, where the Logan Motorway meets the M1 — Beenleigh and Eagleby on the river, Waterford and Bethania upstream, and the Park Ridge shelf to the west. Brisbane Airport is the published fare, north on the Logan Motorway and then the Gateway, tolls inside the fare. Gold Coast Airport is the M1 south and is quoted on request.',
+    notes: ['{S} sits in the Logan River band, where the Logan Motorway meets the M1 — Beenleigh and Eagleby on the river, Waterford and Bethania upstream, and the Park Ridge shelf to the west. Brisbane Airport is the published fare, north on the Logan Motorway and then the Gateway, tolls inside the fare. Gold Coast Airport is the M1 south, and is a fixed fare as well, so you can compare the two in the table above before you book the flight.',
             'This is the halfway mark between the two cities, which makes it the one part of Brisbane where the airport you fly from is worth a moment’s thought. Both distances are in the facts above, so you can compare before you book the flight rather than after.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak, with the Logan and Gateway tolls already inside the fixed fare.'],
-          ['Is Gold Coast Airport closer from {S}?', 'Often not far off it: {OOL_KM}, roughly {OOL_MIN} down the M1. That run is quoted on request — call or WhatsApp us with the date and we fix the price before you book.'],
+          ['Is Gold Coast Airport closer from {S}?', 'Often not far off it: {OOL_KM}, roughly {OOL_MIN} down the M1. {OOL_PRICING}'],
           ['Do you run to the Brisbane Cruise Terminal?', 'Yes, as a fixed door-to-ship fare from {S}. Choose Brisbane Cruise Terminal in the booking form for an instant price; we track ship arrivals and meet disembarking passengers with a name board.']] },
   BS4: { region: 'Brisbane', label: 'Logan Village, Jimboomba and the rural south',
-    notes: ['{S} is in Logan’s rural south — the belt running from Greenbank and Munruben out through Logan Village, Yarrabilba, Flagstone and Jimboomba. Brisbane Airport is the published fare: local roads out to the Logan Motorway, then the Gateway, tolls included. Gold Coast Airport is quoted on request.',
+    notes: ['{S} is in Logan’s rural south — the belt running from Greenbank and Munruben out through Logan Village, Yarrabilba, Flagstone and Jimboomba. Brisbane Airport is the published fare: local roads out to the Logan Motorway, then the Gateway, tolls included. Gold Coast Airport is a fixed fare too, so both are in the table above.',
             'Addresses out here are often acreage, and a driveway can be a few hundred metres of gravel behind a gate. Type the street address when you book and add the gate code in the notes — the form resolves the address to the suburb for pricing and keeps the exact address for your chauffeur. We also suggest a slightly earlier pick-up than the raw drive time implies, because the first stretch of this trip is country road rather than motorway.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak. Tolls and GST are inside the fixed fare, and the same price applies at 4am.'],
-          ['Gold Coast Airport from {S}?', '{OOL_KM}, roughly {OOL_MIN}. That one is quoted on request — send us the date and we come back with a fixed price.'],
+          ['Gold Coast Airport from {S}?', '{OOL_KM}, roughly {OOL_MIN}. {OOL_PRICING}'],
           ['Will a Sprinter get down an acreage driveway?', 'Usually, and we carry school, club and conference groups out here regularly. Tell us if the driveway is steep, narrow or unsealed and we will send the right vehicle or meet you at the gate.']] },
   BW1: { region: 'Brisbane', label: 'the inner west',
     notes: ['{S} is in the inner-western band \u2014 Toowong, Indooroopilly, Ashgrove, The Gap and around the University of Queensland at St Lucia. Brisbane Airport is reached via Legacy Way, the Inner City Bypass and the Airport Link tunnel, with all tolls inside the fare.',
             'University terms, conferences at UQ and the Wesley hospital keep this band busy with travellers who need a receipt: a GST tax invoice is emailed with every booking.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak.'],
           ['Are the tunnel tolls extra?', 'No. Legacy Way and Airport Link tolls are inside the fixed fare.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM}, roughly {OOL_MIN} via the M1. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM}, roughly {OOL_MIN} via the M1. {OOL_PRICING}']] },
   BW2: { region: 'Brisbane', label: 'the Centenary suburbs',
     notes: ['{S} is in the Centenary band \u2014 Jindalee, Mount Ommaney, Forest Lake, Richlands \u2014 with the Centenary Motorway as the spine. Brisbane Airport is the Centenary north to Legacy Way and the Airport Link, or the Ipswich and Gateway motorways, and the tolls are inside the fare on either route.',
             'Because two routes work, the driver chooses on the day by traffic, which is one of the reasons the fare is fixed rather than metered.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak, tolls included.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} via the Logan and Pacific motorways, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.'],
+          ['Gold Coast Airport from {S}?', '{OOL_KM} via the Logan and Pacific motorways, roughly {OOL_MIN}. {OOL_PRICING}'],
           ['Is a Sunday fare the same?', 'Yes. Weekday, weekend and public holiday fares are identical.']] },
   BW3: { region: 'Brisbane', label: 'Springfield, Goodna and the Ipswich Motorway corridor',
     notes: ['{S} is on the corridor between Brisbane and Ipswich that includes Springfield, Goodna and Redbank. Brisbane Airport is the Ipswich Motorway or the Centenary Motorway, then the Gateway or Legacy Way and the Airport Link \u2014 tolls inside the fare on every variant. It is a run of well over half an hour, and the fare band reflects the distance honestly.',
             'Springfield Central\u2019s offices and the Orion precinct generate corporate travel here; monthly accounts and tax invoices are standard.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak. Tolls are inside the fare.'],
           ['Do you do early pick-ups this far out?', 'Yes, at the same fare, any hour.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} via the Logan and Pacific motorways, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM} via the Logan and Pacific motorways, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BW4: { region: 'Brisbane', label: 'Ipswich',
     notes: ['{S} is in the Ipswich city band. Brisbane Airport is the Ipswich Motorway to the Gateway, or the Warrego and Centenary motorways to Legacy Way and the Airport Link, depending on the hour; both are toll roads and the tolls are inside the fare. Until recently most of Ipswich was not priced online at all, which is why you may have been told to phone for a quote \u2014 the table above is now the answer.',
             'RAAF Base Amberley and the Ipswich hospitals sit at the edge of this band, and a good share of the bookings are defence and medical travel with firm times. We track every flight.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak. Tolls included.'],
           ['Is the fare the same at 4am?', 'Yes. No after-hours loading.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM} via the Logan Motorway and the M1, roughly {OOL_MIN}. Call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM} via the Logan Motorway and the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BW5: { region: 'Brisbane', label: 'the western Ipswich towns',
     notes: ['{S} is in the band of towns west of Ipswich \u2014 Rosewood, Walloon, Marburg, Amberley \u2014 which is the furthest Brisbane-priced band we publish. The run to Brisbane Airport is the Warrego Highway to Ipswich and then the motorways to the Gateway or Airport Link, tolls included. Allow the full time; there is no fast way around Ipswich in the morning peak.',
             'Because it is a long trip, the fixed fare is the point: a metered taxi from here would be well past the published price before it reached Brisbane.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak. Tolls included.'],
           ['Do you cover rural addresses?', 'Yes. Type the street address when booking; the driver gets it exactly, and a note about gates or unsealed roads helps.'],
-          ['Gold Coast Airport from {S}?', 'Quoted on request: {OOL_KM}, roughly {OOL_MIN}. A long run; call or WhatsApp us with the date and we fix the price before you book.']] },
+          ['Gold Coast Airport from {S}?', '{OOL_KM}, roughly {OOL_MIN}. It is a long run, so allow extra time. {OOL_PRICING}']] },
 
   // regional, keyed by LD zone
   SC1: { region: 'Sunshine Coast', label: 'Caloundra and the southern Sunshine Coast',
@@ -307,7 +311,15 @@ for (const name of Object.keys(SUBURBS)) {
 }
 for (const z of Object.keys(BM_ZONE)) {
   const bne = BM_RATES[z]; if (!bne) throw new Error('BM rate missing for ' + z);
-  for (const name of BM_ZONE[z]) add(name, z, { bne, cruise: plus(bne, CRUISE_EXTRA) }, 'Brisbane', 'BNE');
+  for (const name of BM_ZONE[z]) {
+    /* 252 of the 274 have a fixed OOL fare. The far north (Caboolture, Bribie,
+       Grandchester) is still quoted by hand and simply gets no fares.ool, which
+       airportsFor() already handles by omitting the Gold Coast table. */
+    const f = { bne, cruise: plus(bne, CRUISE_EXTRA) };
+    const om = BM_OOL_SUBURB[name];
+    if (om) f.ool = BM_OOL_RATES[om];
+    add(name, z, f, 'Brisbane', 'BNE');
+  }
 }
 for (const z of Object.keys(LD_ZONE)) {
   const bne = LD_BNE_RATES[z], ool = LD_OOL_RATES[z];
@@ -353,7 +365,13 @@ function fill(text, p) {
     .replace(/\{BNE_MIN\}/g, d('bne', 's') ? mins(d('bne', 's')) : 'the usual drive time')
     .replace(/\{OOL_KM\}/g, d('ool', 'm') ? km(d('ool', 'm')) : 'the published distance')
     .replace(/\{OOL_MIN\}/g, d('ool', 's') ? mins(d('ool', 's')) : 'the usual drive time')
-    .replace(/\{BNE_KM_GC_NOTE\}/g, d('ool', 'm') ? km(d('ool', 'm')) + ' down ' : '');
+    .replace(/\{BNE_KM_GC_NOTE\}/g, d('ool', 'm') ? km(d('ool', 'm')) + ' down ' : '')
+    /* Fare zones straddle the OOL bands, so whether a Gold Coast fare exists is
+       a per-suburb fact, not a per-zone one: BW5 holds ten priced suburbs and
+       Grandchester, which is not. One placeholder, resolved per page. */
+    .replace(/\{OOL_PRICING\}/g, p.fares.ool
+      ? 'The fare is fixed and shown above, the same price at any hour with no surge.'
+      : 'That run is quoted on request: call or WhatsApp us with the date and we fix the price before you book.');
 }
 
 const NAV = `<nav class="sitenav">
@@ -776,13 +794,13 @@ const REGIONS = [
     h1: 'Logan airport transfers, fixed price',
     lead: 'Private chauffeur transfers between the Logan City suburbs and Brisbane Airport (BNE), priced by three fare bands: the northern suburbs around Springwood and Loganholme, the Beenleigh and Waterford belt on the Logan River, and the rural south out through Logan Village and Jimboomba. One fixed fare per vehicle, published below.',
     notes: [
-      'Logan sits between Brisbane and the Gold Coast, and that is the single most useful thing to know about a transfer from here. Brisbane Airport is the published fare on this page: the Logan Motorway or the Pacific Motorway north, then the Gateway, with every toll already inside the price. Gold Coast Airport is the M1 south and is quoted on request — from the southern half of Logan it is not much further than Brisbane, so it is worth asking before you book the flight rather than after.',
+      'Logan sits between Brisbane and the Gold Coast, and that is the single most useful thing to know about a transfer from here. Brisbane Airport is the published fare on this page: the Logan Motorway or the Pacific Motorway north, then the Gateway, with every toll already inside the price. Gold Coast Airport is the M1 south and is a published fare as well, from $225 in the closest band. From the southern half of Logan it is not much further than Brisbane, so it is worth comparing the two before you book the flight rather than after.',
       'The three bands below follow the drive rather than the council map. The northern band, from Rochedale South and Springwood out to Loganholme and Marsden, is close enough in to carry the same fare as Sunnybank. The middle band is the Logan River country either side of the motorway — Beenleigh, Waterford, Bethania and the Park Ridge shelf. The third is the rural south, out through Logan Village, Yarrabilba, Flagstone and Jimboomba, where a driveway can be a few hundred metres of gravel behind a gate and we suggest a slightly earlier pick-up than the raw drive time implies.',
       'The Brisbane International Cruise Terminal at Pinkenba is a fixed door-to-ship fare from every Logan suburb — the Brisbane Airport fare plus $25, quoted instantly in the booking form when you choose it as your drop-off. We track ship arrivals and meet disembarking passengers inside with a name board.',
     ],
     faq: [
       ['How long is Logan to Brisbane Airport?', 'From about {MIN_LOW} at the northern end to about {MIN_HIGH} from the rural south, outside peak. Every suburb page below shows its own measured distance and drive time.'],
-      ['Which airport should I use from Logan?', 'Brisbane Airport is the published fare and the usual answer. Gold Coast Airport is genuinely close from the southern half of Logan and we do run it, but it is quoted on request rather than priced online — call or WhatsApp us with the date and we fix the price before you book.'],
+      ['Which airport should I use from Logan?', 'Both are published fares, so the honest answer is whichever suits your flight. Brisbane Airport is nearer from every Logan suburb, measured; Gold Coast Airport starts at $225 and is the M1 most of the way. Each suburb page below shows both distances and both fares side by side.'],
       ['Is the fare the same for a 4am pick-up?', 'Yes. The published fare applies at any hour, any day, including public holidays, with no after-hours loading and no surge. Early departures are a large share of the Logan work.'],
       ['Can you find an acreage address out past Jimboomba?', 'Yes. Type the street address into the booking form and it prices the trip by suburb while keeping the exact address for your chauffeur; add the gate code in the notes if there is one. Tell us if the driveway is steep, narrow or unsealed and we will send the right vehicle or meet you at the gate.'],
     ],
