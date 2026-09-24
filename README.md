@@ -109,6 +109,27 @@ all three currently live:
 The third is the dangerous one, because it looks like a deliberate range rather
 than a sample and it reads as an upper bound on how cheap the route gets.
 
+### And the cruise floor is $95, not $110
+
+This one looks like a bug rather than a misreading, so it gets its own note.
+
+Cruise fares are `BM_RATES` plus `CRUISE_EXTRA` ($25), and the cheapest Brisbane
+zone is $85 - so deriving the minimum from the tables gives **$110**, and the
+published "from $95" looks like a $15 understatement. It is not. `getRates()` has
+a hub-to-hub branch that prices **Brisbane Airport to the terminal at the flat
+`BM_RATES["CBD"]` rate and deliberately skips the surcharge**, because it is a
+ten-minute run on the same side of the river rather than a crossing of the city.
+
+So both numbers are right, for different questions:
+
+- **$95** - the cheapest cruise transfer, reachable only from Brisbane Airport
+- **$110** - the cheapest cruise transfer from an actual suburb (zone BE1)
+
+All nine rows on `cruise-transfers.html` reproduce exactly from the tables: the
+eight suburb rows as zone + $25, and the Brisbane Airport row as the bare CBD
+rate. `CRUISE_EXTRA` is the misleading part - the name reads as "every cruise
+fare carries this", and one route does not.
+
 ## Deploy order
 
 The booking server (`sky-transfers-booking-server`) recomputes every fare
