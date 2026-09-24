@@ -45,11 +45,22 @@ are full of `<td>$225</td>`, so `'$1' + rows + '$2'` silently reads `$2` as
 capture group 2. Use a function replacer whenever the inserted text can contain
 money - in this file it always can.
 
-Both were caught by assertions rather than by anyone noticing a wrong page,
-because the generator throws on a failed invariant (`no route notes for zone`,
-row counts, ascending fares) and Render keeps serving the previous build when the
-build command exits non-zero. A bad deploy here is a no-op, not a broken site.
-Keep that shape: assert, throw, let the old build stand.
+Both were caught by assertions rather than by anyone noticing a wrong page.
+Render keeps serving the previous build when the build command exits non-zero, so
+a bad deploy here is a no-op rather than a broken site. Keep that shape: assert,
+throw, let the old build stand. What is currently asserted:
+
+- a named table is missing from `index.html`
+- a suburb has no BNE or OOL rate, or a BM zone has no rate row
+- a zone has no entry in `Z`, so there are no route notes for its pages
+- two suburbs collide on the same slug
+- a region ends up with no suburbs left in one of its zones
+- `prices.html` is missing the anchor or a `<tbody>` the rewrite needs
+- the row count written to `prices.html` does not match the row count computed
+
+**Nothing checks that the fare ladder ascends.** A zone priced below one closer
+in will deploy without complaint - that is how Lyons came to charge a 65 km run
+at the 43 km rate for several days. Worth adding.
 
 ## The hand-written landing pages
 
@@ -76,6 +87,10 @@ Their fare tables deep-link into the booking form: each suburb name is an anchor
 to `/?pu=...&do=...#book`, and `index.html` validates both parameters against
 `PLACES` before pre-filling. A typo in a suburb name there fails quietly - the
 form just opens empty - so verify new rows against `PLACES`.
+
+These counts are also copied into Google Ads headlines, and Google checks an ad
+claim against its landing page. If a count changes here, check the ads before or
+with it, not after.
 
 ## Deploy order
 
