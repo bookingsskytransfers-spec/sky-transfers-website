@@ -36,6 +36,11 @@
   body{margin:0;padding:0}
   img{max-width:100%}
   [hidden]{display:none!important}
+  /* Suburb names in the fare table below link into the booking form with that
+     trip already filled in. Styled so the table looks exactly as it did at
+     rest - the affordance is the hover, plus the line of text above it. */
+  table.lpfare tbody th a{color:inherit;text-decoration:none}
+  table.lpfare tbody th a:hover,table.lpfare tbody th a:focus-visible{text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
 </style>
 <script type="application/ld+json">
 {
@@ -159,7 +164,7 @@
     223 Brisbane-area suburbs priced up front, per vehicle, with the Gateway toll and GST already
     in the fare.
   </p>
-  <a class="cta-gold" href="/#book">Get your fixed price</a>
+  <a class="cta-gold" href="/?do=Brisbane%20Airport%20(BNE)#book">Get your fixed price</a>
 </header>
 
 <div class="lp">
@@ -191,6 +196,7 @@
     not added at the end.
   </p>
 
+  <p class="fare-note" style="margin:0 0 10px">Choose your suburb in the table below and the booking form opens with that trip already priced.</p>
   <div class="faretable-wrap">
     <table class="lpfare">
       <caption>Brisbane Airport (BNE) &rarr; Brisbane suburbs &mdash; one way, AUD, GST and tolls included</caption>
@@ -198,17 +204,17 @@
         <tr><th scope="col">Suburb</th><th scope="col">Sedan</th><th scope="col">SUV</th><th scope="col">People mover</th><th scope="col">Luxury sedan</th><th scope="col">Minivan</th><th scope="col">Sprinter 10</th><th scope="col">Sprinter 14</th></tr>
       </thead>
       <tbody>
-        <tr><th scope="row">Hamilton</th><td>$85</td><td>$95</td><td>$100</td><td>$110</td><td>$115</td><td>$170</td><td>$240</td></tr>
-        <tr><th scope="row">Pinkenba</th><td>$85</td><td>$95</td><td>$100</td><td>$110</td><td>$115</td><td>$170</td><td>$240</td></tr>
-        <tr><th scope="row">Chermside</th><td>$85</td><td>$95</td><td>$100</td><td>$110</td><td>$115</td><td>$170</td><td>$240</td></tr>
-        <tr><th scope="row">Brisbane CBD</th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
-        <tr><th scope="row">Fortitude Valley</th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
-        <tr><th scope="row">New Farm</th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
-        <tr><th scope="row">South Brisbane</th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
-        <tr><th scope="row">Indooroopilly</th><td>$115</td><td>$125</td><td>$135</td><td>$140</td><td>$150</td><td>$205</td><td>$270</td></tr>
-        <tr><th scope="row">Redland Bay</th><td>$130</td><td>$140</td><td>$150</td><td>$155</td><td>$165</td><td>$220</td><td>$285</td></tr>
-        <tr><th scope="row">Springfield</th><td>$155</td><td>$170</td><td>$180</td><td>$185</td><td>$195</td><td>$255</td><td>$315</td></tr>
-        <tr><th scope="row">Ipswich</th><td>$185</td><td>$200</td><td>$210</td><td>$220</td><td>$230</td><td>$290</td><td>$345</td></tr>
+        <tr><th scope="row"><a href="/?pu=Hamilton&amp;do=Brisbane%20Airport%20(BNE)#book">Hamilton</a></th><td>$85</td><td>$95</td><td>$100</td><td>$110</td><td>$115</td><td>$170</td><td>$240</td></tr>
+        <tr><th scope="row"><a href="/?pu=Pinkenba&amp;do=Brisbane%20Airport%20(BNE)#book">Pinkenba</a></th><td>$85</td><td>$95</td><td>$100</td><td>$110</td><td>$115</td><td>$170</td><td>$240</td></tr>
+        <tr><th scope="row"><a href="/?pu=Chermside&amp;do=Brisbane%20Airport%20(BNE)#book">Chermside</a></th><td>$85</td><td>$95</td><td>$100</td><td>$110</td><td>$115</td><td>$170</td><td>$240</td></tr>
+        <tr><th scope="row"><a href="/?pu=Brisbane%20CBD&amp;do=Brisbane%20Airport%20(BNE)#book">Brisbane CBD</a></th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
+        <tr><th scope="row"><a href="/?pu=Fortitude%20Valley&amp;do=Brisbane%20Airport%20(BNE)#book">Fortitude Valley</a></th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
+        <tr><th scope="row"><a href="/?pu=New%20Farm&amp;do=Brisbane%20Airport%20(BNE)#book">New Farm</a></th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
+        <tr><th scope="row"><a href="/?pu=South%20Brisbane&amp;do=Brisbane%20Airport%20(BNE)#book">South Brisbane</a></th><td>$95</td><td>$105</td><td>$110</td><td>$120</td><td>$125</td><td>$180</td><td>$255</td></tr>
+        <tr><th scope="row"><a href="/?pu=Indooroopilly&amp;do=Brisbane%20Airport%20(BNE)#book">Indooroopilly</a></th><td>$115</td><td>$125</td><td>$135</td><td>$140</td><td>$150</td><td>$205</td><td>$270</td></tr>
+        <tr><th scope="row"><a href="/?pu=Redland%20Bay&amp;do=Brisbane%20Airport%20(BNE)#book">Redland Bay</a></th><td>$130</td><td>$140</td><td>$150</td><td>$155</td><td>$165</td><td>$220</td><td>$285</td></tr>
+        <tr><th scope="row"><a href="/?pu=Springfield&amp;do=Brisbane%20Airport%20(BNE)#book">Springfield</a></th><td>$155</td><td>$170</td><td>$180</td><td>$185</td><td>$195</td><td>$255</td><td>$315</td></tr>
+        <tr><th scope="row"><a href="/?pu=Ipswich&amp;do=Brisbane%20Airport%20(BNE)#book">Ipswich</a></th><td>$185</td><td>$200</td><td>$210</td><td>$220</td><td>$230</td><td>$290</td><td>$345</td></tr>
       </tbody>
     </table>
   </div>
@@ -305,7 +311,7 @@
     Suburb, flight number, vehicle. The fare comes back straight away and it does not change
     afterwards &mdash; including at 2am on a public holiday.
   </p>
-  <a class="cta-gold" href="/#book">Book a Brisbane Airport transfer</a>
+  <a class="cta-gold" href="/?do=Brisbane%20Airport%20(BNE)#book">Book a Brisbane Airport transfer</a>
   <span class="alt">Or call <a href="tel:+61481437772">+61 481 437 772</a> &mdash; 24 hours, 7 days.</span>
 </section>
 <footer class="site">
