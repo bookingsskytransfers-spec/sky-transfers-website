@@ -88,9 +88,26 @@ to `/?pu=...&do=...#book`, and `index.html` validates both parameters against
 `PLACES` before pre-filling. A typo in a suburb name there fails quietly - the
 form just opens empty - so verify new rows against `PLACES`.
 
-These counts are also copied into Google Ads headlines, and Google checks an ad
-claim against its landing page. If a count changes here, check the ads before or
-with it, not after.
+## Do not read a route minimum off a landing page
+
+Every live Google ad carries a "from $X" fare, and Google checks that claim
+against the page it points at - so "what is the cheapest fare on this route" gets
+asked of these pages often. **`prices.html` is the authority for a minimum. A
+landing page is not.** Three things on them read as route minimums and are not,
+all three currently live:
+
+- **A per-person breakdown.** `brisbane-airport-to-gold-coast.html` says "$65
+  each" - that is $260 for an SUV split four ways, not a $65 fare.
+- **A cross-link to another route.** `byron-bay-transfers.html` says "from $80"
+  in its related-links panel; that is Gold Coast Airport's minimum, not Byron's.
+- **The illustrative fares in body copy.** `brisbane-airport-transfers.html`
+  names Noosa at $375 and Sunshine Coast Airport at $305 under "going further
+  than Brisbane". Those are recognisable destinations, not cheap ones - the real
+  Sunshine Coast minimum is **Caloundra at $280**, and it appears nowhere on that
+  page.
+
+The third is the dangerous one, because it looks like a deliberate range rather
+than a sample and it reads as an upper bound on how cheap the route gets.
 
 ## Deploy order
 
