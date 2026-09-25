@@ -384,6 +384,40 @@
       if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
     } catch (e) {}
   }
+  /* The fare-table rows link into the booking form with the trip pre-filled.
+     Those are internal navigations, so without this they are invisible: the
+     session simply turns up on the homepage with a select_vehicle and no trace
+     of which row sent it there. Deliberately NOT reported as `value` - a row
+     click is interest, not revenue, and GA4 would treat `value` as the latter. */
+  var HUBS = ["Gold Coast Airport (OOL)", "Brisbane Airport (BNE)",
+              "Brisbane Cruise Terminal (Pinkenba)"];
+  function fareRow(a){
+    if (!a.closest) return null;
+    var tr = a.closest("tr");
+    if (!tr || !a.closest("table.lpfare")) return null;
+    var q = (a.getAttribute("href") || "").slice(2).split("#")[0], p = {};
+    q.split("&").forEach(function(kv){
+      var i = kv.indexOf("=");
+      if (i > 0) {
+        try { p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, " ")); }
+        catch (e) {}
+      }
+    });
+    var puHub = HUBS.indexOf(p.pu) !== -1, doHub = HUBS.indexOf(p["do"]) !== -1;
+    if (!puHub && !doHub) return null;
+    var airport = doHub ? p["do"] : p.pu;
+    var suburb  = doHub ? p.pu    : p["do"];
+    /* The cruise page has one hub-to-hub row (Brisbane Airport to the terminal).
+       Without this it would report the terminal as the "suburb". */
+    if (puHub && doHub) { airport = p["do"]; suburb = (a.textContent || "").trim(); }
+    var cell = tr.querySelector("td");
+    var fare = cell ? parseInt(String(cell.textContent).replace(/[^0-9]/g, ""), 10) : NaN;
+    return {
+      suburb: suburb || (a.textContent || "").trim(),
+      airport: airport,
+      fare_aud: isNaN(fare) ? null : fare
+    };
+  }
   document.addEventListener("click", function(e){
     var a = e.target.closest && e.target.closest("a[href]");
     if (!a) return;
@@ -391,6 +425,10 @@
     if (href.indexOf("tel:") === 0) track("contact_phone", {method: "phone"});
     else if (href.indexOf("https://wa.me/") === 0) track("contact_whatsapp", {method: "whatsapp"});
     else if (href.indexOf("mailto:") === 0) track("contact_email", {method: "email"});
+    else if (href.indexOf("/?") === 0 && href.indexOf("#book") !== -1) {
+      var f = fareRow(a);
+      if (f) track("fare_row_click", f);
+    }
   });
 })();
 </script>
