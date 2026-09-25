@@ -165,7 +165,7 @@
     <div class="fact"><span class="k">Terminal</span><span class="v">Pinkenba</span><span class="s">Brisbane International Cruise Terminal</span></div>
     <div class="fact"><span class="k">From BNE</span><span class="v">$95</span><span class="s">Sedan, minutes away</span></div>
     <div class="fact"><span class="k">From Brisbane CBD</span><span class="v">$120</span><span class="s">Sedan</span></div>
-    <div class="fact"><span class="k">From the Gold Coast</span><span class="v">$270</span><span class="s">Sedan, Surfers Paradise</span></div>
+    <div class="fact"><span class="k">From the Gold Coast</span><span class="v">$220</span><span class="s">Sedan, northern corridor</span></div>
   </div>
 
   <h2>Fixed fares to the terminal</h2>
@@ -190,6 +190,7 @@
         <tr><th scope="row"><a href="/?pu=New%20Farm&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">New Farm</a></th><td>$120</td></tr>
         <tr><th scope="row"><a href="/?pu=Indooroopilly&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">Indooroopilly</a></th><td>$140</td></tr>
         <tr><th scope="row"><a href="/?pu=Redland%20Bay&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">Redland Bay</a></th><td>$155</td></tr>
+        <tr><th scope="row"><a href="/?pu=Coomera&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">Coomera / Ormeau / Pimpama</a></th><td>$220</td></tr>
         <tr><th scope="row"><a href="/?pu=Helensvale&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">Helensvale / Hope Island</a></th><td>$235</td></tr>
         <tr><th scope="row"><a href="/?pu=Surfers%20Paradise&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">Surfers Paradise</a></th><td>$270</td></tr>
         <tr><th scope="row"><a href="/?pu=Coolangatta&amp;do=Brisbane%20Cruise%20Terminal%20(Pinkenba)#book">Coolangatta</a></th><td>$305</td></tr>
@@ -335,6 +336,40 @@
       if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
     } catch (e) {}
   }
+  /* The fare-table rows link into the booking form with the trip pre-filled.
+     Those are internal navigations, so without this they are invisible: the
+     session simply turns up on the homepage with a select_vehicle and no trace
+     of which row sent it there. Deliberately NOT reported as `value` - a row
+     click is interest, not revenue, and GA4 would treat `value` as the latter. */
+  var HUBS = ["Gold Coast Airport (OOL)", "Brisbane Airport (BNE)",
+              "Brisbane Cruise Terminal (Pinkenba)"];
+  function fareRow(a){
+    if (!a.closest) return null;
+    var tr = a.closest("tr");
+    if (!tr || !a.closest("table.lpfare")) return null;
+    var q = (a.getAttribute("href") || "").slice(2).split("#")[0], p = {};
+    q.split("&").forEach(function(kv){
+      var i = kv.indexOf("=");
+      if (i > 0) {
+        try { p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, " ")); }
+        catch (e) {}
+      }
+    });
+    var puHub = HUBS.indexOf(p.pu) !== -1, doHub = HUBS.indexOf(p["do"]) !== -1;
+    if (!puHub && !doHub) return null;
+    var airport = doHub ? p["do"] : p.pu;
+    var suburb  = doHub ? p.pu    : p["do"];
+    /* The cruise page has one hub-to-hub row (Brisbane Airport to the terminal).
+       Without this it would report the terminal as the "suburb". */
+    if (puHub && doHub) { airport = p["do"]; suburb = (a.textContent || "").trim(); }
+    var cell = tr.querySelector("td");
+    var fare = cell ? parseInt(String(cell.textContent).replace(/[^0-9]/g, ""), 10) : NaN;
+    return {
+      suburb: suburb || (a.textContent || "").trim(),
+      airport: airport,
+      fare_aud: isNaN(fare) ? null : fare
+    };
+  }
   document.addEventListener("click", function(e){
     var a = e.target.closest && e.target.closest("a[href]");
     if (!a) return;
@@ -342,6 +377,10 @@
     if (href.indexOf("tel:") === 0) track("contact_phone", {method: "phone"});
     else if (href.indexOf("https://wa.me/") === 0) track("contact_whatsapp", {method: "whatsapp"});
     else if (href.indexOf("mailto:") === 0) track("contact_email", {method: "email"});
+    else if (href.indexOf("/?") === 0 && href.indexOf("#book") !== -1) {
+      var f = fareRow(a);
+      if (f) track("fare_row_click", f);
+    }
   });
 })();
 </script>
