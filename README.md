@@ -58,9 +58,43 @@ throw, let the old build stand. What is currently asserted:
 - `prices.html` is missing the anchor or a `<tbody>` the rewrite needs
 - the row count written to `prices.html` does not match the row count computed
 
-**Nothing checks that the fare ladder ascends.** A zone priced below one closer
-in will deploy without complaint - that is how Lyons came to charge a 65 km run
-at the 43 km rate for several days. Worth adding.
+## The fare ladder check
+
+`fare-ladder.js` validates that the fares are internally consistent. It runs in
+CI on every change to `index.html`, `data/suburb-facts.json` or itself, and can
+be run by hand any time: `node fare-ladder.js`. It reads the rate tables out of
+`index.html`, the same source `build-suburbs.js` uses, so it cannot end up
+validating fares the booking widget does not quote.
+
+**What it checks is not what you would first write, and that is the point.**
+"Fares must rise with distance" flags **313 pairs on data that is correct**,
+because road distance is not the cost driver: Tamborine Mountain is 80 km from
+BNE and costs more than Southport at 82 km, because it is up a mountain. Drive
+time is the driver, and against drive time the ladder is almost perfectly
+ordered - the largest benign inversion is 11 minutes, the Broadwater strip (N2)
+against the motorway corridor (N3). Both thresholds in the script were set by
+measuring the live tables.
+
+It fails on two things:
+
+- within one rate row, a bigger vehicle costing less than a smaller one. Pure
+  structure, so it cannot false-positive; it catches a transposed or mistyped cell
+- within one hub and rate family, a dearer zone being dramatically quicker to
+  reach than a cheaper one - the backstop for a row entered at the wrong tier
+
+**It will not catch a single suburb banded too cheaply** - which is exactly the
+Lyons case it was written in response to, so do not assume otherwise. Catching
+that needs a threshold about 7 minutes tight, and at 7 minutes roughly 19
+suburbs that are correctly cheap-and-remote trip it too (Undullah, Redland Bay,
+Currumbin Valley). The per-zone drive-time spans are printed instead, because
+that is where a mis-banded suburb shows: BS3 spanned 31-52 minutes with Lyons in
+it, and 31-39 without. **A zone whose span suddenly widens is the signal.**
+
+It is CI rather than part of the Render build on purpose: a false positive in the
+build command would block every deploy, and the site is worth more than the
+check. To make it block a bad deploy too, change the Render build command to
+`node fare-ladder.js && node build-suburbs.js` - it exits non-zero on a
+violation and Render then keeps the previous build.
 
 ## The hand-written landing pages
 
@@ -86,15 +120,15 @@ surrounding phrase instead, and check the icon still renders.
 Their fare tables deep-link into the booking form: each suburb name is an anchor
 to `/?pu=...&do=...#book`, and `index.html` validates both parameters against
 `PLACES` before pre-filling. A typo in a suburb name there fails quietly - the
-form just opens empty - so verify new rows against `PLACES`.
+form just opens empty - so verify new rows against `PLACES`. Clicks on those rows
+report a `fare_row_click` GA4 event carrying `suburb`, `airport` and `fare_aud`.
 
 ## Do not read a route minimum off a landing page
 
 Every live Google ad carries a "from $X" fare, and Google checks that claim
 against the page it points at - so "what is the cheapest fare on this route" gets
 asked of these pages often. **`prices.html` is the authority for a minimum. A
-landing page is not.** Three things on them read as route minimums and are not,
-all three currently live:
+landing page is not.** Three things on them read as route minimums and are not:
 
 - **A per-person breakdown.** `brisbane-airport-to-gold-coast.html` says "$65
   each" - that is $260 for an SUV split four ways, not a $65 fare.
@@ -125,8 +159,8 @@ So both numbers are right, for different questions:
 - **$95** - the cheapest cruise transfer, reachable only from Brisbane Airport
 - **$110** - the cheapest cruise transfer from an actual suburb (zone BE1)
 
-All nine rows on `cruise-transfers.html` reproduce exactly from the tables: the
-eight suburb rows as zone + $25, and the Brisbane Airport row as the bare CBD
+All ten rows on `cruise-transfers.html` reproduce exactly from the tables: the
+nine suburb rows as zone + $25, and the Brisbane Airport row as the bare CBD
 rate. `CRUISE_EXTRA` is the misleading part - the name reads as "every cruise
 fare carries this", and one route does not.
 
