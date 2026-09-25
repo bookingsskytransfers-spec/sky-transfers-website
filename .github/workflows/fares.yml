@@ -1,0 +1,32 @@
+# Runs the fare-ladder check whenever the rate tables change.
+#
+# Deliberately not part of the Render build: a false positive there would block
+# every deploy, and the site is worth more than the check. This fails on the
+# commit instead. To make it block a bad deploy as well, change the Render build
+# command to "node fare-ladder.js && node build-suburbs.js" - the script exits
+# non-zero on a violation and Render then keeps the previous build.
+name: fare ladder
+
+on:
+  push:
+    paths:
+      - index.html
+      - data/suburb-facts.json
+      - fare-ladder.js
+      - .github/workflows/fares.yml
+  pull_request:
+    paths:
+      - index.html
+      - data/suburb-facts.json
+      - fare-ladder.js
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node fare-ladder.js
