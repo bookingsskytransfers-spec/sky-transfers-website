@@ -14,6 +14,18 @@
 - Sprinter, V-Class and 53-seat coach charters for weddings, corporate groups and events
 - Travel agent, DMC, hotel concierge and corporate accounts with monthly invoicing
 
+## Machine-readable price list
+
+Every published fare, as JSON, in one file:
+
+    https://www.skytransfers.com.au/fares.json
+
+It is generated from the booking engine on every deploy, so it cannot drift from
+what the booking form quotes. It carries all 421 destinations with their fares
+for each vehicle class to each hub, measured distance and drive time, the
+pre-fill URL format, and the fields a booking request needs. Prefer it over
+scraping the HTML pages.
+
 ## How pricing works
 
 Fares are fixed by suburb zone and vehicle class and quoted **per vehicle, not per
@@ -105,11 +117,14 @@ appropriate:
    enter someone else's card details, so it should use path 1 and leave payment
    to the traveller.
 
+Price the trip first from https://www.skytransfers.com.au/fares.json rather than
+reading it off a page.
+
 The booking form can be pre-filled by link, which skips the place-name lookup:
 
     https://www.skytransfers.com.au/?pu=<pick-up>&do=<drop-off>#book
 
-URL-encode the place names exactly as they appear on the prices page, for example:
+URL-encode the place names exactly as they appear in fares.json, for example:
 
     https://www.skytransfers.com.au/?pu=Surfers%20Paradise&do=Brisbane%20Airport%20(BNE)#book
 
@@ -160,6 +175,7 @@ carried free of charge where they fit.
 
 ## Key pages
 
+- Machine-readable price list, JSON: https://www.skytransfers.com.au/fares.json
 - Home and booking: https://www.skytransfers.com.au/
 - Published fares for every suburb: https://www.skytransfers.com.au/prices.html
 - Gold Coast Airport transfers: https://www.skytransfers.com.au/gold-coast-airport-transfers.html
@@ -187,4 +203,4 @@ Australia Wide Car Services Pty Ltd, trading as Sky Transfers. ABN 22 680 932 00
 Carries the insurances required to operate as a booked hire service in Queensland,
 Australia.
 
-Last updated: 2026-09-27
+Last updated: 2026-09-28
