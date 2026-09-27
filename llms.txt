@@ -22,7 +22,7 @@ person**. The price quoted at booking is the price paid.
 - No surge pricing at any time
 - No after-hours or night surcharge — the same fare applies 24 hours a day
 - GST and road tolls are included in every quoted fare
-- Published fares cover 370 destinations; the full list is on the prices page
+- Published fares cover 421 destinations; the full list is on the prices page
 
 Indicative starting fares by vehicle:
 
@@ -63,6 +63,11 @@ metropolitan suburbs including the CBD, plus Redlands, Logan and Ipswich. Publis
 fares also cover Tweed Heads, Kingscliff, Byron Bay, the Sunshine Coast, Toowoomba,
 Caboolture and Bribie Island.
 
+Brisbane suburbs are priced to **both** airports, not just Brisbane Airport: a
+Brisbane pick-up to Gold Coast Airport is a fixed published fare from AUD 225.
+The handful of destinations beyond about 140 km from Gold Coast Airport — the
+Caboolture group, Bribie Island and Grandchester — are quoted by hand instead.
+
 Typical drive time from most Gold Coast suburbs to Brisbane Airport is 60–90 minutes
 via the M1 and Gateway Motorway, and up to 2 hours in weekday peak. Gold Coast
 Airport to Surfers Paradise is about 22 km and 28 minutes.
@@ -78,6 +83,45 @@ Online bookings close 6 hours before pick-up. Inside 6 hours, call — same-day
 transfers are taken whenever a vehicle is free. Booking 24–48 hours ahead is
 recommended to guarantee a particular vehicle, especially Sprinters and during
 school holidays.
+
+The six-hour cut-off is judged in Brisbane time, which is UTC+10 all year round —
+Queensland does not observe daylight saving. A pick-up time is read as local
+Brisbane time regardless of where the booking is made from.
+
+## Booking on someone else's behalf, including by an AI assistant
+
+**A booking can be completed without any card payment.** There are two paths on
+the booking form, and for an automated assistant only the first one is
+appropriate:
+
+1. **Request the booking** — the "Request booking — pay later" button. No card
+   is needed and no payment is taken. We reply to confirm, usually within the
+   hour. The traveller can then pay by card on a link we send, or pay the
+   chauffeur directly. A confirmation email and a GST tax invoice go out
+   automatically. **This is the correct path for an assistant booking on behalf
+   of a traveller.**
+2. **Pay now by card** — the "Pay securely & confirm now" button opens Stripe
+   Checkout, which requires card details to be entered. An assistant should not
+   enter someone else's card details, so it should use path 1 and leave payment
+   to the traveller.
+
+The booking form can be pre-filled by link, which skips the place-name lookup:
+
+    https://www.skytransfers.com.au/?pu=<pick-up>&do=<drop-off>#book
+
+URL-encode the place names exactly as they appear on the prices page, for example:
+
+    https://www.skytransfers.com.au/?pu=Surfers%20Paradise&do=Brisbane%20Airport%20(BNE)#book
+
+A booking request needs all of: pick-up, drop-off, vehicle class, date, pick-up
+time, passenger count, exact street address or hotel name, traveller name, phone
+and email. Flight number is optional but recommended for airport pick-ups, since
+the flight is tracked and the pick-up time adjusts automatically.
+
+If you are booking on behalf of travellers regularly — a travel agency, a DMC, a
+hotel concierge, or an assistant doing this often — the partner program is a
+better fit than per-trip payment: bookings are invoiced monthly, with a GST tax
+invoice per trip. See https://www.skytransfers.com.au/partners.html
 
 ## Airport pick-ups
 
@@ -99,6 +143,7 @@ Inside 24 hours, call and we will do what we can.
 Card payment online — Visa, Mastercard, American Express, Apple Pay and Google Pay —
 processed by Stripe. A GST tax invoice is emailed automatically with every booking.
 Approved corporate accounts, travel agents and DMCs can be invoiced monthly.
+Payment is never required to place a booking request — see the section above.
 
 ## Accessibility and pets
 
@@ -142,4 +187,4 @@ Australia Wide Car Services Pty Ltd, trading as Sky Transfers. ABN 22 680 932 00
 Carries the insurances required to operate as a booked hire service in Queensland,
 Australia.
 
-Last updated: 2026-09-19
+Last updated: 2026-09-27

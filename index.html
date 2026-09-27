@@ -517,11 +517,11 @@
     <p class="step-label">3 &middot; Booking details</p>
     <form id="book-form">
       <div class="row2">
-        <div><label for="bf-name">Full name</label><input id="bf-name" required></div>
-        <div><label for="bf-phone">Phone</label><input id="bf-phone" type="tel" required></div>
+        <div><label for="bf-name">Full name</label><input id="bf-name" autocomplete="name" required></div>
+        <div><label for="bf-phone">Phone</label><input id="bf-phone" type="tel" autocomplete="tel" required></div>
       </div>
       <div class="row2">
-        <div><label for="bf-email">Email</label><input id="bf-email" type="email" required></div>
+        <div><label for="bf-email">Email</label><input id="bf-email" type="email" autocomplete="email" required></div>
         <div><label for="bf-pax">Passengers</label><input id="bf-pax" type="number" min="1" value="2" required></div>
       </div>
       <div class="row2">
@@ -542,7 +542,7 @@
         </label>
         <div class="total-line"><span id="total-label">Total</span><span id="total">$0</span></div>
       </div>
-      <div><label for="bf-addr">Exact pick-up or drop-off address (street &amp; number, or hotel name)</label><input id="bf-addr" required></div>
+      <div><label for="bf-addr">Exact pick-up or drop-off address (street &amp; number, or hotel name)</label><input id="bf-addr" autocomplete="street-address" required></div>
       <div><label for="bf-notes">Notes (optional)</label><textarea id="bf-notes" rows="2" placeholder="Extra luggage, return trip, special requests&hellip;"></textarea></div>
       <button class="cta" type="button" id="pay-btn" hidden style="margin-bottom:10px">Pay securely &amp; confirm now</button>
       <button class="cta" type="submit" id="submit-btn">Request this booking</button>
@@ -1177,7 +1177,18 @@ function bookingPayload(){
     quotedTotal: currentTotal(),
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
-    notes: $("bf-notes").value
+    notes: $("bf-notes").value,
+    /* Which client placed this booking. A customer told us in September that his
+       AI assistant made the booking and could not pay by card - which is the
+       assistant behaving correctly, since entering someone else's card details
+       is off-limits for a responsibly built agent. That makes the request path
+       the one they can complete, and we had no way to count how often it
+       happens. userAgent is sent by every browser on every request anyway;
+       webdriver is the standard flag an automated browser sets. Neither is
+       personal data and neither changes the fare. The server passes the whole
+       payload to Zapier, so both land there without a server change. */
+    userAgent: navigator.userAgent,
+    webdriver: navigator.webdriver === true
   };
 }
 
