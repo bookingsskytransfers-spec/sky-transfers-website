@@ -1071,6 +1071,102 @@ function refreshPrices() {
 }
 
 // ---------------------------------------------------------------------------
+// fares.json - the published price list as machine-readable data
+//
+// Written because AI assistants are booking these transfers. A customer's
+// assistant found the fares, filled the form, and could not pay by card, which
+// is the assistant behaving correctly: entering someone else's card details is
+// off-limits for a responsibly built agent. To price one trip such an assistant
+// otherwise has to scrape 421 HTML pages. This is one fetch instead.
+//
+// Generated from the same tables as every page, so it cannot drift from what
+// the booking widget quotes. Nothing in it is personal or secret - it is the
+// price list already published on prices.html, in a shape a machine can read.
+// ---------------------------------------------------------------------------
+const CRUISE_PLACE = 'Brisbane Cruise Terminal (Pinkenba)';
+
+function writeFaresJson() {
+  /* A deep link only pre-fills if the name matches index.html's PLACES exactly,
+     and a wrong one fails silently - the form just opens empty. Plain substring
+     checks rather than a parse, so there is no regex here to get wrong. */
+  for (const place of [OOL, BNE, CRUISE_PLACE]) {
+    if (indexHtml.indexOf(place) === -1) {
+      throw new Error('fares.json: "' + place + '" is not in index.html, so its deep link would not pre-fill');
+    }
+  }
+
+  const vehicles = VEH.map(([name, cap]) => {
+    /* '1-3 passengers - 2 bags' and 'up to 10 passengers - 11 bags' both end
+       [..., maxPassengers, bags], so read from the right and the two shapes
+       need no special-casing. */
+    const n = (cap.match(/\d+/g) || []).map(Number);
+    return { name, max_passengers: n[n.length - 2] || null, bags: n[n.length - 1] || null };
+  });
+
+  const rows = [];
+  for (const p of places) {
+    const d = { name: p.name, region: p.region, nearest: p.nearest, page: SITE + p.url, fares: {} };
+    for (const k of ['ool', 'bne', 'cruise']) if (p.fares[k]) d.fares[k] = p.fares[k];
+    const km = {}, minutes = {};
+    for (const k of ['ool', 'bne']) {
+      if (p.facts[k] && p.facts[k].m) km[k] = Math.round(p.facts[k].m / 100) / 10;
+      if (p.facts[k] && p.facts[k].s) minutes[k] = Math.round(p.facts[k].s / 60);
+    }
+    if (Object.keys(km).length) d.km = km;
+    if (Object.keys(minutes).length) d.minutes = minutes;
+    rows.push(JSON.stringify(d));
+  }
+
+  const head = {
+    about: 'Published fixed fares for Sky Transfers, Gold Coast and Brisbane, Australia. '
+         + 'Generated from the booking engine on every deploy, so these are the same prices '
+         + 'the booking form quotes.',
+    generated: LASTMOD,
+    currency: 'AUD',
+    basis: 'Per vehicle, one way, GST and road tolls included. Not per person.',
+    surge: 'None. The same fare applies at any hour, including nights, weekends and public holidays.',
+    fares_array_order: VEH.map((v) => v[0]),
+    vehicles,
+    hubs: [
+      { key: 'ool', code: 'OOL', name: 'Gold Coast Airport', booking_name: OOL },
+      { key: 'bne', code: 'BNE', name: 'Brisbane Airport', booking_name: BNE },
+      { key: 'cruise', code: null, name: 'Brisbane International Cruise Terminal, Pinkenba', booking_name: CRUISE_PLACE },
+    ],
+    cruise_terminal_surcharge: CRUISE_EXTRA,
+    booking: {
+      no_card_required: true,
+      how: 'A booking can be requested without any payment, using the "Request booking - pay later" '
+         + 'button. An assistant booking on behalf of a traveller should use that and leave payment '
+         + 'to the traveller, rather than the card form.',
+      prefill_url: SITE + '/?pu={pickup}&do={dropoff}#book',
+      prefill_example: SITE + '/?pu=Surfers%20Paradise&do=Brisbane%20Airport%20(BNE)#book',
+      required_fields: ['pickup', 'dropoff', 'vehicle', 'date', 'time', 'passengers',
+                        'address', 'name', 'phone', 'email'],
+      optional_fields: ['flight', 'childSeats', 'trailer', 'notes'],
+      minimum_notice_hours: 6,
+      timezone: 'Australia/Brisbane, UTC+10 all year - Queensland has no daylight saving',
+      booking_regularly: SITE + '/partners.html',
+    },
+    not_listed_here: 'Anything absent is quoted by hand, including destinations beyond about 140 km '
+                   + 'from Gold Coast Airport. Call +61 481 437 772 or email info@skytransfers.com.au.',
+    destinations_count: rows.length,
+  };
+
+  /* Envelope pretty-printed and one destination per line: legible if a person
+     opens it, still compact across 400-odd rows. JSON.stringify(_, null, 2)
+     always ends "\n}", so dropping those two characters leaves a valid object
+     to append to. */
+  const headJson = JSON.stringify(head, null, 2);
+  const json = headJson.slice(0, -2)
+    + ',\n  "destinations": [\n    ' + rows.join(',\n    ') + '\n  ]\n}\n';
+
+  if (!rows.length) throw new Error('fares.json: no destinations');
+  fs.writeFileSync(path.join(ROOT, 'fares.json'), json);
+  console.log('build-suburbs: fares.json written, ' + rows.length + ' destinations, '
+    + Math.round(json.length / 1024) + ' KB');
+}
+
+// ---------------------------------------------------------------------------
 // write everything
 // ---------------------------------------------------------------------------
 fs.mkdirSync(OUT, { recursive: true });
@@ -1082,6 +1178,7 @@ for (const p of places) {
 fs.writeFileSync(path.join(OUT, 'index.html'), hubPage());
 for (const r of REGIONS) fs.writeFileSync(path.join(ROOT, r.slug + '.html'), regionPage(r));
 refreshPrices();
+writeFaresJson();
 
 // sitemap: keep every committed entry, drop any earlier generated ones, append ours
 const smPath = path.join(ROOT, 'sitemap.xml');
