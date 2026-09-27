@@ -1121,7 +1121,10 @@ function writeFaresJson() {
     about: 'Published fixed fares for Sky Transfers, Gold Coast and Brisbane, Australia. '
          + 'Generated from the booking engine on every deploy, so these are the same prices '
          + 'the booking form quotes.',
-    generated: LASTMOD,
+    /* A real build timestamp, not LASTMOD. This file is rebuilt on every
+       deploy, so dating it from the template constant would tell a reader it
+       was stale when it is not - and the lie would grow with every month. */
+    generated: new Date().toISOString(),
     currency: 'AUD',
     basis: 'Per vehicle, one way, GST and road tolls included. Not per person.',
     surge: 'None. The same fare applies at any hour, including nights, weekends and public holidays.',
