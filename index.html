@@ -83,15 +83,58 @@
     "Private day tour",
     "Group charter"
   ],
+  "potentialAction": {
+    "@type": "ReserveAction",
+    "name": "Request a transfer booking",
+    "description": "A booking can be requested without any card payment. The card form is optional, and an assistant booking for a traveller should leave payment to them.",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://www.skytransfers.com.au/?pu={pickup}&do={dropoff}#book",
+      "actionPlatform": [
+        "https://schema.org/DesktopWebPlatform",
+        "https://schema.org/MobileWebPlatform"
+      ],
+      "inLanguage": "en-AU"
+    },
+    "result": {
+      "@type": "Reservation",
+      "name": "Sky Transfers booking request"
+    }
+  },
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
     "name": "Airport transfers and charters",
     "itemListElement": [
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Gold Coast Airport (OOL) transfers"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Brisbane Airport (BNE) transfers"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Brisbane International Cruise Terminal transfers"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Theme park transfers"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Sprinter and coach charters"}}
+      {"@type": "Offer",
+       "itemOffered": {"@type": "Service", "name": "Gold Coast Airport (OOL) transfers"},
+       "priceCurrency": "AUD",
+       "priceSpecification": {"@type": "PriceSpecification", "minPrice": 80, "priceCurrency": "AUD", "valueAddedTaxIncluded": true},
+       "availability": "https://schema.org/InStock",
+       "url": "https://www.skytransfers.com.au/gold-coast-airport-transfers.html"},
+      {"@type": "Offer",
+       "itemOffered": {"@type": "Service", "name": "Brisbane Airport (BNE) transfers"},
+       "priceCurrency": "AUD",
+       "priceSpecification": {"@type": "PriceSpecification", "minPrice": 85, "priceCurrency": "AUD", "valueAddedTaxIncluded": true},
+       "availability": "https://schema.org/InStock",
+       "url": "https://www.skytransfers.com.au/brisbane-airport-transfers.html"},
+      {"@type": "Offer",
+       "itemOffered": {"@type": "Service", "name": "Brisbane International Cruise Terminal transfers"},
+       "priceCurrency": "AUD",
+       "priceSpecification": {"@type": "PriceSpecification", "minPrice": 95, "priceCurrency": "AUD", "valueAddedTaxIncluded": true},
+       "availability": "https://schema.org/InStock",
+       "url": "https://www.skytransfers.com.au/cruise-transfers.html"},
+      {"@type": "Offer",
+       "itemOffered": {"@type": "Service", "name": "Theme park transfers"},
+       "priceCurrency": "AUD",
+       "priceSpecification": {"@type": "PriceSpecification", "minPrice": 125, "priceCurrency": "AUD", "valueAddedTaxIncluded": true},
+       "availability": "https://schema.org/InStock",
+       "url": "https://www.skytransfers.com.au/theme-park-transfers.html"},
+      {"@type": "Offer",
+       "itemOffered": {"@type": "Service", "name": "Sprinter and coach charters"},
+       "priceCurrency": "AUD",
+       "description": "Quoted per job rather than priced by suburb",
+       "availability": "https://schema.org/InStock",
+       "url": "https://www.skytransfers.com.au/charters.html"}
     ]
   },
   "provider": {
