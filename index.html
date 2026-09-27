@@ -1124,12 +1124,32 @@ if(SERVER_URL){
   }
 }
 
+/* A ceiling on every call to the booking server. Without one a hung request
+   never rejects: the fetch stays pending forever, .catch never runs, and the
+   guest is left looking at "Opening secure payment..." with a dead button and
+   no fallback panel. An error was always handled; a hang was not. The server
+   answers in about 0.4s, so 15s only ever fires when something is wrong. */
+var POST_TIMEOUT_MS = 15000;
 function postJSON(path, body){
-  return fetch(SERVER_URL.replace(/\/+$/,"") + path, {
+  var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, POST_TIMEOUT_MS) : null;
+  var opts = {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(body)
-  }).then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); });
+  };
+  if (ctrl) opts.signal = ctrl.signal;
+  return fetch(SERVER_URL.replace(/\/+$/,"") + path, opts)
+    .then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); })
+    .then(function(res){ if (timer) clearTimeout(timer); return res; },
+          function(err){
+            if (timer) clearTimeout(timer);
+            /* Turn the abort into something legible, because this string is
+               what the failure event reports as its reason. */
+            throw (err && err.name === "AbortError")
+              ? new Error("timeout after " + (POST_TIMEOUT_MS / 1000) + "s")
+              : err;
+          });
 }
 
 function currentTotal(){
@@ -1219,8 +1239,9 @@ $("book-form").addEventListener("submit", function(e){
         $("auto-ok").hidden = false;
         $("auto-ok").scrollIntoView({behavior:"smooth", block:"nearest"});
       } else { throw new Error(res.data && res.data.error); }
-    }).catch(function(){
+    }).catch(function(err){
       btn.disabled = false; btn.textContent = orig;
+      track("request_failed", {reason: String((err && err.message) || err || "unknown").slice(0, 100)});
       showRequestPanel("We couldn’t reach our booking system just now — send us these details instead and we’ll confirm shortly.");
     });
     return;
@@ -1235,6 +1256,13 @@ $("pay-btn").addEventListener("click", function(){
   if(!state.vehicle || !SERVER_URL) return;
   var btn = $("pay-btn");
   btn.disabled = true; btn.textContent = "Opening secure payment…";
+  /* Fired before the request, not after it. begin_checkout only happens once
+     Stripe has handed back a URL, so without this a guest who clicks Pay and
+     gets nothing is indistinguishable in GA4 from one who never clicked at all.
+     checkout_attempt minus begin_checkout is the size of that hole. Not in
+     ADS_CONVERSIONS, so it creates no Ads conversion. */
+  track("checkout_attempt", {value: currentTotal(), currency: "AUD",
+    vehicle: state.vehicle, route: state.pu + " -> " + state.dro});
   postJSON("/create-checkout", bookingPayload()).then(function(res){
     if(res.ok && res.data && res.data.url){
       track("begin_checkout", {value: currentTotal(), currency: "AUD",
@@ -1242,8 +1270,11 @@ $("pay-btn").addEventListener("click", function(){
       location.href = res.data.url;
     }
     else { throw new Error(res.data && res.data.error); }
-  }).catch(function(){
+  }).catch(function(err){
     btn.disabled = false; btn.textContent = "Pay securely & confirm now";
+    /* Server error text, or "timeout after 15s" - never anything the guest
+       typed. Capped so a long stack trace cannot become the dimension value. */
+    track("checkout_failed", {reason: String((err && err.message) || err || "unknown").slice(0, 100)});
     showRequestPanel("Card payment is unavailable right now — send us these details instead and we’ll confirm with a payment link.");
   });
 });
