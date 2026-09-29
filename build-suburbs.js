@@ -407,6 +407,9 @@ const FOOTER = `<footer class="site">
       <p><a href="/prices.html">Prices by suburb</a></p>
       <p><a href="/partners.html">Agent &amp; partner program</a></p>
       <p><a href="/charters.html">Sprinter &amp; coach charters</a></p>
+      <p><a href="/faq.html">Questions &amp; answers</a></p>
+      <p><a href="/child-seats.html">Child seats</a></p>
+      <p><a href="/rideshare-or-transfer.html">Rideshare or transfer?</a></p>
       <p><a href="https://www.google.com/maps?cid=9657905201752242057" target="_blank" rel="noopener">Review us on Google</a></p>
     </div>
     <div class="foot-routes">
