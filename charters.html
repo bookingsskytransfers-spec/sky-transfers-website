@@ -505,14 +505,14 @@
       <button class="cta" type="submit">Request my charter quote</button>
     </form>
     <div class="notice confirm" id="cf-done" hidden style="margin-top:14px">
-      <p style="margin:0 0 10px;font-weight:600">One last step — send us the details and we'll quote your charter, usually within the hour.</p>
+      <p id="cf-head" style="margin:0 0 10px;font-weight:600">One last step — send us the details and we'll quote your charter, usually within the hour.</p>
       <textarea id="cf-text" rows="8" readonly style="font-size:13px"></textarea>
       <div class="btn-row">
         <a class="cta btn-half" id="cf-mail" href="#">Open in email app</a>
         <a class="cta btn-half wa" id="cf-wa" href="#" target="_blank" rel="noopener">Send via WhatsApp</a>
         <button class="cta btn-half ghost" type="button" id="cf-copy">Copy details</button>
       </div>
-      <p class="cf-fallback" style="margin:10px 0 0;font-size:13px;line-height:1.55">
+      <p class="cf-fallback" id="cf-fallback" style="margin:10px 0 0;font-size:13px;line-height:1.55">
         Nothing happen when you tapped <strong>Open in email app</strong>? Plenty of work
         computers have no mail app set up. Tap <strong>Copy details</strong> and paste them
         into an email to <a href="mailto:info@skytransfers.com.au">info@skytransfers.com.au</a>,
@@ -638,6 +638,42 @@ document.querySelectorAll(".btn-quote").forEach(function(a){
 });
 // enquiry form -> email / whatsapp / copy
 function $(id){ return document.getElementById(id); }
+/* The charter enquiry now goes to the booking server as well as to the
+   visitor's own mail or WhatsApp app. Fifteen seconds, for the same reason the
+   booking form has one: a hung request that never rejects would leave the
+   caller waiting forever and the fallback never shown. */
+var SERVER_URL = "https://sky-transfers-booking-server.onrender.com";
+var POST_TIMEOUT_MS = 15000;
+function postJSON(path, body){
+  var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, POST_TIMEOUT_MS) : null;
+  var opts = {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body)
+  };
+  if (ctrl) opts.signal = ctrl.signal;
+  return fetch(SERVER_URL.replace(/\/+$/,"") + path, opts)
+    .then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); })
+    .then(function(res){ if (timer) clearTimeout(timer); return res; },
+          function(err){
+            if (timer) clearTimeout(timer);
+            throw (err && err.name === "AbortError")
+              ? new Error("timeout after " + (POST_TIMEOUT_MS / 1000) + "s")
+              : err;
+          });
+}
+/* The page's own track() lives inside the contact-click IIFE at the foot and is
+   not in scope here, so this is its own small copy rather than a refactor of
+   working code. */
+function chTrack(event, params){
+  try {
+    var data = params || {};
+    if (typeof window.gtag === "function") window.gtag("event", event, data);
+    if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
+  } catch (e) {}
+}
+
 $("ch-form").addEventListener("submit", function(e){
   e.preventDefault();
   var lines = [
@@ -661,6 +697,43 @@ $("ch-form").addEventListener("submit", function(e){
   $("cf-wa").href = "https://wa.me/61481437772?text=" + encodeURIComponent(body);
   $("cf-done").hidden = false;
   $("cf-done").scrollIntoView({behavior:"smooth", block:"nearest"});
+
+  /* Send it ourselves as well. Until now this form only ever handed the visitor
+     a draft: if their mail app did not open - common on a work desktop with no
+     mail client configured - the enquiry was lost and nobody knew it had been
+     written. The buttons above stay exactly as they were, and become the
+     fallback for the case where this request fails. */
+  postJSON("/charter-enquiry", {
+    occasion: $("cf-occasion").value,
+    vehicle:  $("cf-veh").value,
+    date:     $("cf-date").value,
+    pax:      $("cf-pax").value,
+    hours:    $("cf-hours").value,
+    itinerary: $("cf-itin").value,
+    name:     $("cf-name").value,
+    phone:    $("cf-phone").value,
+    /* Same reason as the booking form: we want to know which bookings came
+       from an assistant rather than guess. */
+    userAgent: navigator.userAgent
+  }).then(function(res){
+    if (!(res.ok && res.data && res.data.ok)) throw new Error(res.data && res.data.error);
+    $("cf-head").textContent = "Enquiry sent"
+      + (res.data.ref ? " — reference " + res.data.ref : "")
+      + ". We'll come back with a written all-inclusive price, usually within the hour. "
+      + "Nothing else for you to do.";
+    /* The fallback note is about a mail app that did not open. It has nothing
+       to say once the enquiry has already reached us. */
+    var fb = $("cf-fallback"); if (fb) fb.hidden = true;
+    chTrack("charter_enquiry", {
+      occasion: $("cf-occasion").value,
+      vehicle:  $("cf-veh").value,
+      hours:    $("cf-hours").value,
+      pax:      $("cf-pax").value
+    });
+  }).catch(function(){
+    /* Say nothing and change nothing: the panel already offers three ways to
+       send it by hand, which is exactly what this page did before. */
+  });
 });
 $("cf-copy").addEventListener("click", function(){
   var t = $("cf-text"), b = $("cf-copy");
