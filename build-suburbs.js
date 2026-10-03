@@ -412,6 +412,7 @@ const FOOTER = `<footer class="site">
       <p><a href="/rideshare-or-transfer.html">Rideshare or transfer?</a></p>
       <p><a href="/chauffeur-service.html">Chauffeur service</a></p>
       <p><a href="/cheapest-gold-coast-to-brisbane-airport.html">Cheapest way to Brisbane Airport</a></p>
+      <p><a href="/brisbane-or-gold-coast-airport.html">Brisbane or Gold Coast Airport?</a></p>
       <p><a href="https://www.google.com/maps?cid=9657905201752242057" target="_blank" rel="noopener">Review us on Google</a></p>
     </div>
     <div class="foot-routes">
