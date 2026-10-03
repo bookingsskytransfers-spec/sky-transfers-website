@@ -498,10 +498,12 @@
           <select id="cf-hours"><option>One-way transfer</option><option>Half day (up to 4 h)</option><option>Full day (up to 8 h)</option><option>Multi-day</option></select></div>
       </div>
       <div style="margin-bottom:12px"><label for="cf-itin">Pick-up point &amp; rough itinerary</label><textarea id="cf-itin" rows="3" placeholder="e.g. Pick up 2pm Surfers Paradise → ceremony at Intercontinental Sanctuary Cove → reception drop-offs from 10pm" required></textarea></div>
-      <div class="row">
-        <div><label for="cf-name">Your name</label><input id="cf-name" required></div>
-        <div><label for="cf-phone">Phone</label><input id="cf-phone" type="tel" required></div>
+      <div class="row3">
+        <div><label for="cf-name">Your name</label><input id="cf-name" autocomplete="name" required></div>
+        <div><label for="cf-phone">Phone</label><input id="cf-phone" type="tel" autocomplete="tel" required></div>
+        <div><label for="cf-email">Email</label><input id="cf-email" type="email" autocomplete="email" required></div>
       </div>
+      <p style="margin:-4px 0 14px;font-size:13.5px;color:#68707F">We send the written quote by email so you have it to forward or get approved. Same three details the booking form asks for.</p>
       <button class="cta" type="submit">Request my charter quote</button>
     </form>
     <div class="notice confirm" id="cf-done" hidden style="margin-top:14px">
@@ -687,7 +689,8 @@ $("ch-form").addEventListener("submit", function(e){
     "Itinerary: " + $("cf-itin").value,
     "",
     "Name: " + $("cf-name").value,
-    "Phone: " + $("cf-phone").value
+    "Phone: " + $("cf-phone").value,
+    "Email: " + $("cf-email").value
   ];
   var body = lines.join("\n");
   $("cf-text").value = body;
@@ -712,6 +715,7 @@ $("ch-form").addEventListener("submit", function(e){
     itinerary: $("cf-itin").value,
     name:     $("cf-name").value,
     phone:    $("cf-phone").value,
+    email:    $("cf-email").value,
     /* Same reason as the booking form: we want to know which bookings came
        from an assistant rather than guess. */
     userAgent: navigator.userAgent
@@ -719,8 +723,8 @@ $("ch-form").addEventListener("submit", function(e){
     if (!(res.ok && res.data && res.data.ok)) throw new Error(res.data && res.data.error);
     $("cf-head").textContent = "Enquiry sent"
       + (res.data.ref ? " — reference " + res.data.ref : "")
-      + ". We'll come back with a written all-inclusive price, usually within the hour. "
-      + "Nothing else for you to do.";
+      + ". A copy is on its way to your email. We'll follow it with a written "
+      + "all-inclusive price, usually within the hour. Nothing else for you to do.";
     /* The fallback note is about a mail app that did not open. It has nothing
        to say once the enquiry has already reached us. */
     var fb = $("cf-fallback"); if (fb) fb.hidden = true;
