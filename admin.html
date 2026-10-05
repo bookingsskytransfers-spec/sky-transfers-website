@@ -111,6 +111,38 @@
       <p>Write this down and give it to the agent now — it is not shown again. You can always issue a new one.</p>
     </div>
 
+    <section class="card" id="web-card">
+      <h2>Website bookings</h2>
+      <div id="web-msg" class="msg" hidden></div>
+      <p class="muted" id="web-summary" style="margin:0 0 14px">Loading&hellip;</p>
+      <div class="row3" style="margin-bottom:12px">
+        <div><label for="web-status">Show</label>
+          <select id="web-status">
+            <option value="">Everything</option>
+            <option value="requested">Awaiting an answer</option>
+            <option value="confirmed">Confirmed, not paid</option>
+            <option value="paid">Paid</option>
+            <option value="declined">Declined</option>
+          </select></div>
+        <div><label for="web-limit">How many</label>
+          <select id="web-limit"><option>50</option><option selected>200</option><option>500</option></select></div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="cta" id="web-refresh" style="width:100%">Refresh</button></div>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Ref</th><th>Asked</th><th>Travel</th><th>Route</th><th>Passenger</th>
+            <th style="text-align:right">Total</th><th>Status</th>
+          </tr></thead>
+          <tbody id="web-rows"><tr><td colspan="7" class="muted">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin:12px 0 0">
+        Every booking made on the public website. A request only becomes &ldquo;paid&rdquo; when Stripe tells us so.
+      </p>
+    </section>
+
     <section class="card">
       <h2>Agents</h2>
       <div id="list-msg" class="msg" hidden></div>
@@ -226,12 +258,66 @@
   }
   $("signout").addEventListener("click", signOut);
 
+  function webLabel(s){
+    return s === "requested" ? "Awaiting an answer"
+         : s === "confirmed" ? "Confirmed, not paid"
+         : s === "declined"  ? "Declined"
+         : s === "paid"      ? "Paid" : String(s || "");
+  }
+  function shortDate(v){
+    if (!v) return "\u2014";
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? String(v).slice(0, 10)
+         : d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  }
+  function loadWeb(){
+    var st = $("web-status").value, lim = $("web-limit").value;
+    $("web-rows").innerHTML = '<tr><td colspan="7" class="muted">Loading\u2026</td></tr>';
+    api("/admin/web-bookings?limit=" + encodeURIComponent(lim) + (st ? "&status=" + encodeURIComponent(st) : ""))
+      .then(function(d){
+        var sum = d.summary || {}, parts = [];
+        ["requested", "confirmed", "paid", "declined"].forEach(function(k){
+          if (sum[k]) parts.push(sum[k].count + " " + webLabel(k).toLowerCase() +
+                                 " ($" + Number(sum[k].total).toFixed(0) + ")");
+        });
+        $("web-summary").textContent = parts.length ? parts.join("  \u00b7  ")
+          : "No website bookings recorded yet.";
+        var tb = $("web-rows"); tb.innerHTML = "";
+        var list = d.bookings || [];
+        if (!list.length){
+          tb.innerHTML = '<tr><td colspan="7" class="muted">Nothing to show.</td></tr>';
+          return;
+        }
+        list.forEach(function(b){
+          var tr = document.createElement("tr");
+          [b.ref,
+           shortDate(b.created),
+           (b.date ? shortDate(b.date) : "\u2014") + (b.time ? " " + b.time : ""),
+           (b.pickup || "?") + " \u2192 " + (b.dropoff || "?"),
+           (b.name || "") + (b.phone ? "  \u00b7  " + b.phone : ""),
+           "$" + Number(b.total || 0).toFixed(0),
+           webLabel(b.status)
+          ].forEach(function(v, i){
+            var td = document.createElement("td");
+            /* textContent, never innerHTML: every value here was typed by a
+               member of the public into the booking form. */
+            td.textContent = v;
+            if (i === 5) td.style.textAlign = "right";
+            tr.appendChild(td);
+          });
+          tb.appendChild(tr);
+        });
+      })
+      .catch(function(err){ show($("web-msg"), err.message); });
+  }
+
   function enter(){
     $("signin").hidden = true;
     $("admin").hidden = false;
     $("who").hidden = false;
     $("who").textContent = "Signed in as office";
     load();
+    loadWeb();
   }
 
   function actionBtn(label, cls, fn){
@@ -378,6 +464,8 @@
       $("bookings-card").scrollIntoView({ behavior: "smooth", block: "start" });
     }).catch(function(err){ show($("list-msg"), err.message); });
   }
+  $("web-refresh").addEventListener("click", loadWeb);
+  $("web-status").addEventListener("change", loadWeb);
   $("close-bookings").addEventListener("click", function(){ $("bookings-card").hidden = true; });
 
   if (token) enter();
