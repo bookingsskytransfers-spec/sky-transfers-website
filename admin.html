@@ -76,6 +76,7 @@
     font-size:12.5px;font-weight:600;color:var(--gold-deep);cursor:pointer;margin-right:5px}
   .act:hover{border-color:var(--gold);background:var(--gold-soft)}
   .act.pay{border-color:var(--ok);color:var(--ok)}
+  .act.danger{border-color:#C0463C;color:#C0463C}
   .muted{color:var(--muted);font-size:13.5px}
   [hidden]{display:none!important}
 </style>
@@ -133,9 +134,9 @@
         <table>
           <thead><tr>
             <th>Ref</th><th>Asked</th><th>Travel</th><th>Route</th><th>Passenger</th>
-            <th style="text-align:right">Total</th><th>Status</th>
+            <th style="text-align:right">Total</th><th>Status</th><th></th>
           </tr></thead>
-          <tbody id="web-rows"><tr><td colspan="7" class="muted">Loading&hellip;</td></tr></tbody>
+          <tbody id="web-rows"><tr><td colspan="8" class="muted">Loading&hellip;</td></tr></tbody>
         </table>
       </div>
       <p class="muted" style="margin:12px 0 0">
@@ -270,9 +271,18 @@
     return isNaN(d.getTime()) ? String(v).slice(0, 10)
          : d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
   }
+  function removeWeb(b){
+    var what = b.ref + " \u2014 " + (b.name || "") + ", " + (b.pickup || "?") + " \u2192 " + (b.dropoff || "?");
+    if (!window.confirm("Remove this booking from the dashboard?\n\n" + what +
+                        "\n\nThis cannot be undone. Any payment link for it is switched off.")) return;
+    api("/admin/web-booking/remove", { method: "POST", body: { ref: b.ref } })
+      .then(function(){ show($("web-msg"), "Removed " + b.ref + "."); loadWeb(); })
+      .catch(function(err){ show($("web-msg"), err.message); });
+  }
+
   function loadWeb(){
     var st = $("web-status").value, lim = $("web-limit").value;
-    $("web-rows").innerHTML = '<tr><td colspan="7" class="muted">Loading\u2026</td></tr>';
+    $("web-rows").innerHTML = '<tr><td colspan="8" class="muted">Loading\u2026</td></tr>';
     api("/admin/web-bookings?limit=" + encodeURIComponent(lim) + (st ? "&status=" + encodeURIComponent(st) : ""))
       .then(function(d){
         var sum = d.summary || {}, parts = [];
@@ -285,7 +295,7 @@
         var tb = $("web-rows"); tb.innerHTML = "";
         var list = d.bookings || [];
         if (!list.length){
-          tb.innerHTML = '<tr><td colspan="7" class="muted">Nothing to show.</td></tr>';
+          tb.innerHTML = '<tr><td colspan="8" class="muted">Nothing to show.</td></tr>';
           return;
         }
         list.forEach(function(b){
@@ -305,6 +315,14 @@
             if (i === 5) td.style.textAlign = "right";
             tr.appendChild(td);
           });
+          var act = document.createElement("td");
+          /* Paid bookings get no button. The server refuses to delete them
+             anyway - the privacy policy promises seven years - so offering it
+             here would only be a button that always fails. */
+          if (b.status !== "paid") {
+            act.appendChild(actionBtn("Remove", "danger", function(){ removeWeb(b); }));
+          }
+          tr.appendChild(act);
           tb.appendChild(tr);
         });
       })
