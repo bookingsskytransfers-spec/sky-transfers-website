@@ -59,8 +59,8 @@
 /services/coach-hire-gold-coast/              /charters.html    301
 /services/goldcoast-bus-hire-and-charter/     /charters.html    301
 /services/brisbane-bus-charters-2026/         /charters.html    301
-/services/mini-bus-hire-brisbane/             /charters.html    301
-/services/mini-bus-hire-gold-coast/           /charters.html    301
+/services/mini-bus-hire-brisbane/             /minibus-hire-brisbane.html301
+/services/mini-bus-hire-gold-coast/           /minibus-hire-gold-coast.html301
 /services/mercedes-benz-sprinter-van-hire/    /charters.html    301
 /services/toyota-hiace-commuter-hire/         /charters.html    301
 /services/stretch-hummer-hire/                /charters.html    301
@@ -194,3 +194,15 @@
 #
 # The old WordPress paths (/wp-json/, /category/, /*/feed/) already 404 and
 # are disallowed in robots.txt.
+
+# 6 Oct 2026 — the two mini-bus rules above now point at their own pages rather
+# than at /charters.html. Reason: Search Console shows 828 impressions on
+# /services/mini-bus-hire-brisbane/ and 250 on the Gold Coast one, as separate
+# URLs, and one generic page cannot rank for two cities. Applied live through
+# the Render API, not the dashboard, as higher-priority rules (p0 and p1); the
+# original p29/p30 rules still exist underneath and are shadowed. If you ever
+# rebuild the rule list from scratch, drop the shadowed duplicates.
+#
+# Also noted that day: two rules written in this file are NOT live —
+# /services/ and /book-airport-transfers-online-brisbane-goldcoast. 103 rules
+# were live, 105 after the two additions.
