@@ -77,6 +77,8 @@
   .act:hover{border-color:var(--gold);background:var(--gold-soft)}
   .act.pay{border-color:var(--ok);color:var(--ok)}
   .act.danger{border-color:#C0463C;color:#C0463C}
+  .act.armed{background:var(--gold);color:#141D30;border-color:var(--gold);font-weight:600}
+  .act.danger.armed{background:#C0463C;color:#fff;border-color:#C0463C}
   .muted{color:var(--muted);font-size:13.5px}
   [hidden]{display:none!important}
 </style>
@@ -272,10 +274,7 @@
          : d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
   }
   function removeWeb(b){
-    var what = b.ref + " \u2014 " + (b.name || "") + ", " + (b.pickup || "?") + " \u2192 " + (b.dropoff || "?");
-    if (!window.confirm("Remove this booking from the dashboard?\n\n" + what +
-                        "\n\nThis cannot be undone. Any payment link for it is switched off.")) return;
-    api("/admin/web-booking/remove", { method: "POST", body: { ref: b.ref } })
+    return api("/admin/web-booking/remove", { method: "POST", body: { ref: b.ref } })
       .then(function(){ show($("web-msg"), "Removed " + b.ref + "."); loadWeb(); })
       .catch(function(err){ show($("web-msg"), err.message); });
   }
@@ -320,7 +319,7 @@
              anyway - the privacy policy promises seven years - so offering it
              here would only be a button that always fails. */
           if (b.status !== "paid") {
-            act.appendChild(actionBtn("Remove", "danger", function(){ removeWeb(b); }));
+            act.appendChild(armBtn("Remove", "Really remove?", "danger", function(){ return removeWeb(b); }));
           }
           tr.appendChild(act);
           tb.appendChild(tr);
@@ -336,6 +335,44 @@
     $("who").textContent = "Signed in as office";
     load();
     loadWeb();
+  }
+
+  /* Every destructive button on this page used a browser confirm dialog, and
+     on Aman's browser that dialog never appeared at all - so Remove, New PIN
+     and Mark paid were all silently dead, the last two being money actions.
+     Browsers suppress these dialogs in several situations and some mobile
+     ones handle them badly, and a confirmation that fails to appear is
+     indistinguishable from a broken button.
+
+     This asks for the second press in the page itself, where nothing can
+     swallow it, and disarms after six seconds so a stray tap cannot sit there
+     loaded. Do not reintroduce a dialog for a destructive action here. */
+  function armBtn(label, armedLabel, cls, run){
+    var armed = false, timer = null, btn;
+    function disarm(){
+      armed = false;
+      if (timer) { clearTimeout(timer); timer = null; }
+      btn.textContent = label;
+      btn.classList.remove("armed");
+    }
+    btn = actionBtn(label, cls, function(){
+      if (!armed) {
+        armed = true;
+        btn.textContent = armedLabel;
+        btn.classList.add("armed");
+        timer = setTimeout(disarm, 6000);
+        return;
+      }
+      if (timer) { clearTimeout(timer); timer = null; }
+      btn.disabled = true;
+      btn.textContent = "\u2026";
+      /* Re-enable either way. On success the table reloads and replaces this
+         button; on failure the caller has already shown the error. */
+      Promise.resolve(run()).catch(function(){}).then(function(){
+        btn.disabled = false; disarm();
+      });
+    });
+    return btn;
   }
 
   function actionBtn(label, cls, fn){
@@ -369,9 +406,9 @@
 
         var acts = document.createElement("td");
         acts.appendChild(actionBtn("Edit", "", function(){ editAgent(a); }));
-        acts.appendChild(actionBtn("New PIN", "", function(){ resetPin(a); }));
+        acts.appendChild(armBtn("New PIN", "Issue a new PIN?", "", function(){ return resetPin(a); }));
         acts.appendChild(actionBtn("Bookings", "", function(){ showBookings(a); }));
-        if (a.owing > 0) acts.appendChild(actionBtn("Mark paid", "pay", function(){ settle(a); }));
+        if (a.owing > 0) acts.appendChild(armBtn("Mark paid", "Confirm " + money(a.owing) + " paid?", "pay", function(){ return settle(a); }));
         tr.appendChild(acts);
         tb.appendChild(tr);
       });
@@ -433,8 +470,7 @@
   });
 
   function resetPin(a){
-    if (!window.confirm("Issue a new PIN for " + a.name + "?\n\nTheir current PIN stops working straight away.")) return;
-    api("/admin/agent", { method: "POST", body: {
+    return api("/admin/agent", { method: "POST", body: {
       code: a.code, name: a.name, email: a.email, commissionPct: a.commissionPct,
       active: a.active, resetPin: true
     }}).then(function(d){
@@ -444,9 +480,7 @@
   }
 
   function settle(a){
-    if (!window.confirm("Mark " + money(a.owing) + " as paid to " + a.name + "?\n\n" +
-      "This records that you've paid their commission. Their wallet drops to zero and those trips show as paid.")) return;
-    api("/admin/settle", { method: "POST", body: { code: a.code } })
+    return api("/admin/settle", { method: "POST", body: { code: a.code } })
       .then(function(d){
         show($("list-msg"), "Recorded " + money(d.amount) + " paid to " + a.name +
           " across " + d.trips + " trip" + (d.trips === 1 ? "" : "s") + ".", true);
