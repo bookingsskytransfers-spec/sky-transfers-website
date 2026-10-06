@@ -314,6 +314,18 @@
   .route-line{font-size:15px;color:var(--muted)}
   .route-line b{color:var(--ink)}
   .veh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+  .party{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .party label{font-size:15px;font-weight:700;color:var(--ink)}
+  .party-ctl{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+  .party-ctl button{width:40px;height:40px;border:0;background:transparent;font:inherit;font-size:20px;line-height:1;cursor:pointer;color:var(--ink)}
+  .party-ctl button:hover{background:var(--gold-soft)}
+  .party-ctl input{width:56px;height:40px;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;font:inherit;font-size:16px;font-weight:700;background:transparent;color:var(--ink);-moz-appearance:textfield}
+  .party-ctl input::-webkit-outer-spin-button,.party-ctl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .party-note{font-size:14px;color:var(--muted);flex:1 1 240px}
+  .veh.too-small{opacity:.4}
+  .veh .pp{font-size:13px;font-weight:700;color:var(--gold-deep);margin-top:2px}
+  .veh .rec{align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-top:6px;background:var(--gold-soft);color:var(--gold-deep);border:1px solid var(--gold)}
+
   .veh{
     border:1px solid var(--line);border-radius:9px;padding:14px;cursor:pointer;
     background:var(--card);text-align:left;font:inherit;color:var(--text);
@@ -544,6 +556,15 @@
     <div class="quote-head">
       <span class="route-line" id="route-line"></span>
     </div>
+    <div class="party">
+      <label for="qc-pax">How many passengers?</label>
+      <div class="party-ctl">
+        <button type="button" id="qc-pax-down" aria-label="One fewer passenger">&minus;</button>
+        <input id="qc-pax" type="number" min="1" max="18" value="2" inputmode="numeric" aria-describedby="party-note">
+        <button type="button" id="qc-pax-up" aria-label="One more passenger">+</button>
+      </div>
+      <span class="party-note" id="party-note"></span>
+    </div>
     <div class="veh-grid" id="veh-grid"></div>
     <p class="fine">All prices AUD, one-way, GST inclusive. Brisbane Airport fares include tolls. Meet &amp; greet and 30&nbsp;min airport waiting included. Child seats $15 each. The same fixed fare applies at any hour — no night or after-hours loading.</p>
   </section>
@@ -743,6 +764,10 @@ var VEHICLES = [
   /* Priced by hand, never by suburb: it skips the fare engine and Stripe. */
   {name:"Mini Coach 18-Seater", cap:"up to 18 passengers · 18 bags", quote:true}
 ];
+/* Seat capacity, index-for-index with VEHICLES. Explicit numbers rather than
+   something parsed out of the cap strings, so a copy edit to the wording can
+   never change what the form believes a vehicle holds. */
+var VEH_CAP = [3, 4, 7, 3, 7, 10, 14, 18];
 var PLACES = [OOL, BNE, CRUISE].concat(Object.keys(SUBURBS).sort()).concat(Object.keys(BM_SUBURB).sort())
   .concat(LD_LIVE ? Object.keys(LD_SUBURB).sort() : []);
 var BOOK_EMAIL = "info@skytransfers.com.au";
@@ -1080,12 +1105,57 @@ function refresh(){
   cc.hidden = true;
   $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>";
   var grid = $("veh-grid"); grid.innerHTML = "";
+  var pax = Math.max(1, parseInt(($("qc-pax") || {}).value, 10) || 1);
+  /* VEHICLES is in ascending price order on every route, so the first one that
+     seats the party is also the cheapest that seats it. The mini coach is
+     quote-only and never reaches the fare engine, so it cannot win this. */
+  var recIdx = -1;
+  for (var ri = 0; ri < VEHICLES.length; ri++) {
+    if (!VEHICLES[ri].quote && VEH_CAP[ri] >= pax) { recIdx = ri; break; }
+  }
+  /* Above the biggest priced vehicle the mini coach is genuinely the answer, so
+     badge it even though it is quoted by hand rather than by suburb. Past 18 we
+     leave nothing badged: that is coach work and belongs on a phone call. */
+  if (recIdx === -1) {
+    for (var rj = 0; rj < VEHICLES.length; rj++) {
+      if (VEH_CAP[rj] >= pax) { recIdx = rj; break; }
+    }
+  }
+  /* Rideshare SEAT counts, never rideshare fares: an XL seats up to six in
+     Australia and a standard car four, so above those numbers a party needs
+     more than one vehicle. Their price is set at the moment of travel, so any
+     figure printed here would be wrong before it was read.
+     The two largest branches come first because above 14 passengers nothing in
+     the fare table fits, and claiming one vehicle would simply be untrue. */
+  var pnote = $("party-note");
+  if (pnote) {
+    if (pax > 18) {
+      pnote.textContent = "More than 18 passengers means our 53-seat coach, quoted per job — call us or see charters.";
+    } else if (pax > 14) {
+      pnote.textContent = "Above 14 passengers the 18-seat mini coach is the vehicle. It is quoted per job rather than by suburb.";
+    } else if (pax >= 7) {
+      pnote.textContent = "All " + pax + " of you travel together in one vehicle. A rideshare XL seats up to 6, so you would need " + Math.ceil(pax / 6) + " cars.";
+    } else if (pax >= 5) {
+      pnote.textContent = "All " + pax + " of you travel together in one vehicle. A standard rideshare seats 4, so you would need 2 cars.";
+    } else {
+      pnote.textContent = "";
+    }
+  }
   VEHICLES.forEach(function(v, i){
+
     var b = document.createElement("button");
     b.type = "button"; b.className = "veh";
+    var fits = VEH_CAP[i] >= pax;
+    if (!fits) b.classList.add("too-small");
+    /* Per-head figure divides by the actual party, not by capacity: the number
+       a customer wants is what this trip costs each of them. Suppressed below
+       three, where halving the fare tells nobody anything they cannot see. */
+    var pp = (!v.quote && fits && pax >= 3)
+      ? "<span class='pp'>" + money(Math.round(res.rates[i] / pax)) + " each for " + pax + "</span>" : "";
+    var badge = (i === recIdx) ? "<span class='rec'>Best fit</span>" : "";
     b.innerHTML = "<span class='veh-art'>" + VEH_SVG[i] + "</span><span class='name'>" + v.name + "</span><span class='cap'>" + v.cap + "</span>" +
       "<span class='price'>" + (v.quote ? "Quote <small>on request</small>"
-        : money(res.rates[i]) + " <small>one-way</small>") + "</span>";
+        : money(res.rates[i]) + " <small>one-way</small>") + "</span>" + pp + badge;
     b.addEventListener("click", function(){
       /* The mini coach is quoted by hand, so it never touches the fare
          engine or Stripe — hand the guest to the custom-quote panel. */
@@ -1129,6 +1199,38 @@ function syncAddr(){
     el.dataset.autofill = want;
   }
 }
+
+/* Party size drives the quote card: best-fit badge, per-head price, and dimming
+   for anything too small. Mirrored into bf-pax so the booking payload still
+   carries a single number. Setting .value from script does not fire change, so
+   the two listeners cannot loop. */
+(function(){
+  var inp = $("qc-pax"), bp = $("bf-pax");
+  if (!inp) return;
+  function clearPick(){
+    /* The selected vehicle may no longer seat the party, so drop it rather than
+       carry a stale price into the booking. */
+    state.vehicle = null; state.price = null;
+  }
+  function apply(n){
+    n = Math.max(1, Math.min(18, n));
+    inp.value = n;
+    if (bp) bp.value = n;
+    clearPick();
+    refresh();
+  }
+  $("qc-pax-down").addEventListener("click", function(){ apply((parseInt(inp.value, 10) || 1) - 1); });
+  $("qc-pax-up").addEventListener("click", function(){ apply((parseInt(inp.value, 10) || 1) + 1); });
+  inp.addEventListener("input", function(){
+    var n = parseInt(inp.value, 10);
+    if (!n || n < 1 || n > 18) return;   /* leave a half-typed number alone */
+    if (bp) bp.value = n;
+    clearPick();
+    refresh();
+  });
+  inp.addEventListener("change", function(){ apply(parseInt(inp.value, 10) || 1); });
+  if (bp) bp.addEventListener("change", function(){ apply(parseInt(bp.value, 10) || 1); });
+})();
 
 attachAC("pu", "pu-list", function(p, addr){ state.pu = p; state.puAddr = addr || null; syncAddr(); refresh(); });
 attachAC("do", "do-list", function(p, addr){ state.dro = p; state.droAddr = addr || null; syncAddr(); refresh(); });
