@@ -162,8 +162,8 @@
 {"@type":"Question","name":"How do I pay?","acceptedAnswer":{"@type":"Answer","text":"Securely online by card — Visa, Mastercard, Amex, Apple Pay and Google Pay — processed by Stripe, so card details never touch our website. Approved corporate accounts, travel agents and DMCs can be invoiced monthly."}},
 {"@type":"Question","name":"Do I get a tax invoice?","acceptedAnswer":{"@type":"Answer","text":"Yes — a GST tax invoice is emailed automatically with every confirmation and receipt, ready for expense claims and business travel reporting."}},
 {"@type":"Question","name":"Do you provide baby and child seats?","acceptedAnswer":{"@type":"Answer","text":"Yes — capsules, convertible seats and boosters are $15 each, added during booking and professionally fitted, so young children always travel safe and legal."}},
-{"@type":"Question","name":"How much luggage can you take?","acceptedAnswer":{"@type":"Answer","text":"Sedans take 2 large bags, SUVs 4, minivans 6, Sprinters 11–15 and the mini coach 18. For oversize luggage, golf bags or prams, add the luggage trailer for $30."}},
-{"@type":"Question","name":"How big a group can you carry?","acceptedAnswer":{"@type":"Answer","text":"Up to 14 passengers on a published fare with the Mercedes Sprinter 14-Seater, or up to 18 in our mini coach, which is quoted per job — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together, or on our 53-seat coach."}},
+{"@type":"Question","name":"How much luggage can you take?","acceptedAnswer":{"@type":"Answer","text":"Sedans take 2 large bags, SUVs 4, minivans 6, Sprinters 11–15 and the 18-seater 18. For oversize luggage, golf bags or prams, add the luggage trailer for $30."}},
+{"@type":"Question","name":"How big a group can you carry?","acceptedAnswer":{"@type":"Answer","text":"Up to 14 passengers on a published fare with the Mercedes Sprinter 14-Seater, or up to 18 in our 18-seater, which is quoted per job — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together, or on our 53-seat coach."}},
 {"@type":"Question","name":"Do you operate overnight and for early-morning flights?","acceptedAnswer":{"@type":"Answer","text":"24 hours, 7 days, at the same fixed price any time of day or night. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off."}},
 {"@type":"Question","name":"Do you transfer to the Brisbane International Cruise Terminal?","acceptedAnswer":{"@type":"Answer","text":"Yes. The cruise terminal at Pinkenba is minutes from Brisbane Airport, and cruise transfers are a fixed door-to-ship fare from every suburb we serve — select ‘Brisbane Cruise Terminal’ in the booking form for an instant price. We meet disembarking passengers with a name board and track ship arrivals."}},
 {"@type":"Question","name":"Can you take pets, wheelchairs or extra equipment?","acceptedAnswer":{"@type":"Answer","text":"Assistance animals are always welcome at no charge. Pets travel by prior arrangement in a suitable carrier. Foldable wheelchairs, walkers, prams, golf bags and surfboards are carried free where they fit — or add the trailer for bulky loads."}},
@@ -573,9 +573,9 @@
   }
   /* Photographs on the fleet cards. aspect-ratio plus the width/height
      attributes mean the space is reserved before the bytes arrive, so a card
-     never jumps as its picture loads. Cards without a photograph keep the
-     line drawing the script injects - Sedan and Mini Coach, until there is a
-     photograph of each. */
+     never jumps as its picture loads. Every card carries a
+     photograph now, so the script injects nothing; the line drawings stay in
+     VEH_SVG for any class added before someone photographs it. */
   .fleet-card .veh-photo{display:block;width:100%;height:auto;aspect-ratio:4/3;
     object-fit:cover;border-radius:8px;margin:-4px 0 10px;background:var(--gold-soft)}
   .photo-band{margin:26px auto 0;max-width:1020px;padding:0 18px}
@@ -794,7 +794,7 @@ var VEH_SVG = [
   carSvg("M4 34 L4 8 Q4 4 10 4 L88 4 Q94 4 98 8 L112 21 Q116 24 116 29 L116 34",
     [[20,6],[34,6],[94,6.5]],
     "M44 4 L44 19 M72 4 L72 19 M4 19 L104 19"),
-  /* Mini coach 18 — flat-fronted small bus, four bays, dual rear wheels */
+  /* Sprinter 18-seater — flat-fronted small bus, four bays, dual rear wheels */
   carSvg("M3 34 L3 7 Q3 3 9 3 L108 3 Q116 3 116 10 L116 34",
     [[22,6],[36,6],[98,6.5]],
     "M32 3 L32 18 M56 3 L56 18 M80 3 L80 18 M3 18 L110 18")
@@ -854,7 +854,7 @@ var VEHICLES = [
   {name:"Mercedes Sprinter 10-Seater", cap:"up to 10 passengers · 11 bags"},
   {name:"Mercedes Sprinter 14-Seater", cap:"up to 14 passengers · 15 bags"},
   /* Priced by hand, never by suburb: it skips the fare engine and Stripe. */
-  {name:"Mini Coach 18-Seater", cap:"up to 18 passengers · 18 bags", quote:true}
+  {name:"Mercedes Sprinter 18-Seater", cap:"up to 18 passengers · 18 bags", quote:true}
 ];
 /* Seat capacity, index-for-index with VEHICLES. Explicit numbers rather than
    something parsed out of the cap strings, so a copy edit to the wording can
@@ -1199,13 +1199,13 @@ function refresh(){
   var grid = $("veh-grid"); grid.innerHTML = "";
   var pax = Math.max(1, parseInt(($("qc-pax") || {}).value, 10) || 1);
   /* VEHICLES is in ascending price order on every route, so the first one that
-     seats the party is also the cheapest that seats it. The mini coach is
+     seats the party is also the cheapest that seats it. The 18-seat Sprinter is
      quote-only and never reaches the fare engine, so it cannot win this. */
   var recIdx = -1;
   for (var ri = 0; ri < VEHICLES.length; ri++) {
     if (!VEHICLES[ri].quote && VEH_CAP[ri] >= pax) { recIdx = ri; break; }
   }
-  /* Above the biggest priced vehicle the mini coach is genuinely the answer, so
+  /* Above the biggest priced vehicle the 18-seat Sprinter is genuinely the answer, so
      badge it even though it is quoted by hand rather than by suburb. Past 18 we
      leave nothing badged: that is coach work and belongs on a phone call. */
   if (recIdx === -1) {
@@ -1224,7 +1224,7 @@ function refresh(){
     if (pax > 18) {
       pnote.textContent = "More than 18 passengers means our 53-seat coach, quoted per job — call us or see charters.";
     } else if (pax > 14) {
-      pnote.textContent = "Above 14 passengers the 18-seat mini coach is the vehicle. It is quoted per job rather than by suburb.";
+      pnote.textContent = "Above 14 passengers the 18-seat Sprinter is the vehicle. It is quoted per job rather than by suburb.";
     } else if (pax >= 7) {
       pnote.textContent = "All " + pax + " of you travel together in one vehicle. A rideshare XL seats up to 6, so you would need " + Math.ceil(pax / 6) + " cars.";
     } else if (pax >= 5) {
@@ -1266,7 +1266,7 @@ function refresh(){
         if (pcard) pcard.scrollIntoView({behavior: "smooth", block: "nearest"});
         return;
       }
-      /* The mini coach is quoted by hand, so it never touches the fare
+      /* The 18-seat Sprinter is quoted by hand, so it never touches the fare
          engine or Stripe — hand the guest to the custom-quote panel. */
       if (v.quote) {
         state.vehicle = null; state.price = null;
@@ -1603,11 +1603,11 @@ function buildRequest(){
     <div class="fleet-card"><img class="veh-photo" src="/img/fleet-sedan.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our Toyota Camry Hybrid, photographed head-on in a waiting bay."><h3>Sedan</h3><p>1&ndash;3 passengers &middot; 2 large bags. Business trips and couples.</p><div class="from">from $80</div></div>
     <div class="fleet-card"><img class="veh-photo" src="/img/fleet-suv.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our white Audi Q7 parked alongside the rest of the fleet."><h3>SUV</h3><p>1&ndash;4 passengers &middot; 4 bags. Extra room and comfort.</p><div class="from">from $90</div></div>
     <div class="fleet-card"><img class="veh-photo" src="/img/fleet-people-mover.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our Kia Carnival people mover with the sliding door open, showing the middle row."><h3>People Mover</h3><p>1&ndash;7 passengers &middot; 6 bags. Families, prams and holiday luggage.</p><div class="from">from $100</div></div>
-    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-luxury-sedan.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our Mercedes-Benz S-Class waiting at a hotel entrance."><h3>Luxury Sedan</h3><p>1&ndash;3 passengers &middot; 2 bags. Mercedes E-Class or S-Class.</p><div class="from">from $105</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-luxury-sedan.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our Lexus ES, photographed from the front."><h3>Luxury Sedan</h3><p>1&ndash;3 passengers &middot; 2 bags. Lexus ES or Mercedes S-Class.</p><div class="from">from $105</div></div>
     <div class="fleet-card"><img class="veh-photo" src="/img/fleet-luxury-minivan.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Three of our black Mercedes-Benz V-Class people movers on the driveway."><h3>Luxury Minivan</h3><p>1&ndash;7 passengers &middot; 6 bags. Mercedes V-Class comfort.</p><div class="from">from $115</div></div>
     <div class="fleet-card"><img class="veh-photo" src="/img/fleet-sprinter-exterior.jpg" width="800" height="600" loading="lazy" decoding="async" alt="One of our Mercedes-Benz Sprinters waiting in an airport car park."><h3>Mercedes Sprinter 10-Seater</h3><p>Up to 10 passengers &middot; 11 bags. Crews and tour groups.</p><div class="from">from $165</div></div>
     <div class="fleet-card"><img class="veh-photo" src="/img/fleet-sprinter-14.jpg" width="800" height="600" loading="lazy" decoding="async" alt="One of our Mercedes Sprinter 14-seaters, photographed from the front."><h3>Mercedes Sprinter 14-Seater</h3><p>Up to 14 passengers &middot; 15 bags. One vehicle for the whole party.</p><div class="from">from $240</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="7"></span><h3>Mini Coach 18-Seater</h3><p>Up to 18 passengers &middot; 18 bags. Conferences, clubs and school groups.</p><div class="from">quoted per job</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-sprinter-18.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our Mercedes Sprinter 18-seater, photographed at dusk."><h3>Mercedes Sprinter 18-Seater</h3><p>Up to 18 passengers &middot; 18 bags. Conferences, clubs and school groups.</p><div class="from">quoted per job</div></div>
   </div>
   <p style="margin:16px 0 0;font-size:14px;color:var(--muted)">Also in the Sky Transfers family: Mercedes V-Class people movers, Mercedes Sprinter mini buses and a King Long 53-seat luxury coach — <a href="tel:+61481437772" style="color:var(--gold-deep);font-weight:600">call for a coach or group quote</a>.</p>
 </section>
@@ -1696,7 +1696,7 @@ function buildRequest(){
     <div class="why"><h3>A real local fleet</h3><p>We're not a middleman reselling your trip to an unknown operator. Our own chauffeurs and vehicles back every booking — we never leave you at the airport.</p></div>
     <div class="why"><h3>Fixed fares, shown up-front</h3><p>Zone-based prices published for every suburb and vehicle. No quote forms, no surge, no surprises — compare us openly with anyone.</p></div>
     <div class="why"><h3>Fairer cancellation</h3><p>Free changes and full-refund cancellation to 24 hours before pick-up. Most platforms charge the full fare inside 48 hours.</p></div>
-    <div class="why"><h3>Groups are our specialty</h3><p>Luxury minivans and Mercedes Sprinters to 14 seats and an 18-seat mini coach, child seats fitted for $15, luggage trailer for $30. One vehicle, one price, everyone together.</p></div>
+    <div class="why"><h3>Groups are our specialty</h3><p>Luxury minivans and Mercedes Sprinters to 14 seats and an 18-seater, child seats fitted for $15, luggage trailer for $30. One vehicle, one price, everyone together.</p></div>
   </div>
 </section>
 
@@ -1744,8 +1744,8 @@ function buildRequest(){
     <details><summary>How do I pay?</summary><p>Securely online by card — Visa, Mastercard, Amex, Apple&nbsp;Pay and Google&nbsp;Pay — processed by Stripe, so card details never touch our website. Approved corporate accounts, travel agents and DMCs can be invoiced monthly.</p></details>
     <details><summary>Do I get a tax invoice?</summary><p>Yes — a GST tax invoice is emailed automatically with every confirmation and receipt, ready for expense claims and business travel reporting.</p></details>
     <details><summary>Do you provide baby and child seats?</summary><p>Yes — capsules, convertible seats and boosters are $15 each, added during booking and professionally fitted, so young children always travel safe and legal.</p></details>
-    <details><summary>How much luggage can you take?</summary><p>Sedans take 2 large bags, SUVs 4, minivans 6, Sprinters 11–15 and the mini coach 18. For oversize luggage, golf bags or prams, add the luggage trailer for $30.</p></details>
-    <details><summary>How big a group can you carry?</summary><p>Up to 14 passengers on a published fare with the Mercedes Sprinter 14-Seater, or up to 18 in our mini coach, which is quoted per job — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together, or on our 53-seat coach.</p></details>
+    <details><summary>How much luggage can you take?</summary><p>Sedans take 2 large bags, SUVs 4, minivans 6, Sprinters 11–15 and the 18-seater 18. For oversize luggage, golf bags or prams, add the luggage trailer for $30.</p></details>
+    <details><summary>How big a group can you carry?</summary><p>Up to 14 passengers on a published fare with the Mercedes Sprinter 14-Seater, or up to 18 in our 18-seater, which is quoted per job — one booking, one fixed price for the whole group. Larger groups run as multiple vehicles timed together, or on our 53-seat coach.</p></details>
     <details><summary>Do you operate overnight and for early-morning flights?</summary><p>24 hours, 7 days, at the same fixed price any time of day or night. Early departures are our specialty — we recommend a pick-up time based on your flight and check-in cut-off.</p></details>
     <details><summary>Do you transfer to the Brisbane International Cruise Terminal?</summary><p>Yes. The cruise terminal at Pinkenba is minutes from Brisbane Airport, and cruise transfers are a fixed door-to-ship fare from every suburb we serve — select ‘Brisbane Cruise Terminal’ in the booking form for an instant price. We meet disembarking passengers with a name board and track ship arrivals.</p></details>
     <details><summary>Can you take pets, wheelchairs or extra equipment?</summary><p>Assistance animals are always welcome at no charge. Pets travel by prior arrangement in a suitable carrier. Foldable wheelchairs, walkers, prams, golf bags and surfboards are carried free where they fit — or add the trailer for bulky loads.</p></details>
