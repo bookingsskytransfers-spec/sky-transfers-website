@@ -1077,6 +1077,61 @@ function refreshPrices() {
 }
 
 // ---------------------------------------------------------------------------
+// Coverage figures. These used to be typed into each page by hand, which is how
+// the site came to quote 223, 274, 298, 370 and 421 for the same two numbers --
+// the partner page was understating coverage by 123 destinations. They are
+// generated here instead, the same way prices.html has its fare rows rebuilt
+// above, so a number can only be wrong if the fare tables themselves are.
+//
+// A page opts in by marking the figure: 421<!--c:total--> destinations. The
+// comment renders as nothing, so the markup a reader sees is unchanged.
+//   c:total -> every priced destination
+//   c:bne   -> destinations in the Brisbane region
+//   c:ool   -> destinations in the Gold Coast region
+// ---------------------------------------------------------------------------
+function refreshCounts() {
+  const counts = {
+    total: places.length,
+    bne: places.filter((p) => p.region === 'Brisbane').length,
+    ool: places.filter((p) => p.region === 'Gold Coast').length,
+  };
+  const files = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'));
+  /* The region pages are written by this script a few lines above, so their
+     own figures are already generated and must not be reported as drift.
+     A figure that is deliberately page-specific marks itself c:skip. */
+  const generated = new Set(REGIONS.map((r) => r.slug + '.html'));
+  let written = 0, marks = 0, unmarked = [];
+  for (const f of files) {
+    const p = path.join(ROOT, f);
+    const before = fs.readFileSync(p, 'utf8');
+    const after = before.replace(/\d+(?=<!--c:(total|bne|ool)-->)/g, (m, key) => {
+      marks++;
+      return String(counts[key]);
+    });
+    /* A figure that looks like coverage but carries no marker is the next drift
+       waiting to happen. Warn rather than throw: a copy edit should not be able
+       to fail a deploy, but it should be impossible to miss in the log. */
+    if (!generated.has(f)) {
+      const re = /(?<!\d)(\d{2,4})\s+(destinations|suburbs)\b/g;
+      let m;
+      while ((m = re.exec(after)) !== null) {
+        if (after.slice(m.index, m.index + 40).indexOf('<!--c:') === -1) {
+          unmarked.push(f + ': "' + m[0] + '"');
+        }
+      }
+    }
+    if (after !== before) { fs.writeFileSync(p, after); written++; }
+  }
+  console.log('build-suburbs: coverage figures refreshed, ' + marks + ' marker(s) in '
+    + files.length + ' pages (total ' + counts.total + ', Brisbane ' + counts.bne
+    + ', Gold Coast ' + counts.ool + '), ' + written + ' file(s) rewritten');
+  if (unmarked.length) {
+    console.warn('build-suburbs: WARNING unmarked coverage figures, these will drift:');
+    for (const u of unmarked) console.warn('  ' + u);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // fares.json - the published price list as machine-readable data
 //
 // Written because AI assistants are booking these transfers. A customer's
@@ -1187,6 +1242,7 @@ for (const p of places) {
 fs.writeFileSync(path.join(OUT, 'index.html'), hubPage());
 for (const r of REGIONS) fs.writeFileSync(path.join(ROOT, r.slug + '.html'), regionPage(r));
 refreshPrices();
+refreshCounts();
 writeFaresJson();
 
 // sitemap: keep every committed entry, drop any earlier generated ones, append ours
