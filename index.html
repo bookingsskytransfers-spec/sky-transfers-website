@@ -490,6 +490,87 @@
   .foot-legal{margin-top:4px}
   .foot-legal p{margin:0 0 6px}
   .foot-entity{color:var(--muted);font-size:13px;line-height:1.5;margin-top:10px}
+
+  /* ===================================================================
+     MOTION — added 7 Oct 2026, mirroring the block in site.css.
+     ------------------------------------------------------------------
+     It has to live here as well because index.html does not load
+     site.css at all: this page carries four inline <style> blocks and
+     its own copy of the tokens. Nine pages are like that. Do not
+     "solve" the duplication by linking site.css from here - this page
+     already defines :root, .cta and .veh, so both would be in play at
+     once. If the block in site.css changes, change this one too.
+
+     Reveals use animation-timeline: view() behind @supports, not
+     JavaScript, so an unsupported browser shows everything normally and
+     anything already on screen at load renders finished.
+
+     Nothing here touches the booking form. It sits in .booklift, well
+     above the first section.block, and .veh are the vehicle tiles
+     inside it - they get a slower hover and no entrance animation.
+     =================================================================== */
+  :root{
+    --ease-lux:cubic-bezier(.22,1,.36,1);
+    --dur-lux:.5s;
+  }
+  .veh{transition:border-color var(--dur-lux) var(--ease-lux),
+                  transform var(--dur-lux) var(--ease-lux),
+                  box-shadow var(--dur-lux) var(--ease-lux)}
+  .veh:hover{transform:translateY(-3px)}
+  .wa-float{transition:background var(--dur-lux) var(--ease-lux),
+                       transform var(--dur-lux) var(--ease-lux),
+                       box-shadow var(--dur-lux) var(--ease-lux)}
+  .wa-float:hover{transform:scale(1.05);box-shadow:0 10px 30px rgba(0,0,0,.34)}
+  .navlinks a,.contact-strip a,.foot-in a,.swap,.ac-item,.chip{
+    transition:color var(--dur-lux) var(--ease-lux),
+               background-color var(--dur-lux) var(--ease-lux),
+               border-color var(--dur-lux) var(--ease-lux),
+               transform var(--dur-lux) var(--ease-lux)}
+  /* background-color, not the shorthand: .cta:hover sets the shorthand. */
+  .cta,.cta-gold,a.cta-gold,.cta.ghost{
+    transition:background-color var(--dur-lux) var(--ease-lux),
+               color var(--dur-lux) var(--ease-lux),
+               transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux)}
+  .cta:hover,.cta-gold:hover,a.cta-gold:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .cta:active,.cta-gold:active,a.cta-gold:active{transform:translateY(0);transition-duration:.06s}
+  .fleet-card,.why,.area{
+    transition:transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux),
+               border-color var(--dur-lux) var(--ease-lux)}
+  .fleet-card:hover,.why:hover,.area:hover{
+    transform:translateY(-2px);
+    box-shadow:0 2px 6px rgba(20,29,48,.07), 0 14px 38px rgba(20,29,48,.10)}
+  .block h2::after{
+    content:"";display:block;height:2px;width:54px;margin-top:12px;
+    background:var(--gold);transform-origin:left center}
+  @keyframes lux-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes lux-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @supports (animation-timeline: view()){
+    @media (prefers-reduced-motion: no-preference){
+      section.block,.fleet-card,.why,.area,.agents-band{
+        animation:lux-rise linear both;
+        animation-timeline:view();
+        animation-range:entry 0% entry 40%;
+      }
+      .block h2::after{
+        animation:lux-draw linear both;
+        animation-timeline:view();
+        animation-range:entry 10% entry 55%;
+      }
+      .fleet-card:nth-child(2),.why:nth-child(2),.area:nth-child(2){animation-range:entry 5% entry 45%}
+      .fleet-card:nth-child(3),.why:nth-child(3),.area:nth-child(3){animation-range:entry 10% entry 50%}
+      .fleet-card:nth-child(4),.why:nth-child(4),.area:nth-child(4){animation-range:entry 15% entry 55%}
+      .fleet-card:nth-child(n+5),.why:nth-child(n+5){animation-range:entry 20% entry 60%}
+    }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .navlinks a,.contact-strip a,.foot-in a,.swap,.ac-item,.chip,
+    .cta,.cta-gold,a.cta-gold,.cta.ghost,.fleet-card,.why,.area{transition:none}
+    .cta:hover,.cta-gold:hover,a.cta-gold:hover,
+    .fleet-card:hover,.why:hover,.area:hover{transform:none}
+    .block h2::after{animation:none;transform:none}
+  }
 </style>
 
 
