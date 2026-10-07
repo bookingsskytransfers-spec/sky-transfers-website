@@ -571,6 +571,17 @@
     .fleet-card:hover,.why:hover,.area:hover{transform:none}
     .block h2::after{animation:none;transform:none}
   }
+  /* Photographs on the fleet cards. aspect-ratio plus the width/height
+     attributes mean the space is reserved before the bytes arrive, so a card
+     never jumps as its picture loads. Cards without a photograph keep the
+     line drawing the script injects - Sedan and Mini Coach, until there is a
+     photograph of each. */
+  .fleet-card .veh-photo{display:block;width:100%;height:auto;aspect-ratio:4/3;
+    object-fit:cover;border-radius:8px;margin:-4px 0 10px;background:var(--gold-soft)}
+  .photo-band{margin:26px auto 0;max-width:1020px;padding:0 18px}
+  .photo-band img{display:block;width:100%;height:auto;border-radius:12px;
+    border:1px solid var(--line);box-shadow:var(--shadow)}
+  .photo-band figcaption{margin:9px 2px 0;font-size:13.5px;color:var(--muted)}
 </style>
 
 
@@ -1588,14 +1599,19 @@ function buildRequest(){
   <p class="kick">The fleet</p>
   <h2>The right vehicle for every group</h2>
   <p class="lead">From a solo business trip to an 18-person tour group with golf bags — one booking, one fixed price per vehicle, never per person.</p>
+  <figure class="photo-band" style="margin:0 0 20px;padding:0;max-width:none">
+    <img src="/img/fleet-lineup.jpg" width="1400" height="781" loading="lazy" decoding="async"
+         alt="The Sky Transfers fleet lined up with a chauffeur standing beside each vehicle.">
+    <figcaption>Our own vehicles, our own chauffeurs.</figcaption>
+  </figure>
   <div class="fleet-grid" id="fleet-grid">
     <div class="fleet-card"><span class="veh-art" data-veh="0"></span><h3>Sedan</h3><p>1&ndash;3 passengers &middot; 2 large bags. Business trips and couples.</p><div class="from">from $80</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="1"></span><h3>SUV</h3><p>1&ndash;4 passengers &middot; 4 bags. Extra room and comfort.</p><div class="from">from $90</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="2"></span><h3>People Mover</h3><p>1&ndash;7 passengers &middot; 6 bags. Families, prams and holiday luggage.</p><div class="from">from $100</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="3"></span><h3>Luxury Sedan</h3><p>1&ndash;3 passengers &middot; 2 bags. Mercedes E-Class or S-Class.</p><div class="from">from $105</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="4"></span><h3>Luxury Minivan</h3><p>1&ndash;7 passengers &middot; 6 bags. Mercedes V-Class comfort.</p><div class="from">from $115</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="5"></span><h3>Mercedes Sprinter 10-Seater</h3><p>Up to 10 passengers &middot; 11 bags. Crews and tour groups.</p><div class="from">from $165</div></div>
-    <div class="fleet-card"><span class="veh-art" data-veh="6"></span><h3>Mercedes Sprinter 14-Seater</h3><p>Up to 14 passengers &middot; 15 bags. One vehicle for the whole party.</p><div class="from">from $240</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-suv.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our white Audi Q7 parked alongside the rest of the fleet."><h3>SUV</h3><p>1&ndash;4 passengers &middot; 4 bags. Extra room and comfort.</p><div class="from">from $90</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-people-mover.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our Kia Carnival people mover with the sliding door open, showing the middle row."><h3>People Mover</h3><p>1&ndash;7 passengers &middot; 6 bags. Families, prams and holiday luggage.</p><div class="from">from $100</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-luxury-sedan.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Our black Mercedes S-Class parked by the water on the Gold Coast."><h3>Luxury Sedan</h3><p>1&ndash;3 passengers &middot; 2 bags. Mercedes E-Class or S-Class.</p><div class="from">from $105</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-luxury-minivan.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Three of our black Mercedes V-Class people movers parked together."><h3>Luxury Minivan</h3><p>1&ndash;7 passengers &middot; 6 bags. Mercedes V-Class comfort.</p><div class="from">from $115</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-sprinter.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Inside one of our Mercedes Sprinters, looking down the rows of seats through the open side door."><h3>Mercedes Sprinter 10-Seater</h3><p>Up to 10 passengers &middot; 11 bags. Crews and tour groups.</p><div class="from">from $165</div></div>
+    <div class="fleet-card"><img class="veh-photo" src="/img/fleet-sprinter.jpg" width="800" height="600" loading="lazy" decoding="async" alt="Inside one of our Mercedes Sprinters, looking down the rows of seats through the open side door."><h3>Mercedes Sprinter 14-Seater</h3><p>Up to 14 passengers &middot; 15 bags. One vehicle for the whole party.</p><div class="from">from $240</div></div>
     <div class="fleet-card"><span class="veh-art" data-veh="7"></span><h3>Mini Coach 18-Seater</h3><p>Up to 18 passengers &middot; 18 bags. Conferences, clubs and school groups.</p><div class="from">quoted per job</div></div>
   </div>
   <p style="margin:16px 0 0;font-size:14px;color:var(--muted)">Also in the Sky Transfers family: Mercedes V-Class people movers, Mercedes Sprinter mini buses and a King Long 53-seat luxury coach — <a href="tel:+61481437772" style="color:var(--gold-deep);font-weight:600">call for a coach or group quote</a>.</p>
