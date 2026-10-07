@@ -197,6 +197,33 @@
       <p style="margin:14px 0 0"><button class="linkbtn" id="close-bookings">Close</button></p>
     </section>
 
+    <section class="card" id="gallery-card">
+      <h2>Vehicle photo gallery</h2>
+      <div id="gal-msg" class="msg" hidden></div>
+      <p class="muted" style="margin:0 0 6px">
+        These appear on <a href="/gallery.html" target="_blank" rel="noopener">skytransfers.com.au/gallery.html</a>.
+        Pictures are shrunk and re-saved here in your browser before they are sent, which also
+        removes the location stamp a phone puts inside a photo.
+      </p>
+      <p class="muted" style="margin:0 0 14px">
+        <strong>Check the number plate first.</strong> Anything uploaded here goes on the website exactly as
+        it is &mdash; pick a photo where the plate is not readable, or one already marked SKY&nbsp;TRANSFERS.
+      </p>
+      <div class="row3" style="margin-bottom:10px">
+        <div><label for="gal-vehicle">Vehicle</label>
+          <input id="gal-vehicle" placeholder="Mercedes V-Class" maxlength="60"></div>
+        <div style="grid-column:span 2"><label for="gal-caption">Caption (optional)</label>
+          <input id="gal-caption" placeholder="Waiting at Brisbane Airport" maxlength="200"></div>
+      </div>
+      <p style="margin:0 0 12px">
+        <label for="gal-file">Photos</label>
+        <input id="gal-file" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+      </p>
+      <p style="margin:0 0 16px"><button class="btn" id="gal-upload" disabled>Add to the gallery</button></p>
+      <div id="gal-list"></div>
+      <p style="margin:12px 0 0"><button class="linkbtn" id="gal-refresh">Refresh the list</button></p>
+    </section>
+
     <p><button class="linkbtn" id="signout">Sign out</button></p>
   </div>
 </div>
@@ -259,6 +286,141 @@
     $("signin").hidden = false;
     $("who").hidden = true;
   }
+
+  /* ---- vehicle photo gallery ---------------------------------------------
+     Each picture is drawn onto a canvas and re-encoded before it is sent.
+     That does two jobs at once: it brings a 4 MB phone photograph down to a
+     few hundred kilobytes, and because a canvas only ever holds pixels, the
+     EXIF block - which on a phone carries the GPS coordinates of wherever
+     the picture was taken - is left behind rather than published.
+     The bytes go up as the request body with an image content type; the
+     caption and vehicle ride in the query string.
+     ---------------------------------------------------------------------- */
+  var GAL_MAX = 1600;        /* longest edge, in pixels */
+  var GAL_QUALITY = 0.82;
+
+  function galShrink(file){
+    return new Promise(function(resolve, reject){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        URL.revokeObjectURL(url);
+        var w = img.naturalWidth, h = img.naturalHeight;
+        if (!w || !h) return reject(new Error("That file is not an image we can read."));
+        var scale = Math.min(1, GAL_MAX / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+        var c = document.createElement("canvas");
+        c.width = cw; c.height = ch;
+        var ctx = c.getContext("2d");
+        ctx.drawImage(img, 0, 0, cw, ch);
+        c.toBlob(function(blob){
+          if (!blob) return reject(new Error("Your browser could not re-save that image."));
+          resolve(blob);
+        }, "image/jpeg", GAL_QUALITY);
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error("That file is not an image we can read.")); };
+      img.src = url;
+    });
+  }
+
+  function galUploadOne(file, vehicle, caption){
+    return galShrink(file).then(function(blob){
+      var qs = "?vehicle=" + encodeURIComponent(vehicle) + "&caption=" + encodeURIComponent(caption);
+      return fetch(API + "/gallery/upload" + qs, {
+        method: "POST",
+        headers: { "Content-Type": "image/jpeg", Authorization: "Bearer " + token },
+        body: blob
+      }).then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(d){
+          if (r.status === 401) { signOut(); throw new Error(d.error || "Please sign in again."); }
+          if (!r.ok) throw new Error(d.error || "Could not add that photo.");
+          return d;
+        });
+      });
+    });
+  }
+
+  function galRender(photos){
+    var box = $("gal-list");
+    box.textContent = "";
+    if (!photos.length) {
+      var p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = "No photos yet. Add the first one above.";
+      box.appendChild(p);
+      return;
+    }
+    var grid = document.createElement("div");
+    grid.style.cssText = "display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))";
+    photos.forEach(function(ph){
+      var cell = document.createElement("div");
+      cell.style.cssText = "border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)";
+      var im = document.createElement("img");
+      im.src = API + "/gallery/photo/" + encodeURIComponent(ph.id);
+      im.width = ph.width; im.height = ph.height;
+      im.loading = "lazy";
+      im.alt = ph.caption || ph.vehicle || "Gallery photo";
+      im.style.cssText = "display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover";
+      cell.appendChild(im);
+      var cap = document.createElement("p");
+      cap.className = "muted";
+      cap.style.cssText = "margin:6px 8px 0;font-size:12.5px;line-height:1.3";
+      cap.textContent = [ph.vehicle, ph.caption].filter(Boolean).join(" — ") || ("Photo " + ph.id);
+      cell.appendChild(cap);
+      var foot = document.createElement("p");
+      foot.style.cssText = "margin:6px 8px 8px";
+      foot.appendChild(armBtn("Remove", "Tap again to remove", "danger", function(){
+        return api("/gallery/remove", { method: "POST", body: { id: ph.id } })
+          .then(function(){ show($("gal-msg"), "Photo removed.", true); return galLoad(); })
+          .catch(function(err){ show($("gal-msg"), err.message); throw err; });
+      }));
+      cell.appendChild(foot);
+      grid.appendChild(cell);
+    });
+    box.appendChild(grid);
+  }
+
+  function galLoad(){
+    return fetch(API + "/gallery", { cache: "no-store" })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ galRender((d && d.photos) || []); })
+      .catch(function(){ show($("gal-msg"), "Could not load the gallery list."); });
+  }
+
+  $("gal-file").addEventListener("change", function(){
+    $("gal-upload").disabled = !this.files || !this.files.length;
+  });
+
+  $("gal-upload").addEventListener("click", function(){
+    var files = Array.prototype.slice.call($("gal-file").files || []);
+    if (!files.length) return;
+    var vehicle = $("gal-vehicle").value.trim();
+    var caption = $("gal-caption").value.trim();
+    var btn = this;
+    btn.disabled = true;
+    var done = 0, failed = [];
+    show($("gal-msg"), "Adding 1 of " + files.length + "…", true);
+    files.reduce(function(chain, f){
+      return chain.then(function(){
+        return galUploadOne(f, vehicle, caption)
+          .then(function(){ done++; })
+          .catch(function(err){ failed.push(f.name + ": " + err.message); })
+          .then(function(){
+            if (done + failed.length < files.length)
+              show($("gal-msg"), "Adding " + (done + failed.length + 1) + " of " + files.length + "…", true);
+          });
+      });
+    }, Promise.resolve()).then(function(){
+      $("gal-file").value = "";
+      btn.disabled = true;
+      if (failed.length) show($("gal-msg"), done + " added. " + failed.length + " did not: " + failed.join("; "));
+      else show($("gal-msg"), done === 1 ? "Photo added." : done + " photos added.", true);
+      return galLoad();
+    });
+  });
+
+  $("gal-refresh").addEventListener("click", function(){ show($("gal-msg"), ""); galLoad(); });
+
   $("signout").addEventListener("click", signOut);
 
   function webLabel(s){
@@ -335,6 +497,7 @@
     $("who").textContent = "Signed in as office";
     load();
     loadWeb();
+    galLoad();
   }
 
   /* Every destructive button on this page used a browser confirm dialog, and
