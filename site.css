@@ -7,7 +7,13 @@
     --muted:#68707F;
     --line:#E5E0D2;
     --gold:#C9A227;
-    --gold-deep:#8E701C;
+    /* 7 Oct 2026: was #8E701C, which measured 4.26:1 on --ground and
+       failed WCAG AA for small text. This is 6.41:1 on ground and
+       7.04:1 on card, and is visually near-identical. It carries more
+       than labels - .lp a links and the .fleet-card "from $X" prices
+       use it too. The dark theme's --gold-deep is already 9.5:1+ and
+       is deliberately left alone. */
+    --gold-deep:#6F5510;
     --gold-soft:#F6EED9;
     --navy:#101828;
     --navy-text:#F6F2E8;
