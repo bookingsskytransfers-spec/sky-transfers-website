@@ -383,6 +383,75 @@
   .photo-band img{display:block;width:100%;height:auto;border-radius:12px;
     border:1px solid var(--line);box-shadow:var(--shadow)}
   .photo-band figcaption{margin:9px 2px 0;font-size:13.5px;color:var(--muted)}
+
+  /* ===================================================================
+     MOTION — added 7 Oct 2026. Third copy, after site.css and
+     index.html, because this page also carries its own inline styles
+     and never links site.css. If one copy changes, change them all.
+
+     The one difference from the other two: on this page the enquiry
+     form lives INSIDE <section class="block" id="quote">, so a blanket
+     reveal of section.block would animate the form itself. #quote is
+     excluded. Making someone wait to type into the form that brings in
+     four-figure charter work is the last thing this should do.
+     =================================================================== */
+  :root{
+    --ease-lux:cubic-bezier(.22,1,.36,1);
+    --dur-lux:.5s;
+  }
+  .navlinks a,.chip,.wa-float{
+    transition:color var(--dur-lux) var(--ease-lux),
+               background-color var(--dur-lux) var(--ease-lux),
+               border-color var(--dur-lux) var(--ease-lux),
+               transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux)}
+  .wa-float:hover{transform:scale(1.05);box-shadow:0 10px 30px rgba(0,0,0,.34)}
+  /* background-color, not the shorthand, which the hover rules already set. */
+  .cta,.cta-gold,a.cta-gold,.btn-quote,.btn-half{
+    transition:background-color var(--dur-lux) var(--ease-lux),
+               color var(--dur-lux) var(--ease-lux),
+               transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux)}
+  .cta:hover,.cta-gold:hover,a.cta-gold:hover,.btn-quote:hover{
+    transform:translateY(-2px);box-shadow:var(--shadow)}
+  .cta:active,.cta-gold:active,.btn-quote:active{transform:translateY(0);transition-duration:.06s}
+  .ch-card,.why{
+    transition:transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux),
+               border-color var(--dur-lux) var(--ease-lux)}
+  .ch-card:hover,.why:hover{
+    transform:translateY(-2px);
+    box-shadow:0 2px 6px rgba(20,29,48,.07), 0 14px 38px rgba(20,29,48,.10)}
+  .block h2::after{
+    content:"";display:block;height:2px;width:54px;margin-top:12px;
+    background:var(--gold);transform-origin:left center}
+  @keyframes lux-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes lux-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @supports (animation-timeline: view()){
+    @media (prefers-reduced-motion: no-preference){
+      section.block:not(#quote),.ch-card,.why,.photo-band{
+        animation:lux-rise linear both;
+        animation-timeline:view();
+        animation-range:entry 0% entry 40%;
+      }
+      .block h2::after{
+        animation:lux-draw linear both;
+        animation-timeline:view();
+        animation-range:entry 10% entry 55%;
+      }
+      .ch-card:nth-child(2),.why:nth-child(2){animation-range:entry 5% entry 45%}
+      .ch-card:nth-child(3),.why:nth-child(3){animation-range:entry 10% entry 50%}
+      .ch-card:nth-child(4),.why:nth-child(4){animation-range:entry 15% entry 55%}
+      .ch-card:nth-child(n+5),.why:nth-child(n+5){animation-range:entry 20% entry 60%}
+    }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .navlinks a,.chip,.wa-float,.cta,.cta-gold,a.cta-gold,
+    .btn-quote,.btn-half,.ch-card,.why{transition:none}
+    .cta:hover,.cta-gold:hover,a.cta-gold:hover,.btn-quote:hover,
+    .ch-card:hover,.why:hover{transform:none}
+    .block h2::after{animation:none;transform:none}
+  }
 </style>
 
 <nav class="sitenav">
