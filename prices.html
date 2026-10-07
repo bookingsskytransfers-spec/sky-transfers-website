@@ -347,6 +347,18 @@
   table.pricetable tbody tr:nth-child(even){background:var(--ground)}
   table.pricetable tbody tr:hover{background:var(--gold-soft)}
   table.pricetable tbody tr:last-child th,table.pricetable tbody tr:last-child td{border-bottom:0}
+  /* The suburb column stays put while the fares scroll sideways. The table is
+     883px wide and a phone is 375, so without this you lose which suburb a row
+     belongs to the moment you look past the second column — on a page whose
+     whole job is "what does it cost from my suburb". The row backgrounds are
+     repeated on the cell because a sticky cell paints itself rather than
+     inheriting the stripe behind it. */
+  table.pricetable th[scope=row]{position:sticky;left:0;z-index:1;background:var(--card)}
+  table.pricetable tbody tr:nth-child(even) th[scope=row]{background:var(--ground)}
+  table.pricetable tbody tr:hover th[scope=row]{background:var(--gold-soft)}
+  table.pricetable th[scope=col]:first-child{left:0;z-index:3}
+  table.pricetable th[scope=row]::after{content:"";position:absolute;top:0;right:0;bottom:-1px;
+    width:1px;background:var(--line)}
   .fares-hero{background:linear-gradient(180deg,#101828 0%,#1C2A47 100%);color:var(--navy-text);
     padding:48px 18px 42px;text-align:center}
   .fares-hero h1{font-family:"Marcellus",Georgia,serif;font-weight:400;
