@@ -337,4 +337,124 @@
   .lp summary::after{content:"+";color:var(--gold-deep);font-weight:700;font-size:19px;line-height:1}
   .lp details[open] summary::after{content:"\2212"}
   .lp details p{margin:10px 0 0;font-size:15.5px}
+  /* ===================================================================
+     MOTION — added 7 Oct 2026
+     ------------------------------------------------------------------
+     Luxury is restraint. Fast and bouncy reads as a budget airline;
+     fewer things, moving more slowly, on a weighted curve, reads as a
+     car door closing. Most of what follows is simply slowing down the
+     hovers that were already here (.12s, which feels like a web app).
 
+     No library. Everything is CSS and costs about 3 KB. GSAP alone is
+     70 KB against a 116 KB homepage, and being fast is part of looking
+     expensive - a site that stutters on a phone in an arrivals hall is
+     just a slow site.
+
+     The scroll reveals use animation-timeline: view(), not JavaScript,
+     behind @supports. Two reasons that matters:
+       1. A browser without support skips the whole block and shows
+          everything normally. A JS reveal sets opacity:0 first, so if
+          the script ever fails the page is blank.
+       2. An element already in view at load sits past the end of its
+          range, so it renders finished. Nothing above the fold waits.
+
+     Nothing here touches the booking form. .veh are the vehicle tiles
+     inside it and .cta the submit buttons, so they get slower hovers
+     but no entrance animation - making someone wait to use the thing
+     that takes their money is the one place polish costs real revenue.
+     =================================================================== */
+  :root{
+    --ease-lux:cubic-bezier(.22,1,.36,1);
+    --dur-lux:.5s;
+    --dur-slow:.8s;
+  }
+
+  /* --- 1. slow down what already moved ----------------------------- */
+  .veh{transition:border-color var(--dur-lux) var(--ease-lux),
+                  transform var(--dur-lux) var(--ease-lux),
+                  box-shadow var(--dur-lux) var(--ease-lux)}
+  .veh:hover{transform:translateY(-3px)}
+  .wa-float{transition:background var(--dur-lux) var(--ease-lux),
+                       transform var(--dur-lux) var(--ease-lux),
+                       box-shadow var(--dur-lux) var(--ease-lux)}
+  .wa-float:hover{transform:scale(1.05);box-shadow:0 10px 30px rgba(0,0,0,.34)}
+
+  .navlinks a,.contact-strip a,.foot-in a,.lp a,.related a,.swap,.ac-item,
+  .chip,.faq summary,.lp summary{
+    transition:color var(--dur-lux) var(--ease-lux),
+               background-color var(--dur-lux) var(--ease-lux),
+               border-color var(--dur-lux) var(--ease-lux),
+               transform var(--dur-lux) var(--ease-lux)}
+
+  /* --- 2. buttons settle rather than flip --------------------------- */
+  /* background-color, not the background shorthand: .cta:hover already
+     uses the shorthand and transitioning the longhand keeps both. */
+  .cta,.cta-gold,a.cta-gold,.cta.ghost{
+    transition:background-color var(--dur-lux) var(--ease-lux),
+               color var(--dur-lux) var(--ease-lux),
+               transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux)}
+  .cta:hover,.cta-gold:hover,a.cta-gold:hover{
+    transform:translateY(-2px);box-shadow:var(--shadow)}
+  /* The press is the one thing that should be instant. */
+  .cta:active,.cta-gold:active,a.cta-gold:active{
+    transform:translateY(0);transition-duration:.06s}
+
+  .fleet-card,.why,.area{
+    transition:transform var(--dur-lux) var(--ease-lux),
+               box-shadow var(--dur-lux) var(--ease-lux),
+               border-color var(--dur-lux) var(--ease-lux)}
+  .fleet-card:hover,.why:hover,.area:hover{
+    transform:translateY(-2px);
+    box-shadow:0 2px 6px rgba(20,29,48,.07), 0 14px 38px rgba(20,29,48,.10)}
+
+  /* --- 3. a gold rule that draws itself under each section heading -- */
+  .block h2::after{
+    content:"";display:block;height:2px;width:54px;margin-top:12px;
+    background:var(--gold);transform-origin:left center}
+
+  /* --- 4. arrivals on scroll --------------------------------------- */
+  @keyframes lux-rise{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:none}
+  }
+  @keyframes lux-draw{
+    from{transform:scaleX(0)}
+    to{transform:scaleX(1)}
+  }
+
+  @supports (animation-timeline: view()){
+    @media (prefers-reduced-motion: no-preference){
+      section.block,.fleet-card,.why,.area,.agents-band,.cta-band,
+      .fact,.faq details,.related a,.lp .box{
+        animation:lux-rise linear both;
+        animation-timeline:view();
+        animation-range:entry 0% entry 40%;
+      }
+      .block h2::after{
+        animation:lux-draw linear both;
+        animation-timeline:view();
+        animation-range:entry 10% entry 55%;
+      }
+      /* A stagger inside each grid, so a row of cards arrives as a
+         sequence rather than a block. */
+      .fleet-card:nth-child(2),.why:nth-child(2),.area:nth-child(2),.related a:nth-child(2){
+        animation-range:entry 5% entry 45%}
+      .fleet-card:nth-child(3),.why:nth-child(3),.area:nth-child(3),.related a:nth-child(3){
+        animation-range:entry 10% entry 50%}
+      .fleet-card:nth-child(4),.why:nth-child(4),.area:nth-child(4),.related a:nth-child(4){
+        animation-range:entry 15% entry 55%}
+      .fleet-card:nth-child(n+5),.why:nth-child(n+5),.related a:nth-child(n+5){
+        animation-range:entry 20% entry 60%}
+    }
+  }
+
+  /* --- 5. anyone who asked for less gets less ----------------------- */
+  @media (prefers-reduced-motion: reduce){
+    .navlinks a,.contact-strip a,.foot-in a,.lp a,.related a,.swap,.ac-item,
+    .chip,.faq summary,.lp summary,.cta,.cta-gold,a.cta-gold,.cta.ghost,
+    .fleet-card,.why,.area{transition:none}
+    .cta:hover,.cta-gold:hover,a.cta-gold:hover,
+    .fleet-card:hover,.why:hover,.area:hover{transform:none}
+    .block h2::after{animation:none;transform:none}
+  }
