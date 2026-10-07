@@ -464,3 +464,11 @@
     .fleet-card:hover,.why:hover,.area:hover{transform:none}
     .block h2::after{animation:none;transform:none}
   }
+
+  /* One real photograph, sized so it never pushes the page about while it
+     loads: width and height are on the tag, so the browser reserves the space
+     before the bytes arrive. */
+  .photo-band{margin:26px auto 0;max-width:1020px;padding:0 18px}
+  .photo-band img{display:block;width:100%;height:auto;border-radius:12px;
+    border:1px solid var(--line);box-shadow:var(--shadow)}
+  .photo-band figcaption{margin:9px 2px 0;font-size:13.5px;color:var(--muted)}
