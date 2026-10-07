@@ -73,7 +73,7 @@ const VEH = [
   ['Sprinter 10',    'up to 10 passengers · 11 bags'],
   ['Sprinter 14',    'up to 14 passengers · 15 bags'],
 ];
-/* The 18-seat mini coach is deliberately absent: it is quoted per job, so it
+/* The 18-seater is deliberately absent: it is quoted per job, so it
    has no column in the rate tables. The fare notes point at /charters instead
    of printing a "Quote" cell on all 373 generated pages, which would
    contradict the published-fare promise the whole site is built on. */
@@ -615,7 +615,7 @@ function suburbPage(p) {
   <div class="facts">
     <div class="fact"><span class="k">From</span><span class="v">$${p.from}</span><span class="s">Sedan, one way, to ${esc(primary.code)}</span></div>
     ${nearestFact}
-    <div class="fact"><span class="k">Vehicles</span><span class="v">1&ndash;18</span><span class="s">Sedan to mini coach</span></div>
+    <div class="fact"><span class="k">Vehicles</span><span class="v">1&ndash;18</span><span class="s">Sedan to 18-seat Sprinter</span></div>
     <div class="fact"><span class="k">Changes</span><span class="v">Free</span><span class="s">Up to 24 hours before pick-up</span></div>
   </div>
 
@@ -641,7 +641,7 @@ ${rows}
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30.
     The cruise terminal fare is the Brisbane Airport fare plus $25.
-    Need more than 14 seats? The 18-seat mini coach and our 53-seat coach are quoted per job —
+    Need more than 14 seats? The 18-seat Sprinter and our 53-seat coach are quoted per job —
     see <a href="/charters.html">charters</a>.
   </p>
 
@@ -955,7 +955,7 @@ ${rows}
     Sedan and Luxury Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; People Mover and Luxury Minivan 1&ndash;7 &middot; Sprinter 10 and 14 seats.
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals). Child seats $15 each, luggage trailer $30. The Brisbane Cruise Terminal is the
-    airport fare plus $25. Need more than 14 seats? The 18-seat mini coach and our
+    airport fare plus $25. Need more than 14 seats? The 18-seat Sprinter and our
     53-seat coach are quoted per job — see <a href="/charters.html">charters</a>.
   </p>
 
