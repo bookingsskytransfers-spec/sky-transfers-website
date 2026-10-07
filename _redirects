@@ -63,7 +63,7 @@
 /services/mini-bus-hire-gold-coast/           /minibus-hire-gold-coast.html   301
 /services/mercedes-benz-sprinter-van-hire/    /charters.html    301
 /services/toyota-hiace-commuter-hire/         /charters.html    301
-/services/stretch-hummer-hire/                /charters.html    301
+/services/stretch-hummer-hire/                                                  /chauffeur-service.html     301
 /services/day-tours/                          /charters.html    301
 /services/wedding-transfer/                   /wedding-transfers.html    301
 /services/wedding-transfers/                  /wedding-transfers.html    301
@@ -138,10 +138,10 @@
 /simplifying-your-travel-gold-coast-airport-transfers/                           /gold-coast-airport-transfers.html 301
 
 # Stretch limo, Sprinter, HiAce — all charter work
-/brisbanes-best-stretch-limousine-hire-top-rides-for-any-event/                  /charters.html   301
-/stretch-hummer-limo-hire-taking-brisbane-events-to-the-next-level/              /charters.html   301
-/stretch-hummer-limo-hire-a-complete-guide-to-glamorous-arrivals/                /charters.html   301
-/why-stretch-limo-hire-is-the-hottest-trend-for-events-in-gold-coast/            /charters.html   301
+/brisbanes-best-stretch-limousine-hire-top-rides-for-any-event/                 /chauffeur-service.html     301
+/stretch-hummer-limo-hire-taking-brisbane-events-to-the-next-level/             /chauffeur-service.html     301
+/stretch-hummer-limo-hire-a-complete-guide-to-glamorous-arrivals/               /chauffeur-service.html     301
+/why-stretch-limo-hire-is-the-hottest-trend-for-events-in-gold-coast/           /chauffeur-service.html     301
 /how-to-find-the-best-hiace-van-for-hire-near-you/                               /charters.html   301
 /how-to-plan-the-ultimate-road-trip-with-a-mercedes-sprinter-van-hire/           /charters.html   301
 /why-choose-mercedes-sprinter-van-hire-for-your-next-trip/                       /charters.html   301
@@ -206,3 +206,12 @@
 # Also noted that day: two rules written in this file are NOT live —
 # /services/ and /book-airport-transfers-online-brisbane-goldcoast. 103 rules
 # were live, 105 after the two additions.
+
+# 7 Oct 2026 - the five stretch Hummer / limousine rules above now land on
+# /chauffeur-service.html instead of /charters.html. They are the biggest dead-URL
+# cluster on the site, 3,879 impressions a quarter, and they were pointing at a page
+# that does not contain the word limousine. chauffeur-service.html answers the
+# question outright: no, we do not run stretch limousines or Hummers, here is what we
+# do run. The traffic is unservable either way, but the landing page now says so
+# instead of leaving the reader to work it out. Applied through the Render API at
+# priorities 2-6; the originals sit underneath, shadowed.
