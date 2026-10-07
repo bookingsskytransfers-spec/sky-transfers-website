@@ -322,7 +322,7 @@
   .party-ctl input{width:56px;height:40px;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;font:inherit;font-size:16px;font-weight:700;background:transparent;color:var(--ink);-moz-appearance:textfield}
   .party-ctl input::-webkit-outer-spin-button,.party-ctl input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .party-note{font-size:14px;color:var(--muted);flex:1 1 240px}
-  .veh.too-small{opacity:.4}
+  .veh.too-small{opacity:.4;cursor:not-allowed}
   .veh .pp{font-size:13px;font-weight:700;color:var(--gold-deep);margin-top:2px}
   .veh .rec{align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-top:6px;background:var(--gold-soft);color:var(--gold-deep);border:1px solid var(--gold)}
 
@@ -1146,7 +1146,7 @@ function refresh(){
     var b = document.createElement("button");
     b.type = "button"; b.className = "veh";
     var fits = VEH_CAP[i] >= pax;
-    if (!fits) b.classList.add("too-small");
+    if (!fits) { b.classList.add("too-small"); b.setAttribute("aria-disabled", "true"); }
     /* Per-head figure divides by the actual party, not by capacity: the number
        a customer wants is what this trip costs each of them. Suppressed below
        three, where halving the fare tells nobody anything they cannot see. */
@@ -1157,6 +1157,23 @@ function refresh(){
       "<span class='price'>" + (v.quote ? "Quote <small>on request</small>"
         : money(res.rates[i]) + " <small>one-way</small>") + "</span>" + pp + badge;
     b.addEventListener("click", function(){
+      /* Dimmed was not the same as blocked. A party of six could still click
+         the Sedan and book it the whole way through — the server prices by
+         route and vehicle and never looks at passenger count — and the first
+         anyone knew was a driver arriving in a three-seater. The card stays
+         visible, so the price ladder still reads; it just cannot be chosen. */
+      if (!fits) {
+        if (pnote) {
+          pnote.textContent = (recIdx >= 0)
+            ? "The " + v.name + " seats " + VEH_CAP[i] + ". For " + pax +
+              " passengers you need the " + VEHICLES[recIdx].name + " or larger."
+            : "The " + v.name + " seats " + VEH_CAP[i] + ". For " + pax +
+              " passengers we run more than one vehicle — call us and we will arrange it.";
+        }
+        var pcard = document.querySelector(".party");
+        if (pcard) pcard.scrollIntoView({behavior: "smooth", block: "nearest"});
+        return;
+      }
       /* The mini coach is quoted by hand, so it never touches the fare
          engine or Stripe — hand the guest to the custom-quote panel. */
       if (v.quote) {
