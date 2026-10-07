@@ -109,7 +109,7 @@
     --muted:#68707F;
     --line:#E5E0D2;
     --gold:#C9A227;
-    --gold-deep:#8E701C;
+    --gold-deep:#6F5510;
     --gold-soft:#F6EED9;
     --navy:#101828;
     --navy-text:#F6F2E8;
@@ -376,6 +376,13 @@
   .foot-legal{margin-top:4px}
   .foot-legal p{margin:0 0 6px}
   .foot-entity{color:var(--muted);font-size:13px;line-height:1.5;margin-top:10px}
+  /* One real photograph, sized so it never pushes the page about while it
+     loads: width and height are on the tag, so the browser reserves the space
+     before the bytes arrive. */
+  .photo-band{margin:26px auto 0;max-width:1020px;padding:0 18px}
+  .photo-band img{display:block;width:100%;height:auto;border-radius:12px;
+    border:1px solid var(--line);box-shadow:var(--shadow)}
+  .photo-band figcaption{margin:9px 2px 0;font-size:13.5px;color:var(--muted)}
 </style>
 
 <nav class="sitenav">
@@ -404,6 +411,12 @@
   </div>
   <p style="margin:22px auto 0"><a class="cta-gold" href="#quote">Get a charter quote →</a></p>
 </header>
+
+<figure class="photo-band">
+  <img src="/img/wedding-cars.jpg" width="1200" height="900" loading="lazy" decoding="async"
+       alt="A black Mercedes Sprinter and a black Mercedes S-Class, both dressed with white wedding ribbons, waiting on a tree-lined Brisbane street.">
+  <figcaption>Our own Sprinter and S-Class, on the morning of a Brisbane wedding.</figcaption>
+</figure>
 
 <section class="block" id="fleet-rates">
   <p class="kick">Fleet &amp; charter rates</p>
