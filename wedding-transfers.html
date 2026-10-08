@@ -35,6 +35,7 @@
   :root{color-scheme:light dark}
   body{margin:0;padding:0}
   img{max-width:100%}
+  picture{display:block}
   [hidden]{display:none!important}
 </style>
 <script type="application/ld+json">
@@ -171,8 +172,8 @@
 </header>
 
 <figure class="photo-band">
-  <img src="/img/wedding-cars.jpg" width="1200" height="900" loading="lazy" decoding="async"
-       alt="A black Mercedes Sprinter and a black Mercedes S-Class, both dressed with white wedding ribbons, waiting on a tree-lined Brisbane street.">
+  <picture><source type="image/webp" srcset="/img/wedding-cars-600.webp 600w, /img/wedding-cars-900.webp 900w, /img/wedding-cars-1200.webp 1200w" sizes="(max-width:1060px) 92vw, 1020px"><img src="/img/wedding-cars.jpg" width="1200" height="900" loading="lazy" decoding="async"
+       alt="A black Mercedes Sprinter and a black Mercedes S-Class, both dressed with white wedding ribbons, waiting on a tree-lined Brisbane street."></picture>
   <figcaption>Our own Sprinter and S-Class, on the morning of a Brisbane wedding.</figcaption>
 </figure>
 
