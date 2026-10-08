@@ -376,7 +376,7 @@ function fill(text, p) {
 
 const NAV = `<nav class="sitenav">
   <div class="sitenav-in">
-    <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" style="height:42px;width:auto;display:block"></a>
+    <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
       <a href="/#fleet">Fleet</a>
@@ -506,10 +506,11 @@ function head(title, desc, canonical, ld) {
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
 </script>
+<link rel="stylesheet" href="/site.css">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap"></noscript>
 </head>
 <body>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="/site.css">
 `;
 }
 
