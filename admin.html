@@ -224,6 +224,29 @@
       <p style="margin:12px 0 0"><button class="linkbtn" id="gal-refresh">Refresh the list</button></p>
     </section>
 
+    <section class="card" id="ret-card">
+      <h2>Old enquiry records</h2>
+      <div id="ret-msg" class="msg" hidden></div>
+      <p class="muted" style="margin:0 0 10px">
+        Our <a href="/privacy.html" target="_blank" rel="noopener">privacy policy</a> says we delete
+        enquiries we never carried after two years. This removes website enquiries still marked
+        requested or declined that are older than that. Paid and confirmed bookings are never
+        touched &mdash; those are business records and are kept seven years.
+      </p>
+      <p id="ret-summary" class="muted" style="margin:0 0 10px">Loading&#8230;</p>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Status</th>
+            <th style="text-align:right">In the system</th>
+            <th style="text-align:right">Past two years</th>
+          </tr></thead>
+          <tbody id="ret-rows"></tbody>
+        </table>
+      </div>
+      <p id="ret-actions" style="margin:14px 0 0"></p>
+    </section>
+
     <p><button class="linkbtn" id="signout">Sign out</button></p>
   </div>
 </div>
@@ -490,6 +513,61 @@
       .catch(function(err){ show($("web-msg"), err.message); });
   }
 
+  /* These two endpoints went live with no interface at all, so the only way to
+     honour our own privacy policy was a curl command nobody in the office was
+     ever going to type. The delete is irreversible, hence armBtn like the rest. */
+  function retLoad(){
+    show($("ret-msg"), "");
+    $("ret-rows").innerHTML = '<tr><td colspan="3" class="muted">Loading\u2026</td></tr>';
+    return api("/admin/retention").then(function(d){
+      var old = {};
+      (d.breakdown || []).forEach(function(r){ old[r.status] = r; });
+      var tb = $("ret-rows"), now = d.tableNow || [];
+      tb.innerHTML = "";
+      if (!now.length) {
+        tb.innerHTML = '<tr><td colspan="3" class="muted">No website enquiries recorded yet.</td></tr>';
+      }
+      now.forEach(function(r){
+        var tr = document.createElement("tr"), o = old[r.status];
+        [webLabel(r.status), String(r.n), o ? String(o.n) : "\u2014"].forEach(function(v, i){
+          var td = document.createElement("td");
+          td.textContent = v;
+          if (i) td.style.textAlign = "right";
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+      });
+      var n = d.wouldDelete || 0, yrs = d.retainEnquiryYears;
+      $("ret-summary").textContent = n
+        ? n + (n === 1 ? " record is" : " records are") + " older than " + yrs +
+          " years and can be deleted."
+        : "Nothing is older than " + yrs + " years. Nothing to delete today.";
+      var act = $("ret-actions");
+      act.innerHTML = "";
+      act.appendChild(actionBtn("Refresh", "", function(){ retLoad(); }));
+      if (n) {
+        act.appendChild(armBtn("Delete " + n + " now", "Tap again to delete", "danger", function(){
+          return api("/admin/retention/purge",
+                     { method: "POST", body: { confirm: "DELETE OLD ENQUIRIES" } })
+            .then(function(r){
+              show($("ret-msg"), "Deleted " + r.deleted + " old enquiry record(s).", true);
+              return retLoad();
+            })
+            .catch(function(err){ show($("ret-msg"), err.message); });
+        }));
+      }
+    }).catch(function(err){
+      /* Clear the actions too. A stale "Delete 7 now" left sitting there after
+         a failed read would offer to delete a figure we can no longer stand
+         behind, and its closure would happily POST. */
+      $("ret-rows").innerHTML = "";
+      $("ret-summary").textContent = "";
+      $("ret-actions").innerHTML = "";
+      $("ret-actions").appendChild(actionBtn("Refresh", "", function(){ retLoad(); }));
+      show($("ret-msg"), err.message);
+    });
+  }
+
   function enter(){
     $("signin").hidden = true;
     $("admin").hidden = false;
@@ -498,6 +576,7 @@
     load();
     loadWeb();
     galLoad();
+    retLoad();
   }
 
   /* Every destructive button on this page used a browser confirm dialog, and
