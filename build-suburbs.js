@@ -33,6 +33,12 @@ const path = require('path');
 
 const ROOT    = __dirname;
 const SITE    = 'https://www.skytransfers.com.au';
+/* Mirrors RETURN_DISCOUNT in index.html and stripe-server.js. Only used to
+   quote the saving in prose here - nothing on these pages is charged from it -
+   but it still has to agree with those two or the pages would advertise a
+   price the booking form does not honour. */
+const RETURN_DISCOUNT = 0.10;
+const returnFare = (f) => Math.round(f * 2 * (1 - RETURN_DISCOUNT));
 const DIR     = 'airport-transfers';
 const LASTMOD = '2026-09-23';               // bump when the template or the copy changes
 const OUT     = path.join(ROOT, DIR);
@@ -639,6 +645,12 @@ ${rows}
     </table>
   </div>
   <p class="fare-note">
+    <strong>Coming back as well?</strong> Book the return in the same booking and the whole trip
+    is 10% cheaper &mdash; $${p.from} each way is <strong>$${returnFare(p.from)} return</strong>
+    instead of $${p.from * 2}. Tick &ldquo;coming back as well&rdquo; in the
+    <a href="${ctaHref}">booking form</a> and the return price shows on every vehicle.
+  </p>
+  <p class="fare-note">
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30.
     The cruise terminal fare is the Brisbane Airport fare plus $25.
@@ -737,7 +749,8 @@ ${list.map(p => `    <a href="${p.url}">${esc(p.name)}<span>From $${p.from}</spa
 <div class="lp">
   <p>
     Fares are per vehicle, one way, GST inclusive, and the same at any hour. Brisbane Airport fares include
-    the Gateway toll. If your suburb is not here, it is still likely we serve it &mdash;
+    the Gateway toll. <strong>Booking a return takes 10% off the whole trip.</strong>
+    If your suburb is not here, it is still likely we serve it &mdash;
     <a href="/#book">type the address into the booking form</a> or call
     <a href="tel:+61481437772">+61 481 437 772</a>.
   </p>
@@ -937,7 +950,9 @@ function regionPage(r) {
 
   <h2>What it costs from ${esc(r.name)}</h2>
   <p>
-    One-way fares per vehicle in Australian dollars, GST and tolls included, the same at any hour. Each band
+    One-way fares per vehicle in Australian dollars, GST and tolls included, the same at any hour.
+    Booking the return in the same booking takes 10% off the whole trip &mdash; $${from} each way
+    is $${returnFare(from)} return instead of $${from * 2}. Each band
     lists its suburbs further down; every suburb also has its own page with the exact drive time.
   </p>
 
