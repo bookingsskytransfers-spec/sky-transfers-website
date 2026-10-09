@@ -652,7 +652,7 @@ function suburbPage(p) {
   const body = `${NAV}
 
 <header class="fares-hero" id="top">
-  <h1>${esc(p.name)} airport transfers, fixed price</h1>
+  <h1>${isAirport ? `Transfers to ${esc(p.name)}` : `${esc(p.name)} airport transfers`}, fixed price</h1>
   <p>
     Private chauffeur transfers between ${esc(p.name)} and ${air.map(a => esc(a.name)).join(' or ')},
     priced per vehicle and published below. From $${p.from} one way, GST and tolls included, at any hour.
