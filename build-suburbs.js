@@ -342,6 +342,23 @@ for (const p of places) if (!Z[p.zoneKey]) throw new Error('no route notes for z
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const slug = s => s.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const money = n => '$' + n;
+/* Google truncates a snippet at roughly 155-160 characters. These are built up
+   clause by clause in order of value and stopped before the cut, rather than
+   written long and chopped mid-sentence - so whatever survives is a whole
+   thought, and the suburb, the airport and the price are always in it. */
+function metaDesc(parts, limit = 158) {
+  let out = '';
+  for (const part of parts) {
+    if (!part) continue;
+    const next = out ? out + ' ' + part : part;
+    /* Skip rather than stop: a clause that does not fit should not cost the
+       shorter ones behind it. Each clause stands alone, so dropping one out
+       of the middle still reads properly. */
+    if (next.length > limit) continue;
+    out = next;
+  }
+  return out;
+}
 const km = m => (m / 1000).toFixed(m < 20000 ? 1 : 0).replace(/\.0$/, '') + ' km';
 function mins(sec) {
   const m = Math.round(sec / 60);
@@ -542,8 +559,13 @@ function suburbPage(p) {
   const f = p.facts;
 
   const title = `${p.name} Airport Transfers | Fixed Price from $${p.from} | Sky Transfers`;
-  const desc = `Private chauffeur transfers from ${p.name} to ${air.map(a => a.name + ' (' + a.code + ')').join(' and ')}. ` +
-    `Fixed fares from $${p.from} per vehicle, GST and tolls included, flight tracking, meet and greet, free changes to 24 hours. 24/7.`;
+  const desc = metaDesc([
+    `${p.name} to ${primary.name} (${primary.code}) from $${p.from} per vehicle.`,
+    'Fixed price, GST and tolls included.',
+    'Flight tracked, meet and greet.',
+    air.length > 1 ? `${air[1].name} (${air[1].code}) priced too.` : '',
+    '24/7.',
+  ]);
 
   // fares table: one row per vehicle, one column per airport (+ cruise terminal if BNE priced)
   const cols = air.map(a => a.name + ' (' + a.code + ')');
