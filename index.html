@@ -315,6 +315,12 @@
   .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .route-line{font-size:15px;color:var(--muted)}
   .route-line b{color:var(--ink)}
+  .veh .price .saving{display:block;font-family:"Figtree",sans-serif;font-size:11.5px;
+    font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ok)}
+  .ret-toggle{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;
+    border:1px solid var(--line);border-radius:10px;background:var(--gold-soft);cursor:pointer;
+    font-size:14px;line-height:1.45}
+  .ret-toggle input{margin:2px 0 0;flex:none;width:18px;height:18px;accent-color:var(--gold-deep)}
   .veh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
   .party{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
   .party label{font-size:15px;font-weight:700;color:var(--ink)}
@@ -659,8 +665,12 @@
       </div>
       <span class="party-note" id="party-note"></span>
     </div>
+    <label class="ret-toggle" for="qc-return">
+      <input type="checkbox" id="qc-return">
+      <span><strong>Coming back as well?</strong> Add the return trip and save 10%.</span>
+    </label>
     <div class="veh-grid" id="veh-grid"></div>
-    <p class="fine">All prices AUD, one-way, GST inclusive. Brisbane Airport fares include tolls. Meet &amp; greet and 30&nbsp;min airport waiting included. Child seats $15 each. The same fixed fare applies at any hour — no night or after-hours loading.</p>
+    <p class="fine" id="veh-fine">All prices AUD, one-way, GST inclusive. Brisbane Airport fares include tolls. Meet &amp; greet and 30&nbsp;min airport waiting included. Child seats $15 each. The same fixed fare applies at any hour — no night or after-hours loading.</p>
   </section>
 
   <section class="card" id="custom-card" hidden>
@@ -686,6 +696,11 @@
         <div><label for="bf-date">Pick-up date</label><input id="bf-date" type="date" required></div>
         <div><label for="bf-time">Pick-up time</label><input id="bf-time" type="time" required></div>
       </div>
+      <div class="row2" id="bf-return-row" hidden>
+        <div><label for="bf-rdate">Return date</label><input id="bf-rdate" type="date"></div>
+        <div><label for="bf-rtime">Return pick-up time</label><input id="bf-rtime" type="time"></div>
+      </div>
+      <div class="notice err" id="ret-warn" hidden style="margin:-4px 0 14px"></div>
       <div class="notice err" id="lead-warn" hidden style="margin:-4px 0 14px"></div>
       <div><label for="bf-flight">Flight number (optional)</label><input id="bf-flight" placeholder="e.g. JQ431"></div>
       <div class="extras">
@@ -1249,7 +1264,8 @@ function refresh(){
     var badge = (i === recIdx) ? "<span class='rec'>Best fit</span>" : "";
     b.innerHTML = "<span class='veh-art'>" + VEH_SVG[i] + "</span><span class='name'>" + v.name + "</span><span class='cap'>" + v.cap + "</span>" +
       "<span class='price'>" + (v.quote ? "Quote <small>on request</small>"
-        : money(res.rates[i]) + " <small>one-way</small>") + "</span>" + pp + badge;
+        : money(tripPrice(res.rates[i])) + " <small>" + (isReturn() ? "return" : "one-way") + "</small>"
+          + (isReturn() ? "<small class='saving'>save " + money(res.rates[i] * 2 - returnTransfer(res.rates[i])) + "</small>" : "")) + "</span>" + pp + badge;
     b.addEventListener("click", function(){
       /* Dimmed was not the same as blocked. A party of six could still click
          the Sedan and book it the whole way through — the server prices by
@@ -1408,17 +1424,79 @@ function postJSON(path, body){
           });
 }
 
+/* Mirror of stripe-server.js. The page has to show a price before it ever
+   talks to the server, so the formula exists twice on purpose — but the server
+   recomputes every fare and refuses to charge when the two disagree, so these
+   two must be changed in the same commit. 10% off both legs; child seats and
+   the trailer are charged per leg because they are needed on both journeys. */
+var RETURN_DISCOUNT = 0.10;
+function returnTransfer(fare){ return Math.round(fare * 2 * (1 - RETURN_DISCOUNT)); }
+function isReturn(){ var c = $("qc-return"); return !!(c && c.checked); }
+function tripPrice(fare){ return isReturn() ? returnTransfer(fare) : fare; }
+
 function currentTotal(){
   var seats = parseInt($("bf-seats").value, 10) || 0;
-  return state.price + seats * SEAT_PRICE + ($("bf-trailer").checked ? TRAILER_PRICE : 0);
+  var legs = isReturn() ? 2 : 1;
+  return tripPrice(state.price)
+       + (seats * SEAT_PRICE + ($("bf-trailer").checked ? TRAILER_PRICE : 0)) * legs;
 }
 function updateTotal(){
   if(state.price == null) return;
-  $("total-label").textContent = "Total — " + state.vehicle;
+  $("total-label").textContent = "Total — " + state.vehicle + (isReturn() ? " (return)" : "");
   $("total").textContent = "$" + currentTotal();
+}
+/* The fine print under the grid states one-way prices; it would be wrong the
+   moment the return is ticked. */
+function updateVehFine(){
+  var f = $("veh-fine"); if (!f) return;
+  var one = "All prices AUD, one-way, GST inclusive.";
+  var ret = "All prices AUD, return (both legs, 10% off), GST inclusive.";
+  if (f.textContent.indexOf(one) === 0 || f.textContent.indexOf(ret) === 0) {
+    f.textContent = (isReturn() ? ret : one) + f.textContent.slice(
+      (f.textContent.indexOf(ret) === 0 ? ret : one).length);
+  }
 }
 $("bf-seats").addEventListener("change", updateTotal);
 $("bf-trailer").addEventListener("change", updateTotal);
+
+/* Ticking the return changes every price on the page, so the vehicle grid is
+   redrawn. refresh() drops the chosen vehicle on purpose — the figure the
+   guest picked is no longer the figure they would pay. */
+(function(){
+  var c = $("qc-return");
+  if (!c) return;
+  c.addEventListener("change", function(){
+    var row = $("bf-return-row");
+    if (row) row.hidden = !c.checked;
+    var rd = $("bf-rdate"), rt = $("bf-rtime");
+    if (rd) rd.required = c.checked;
+    if (rt) rt.required = c.checked;
+    if (!c.checked) {
+      if (rd) rd.value = ""; if (rt) rt.value = "";
+      var w = $("ret-warn"); if (w) { w.textContent = ""; w.hidden = true; }
+    }
+    track("select_trip_type", {trip_type: c.checked ? "return" : "one-way"});
+    updateVehFine();
+    refresh();
+  });
+  /* Same rule the server enforces, said before the guest presses anything. */
+  function checkReturn(){
+    var w = $("ret-warn"); if (!w) return true;
+    if (!isReturn()) { w.hidden = true; return true; }
+    var d = $("bf-rdate").value, t = $("bf-rtime").value;
+    var od = $("bf-date").value, ot = $("bf-time").value;
+    var msg = "";
+    if (!d || !t) msg = "Please give both a date and a time for the return trip.";
+    else if (od && (d < od || (d === od && t <= ot)))
+      msg = "The return trip has to be after the outbound one.";
+    w.textContent = msg; w.hidden = !msg;
+    return !msg;
+  }
+  ["bf-rdate","bf-rtime","bf-date","bf-time"].forEach(function(id){
+    var el = $(id); if (el) el.addEventListener("change", checkReturn);
+  });
+  window.__checkReturn = checkReturn;
+})();
 
 function bookingPayload(){
   return {
@@ -1431,6 +1509,8 @@ function bookingPayload(){
     /* What the guest was actually shown, so a price mismatch with the
        server is visible rather than silent. */
     quotedTotal: currentTotal(),
+    returnDate: isReturn() ? $("bf-rdate").value : "",
+    returnTime: isReturn() ? $("bf-rtime").value : "",
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
     notes: $("bf-notes").value,
@@ -1495,6 +1575,7 @@ $("book-form").addEventListener("submit", function(e){
   e.preventDefault();
   if(!state.vehicle) return;
   if(!refreshLeadTime()){ $("lead-warn").scrollIntoView({behavior:"smooth", block:"center"}); return; }
+  if(window.__checkReturn && !window.__checkReturn()){ $("ret-warn").scrollIntoView({behavior:"smooth", block:"center"}); return; }
   if(SERVER_URL){
     var btn = $("submit-btn"), orig = btn.textContent;
     btn.disabled = true; btn.textContent = "Sending…";
@@ -1520,6 +1601,7 @@ $("pay-btn").addEventListener("click", function(){
   var form = $("book-form");
   if(!form.checkValidity()){ form.reportValidity(); return; }
   if(!refreshLeadTime()){ $("lead-warn").scrollIntoView({behavior:"smooth", block:"center"}); return; }
+  if(window.__checkReturn && !window.__checkReturn()){ $("ret-warn").scrollIntoView({behavior:"smooth", block:"center"}); return; }
   if(!state.vehicle || !SERVER_URL) return;
   var btn = $("pay-btn");
   btn.disabled = true; btn.textContent = "Opening secure payment…";
@@ -1575,6 +1657,8 @@ function buildRequest(){
     "Route: " + state.pu + " -> " + state.dro,
     "Vehicle: " + state.vehicle,
     "Fare: " + money(state.price) + " one-way",
+    (isReturn() ? "Trip: RETURN (" + $("bf-rdate").value + " " + $("bf-rtime").value +
+      ") — " + money(returnTransfer(state.price)) + " for both legs" : "Trip: one-way"),
     "Baby/child seats: " + $("bf-seats").value + " ($" + SEAT_PRICE + " each)",
     "Luggage trailer: " + ($("bf-trailer").checked ? "YES (+$" + TRAILER_PRICE + ")" : "No"),
     "TOTAL: " + money(currentTotal()),
