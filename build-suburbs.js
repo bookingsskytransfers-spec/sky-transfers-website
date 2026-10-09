@@ -517,6 +517,9 @@ function head(title, desc, canonical, ld) {
 <meta property="og:locale" content="en_AU">
 <meta property="og:image" content="${SITE}/logo.png">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(desc)}">
+<meta name="twitter:image" content="${SITE}/logo.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
