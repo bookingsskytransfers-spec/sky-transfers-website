@@ -489,8 +489,12 @@
           var tr = document.createElement("tr");
           [b.ref,
            shortDate(b.created),
-           (b.date ? shortDate(b.date) : "\u2014") + (b.time ? " " + b.time : ""),
-           (b.pickup || "?") + " \u2192 " + (b.dropoff || "?"),
+           (b.date ? shortDate(b.date) : "\u2014") + (b.time ? " " + b.time : "")
+             /* Without this the office sees one date and sends one car. */
+             + (b.returnDate ? "  \u21a9 back " + shortDate(b.returnDate)
+                 + (b.returnTime ? " " + b.returnTime : "") : ""),
+           (b.pickup || "?") + " \u2192 " + (b.dropoff || "?")
+             + (b.returnDate ? "  (RETURN)" : ""),
            (b.name || "") + (b.phone ? "  \u00b7  " + b.phone : ""),
            "$" + Number(b.total || 0).toFixed(0),
            webLabel(b.status)
