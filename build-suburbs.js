@@ -1261,6 +1261,159 @@ function writeFaresJson() {
 }
 
 // ---------------------------------------------------------------------------
+// blog: articles posted by the content service become static pages under
+// /blog/, beside the hand-written ones. The feed lives on the booking server
+// (blog-feed.js); this reads it at build time and writes real HTML, so the
+// articles are served from the CDN on the real domain like everything else.
+// ---------------------------------------------------------------------------
+const BLOG_DIR  = path.join(ROOT, 'blog');
+const BLOG_FEED = process.env.BLOG_FEED_URL
+  || 'https://sky-transfers-booking-server.onrender.com/api/articles.json';
+
+/* Same rules as blog-feed.js. The slug becomes a filename, and a build is the
+   worst place to discover you trusted one. */
+const blogSlug = (s) => {
+  const v = String(s || '').toLowerCase().trim()
+    .replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  return v && v.length <= 120 && v !== 'index' ? v : null;
+};
+
+/* The body is written by an outside service and is about to be served from
+   skytransfers.com.au, so it is cut down to tags that cannot execute.
+   Everything else on these pages goes through esc(); the body is the one
+   field that has to stay HTML. */
+const safeHtml = (s) => String(s || '')
+  /* Paired first, with their contents: stripping only the tags would leave the
+     script's source sitting in the page as visible text. */
+  .replace(/<\s*(script|style|iframe|object|embed|form|svg|noscript|template)\b[\s\S]*?<\s*\/\s*\1\s*>/gi, '')
+  .replace(/<\s*\/?\s*(script|iframe|object|embed|form|input|link|meta|base|style|svg|noscript|template)\b[^>]*>/gi, '')
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, '')
+  .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, '')
+  .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, '')
+  .replace(/(href|src)\s*=\s*(["'])\s*javascript:[^"']*\2/gi, '$1=$2#$2');
+
+const longDate = (iso) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+  if (!m) return null;
+  const months = ['January','February','March','April','May','June','July',
+                  'August','September','October','November','December'];
+  return `${Number(m[3])} ${months[Number(m[2]) - 1]} ${m[1]}`;
+};
+
+function blogPage(a, dateIso, dateText) {
+  const url = `/blog/${a.slug}.html`;
+  const title = a.meta_title || a.title || 'Article';
+  const desc = a.meta_description || a.subtitle || '';
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: a.title || title,
+    description: desc,
+    url: SITE + url,
+    mainEntityOfPage: SITE + url,
+    inLanguage: a.language_code || 'en-AU',
+    author: { '@type': 'Organization', name: a.author_name || 'Sky Transfers' },
+    publisher: { '@id': SITE + '/#business' },
+  };
+  if (dateIso) { ld.datePublished = dateIso; ld.dateModified = dateIso; }
+  if (a.image_url) ld.image = a.image_url;
+  /* head() declares every page a website; an article should say so. */
+  const h = head(title, desc, url, ld)
+    .replace('<meta property="og:type" content="website">',
+             '<meta property="og:type" content="article">');
+  return `${h}
+<body>
+${NAV}
+
+<header class="fares-hero" id="top">
+  <h1>${esc(a.title || title)}</h1>
+  ${a.subtitle ? `<p>${esc(a.subtitle)}</p>` : (desc ? `<p>${esc(desc)}</p>` : '')}
+  <a class="cta-gold" href="/#book">Get an instant price</a>
+</header>
+
+<div class="lp lp-narrow">
+  <p class="fine"><a href="/blog/">&larr; All articles</a>${dateText ? ` &middot; Published ${dateText}` : ''}${a.read_time ? ` &middot; ${esc(a.read_time)}` : ''}</p>
+
+${safeHtml(a.content_html)}
+
+  <h2>Booking a transfer</h2>
+  <div class="related">
+    <a href="/#book">Get an instant price<span>Every suburb, fixed fares</span></a>
+    <a href="/prices.html">Every published fare<span>All suburbs, all vehicles</span></a>
+    <a href="/blog/">More articles<span>Guides to both airports</span></a>
+  </div>
+</div>
+${FOOTER}
+</body>
+</html>
+`;
+}
+
+async function writeBlog() {
+  let feed;
+  try {
+    const r = await fetch(BLOG_FEED, { signal: AbortSignal.timeout(20000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    feed = await r.json();
+  } catch (e) {
+    /* A content service being down must not fail the whole site build. The
+       hand-written articles are committed, so /blog/ still works. */
+    console.warn('build-suburbs: blog feed unavailable (' + e.message
+      + '); /blog/ left exactly as committed');
+    return;
+  }
+  const list = Array.isArray(feed && feed.articles) ? feed.articles : [];
+  if (!list.length) { console.log('build-suburbs: blog feed has no articles; /blog/ left as committed'); return; }
+
+  fs.mkdirSync(BLOG_DIR, { recursive: true });
+  /* Whatever is committed is hand-written and wins. A feed article can add to
+     the blog, never quietly rewrite something a person wrote. */
+  const committed = new Set(fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith('.html')));
+  const cards = [], written = [];
+  let skipped = 0;
+
+  for (const a of list) {
+    const slug = blogSlug(a.slug);
+    if (!slug) { skipped++; console.warn('build-suburbs: blog article with an unusable slug skipped'); continue; }
+    const file = slug + '.html';
+    if (committed.has(file)) { skipped++; console.warn(`build-suburbs: /blog/${file} is hand-written, feed copy skipped`); continue; }
+    const dateIso = /^\d{4}-\d{2}-\d{2}$/.test(String(a.published_on || '')) ? a.published_on : null;
+    const dateText = longDate(dateIso);
+    fs.writeFileSync(path.join(BLOG_DIR, file), blogPage({ ...a, slug }, dateIso, dateText));
+    written.push({ slug, lastmod: dateIso || LASTMOD });
+    cards.push(`  <article class="post-card">
+    ${dateText ? `<p class="post-date"><time datetime="${esc(dateIso)}">${esc(dateText)}</time></p>` : ''}
+    <h2><a href="/blog/${esc(slug)}.html">${esc(a.title || slug)}</a></h2>
+    <p>${esc(a.meta_description || a.subtitle || '')}</p>
+    <a class="post-more" href="/blog/${esc(slug)}.html">Read the article &rarr;</a>
+  </article>`);
+  }
+
+  /* Splice the cards into the committed index between its markers, so the
+     hand-written list and its ordering survive untouched. */
+  const idxPath = path.join(BLOG_DIR, 'index.html');
+  let idx = fs.readFileSync(idxPath, 'utf8');
+  const open = '<!--blog:auto-->', close = '<!--/blog:auto-->';
+  if (idx.indexOf(open) === -1 || idx.indexOf(close) === -1) {
+    console.warn('build-suburbs: blog index markers missing, cards not added');
+  } else {
+    idx = idx.slice(0, idx.indexOf(open) + open.length)
+        + (cards.length ? '\n' + cards.join('\n') + '\n  ' : '\n  ')
+        + idx.slice(idx.indexOf(close));
+    fs.writeFileSync(idxPath, idx);
+  }
+
+  if (written.length) {
+    const sm2 = fs.readFileSync(smPath, 'utf8').replace(/\s*<\/urlset>\s*$/,
+      '\n' + written.map((w) => `  <url>\n    <loc>${SITE}/blog/${w.slug}.html</loc>\n    <lastmod>${w.lastmod}</lastmod>\n  </url>`).join('\n')
+      + '\n</urlset>\n');
+    fs.writeFileSync(smPath, sm2);
+  }
+  console.log(`build-suburbs: blog, ${written.length} article page(s) from the feed, ${skipped} skipped`);
+}
+
+// ---------------------------------------------------------------------------
 // write everything
 // ---------------------------------------------------------------------------
 fs.mkdirSync(OUT, { recursive: true });
@@ -1289,3 +1442,7 @@ fs.writeFileSync(smPath, sm);
 const withFacts = places.filter(p => p.facts && (p.facts.bne || p.facts.ool)).length;
 console.log(`build-suburbs: ${written} suburb pages + hub written to ${DIR}/, ${REGIONS.length} region pages at the root, ${withFacts} with measured drive times; sitemap now has ${(sm.match(/<loc>/g) || []).length} URLs`);
 if (written !== places.length) { console.error('build-suburbs: page count mismatch'); process.exit(1); }
+
+/* Last, because it appends to the sitemap the block above has just written,
+   and awaits a network call. Never allowed to fail the build. */
+writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'));
