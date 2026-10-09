@@ -346,6 +346,14 @@ const money = n => '$' + n;
    clause by clause in order of value and stopped before the cut, rather than
    written long and chopped mid-sentence - so whatever survives is a whole
    thought, and the suburb, the airport and the price are always in it. */
+/* Google shows roughly 60 characters of a title. Variants are listed richest
+   first and the first that fits wins, so a short suburb keeps the fare framing
+   and only the handful of very long names fall back to the terser form.
+   The brand is deliberately absent from deep pages: it was costing 16
+   characters on 450 of them, and Google appends the site name itself. */
+const fitTitle = (variants, limit = 60) =>
+  variants.find((v) => v.length <= limit) || variants[variants.length - 1];
+
 function metaDesc(parts, limit = 158) {
   let out = '';
   for (const part of parts) {
@@ -558,7 +566,18 @@ function suburbPage(p) {
   const state = p.region === 'Byron Bay' ? 'NSW' : 'QLD';
   const f = p.facts;
 
-  const title = `${p.name} Airport Transfers | Fixed Price from $${p.from} | Sky Transfers`;
+  /* A few destinations are airports themselves, where "X Airport Airport
+     Transfers" reads like a stutter. */
+  const isAirport = /\bAirport\b/.test(p.name);
+  const title = fitTitle(isAirport ? [
+    `Transfers to ${p.name} | Fixed Price from $${p.from}`,
+    `Transfers to ${p.name} | From $${p.from}`,
+    `Transfers to ${p.name}`,
+  ] : [
+    `${p.name} Airport Transfers | Fixed Price from $${p.from}`,
+    `${p.name} Airport Transfers | From $${p.from}`,
+    `${p.name} Airport Transfers`,
+  ]);
   const desc = metaDesc([
     `${p.name} to ${primary.name} (${primary.code}) from $${p.from} per vehicle.`,
     'Fixed price, GST and tolls included.',
@@ -748,7 +767,7 @@ ${list.map(p => `    <a href="${p.url}">${esc(p.name)}<span>From $${p.from}</spa
     return `  <h2>${esc(region)} <span class="s">${n} suburbs</span></h2>\n${groups}`;
   }).join('\n\n');
 
-  const title = `Airport Transfers by Suburb | ${places.length} Fixed Fares | Sky Transfers`;
+  const title = `Airport Transfers by Suburb | ${places.length} Fixed Fares`;
   const desc = 'Every suburb we price to Gold Coast (OOL) and Brisbane (BNE) airports, with the fare, the measured drive time and a booking link for each. Fixed fares.';
   const ld = {
     '@context': 'https://schema.org',
@@ -833,7 +852,7 @@ const REGIONS = [
       BS3: 'Beenleigh, Waterford and the Logan River',
       BS4: 'Logan Village, Jimboomba and the rural south',
     },
-    title: 'Logan Airport Transfers | Fixed Fares to Brisbane Airport | Sky Transfers',
+    title: 'Logan Airport Transfers | Fixed Fares to Brisbane',
     desc: 'Logan to Brisbane Airport from $140 per vehicle: Springwood, Beenleigh, Loganholme, Jimboomba and the rest. Fixed fares, tolls and GST in, any hour.',
     h1: 'Logan airport transfers, fixed price',
     lead: 'Private chauffeur transfers between the Logan City suburbs and Brisbane Airport (BNE), priced by three fare bands: the northern suburbs around Springwood and Loganholme, the Beenleigh and Waterford belt on the Logan River, and the rural south out through Logan Village and Jimboomba. One fixed fare per vehicle, published below.',
@@ -851,7 +870,7 @@ const REGIONS = [
   },
   {
     slug: 'sunshine-coast-airport-transfers', name: 'Sunshine Coast', zones: ['SC1', 'SC2', 'SC3', 'SC4'],
-    title: 'Sunshine Coast Airport Transfers | Brisbane Airport to Noosa, Maroochydore, Caloundra | Sky Transfers',
+    title: 'Sunshine Coast Airport Transfers | From Brisbane Airport',
     desc: 'Brisbane Airport to the Sunshine Coast from $280 per vehicle: Caloundra, Mooloolaba, Maroochydore, Coolum and Noosa. Fixed fares, toll and GST in.',
     h1: 'Sunshine Coast airport transfers, fixed price',
     lead: 'Private chauffeur transfers between Brisbane Airport (BNE) and every Sunshine Coast suburb we price, from Caloundra to Noosa. One fixed fare per vehicle, published below, the same at 4am as at 4pm.',
@@ -869,7 +888,7 @@ const REGIONS = [
   },
   {
     slug: 'toowoomba-airport-transfers', name: 'Toowoomba', zones: ['TWB'],
-    title: 'Toowoomba Airport Transfers | Fixed Fare to Brisbane Airport | Sky Transfers',
+    title: 'Toowoomba Airport Transfers | Fixed Fare to Brisbane',
     desc: 'Toowoomba to Brisbane Airport from $395 per vehicle. One fixed fare, tolls and GST included, flight tracked, any hour. Sedan to 14-seat Sprinter.',
     h1: 'Toowoomba airport transfers, fixed price',
     lead: 'Private chauffeur transfers between Toowoomba \u2014 the city and the surrounding suburbs from Highfields to Westbrook \u2014 and Brisbane Airport (BNE). One fixed fare per vehicle, published below, for any hour of any day.',
@@ -887,7 +906,7 @@ const REGIONS = [
   },
   {
     slug: 'ipswich-airport-transfers', name: 'Ipswich', zones: ['BW3', 'BW4', 'BW5'],
-    title: 'Ipswich Airport Transfers | Fixed Fares to Brisbane Airport | Sky Transfers',
+    title: 'Ipswich Airport Transfers | Fixed Fares to Brisbane',
     desc: 'Ipswich, Springfield, Goodna, Ripley and Rosewood to Brisbane Airport from $155 per vehicle. Fixed fares, tolls and GST included, any hour.',
     h1: 'Ipswich airport transfers, fixed price',
     lead: 'Pre-booked chauffeur transfers between the Ipswich region and Brisbane Airport (BNE), priced by three fare bands: the Springfield and Goodna corridor, Ipswich city, and the towns west to Rosewood and Marburg. One fixed fare per vehicle, published below.',
