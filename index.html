@@ -744,7 +744,10 @@
   </section>
 
   <div class="howto howto-below">
-    <p class="howto-h">How it works</p>
+    <!-- A real heading, not a styled paragraph: without an h2 here the two
+         meet-point h3s below jumped straight from the page h1. .howto-h sets
+         its own font and margin, so this renders identically. -->
+    <h2 class="howto-h">How it works</h2>
     <ol class="howto-steps">
       <li><b>Your route</b><span>Any address, suburb or airport.</span></li>
       <li><b>Fixed price</b><span>All vehicles, tolls and GST in.</span></li>
