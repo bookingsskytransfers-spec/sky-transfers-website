@@ -215,3 +215,11 @@
 # do run. The traffic is unservable either way, but the landing page now says so
 # instead of leaving the reader to work it out. Applied through the Render API at
 # priorities 2-6; the originals sit underneath, shadowed.
+
+# 9 Oct 2026 - /blog/ is a real page again. blog/index.html now exists, and Render
+# never applies a redirect where a file is found, so the "/blog/ -> /" rule above is
+# shadowed rather than deleted - leave it, or remove it from the dashboard, either
+# way the page wins. Posts live under /blog/<slug>.html. The three older guides
+# (rideshare-or-transfer, cheapest-gold-coast-to-brisbane-airport,
+# brisbane-or-gold-coast-airport) stay at their root URLs and are listed on the blog
+# index rather than moved, so they keep their rankings.

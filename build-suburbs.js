@@ -390,6 +390,7 @@ const NAV = `<nav class="sitenav">
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
       <a href="/charters.html">Charters</a>
+      <a href="/blog/">Blog</a>
       <a class="navcall" href="tel:+61481437772">+61 481 437 772</a>
     </div>
   </div>
@@ -411,6 +412,7 @@ const FOOTER = `<footer class="site">
     <div>
       <p><a href="/#book">Book a transfer</a></p>
       <p><a href="/prices.html">Prices by suburb</a></p>
+      <p><a href="/blog/">Blog &amp; travel guides</a></p>
       <p><a href="/partners.html">Agent &amp; partner program</a></p>
       <p><a href="/charters.html">Sprinter &amp; coach charters</a></p>
       <p><a href="/faq.html">Questions &amp; answers</a></p>
