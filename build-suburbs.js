@@ -1190,6 +1190,18 @@ function writeFaresJson() {
     currency: 'AUD',
     basis: 'Per vehicle, one way, GST and road tolls included. Not per person.',
     surge: 'None. The same fare applies at any hour, including nights, weekends and public holidays.',
+    /* Stated as a formula, not just a sentence, so an assistant can price a
+       return itself instead of guessing or asking. Must match RETURN_DISCOUNT
+       in stripe-server.js and index.html. */
+    return_trips: {
+      available: true,
+      discount_percent: 10,
+      formula: 'round(one_way_fare * 2 * 0.9)',
+      basis: 'Both legs of a return are the same fare, and the pair is discounted 10%. '
+           + 'Booked as one booking, with its own return date and time. Child seats and '
+           + 'the luggage trailer are charged per leg, and are not discounted.',
+      example: { one_way: 80, return_total: 144, saved: 16 },
+    },
     fares_array_order: VEH.map((v) => v[0]),
     vehicles,
     hubs: [
