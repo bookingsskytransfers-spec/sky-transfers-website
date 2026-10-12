@@ -492,7 +492,9 @@
            (b.date ? shortDate(b.date) : "\u2014") + (b.time ? " " + b.time : "")
              /* Without this the office sees one date and sends one car. */
              + (b.returnDate ? "  \u21a9 back " + shortDate(b.returnDate)
-                 + (b.returnTime ? " " + b.returnTime : "") : ""),
+                 + (b.returnTime ? " " + b.returnTime : "")
+                 /* The flight we meet on the way back - the one worth tracking. */
+                 + (b.returnFlight ? " \u00b7 " + b.returnFlight : "") : ""),
            (b.pickup || "?") + " \u2192 " + (b.dropoff || "?")
              + (b.returnDate ? "  (RETURN)" : ""),
            (b.name || "") + (b.phone ? "  \u00b7  " + b.phone : ""),
