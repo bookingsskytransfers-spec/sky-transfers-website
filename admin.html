@@ -526,18 +526,26 @@
   }
 
   /* ---- new booking, made by the office for a guest ---------------------- */
+  var nbLoad = function(){};
   function nbVal(id){ var el = $(id); return el ? (el.type === "checkbox" ? el.checked : el.value.trim()) : ""; }
   (function(){
     var card = $("nb-card");
     if (!card) return;
     var ret = $("nb-return");
     ret.addEventListener("change", function(){ $("nb-return-row").hidden = !ret.checked; });
-    api("/admin/places").then(function(d){
-      var dl = $("nb-places"); dl.innerHTML = "";
-      (d.places || []).forEach(function(p){ var o = document.createElement("option"); o.value = p; dl.appendChild(o); });
-      var vs = $("nb-vehicle"); vs.innerHTML = "";
-      (d.vehicles || []).forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; vs.appendChild(o); });
-    }).catch(function(err){ show($("nb-msg"), err.message); });
+    /* The place and vehicle lists need the admin token, so they are loaded
+       from enter() - after sign-in - not here at page load. Loading them here
+       fired before the PIN was typed on a fresh tab, was refused, and left both
+       lists empty with nothing to retry. */
+    nbLoad = function(){
+      api("/admin/places").then(function(d){
+        var dl = $("nb-places"); dl.innerHTML = "";
+        (d.places || []).forEach(function(p){ var o = document.createElement("option"); o.value = p; dl.appendChild(o); });
+        var vs = $("nb-vehicle"); vs.innerHTML = "";
+        (d.vehicles || []).forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; vs.appendChild(o); });
+        show($("nb-msg"), "");
+      }).catch(function(err){ show($("nb-msg"), "Could not load the suburb and vehicle lists: " + err.message + " Refresh the page and sign in again."); });
+    };
     $("nb-submit").addEventListener("click", function(){
       var btn = this;
       var body = {
@@ -698,6 +706,7 @@
     loadWeb();
     galLoad();
     retLoad();
+    nbLoad();
   }
 
   /* Every destructive button on this page used a browser confirm dialog, and
