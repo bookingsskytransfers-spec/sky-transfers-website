@@ -211,8 +211,8 @@
       </p>
       <datalist id="nb-places"></datalist>
       <div class="row3" style="margin-bottom:10px">
-        <div><label for="nb-pickup">Pick-up</label><input id="nb-pickup" list="nb-places" placeholder="Suburb or airport" autocomplete="off"></div>
-        <div><label for="nb-dropoff">Drop-off</label><input id="nb-dropoff" list="nb-places" placeholder="Suburb or airport" autocomplete="off"></div>
+        <div><label for="nb-pickup">Pick-up (suburb or airport &mdash; choose from the list)</label><input id="nb-pickup" list="nb-places" placeholder="Start typing a suburb…" autocomplete="off"></div>
+        <div><label for="nb-dropoff">Drop-off (suburb or airport &mdash; choose from the list)</label><input id="nb-dropoff" list="nb-places" placeholder="Start typing a suburb…" autocomplete="off"></div>
         <div><label for="nb-vehicle">Vehicle</label><select id="nb-vehicle"></select></div>
       </div>
       <div class="row3" style="margin-bottom:10px">
@@ -518,9 +518,9 @@
       .then(function(){ show($("web-msg"), "Removed " + b.ref + "."); loadWeb(); })
       .catch(function(err){ show($("web-msg"), err.message); });
   }
-  function resendWeb(b){
-    return api("/admin/web-booking/resend", { method: "POST", body: { ref: b.ref } })
-      .then(function(d){ show($("web-msg"), "Confirmation for " + b.ref + " sent again to " + (d.to || b.email) +
+  function resendWeb(b, to){
+    return api("/admin/web-booking/resend", { method: "POST", body: { ref: b.ref, to: to || "" } })
+      .then(function(d){ show($("web-msg"), "Confirmation for " + b.ref + " sent again to " + (d.to || to || b.email) +
         (d.payUrl ? " with the payment link." : "."), true); })
       .catch(function(err){ show($("web-msg"), err.message); });
   }
@@ -613,8 +613,15 @@
           /* Send the guest their confirmation again - the branded email and
              PDF, with the payment link if it is still unpaid. Armed like the
              rest, because it emails a member of the public. */
-          if (b.email && b.status !== "declined") {
-            act.appendChild(armBtn("Resend", "Email " + b.email + "?", "", function(){ return resendWeb(b); }));
+          if (b.status !== "declined") {
+            /* Editable so the office can send it to a corrected address, a
+               travel agent or a second passenger. The booking is not changed. */
+            var to = document.createElement("input");
+            to.type = "email"; to.value = b.email || ""; to.placeholder = "email to send to";
+            to.setAttribute("aria-label", "Email address to send the confirmation to");
+            to.style.cssText = "width:200px;font:inherit;font-size:12.5px;padding:4px 6px;margin:0 4px 4px 0";
+            act.appendChild(to);
+            act.appendChild(armBtn("Resend", "Send it?", "", function(){ return resendWeb(b, to.value.trim()); }));
             act.appendChild(document.createTextNode(" "));
           }
           if (b.status !== "paid") {
