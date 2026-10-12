@@ -704,6 +704,10 @@
         <div><label for="bf-rdate">Return date</label><input id="bf-rdate" type="date"></div>
         <div><label for="bf-rtime">Return pick-up time</label><input id="bf-rtime" type="time"></div>
       </div>
+      <!-- On a return booked from an airport, the leg where we collect the guest
+           at the terminal is the one that needs flight tracking - and it is a
+           different flight from the outbound one. -->
+      <div id="bf-rflight-wrap" hidden><label for="bf-rflight">Return flight number (optional)</label><input id="bf-rflight" placeholder="e.g. JQ432" maxlength="40"></div>
       <div class="notice err" id="ret-warn" hidden style="margin:-4px 0 14px"></div>
       <div class="notice err" id="lead-warn" hidden style="margin:-4px 0 14px"></div>
       <div><label for="bf-flight">Flight number (optional)</label><input id="bf-flight" placeholder="e.g. JQ431"></div>
@@ -1473,13 +1477,14 @@ $("bf-trailer").addEventListener("change", updateTotal);
   var c = $("qc-return");
   if (!c) return;
   c.addEventListener("change", function(){
-    var row = $("bf-return-row");
+    var row = $("bf-return-row"), rfw = $("bf-rflight-wrap");
     if (row) row.hidden = !c.checked;
-    var rd = $("bf-rdate"), rt = $("bf-rtime");
+    if (rfw) rfw.hidden = !c.checked;
+    var rd = $("bf-rdate"), rt = $("bf-rtime"), rf = $("bf-rflight");
     if (rd) rd.required = c.checked;
     if (rt) rt.required = c.checked;
     if (!c.checked) {
-      if (rd) rd.value = ""; if (rt) rt.value = "";
+      if (rd) rd.value = ""; if (rt) rt.value = ""; if (rf) rf.value = "";
       var w = $("ret-warn"); if (w) { w.textContent = ""; w.hidden = true; }
     }
     track("select_trip_type", {trip_type: c.checked ? "return" : "one-way"});
@@ -1518,6 +1523,7 @@ function bookingPayload(){
     quotedTotal: currentTotal(),
     returnDate: isReturn() ? $("bf-rdate").value : "",
     returnTime: isReturn() ? $("bf-rtime").value : "",
+    returnFlight: isReturn() ? $("bf-rflight").value : "",
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
     notes: $("bf-notes").value,
@@ -1665,6 +1671,7 @@ function buildRequest(){
     "Vehicle: " + state.vehicle,
     "Fare: " + money(state.price) + " one-way",
     (isReturn() ? "Trip: RETURN (" + $("bf-rdate").value + " " + $("bf-rtime").value +
+      ($("bf-rflight").value ? ", flight " + $("bf-rflight").value : "") +
       ") — " + money(returnTransfer(state.price)) + " for both legs" : "Trip: one-way"),
     "Baby/child seats: " + $("bf-seats").value + " ($" + SEAT_PRICE + " each)",
     "Luggage trailer: " + ($("bf-trailer").checked ? "YES (+$" + TRAILER_PRICE + ")" : "No"),
