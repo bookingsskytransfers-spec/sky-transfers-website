@@ -320,10 +320,20 @@
   .route-line b{color:var(--ink)}
   .veh .price .saving{display:block;font-family:"Figtree",sans-serif;font-size:11.5px;
     font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ok)}
-  .ret-toggle{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;
-    border:1px solid var(--line);border-radius:10px;background:var(--gold-soft);cursor:pointer;
-    font-size:14px;line-height:1.45}
-  .ret-toggle input{margin:2px 0 0;flex:none;width:18px;height:18px;accent-color:var(--gold-deep)}
+  /* One-way or return is the first decision, and it moves the price by 80%,
+     so it is two large buttons at the top of step one rather than a checkbox
+     further down that was easy to miss. */
+  .trip-type{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+  .trip-type input{position:absolute;opacity:0;width:0;height:0}
+  .trip-type span{display:block;padding:14px 16px;border:2px solid var(--line);border-radius:10px;
+    background:var(--ground);cursor:pointer;text-align:center;line-height:1.3;transition:border-color .15s,background .15s}
+  .trip-type span b{display:block;font-size:17px;color:var(--ink)}
+  .trip-type span small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+  .trip-type input:checked + span{border-color:var(--gold-deep);background:var(--gold-soft);box-shadow:0 0 0 1px var(--gold-deep) inset}
+  .trip-type input:checked + span small{color:var(--gold-deep);font-weight:700}
+  .trip-type input:focus-visible + span{outline:2px solid var(--gold);outline-offset:2px}
+  .quote-wait{padding:18px 14px;text-align:center;color:var(--muted);font-size:15px}
+  .route-line .km{color:var(--muted);font-weight:400}
   .veh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
   .party{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
   .party label{font-size:15px;font-weight:700;color:var(--ink)}
@@ -631,6 +641,10 @@
 
   <section class="card">
     <p class="step-label">1 &middot; Your trip</p>
+    <div class="trip-type" role="radiogroup" aria-label="One-way or return">
+      <label><input type="radio" name="trip-type" value="one" checked><span><b>One-way</b><small>A single transfer</small></span></label>
+      <label><input type="radio" name="trip-type" value="return"><span><b>Return</b><small>Both legs &middot; save 10%</small></span></label>
+    </div>
     <div class="grid">
       <div class="field">
         <label for="pu">Pick-up</label>
@@ -644,7 +658,7 @@
         <div class="ac-list" id="do-list" hidden></div>
       </div>
     </div>
-    <p class="hint">Type a street address, a suburb, or an airport — start typing and pick from the list. Serving all Gold Coast &amp; Brisbane suburbs &harr; Gold Coast Airport (OOL), Brisbane Airport (BNE) and the Brisbane Cruise Terminal.</p>
+    <p class="hint">Type a street address, a suburb, or an airport — start typing and pick from the list. Airport transfers have published fixed fares; any two addresses across the Gold Coast and Brisbane get a fixed price on the spot — restaurants, hotels, a night out, the cruise terminal.</p>
   </section>
 
   <p class="howto-now standalone">
@@ -669,10 +683,9 @@
       </div>
       <span class="party-note" id="party-note"></span>
     </div>
-    <label class="ret-toggle" for="qc-return">
-      <input type="checkbox" id="qc-return">
-      <span><strong>Coming back as well?</strong> Add the return trip and save 10%.</span>
-    </label>
+    <!-- Still the single source of truth for isReturn(); driven by the
+         One-way / Return buttons in step one, never shown itself. -->
+    <input type="checkbox" id="qc-return" hidden>
     <div class="veh-grid" id="veh-grid"></div>
     <p class="fine" id="veh-fine">All prices AUD, one-way, GST inclusive. Brisbane Airport fares include tolls. Meet &amp; greet and 30&nbsp;min airport waiting included. Child seats $15 each. The same fixed fare applies at any hour — no night or after-hours loading.</p>
   </section>
@@ -710,7 +723,7 @@
       <div id="bf-rflight-wrap" hidden><label for="bf-rflight">Return flight number (optional)</label><input id="bf-rflight" placeholder="e.g. JQ432" maxlength="40"></div>
       <div class="notice err" id="ret-warn" hidden style="margin:-4px 0 14px"></div>
       <div class="notice err" id="lead-warn" hidden style="margin:-4px 0 14px"></div>
-      <div><label for="bf-flight">Flight number (optional)</label><input id="bf-flight" placeholder="e.g. JQ431"></div>
+      <div id="bf-flight-wrap"><label for="bf-flight">Flight number (optional)</label><input id="bf-flight" placeholder="e.g. JQ431"></div>
       <div class="extras">
         <p class="extras-title">Extras</p>
         <div class="extras-row">
@@ -908,9 +921,15 @@ window.GMAPS_KEY = GMAPS_KEY;
 var ENABLE_ONLINE_PAYMENT = true; // set false to hide the pay button even when SERVER_URL is set
 var SEAT_PRICE = 15, TRAILER_PRICE = 30;
 
-var state = {pu:null, dro:null, puAddr:null, droAddr:null, vehicle:null, price:null};
+/* puLoc/droLoc are {lat,lng} when the end came from a Google pick, else null.
+   p2p is set only while the quote on screen came from the point-to-point
+   engine, and carries exactly what the server priced. */
+var state = {pu:null, dro:null, puAddr:null, droAddr:null, puLoc:null, droLoc:null, vehicle:null, price:null, p2p:null};
 
 function $(id){return document.getElementById(id);}
+/* The airport fine print as written in the HTML, so it can be put back after
+   a point-to-point quote has swapped its own wording in. */
+var VEH_FINE_DEFAULT = ($("veh-fine") || {}).textContent || "";
 
 /* ---- conversion tracking ----------------------------------------------
    Fires the events an analytics or Google Ads account needs to tell a real
@@ -1125,7 +1144,9 @@ function attachAC(inputId, listId, onPick){
     if (!gpReady()) { note("Could not check that address — please pick a suburb from the list."); return; }
     GP.det.getDetails({
       placeId: it.placeId,
-      fields: ["address_components", "formatted_address", "name"],
+      /* geometry: a point-to-point quote is priced on road distance, and the
+         coordinates are what the server measures from. Same billing tier. */
+      fields: ["address_components", "formatted_address", "name", "geometry"],
       sessionToken: gpToken()
     }, function(place, status){
       GP.token = null;                                  // session ends with getDetails
@@ -1144,7 +1165,12 @@ function attachAC(inputId, listId, onPick){
         return;
       }
       input.value = addr;
-      onPick(sub, addr);
+      var loc = null;
+      try {
+        var g = place.geometry && place.geometry.location;
+        if (g) loc = { lat: typeof g.lat === "function" ? g.lat() : g.lat, lng: typeof g.lng === "function" ? g.lng() : g.lng };
+      } catch (e) { loc = null; }
+      onPick(sub, addr, loc);
     });
   }
 
@@ -1188,7 +1214,9 @@ function getRates(pu, dro){
   }
   var hub = isHub(pu) ? pu : (isHub(dro) ? dro : null);
   var other = isHub(pu) ? dro : pu;
-  if(!hub) return {custom:"Point-to-point transfers (no airport) are quoted individually — we’ll come straight back to you with a fixed price."};
+  /* Neither end is an airport: the server prices it on road distance, banded
+     into a fixed fare, so the page asks rather than guessing. */
+  if(!hub) return {p2p:true};
   var bneLike = hub === BNE || hub === CRUISE;
   if(SUBURBS[other]){ var z = SUBURBS[other]; return {rates: bneLike ? plus(BNE_RATES[z[1]]) : OOL_RATES[z[0]]}; }
   if(BM_SUBURB[other]){
@@ -1214,6 +1242,8 @@ function refresh(){
   var sb = $("submit-btn");
   sb.disabled = false;
   sb.textContent = SERVER_URL && ENABLE_ONLINE_PAYMENT ? "Request booking — pay later" : "Request this booking";
+  state.p2p = null;
+  p2pSeq++;                                   /* any quote still in flight is stale */
   if(!state.pu || !state.dro){ qc.hidden = true; cc.hidden = true; bc.hidden = true; return; }
   var res = getRates(state.pu, state.dro);
   if(res.custom){
@@ -1223,7 +1253,68 @@ function refresh(){
     return;
   }
   cc.hidden = true;
+  setTripKind(!!res.p2p);
+  if(res.p2p){ quoteP2P(); return; }
   $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>";
+  var f0 = $("veh-fine");
+  if (f0 && VEH_FINE_DEFAULT) { f0.textContent = VEH_FINE_DEFAULT; updateVehFine(); }
+  renderGrid(res.rates);
+  qc.hidden = false; bc.hidden = true;
+}
+
+/* Flight numbers only mean something when an airport is involved. */
+function setTripKind(p2p){
+  var fw = $("bf-flight-wrap"), rfw = $("bf-rflight-wrap");
+  if (fw) fw.hidden = p2p;
+  if (rfw) rfw.hidden = p2p || !isReturn();
+}
+
+/* Point-to-point: the server measures the road and bands it into a fixed
+   fare for every vehicle at once. The card shows a waiting state meanwhile;
+   a reply for a trip the guest has since changed is thrown away. */
+var p2pSeq = 0;
+function quoteP2P(){
+  var qc = $("quote-card"), cc = $("custom-card"), bc = $("book-card");
+  var seq = ++p2pSeq;
+  var endpoint = function(place, addr, loc){
+    var o = { suburb: place, address: addr || (place + ", QLD, Australia") };
+    if (loc && typeof loc.lat === "number" && typeof loc.lng === "number") { o.lat = loc.lat; o.lng = loc.lng; }
+    return o;
+  };
+  var req = { pickup: endpoint(state.pu, state.puAddr, state.puLoc), dropoff: endpoint(state.dro, state.droAddr, state.droLoc) };
+  $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>";
+  $("veh-grid").innerHTML = "<div class='quote-wait'>Measuring the route and fixing your price…</div>";
+  qc.hidden = false; bc.hidden = true;
+  postJSON("/p2p-quote", req).then(function(r){
+    if (seq !== p2pSeq) return;                       /* guest moved on */
+    if (!(r.ok && r.data && r.data.fares)) throw new Error((r.data && r.data.error) || "no quote");
+    state.p2p = { pickup: req.pickup, dropoff: req.dropoff, km: r.data.km };
+    $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>" +
+      (r.data.km ? " <span class='km'>· " + r.data.km + " km</span>" : "");
+    var f = $("veh-fine");
+    if (f) f.textContent = (isReturn()
+      ? "All prices AUD, return (both legs, 10% off), GST inclusive."
+      : "All prices AUD, one-way, GST inclusive.") +
+      " Tolls included. A fixed price for this exact route — the same fare at any hour, no surge. Child seats $15 each.";
+    renderGrid(r.data.fares);
+    track("p2p_quote", {route: state.pu + " -> " + state.dro, km: r.data.km});
+  }).catch(function(err){
+    if (seq !== p2pSeq) return;
+    qc.hidden = true; bc.hidden = true;
+    $("custom-msg").textContent = (err && err.message && /quote it|price online|outside the area|by hand/.test(err.message))
+      ? err.message
+      : "We couldn’t fix a price for that route just now — send the booking through and we’ll come straight back with one, usually within the hour.";
+    cc.hidden = false;
+    track("p2p_quote_failed", {reason: String((err && err.message) || err || "unknown").slice(0, 100)});
+  });
+}
+
+/* Builds the vehicle cards from a fare per vehicle (null = quoted by hand).
+   Shared by the airport table and the point-to-point quote so the two can
+   never drift apart in how they look or what they let the guest choose. */
+function renderGrid(rates){
+  var qc = $("quote-card"), bc = $("book-card");
+  var res = { rates: rates };
   var grid = $("veh-grid"); grid.innerHTML = "";
   var pax = Math.max(1, parseInt(($("qc-pax") || {}).value, 10) || 1);
   /* VEHICLES is in ascending price order on every route, so the first one that
@@ -1270,11 +1361,14 @@ function refresh(){
     /* Per-head figure divides by the actual party, not by capacity: the number
        a customer wants is what this trip costs each of them. Suppressed below
        three, where halving the fare tells nobody anything they cannot see. */
-    var pp = (!v.quote && fits && pax >= 3)
+    /* A null fare means this vehicle is quoted by hand on this route - the
+       18-seater always, and anything the point-to-point engine declined. */
+    var byHand = v.quote || res.rates[i] == null;
+    var pp = (!byHand && fits && pax >= 3)
       ? "<span class='pp'>" + money(Math.round(res.rates[i] / pax)) + " each for " + pax + "</span>" : "";
     var badge = (i === recIdx) ? "<span class='rec'>Best fit</span>" : "";
     b.innerHTML = "<span class='veh-art'>" + VEH_SVG[i] + "</span><span class='name'>" + v.name + "</span><span class='cap'>" + v.cap + "</span>" +
-      "<span class='price'>" + (v.quote ? "Quote <small>on request</small>"
+      "<span class='price'>" + (byHand ? "Quote <small>on request</small>"
         : money(tripPrice(res.rates[i])) + " <small>" + (isReturn() ? "return" : "one-way") + "</small>"
           + (isReturn() ? "<small class='saving'>save " + money(res.rates[i] * 2 - returnTransfer(res.rates[i])) + "</small>" : "")) + "</span>" + pp + badge;
     b.addEventListener("click", function(){
@@ -1297,7 +1391,7 @@ function refresh(){
       }
       /* The 18-seat Sprinter is quoted by hand, so it never touches the fare
          engine or Stripe — hand the guest to the custom-quote panel. */
-      if (v.quote) {
+      if (byHand) {
         state.vehicle = null; state.price = null;
         $("book-card").hidden = true;
         $("custom-msg").textContent = "The " + v.name + " is quoted per job rather than by suburb — tell us the date, pick-up and drop-off and we will come straight back with a fixed price.";
@@ -1320,7 +1414,6 @@ function refresh(){
     });
     grid.appendChild(b);
   });
-  qc.hidden = false; bc.hidden = true;
 }
 
 /* When a pick-up or drop-off was chosen as a street address, carry it into the
@@ -1330,7 +1423,11 @@ function refresh(){
 function syncAddr(){
   var el = $("bf-addr");
   if (!el) return;
-  var want = state.puAddr || state.droAddr || "";
+  /* Two street addresses - a point-to-point trip - carry both; the airport
+     form only ever has one worth copying. */
+  var want = (state.puAddr && state.droAddr)
+    ? "From " + state.puAddr + " to " + state.droAddr
+    : (state.puAddr || state.droAddr || "");
   if (!want) return;
   if (!el.value || el.value === el.dataset.autofill) {
     el.value = want;
@@ -1370,8 +1467,24 @@ function syncAddr(){
   if (bp) bp.addEventListener("change", function(){ apply(parseInt(bp.value, 10) || 1); });
 })();
 
-attachAC("pu", "pu-list", function(p, addr){ state.pu = p; state.puAddr = addr || null; syncAddr(); refresh(); });
-attachAC("do", "do-list", function(p, addr){ state.dro = p; state.droAddr = addr || null; syncAddr(); refresh(); });
+attachAC("pu", "pu-list", function(p, addr, loc){ state.pu = p; state.puAddr = addr || null; state.puLoc = loc || null; syncAddr(); refresh(); });
+attachAC("do", "do-list", function(p, addr, loc){ state.dro = p; state.droAddr = addr || null; state.droLoc = loc || null; syncAddr(); refresh(); });
+
+/* The One-way / Return buttons drive the hidden checkbox that everything else
+   reads, so isReturn(), the totals and the return-date rules are unchanged. */
+(function(){
+  var radios = document.querySelectorAll('input[name="trip-type"]');
+  var c = $("qc-return");
+  if (!radios.length || !c) return;
+  Array.prototype.forEach.call(radios, function(r){
+    r.addEventListener("change", function(){
+      var want = r.value === "return";
+      if (c.checked === want) return;
+      c.checked = want;
+      c.dispatchEvent(new Event("change"));
+    });
+  });
+})();
 
 /* Deep links from the per-suburb pages (/airport-transfers/<suburb>.html):
    /?pu=Southport&do=Brisbane%20Airport%20(BNE)#book lands with both ends
@@ -1392,6 +1505,7 @@ $("swap").addEventListener("click", function(){
   $("pu").value = b; $("do").value = a;
   var t = state.pu; state.pu = state.dro; state.dro = t;
   var ta = state.puAddr; state.puAddr = state.droAddr; state.droAddr = ta;
+  var tl = state.puLoc; state.puLoc = state.droLoc; state.droLoc = tl;
   refresh();
 });
 
@@ -1479,7 +1593,10 @@ $("bf-trailer").addEventListener("change", updateTotal);
   c.addEventListener("change", function(){
     var row = $("bf-return-row"), rfw = $("bf-rflight-wrap");
     if (row) row.hidden = !c.checked;
-    if (rfw) rfw.hidden = !c.checked;
+    if (rfw) rfw.hidden = !c.checked || !!state.p2p;
+    /* Keep the two buttons in step one honest if this was toggled from code. */
+    var rb = document.querySelector('input[name="trip-type"][value="' + (c.checked ? "return" : "one") + '"]');
+    if (rb && !rb.checked) rb.checked = true;
     var rd = $("bf-rdate"), rt = $("bf-rtime"), rf = $("bf-rflight");
     if (rd) rd.required = c.checked;
     if (rt) rt.required = c.checked;
@@ -1524,6 +1641,9 @@ function bookingPayload(){
     returnDate: isReturn() ? $("bf-rdate").value : "",
     returnTime: isReturn() ? $("bf-rtime").value : "",
     returnFlight: isReturn() ? $("bf-rflight").value : "",
+    /* Exactly the two endpoints the server priced, so it can measure the same
+       road again before charging. Absent on an airport booking. */
+    p2p: state.p2p ? { pickup: state.p2p.pickup, dropoff: state.p2p.dropoff } : undefined,
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
     notes: $("bf-notes").value,
