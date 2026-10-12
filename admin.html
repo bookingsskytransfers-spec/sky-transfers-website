@@ -203,6 +203,11 @@
     <section class="card" id="nb-card">
       <h2>New booking for a guest</h2>
       <div id="nb-msg" class="msg" hidden></div>
+      <div id="nb-amend" class="msg ok" hidden style="margin-bottom:12px">
+        Amending <strong id="nb-amend-ref"></strong> &mdash; saving re-prices it, switches off the old payment link,
+        makes a new one and emails the guest the updated confirmation.
+        <button type="button" id="nb-amend-cancel" style="margin-left:10px">Cancel</button>
+      </div>
       <p class="muted" style="margin:0 0 12px">
         Priced exactly as the website prices it &mdash; airport fares from the table, any other two
         suburbs on road distance. For a job with no online price (the 18-seater, a charter, a special
@@ -229,9 +234,10 @@
       </div>
       <div class="row3" style="margin-bottom:10px">
         <div><label for="nb-pax">Passengers</label><input id="nb-pax" type="number" min="1" max="18" value="2"></div>
-        <div><label for="nb-seats">Child seats ($15 each)</label><input id="nb-seats" type="number" min="0" max="3" value="0"></div>
         <div><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer;margin-top:26px">
-          <input type="checkbox" id="nb-trailer"> Luggage trailer (+$30)</label></div>
+          <input type="checkbox" id="nb-trailer"> Luggage trailer (+$30, oversize or extra bags)</label></div>
+        <div><label for="nb-seats">Baby / child seats ($15 each &mdash; None unless asked)</label>
+          <select id="nb-seats"><option value="0">None</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
       </div>
       <div class="row3" style="margin-bottom:10px">
         <div><label for="nb-name">Guest name</label><input id="nb-name" autocomplete="off"></div>
@@ -243,7 +249,7 @@
       <div class="row3" style="margin-bottom:12px">
         <div><label for="nb-override">Override total $ (only if no online price, or a special rate)</label>
           <input id="nb-override" type="number" min="1" step="1" placeholder="leave blank to use the website price"></div>
-        <div style="grid-column:span 2">
+        <div style="grid-column:span 2" id="nb-mode-wrap">
           <label>Payment</label>
           <label style="display:block;cursor:pointer;margin:6px 0"><input type="radio" name="nb-mode" value="link" checked> Confirmed &mdash; email the guest a payment link (marks Paid when they pay)</label>
           <label style="display:block;cursor:pointer"><input type="radio" name="nb-mode" value="paid"> Confirmed &mdash; already paid or invoiced elsewhere (cash, bank transfer, account)</label>
@@ -527,6 +533,7 @@
 
   /* ---- new booking, made by the office for a guest ---------------------- */
   var nbLoad = function(){};
+  var nbAmend = function(){};
   function nbVal(id){ var el = $(id); return el ? (el.type === "checkbox" ? el.checked : el.value.trim()) : ""; }
   (function(){
     var card = $("nb-card");
@@ -546,6 +553,31 @@
         show($("nb-msg"), "");
       }).catch(function(err){ show($("nb-msg"), "Could not load the suburb and vehicle lists: " + err.message + " Refresh the page and sign in again."); });
     };
+    var amendRef = null;
+    function setAmend(ref){
+      amendRef = ref;
+      $("nb-amend").hidden = !ref;
+      $("nb-amend-ref").textContent = ref || "";
+      $("nb-mode-wrap").hidden = !!ref;
+      $("nb-submit").textContent = ref ? "Save changes and re-send the confirmation" : "Book it and send the confirmation";
+    }
+    $("nb-amend-cancel").addEventListener("click", function(){ setAmend(null); show($("nb-msg"), ""); });
+    nbAmend = function(b){
+      show($("nb-msg"), "");
+      $("nb-pickup").value = b.pickup || ""; $("nb-dropoff").value = b.dropoff || "";
+      $("nb-vehicle").value = b.vehicle || "";
+      $("nb-date").value = b.dateText || String(b.date || "").slice(0, 10); $("nb-time").value = (b.time || "").slice(0, 5);
+      $("nb-flight").value = b.flight || "";
+      var hasRet = !!(b.returnDateText || b.returnDate);
+      ret.checked = hasRet; $("nb-return-row").hidden = !hasRet;
+      $("nb-rdate").value = hasRet ? (b.returnDateText || String(b.returnDate || "").slice(0, 10)) : "";
+      $("nb-rtime").value = hasRet ? (b.returnTime || "").slice(0, 5) : ""; $("nb-rflight").value = hasRet ? (b.returnFlight || "") : "";
+      $("nb-pax").value = b.pax || 1; $("nb-seats").value = String(b.childSeats || 0); $("nb-trailer").checked = !!b.trailer;
+      $("nb-name").value = b.name || ""; $("nb-phone").value = b.phone || ""; $("nb-email").value = b.email || "";
+      $("nb-address").value = b.address || ""; $("nb-notes").value = b.notes || ""; $("nb-override").value = "";
+      setAmend(b.ref);
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
     $("nb-submit").addEventListener("click", function(){
       var btn = this;
       var body = {
@@ -560,10 +592,18 @@
         mode: document.querySelector('input[name="nb-mode"]:checked').value
       };
       btn.disabled = true; show($("nb-msg"), "");
-      api("/admin/web-booking/create", { method: "POST", body: body }).then(function(d){
-        show($("nb-msg"), "Booked " + d.ref + " for $" + d.total + ". " +
-          (d.emailed ? "Confirmation sent to " + d.emailed + (d.payUrl ? " with the payment link." : ".")
-                     : "No email address given, so only the office copy was sent."), true);
+      var path = amendRef ? "/admin/web-booking/amend" : "/admin/web-booking/create";
+      if (amendRef) body.ref = amendRef;
+      api(path, { method: "POST", body: body }).then(function(d){
+        show($("nb-msg"), amendRef
+          ? ("Changed " + d.ref + ": was $" + d.was + ", now $" + d.total + ". " +
+             (d.emailed ? "Updated confirmation sent to " + d.emailed + (d.payUrl ? " with a new payment link; the old link is switched off." : ".")
+                        : d.status === "confirmed" ? "No email on the booking, so only the office copy was sent."
+                        : "Not emailed - it is still a request; confirm it from the dispatch email when ready."))
+          : ("Booked " + d.ref + " for $" + d.total + ". " +
+             (d.emailed ? "Confirmation sent to " + d.emailed + (d.payUrl ? " with the payment link." : ".")
+                        : "No email address given, so only the office copy was sent.")), true);
+        setAmend(null);
         card.querySelectorAll("input:not([type=radio]):not([type=checkbox]),textarea").forEach(function(el){ el.value = ""; });
         $("nb-return").checked = false; $("nb-return-row").hidden = true; $("nb-trailer").checked = false;
         $("nb-pax").value = "2"; $("nb-seats").value = "0";
@@ -630,6 +670,11 @@
             to.style.cssText = "width:200px;font:inherit;font-size:12.5px;padding:4px 6px;margin:0 4px 4px 0";
             act.appendChild(to);
             act.appendChild(armBtn("Resend", "Send it?", "", function(){ return resendWeb(b, to.value.trim()); }));
+            act.appendChild(document.createTextNode(" "));
+          }
+          if (b.status !== "paid" && b.status !== "declined") {
+            /* Loads the row into the New booking card; nothing happens until Save. */
+            act.appendChild(actionBtn("Amend", "", function(){ nbAmend(b); }));
             act.appendChild(document.createTextNode(" "));
           }
           if (b.status !== "paid") {
