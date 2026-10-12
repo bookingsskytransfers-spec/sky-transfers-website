@@ -200,6 +200,58 @@
       <p style="margin:14px 0 0"><button class="linkbtn" id="close-bookings">Close</button></p>
     </section>
 
+    <section class="card" id="nb-card">
+      <h2>New booking for a guest</h2>
+      <div id="nb-msg" class="msg" hidden></div>
+      <p class="muted" style="margin:0 0 12px">
+        Priced exactly as the website prices it &mdash; airport fares from the table, any other two
+        suburbs on road distance. For a job with no online price (the 18-seater, a charter, a special
+        rate) type the agreed total in the override box. The guest gets the same branded confirmation
+        and PDF the website sends.
+      </p>
+      <datalist id="nb-places"></datalist>
+      <div class="row3" style="margin-bottom:10px">
+        <div><label for="nb-pickup">Pick-up</label><input id="nb-pickup" list="nb-places" placeholder="Suburb or airport" autocomplete="off"></div>
+        <div><label for="nb-dropoff">Drop-off</label><input id="nb-dropoff" list="nb-places" placeholder="Suburb or airport" autocomplete="off"></div>
+        <div><label for="nb-vehicle">Vehicle</label><select id="nb-vehicle"></select></div>
+      </div>
+      <div class="row3" style="margin-bottom:10px">
+        <div><label for="nb-date">Pick-up date</label><input id="nb-date" type="date"></div>
+        <div><label for="nb-time">Pick-up time</label><input id="nb-time" type="time"></div>
+        <div><label for="nb-flight">Flight (optional)</label><input id="nb-flight" placeholder="JQ431" maxlength="40"></div>
+      </div>
+      <p style="margin:0 0 10px"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer">
+        <input type="checkbox" id="nb-return"> Return trip (both legs, 10% off)</label></p>
+      <div class="row3" id="nb-return-row" hidden style="margin-bottom:10px">
+        <div><label for="nb-rdate">Return date</label><input id="nb-rdate" type="date"></div>
+        <div><label for="nb-rtime">Return pick-up time</label><input id="nb-rtime" type="time"></div>
+        <div><label for="nb-rflight">Return flight (optional)</label><input id="nb-rflight" placeholder="JQ432" maxlength="40"></div>
+      </div>
+      <div class="row3" style="margin-bottom:10px">
+        <div><label for="nb-pax">Passengers</label><input id="nb-pax" type="number" min="1" max="18" value="2"></div>
+        <div><label for="nb-seats">Child seats ($15 each)</label><input id="nb-seats" type="number" min="0" max="3" value="0"></div>
+        <div><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer;margin-top:26px">
+          <input type="checkbox" id="nb-trailer"> Luggage trailer (+$30)</label></div>
+      </div>
+      <div class="row3" style="margin-bottom:10px">
+        <div><label for="nb-name">Guest name</label><input id="nb-name" autocomplete="off"></div>
+        <div><label for="nb-phone">Phone</label><input id="nb-phone" autocomplete="off"></div>
+        <div><label for="nb-email">Email (for the confirmation)</label><input id="nb-email" type="email" autocomplete="off"></div>
+      </div>
+      <div style="margin-bottom:10px"><label for="nb-address">Exact pick-up / drop-off address</label><input id="nb-address" autocomplete="off"></div>
+      <div style="margin-bottom:10px"><label for="nb-notes">Notes (optional)</label><input id="nb-notes" autocomplete="off"></div>
+      <div class="row3" style="margin-bottom:12px">
+        <div><label for="nb-override">Override total $ (only if no online price, or a special rate)</label>
+          <input id="nb-override" type="number" min="1" step="1" placeholder="leave blank to use the website price"></div>
+        <div style="grid-column:span 2">
+          <label>Payment</label>
+          <label style="display:block;cursor:pointer;margin:6px 0"><input type="radio" name="nb-mode" value="link" checked> Confirmed &mdash; email the guest a payment link (marks Paid when they pay)</label>
+          <label style="display:block;cursor:pointer"><input type="radio" name="nb-mode" value="paid"> Confirmed &mdash; already paid or invoiced elsewhere (cash, bank transfer, account)</label>
+        </div>
+      </div>
+      <p style="margin:0"><button class="cta" id="nb-submit">Book it and send the confirmation</button></p>
+    </section>
+
     <section class="card" id="gallery-card">
       <h2>Vehicle photo gallery</h2>
       <div id="gal-msg" class="msg" hidden></div>
@@ -466,6 +518,52 @@
       .then(function(){ show($("web-msg"), "Removed " + b.ref + "."); loadWeb(); })
       .catch(function(err){ show($("web-msg"), err.message); });
   }
+  function resendWeb(b){
+    return api("/admin/web-booking/resend", { method: "POST", body: { ref: b.ref } })
+      .then(function(d){ show($("web-msg"), "Confirmation for " + b.ref + " sent again to " + (d.to || b.email) +
+        (d.payUrl ? " with the payment link." : "."), true); })
+      .catch(function(err){ show($("web-msg"), err.message); });
+  }
+
+  /* ---- new booking, made by the office for a guest ---------------------- */
+  function nbVal(id){ var el = $(id); return el ? (el.type === "checkbox" ? el.checked : el.value.trim()) : ""; }
+  (function(){
+    var card = $("nb-card");
+    if (!card) return;
+    var ret = $("nb-return");
+    ret.addEventListener("change", function(){ $("nb-return-row").hidden = !ret.checked; });
+    api("/admin/places").then(function(d){
+      var dl = $("nb-places"); dl.innerHTML = "";
+      (d.places || []).forEach(function(p){ var o = document.createElement("option"); o.value = p; dl.appendChild(o); });
+      var vs = $("nb-vehicle"); vs.innerHTML = "";
+      (d.vehicles || []).forEach(function(v){ var o = document.createElement("option"); o.value = v; o.textContent = v; vs.appendChild(o); });
+    }).catch(function(err){ show($("nb-msg"), err.message); });
+    $("nb-submit").addEventListener("click", function(){
+      var btn = this;
+      var body = {
+        pickup: nbVal("nb-pickup"), dropoff: nbVal("nb-dropoff"), vehicle: nbVal("nb-vehicle"),
+        date: nbVal("nb-date"), time: nbVal("nb-time"),
+        returnDate: ret.checked ? nbVal("nb-rdate") : "", returnTime: ret.checked ? nbVal("nb-rtime") : "",
+        returnFlight: ret.checked ? nbVal("nb-rflight") : "",
+        pax: nbVal("nb-pax"), childSeats: nbVal("nb-seats"), trailer: nbVal("nb-trailer"), flight: nbVal("nb-flight"),
+        name: nbVal("nb-name"), phone: nbVal("nb-phone"), email: nbVal("nb-email"),
+        address: nbVal("nb-address"), notes: nbVal("nb-notes"),
+        overrideTotal: nbVal("nb-override"),
+        mode: document.querySelector('input[name="nb-mode"]:checked').value
+      };
+      btn.disabled = true; show($("nb-msg"), "");
+      api("/admin/web-booking/create", { method: "POST", body: body }).then(function(d){
+        show($("nb-msg"), "Booked " + d.ref + " for $" + d.total + ". " +
+          (d.emailed ? "Confirmation sent to " + d.emailed + (d.payUrl ? " with the payment link." : ".")
+                     : "No email address given, so only the office copy was sent."), true);
+        card.querySelectorAll("input:not([type=radio]):not([type=checkbox]),textarea").forEach(function(el){ el.value = ""; });
+        $("nb-return").checked = false; $("nb-return-row").hidden = true; $("nb-trailer").checked = false;
+        $("nb-pax").value = "2"; $("nb-seats").value = "0";
+        loadWeb();
+      }).catch(function(err){ show($("nb-msg"), err.message); })
+        .then(function(){ btn.disabled = false; });
+    });
+  })();
 
   function loadWeb(){
     var st = $("web-status").value, lim = $("web-limit").value;
@@ -512,6 +610,13 @@
           /* Paid bookings get no button. The server refuses to delete them
              anyway - the privacy policy promises seven years - so offering it
              here would only be a button that always fails. */
+          /* Send the guest their confirmation again - the branded email and
+             PDF, with the payment link if it is still unpaid. Armed like the
+             rest, because it emails a member of the public. */
+          if (b.email && b.status !== "declined") {
+            act.appendChild(armBtn("Resend", "Email " + b.email + "?", "", function(){ return resendWeb(b); }));
+            act.appendChild(document.createTextNode(" "));
+          }
           if (b.status !== "paid") {
             act.appendChild(armBtn("Remove", "Really remove?", "danger", function(){ return removeWeb(b); }));
           }
