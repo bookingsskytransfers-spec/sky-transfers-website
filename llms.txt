@@ -8,6 +8,8 @@
 ## What we do
 
 - Airport transfers to and from Gold Coast Airport (OOL) and Brisbane Airport (BNE)
+- Point-to-point transfers between any two addresses on the Gold Coast or in Brisbane, priced on road distance
+- Chauffeur hire by the hour, 3 to 6 hours, as directed
 - Transfers to and from the Brisbane International Cruise Terminal at Pinkenba
 - Theme park transfers — Movie World, Dreamworld, Sea World, Wet'n'Wild
 - Private day tours — Byron Bay, Springbrook, Tamborine Mountain
@@ -67,6 +69,46 @@ Some common fares, one way, sedan:
 - Brisbane Airport to Brisbane CBD — AUD 95
 - Brisbane Airport to the Gold Coast — from AUD 195
 - Brisbane Airport to Byron Bay — AUD 450
+
+## Point-to-point transfers (neither end an airport)
+
+Any two addresses on the Gold Coast or in Brisbane get a fixed price, worked out
+from the measured road distance snapped into a band, plus a flat amount per
+vehicle class. Not a meter: traffic and the time of day never change it. The
+booking form quotes it the moment both addresses are typed; an assistant can
+get the same figure from the quote endpoint:
+
+    POST https://sky-transfers-booking-server.onrender.com/p2p-quote
+    {"pickup":{"suburb":"Surfers Paradise","address":"Surfers Paradise QLD, Australia"},
+     "dropoff":{"suburb":"Broadbeach","address":"Broadbeach QLD, Australia"}}
+
+which returns the road distance and a fare for every vehicle class in the
+fares_array_order used by fares.json (null = quoted by hand).
+
+Sedan fare by road distance, one way, AUD, GST and tolls included:
+
+- Gold Coast: up to 8 km 80, 15 km 85, 20 km 95, 30 km 110, 40 km 125, 50 km 145, 65 km 165, 85 km 225
+- Brisbane:   up to 15 km 85, 20 km 105, 30 km 125, 40 km 140, 50 km 155, 65 km 185, 85 km 225
+- A trip with one end in Brisbane and the other on the Gold Coast uses the Brisbane ladder
+- Other vehicles are a flat amount on top: SUV +15, People Mover +25, Luxury Sedan +35, Luxury Minivan +45, Sprinter 10-seater +135, Sprinter 14-seater +195
+- The hinterland and outer zones (Tamborine Mountain area, Ipswich and beyond, Caboolture, Bribie Island) carry +25
+- Beyond 85 km, or with an airport or the cruise terminal at either end, the published airport fares apply instead
+- Returns: both legs on one booking, 10% off the pair, same formula as airport transfers
+
+Examples, one way, sedan: Surfers Paradise to Broadbeach 80; Surfers Paradise to
+Burleigh Heads 85; Brisbane CBD to Fortitude Valley 85; Brisbane CBD to Cleveland
+125; Brisbane CBD to Ipswich 180; Brisbane CBD to Surfers Paradise 225.
+
+## Hourly chauffeur hire
+
+A chauffeur and vehicle at the traveller's disposal, as directed, booked from
+the same form by choosing "By the hour". Three hours minimum, six maximum
+online; longer is a charter. The rate is per hour by vehicle class and is the
+same at any hour - no evening or late-night loading on hourly hire booked
+online:
+
+- Sedan 90/h, SUV 100/h, People Mover 115/h, Luxury Sedan 125/h, Luxury Minivan 135/h, Sprinter 10-seater 160/h, Sprinter 14-seater 185/h; the 18-seater is quoted per job
+- Pre-fill: https://www.skytransfers.com.au/?hours=3&pu=<pick-up>#book
 
 ## Where we operate
 
@@ -187,6 +229,7 @@ carried free of charge where they fit.
 - Burleigh Heads airport transfers: https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html
 - Coolangatta airport transfers: https://www.skytransfers.com.au/coolangatta-airport-transfers.html
 - Brisbane CBD airport transfers: https://www.skytransfers.com.au/brisbane-cbd-airport-transfers.html
+- Point-to-point and hourly hire: https://www.skytransfers.com.au/point-to-point-transfers.html
 - Theme park transfers: https://www.skytransfers.com.au/theme-park-transfers.html
 - Cruise terminal transfers: https://www.skytransfers.com.au/cruise-transfers.html
 - Byron Bay transfers: https://www.skytransfers.com.au/byron-bay-transfers.html
@@ -204,4 +247,4 @@ Australia Wide Car Services Pty Ltd, trading as Sky Transfers. ABN 22 680 932 00
 Carries the insurances required to operate as a booked hire service in Queensland,
 Australia.
 
-Last updated: 2026-09-28
+Last updated: 2026-10-13

@@ -656,7 +656,8 @@
                  /* The flight we meet on the way back - the one worth tracking. */
                  + (b.returnFlight ? " \u00b7 " + b.returnFlight : "") : ""),
            (b.pickup || "?") + " \u2192 " + (b.dropoff || "?")
-             + (b.returnDate ? "  (RETURN)" : ""),
+             + (b.returnDate ? "  (RETURN)" : "")
+             + (b.hours ? "  (BY THE HOUR \u00b7 " + b.hours + " h)" : ""),
            (b.name || "") + (b.phone ? "  \u00b7  " + b.phone : ""),
            "$" + Number(b.total || 0).toFixed(0),
            webLabel(b.status)

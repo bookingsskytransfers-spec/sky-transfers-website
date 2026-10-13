@@ -1263,6 +1263,37 @@ function writeFaresJson() {
            + 'the luggage trailer are charged per leg, and are not discounted.',
       example: { one_way: 80, return_total: 144, saved: 16 },
     },
+    /* Neither of these is derived from the airport tables, so they are stated
+       here and MUST match p2p-fare.js (ladders, adders, loading) and
+       HOURLY_RATES in stripe-server.js / index.html. The quote endpoint is
+       the authority for an exact point-to-point figure. */
+    point_to_point: {
+      available: true,
+      how: 'Any two addresses on the Gold Coast or in Brisbane, neither an airport nor the cruise terminal. '
+         + 'Measured road distance is snapped into a band; each vehicle class adds a flat amount. '
+         + 'Not a meter: the time of day and traffic never change it.',
+      quote_endpoint: 'https://sky-transfers-booking-server.onrender.com/p2p-quote',
+      quote_request_example: { pickup: { suburb: 'Surfers Paradise', address: 'Surfers Paradise QLD, Australia' },
+                               dropoff: { suburb: 'Broadbeach', address: 'Broadbeach QLD, Australia' } },
+      sedan_by_road_km: {
+        gold_coast: [[8, 80], [15, 85], [20, 95], [30, 110], [40, 125], [50, 145], [65, 165], [85, 225]],
+        brisbane:   [[15, 85], [20, 105], [30, 125], [40, 140], [50, 155], [65, 185], [85, 225]],
+        note: 'Each pair is [up to km, sedan fare]. A trip with one end in each city uses the Brisbane ladder. Beyond 85 km is quoted by hand.',
+      },
+      class_adders_in_fares_array_order: [0, 15, 25, 35, 45, 135, 195, null],
+      outer_zone_loading: 25,
+      minimum_fare: 80,
+      returns: 'Same 10% formula as airport transfers.',
+      page: SITE + '/point-to-point-transfers.html',
+    },
+    hourly_hire: {
+      available: true,
+      how: 'Chauffeur and vehicle as directed, booked from the form by choosing "By the hour". Rate per hour by vehicle class, no evening loading.',
+      min_hours: 3, max_hours_online: 6,
+      rate_per_hour_in_fares_array_order: [90, 100, 115, 125, 135, 160, 185, null],
+      prefill_url: SITE + '/?hours={hours}&pu={pickup}#book',
+      longer: 'Half and full days are charters: ' + SITE + '/charters.html',
+    },
     fares_array_order: VEH.map((v) => v[0]),
     vehicles,
     hubs: [
