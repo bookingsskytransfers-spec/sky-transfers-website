@@ -363,6 +363,9 @@
   table.pricetable th[scope=col]:first-child{left:0;z-index:3}
   table.pricetable th[scope=row]::after{content:"";position:absolute;top:0;right:0;bottom:-1px;
     width:1px;background:var(--line)}
+  table.pricetable td.lbl{text-align:left;font-weight:600;color:var(--ink);position:sticky;left:0;z-index:1;background:var(--card)}
+  table.pricetable tbody tr:nth-child(even) td.lbl{background:var(--ground)}
+  table.pricetable tbody tr:hover td.lbl{background:var(--gold-soft)}
   .fares-hero{background:linear-gradient(180deg,#101828 0%,#1C2A47 100%);color:var(--navy-text);
     padding:48px 18px 42px;text-align:center}
   .fares-hero h1{font-family:"Marcellus",Georgia,serif;font-weight:400;
@@ -423,6 +426,7 @@
     <a href="/byron-bay-transfers.html"><strong>Byron Bay transfers</strong><span>From $220 via Gold Coast Airport</span></a>
     <a href="/corporate-transfers.html"><strong>Corporate transfers</strong><span>Accounts, monthly invoicing</span></a>
     <a href="/wedding-transfers.html"><strong>Wedding transfers</strong><span>Guest shuttles from $120/hr</span></a>
+    <a href="/point-to-point-transfers.html"><strong>Point-to-point &amp; hourly</strong><span>Any two addresses from $80 &middot; by the hour from $90</span></a>
     <a href="/charters.html"><strong>Sprinter &amp; coach charters</strong><span>Weddings, corporate, day tours</span></a>
   </div>
 </section>
@@ -1005,6 +1009,62 @@
     14-seat Sprinter is one price for the whole group. Suburb not listed, or travelling
     somewhere else entirely? <a href="/#book">Try the booking form</a> or call
     <a href="tel:+61481437772">+61 481 437 772</a> &mdash; we quote anything, any hour.
+  </p>
+</section>
+
+<section class="block" id="point-to-point">
+  <p class="kick">Not flying?</p>
+  <h2>Point-to-point fares and hire by the hour</h2>
+  <p class="lead">
+    Any two addresses on the Gold Coast or in Brisbane &mdash; a restaurant, a hotel, a night out,
+    Brisbane to the Coast &mdash; get a fixed price in the <a href="/#book">booking form</a> the moment
+    you type them, worked out from the road distance. Not a meter, and the same at any hour.
+    <a href="/point-to-point-transfers.html">How it works, with examples</a>.
+  </p>
+
+  <div class="tbl-scroll">
+    <table class="pricetable" id="p2p">
+      <caption>Point-to-point by road distance &mdash; sedan, one way, GST and tolls included</caption>
+      <thead><tr><th scope="col">Road distance</th><th scope="col">Gold Coast</th><th scope="col">Brisbane</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Up to 8 km</td><td>$80</td><td>$85</td></tr>
+        <tr><td class="lbl">Up to 15 km</td><td>$85</td><td>$85</td></tr>
+        <tr><td class="lbl">Up to 20 km</td><td>$95</td><td>$105</td></tr>
+        <tr><td class="lbl">Up to 30 km</td><td>$110</td><td>$125</td></tr>
+        <tr><td class="lbl">Up to 40 km</td><td>$125</td><td>$140</td></tr>
+        <tr><td class="lbl">Up to 50 km</td><td>$145</td><td>$155</td></tr>
+        <tr><td class="lbl">Up to 65 km</td><td>$165</td><td>$185</td></tr>
+        <tr><td class="lbl">Up to 85 km</td><td>$225</td><td>$225</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="fine" style="margin-top:-12px">
+    Other vehicles are a flat amount on top of the sedan: SUV +$15, People Mover +$25, Luxury Sedan +$35,
+    Luxury Minivan +$45, Sprinter 10 +$135, Sprinter 14 +$195; the 18-seater is quoted per job. A trip
+    with one end in Brisbane and the other on the Gold Coast uses the Brisbane column; the hinterland and
+    the far edges carry $25 on top. Anything with an airport or the cruise terminal at either end is an
+    airport transfer at the fares above.
+  </p>
+
+  <div class="tbl-scroll">
+    <table class="pricetable" id="hourly">
+      <caption>By the hour &mdash; chauffeur and vehicle at your disposal, 3 hours minimum, GST included</caption>
+      <thead><tr><th scope="col">Vehicle</th><th scope="col">Per hour</th><th scope="col">3 hours</th><th scope="col">4 hours</th><th scope="col">6 hours</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">Sedan</td><td>$90</td><td>$270</td><td>$360</td><td>$540</td></tr>
+        <tr><td class="lbl">SUV</td><td>$100</td><td>$300</td><td>$400</td><td>$600</td></tr>
+        <tr><td class="lbl">People Mover</td><td>$115</td><td>$345</td><td>$460</td><td>$690</td></tr>
+        <tr><td class="lbl">Luxury Sedan</td><td>$125</td><td>$375</td><td>$500</td><td>$750</td></tr>
+        <tr><td class="lbl">Luxury Minivan</td><td>$135</td><td>$405</td><td>$540</td><td>$810</td></tr>
+        <tr><td class="lbl">Mercedes Sprinter 10-Seater</td><td>$160</td><td>$480</td><td>$640</td><td>$960</td></tr>
+        <tr><td class="lbl">Mercedes Sprinter 14-Seater</td><td>$185</td><td>$555</td><td>$740</td><td>$1,110</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="fine" style="margin-top:-12px">
+    Choose <b>By the hour</b> in the booking form. Three to six hours online, around the Gold Coast or
+    Brisbane; the same rate at any hour, with no evening loading on hourly hire booked online. Longer
+    than six hours is a <a href="/charters.html">charter</a> &mdash; half day from $530, full day from $970.
   </p>
 </section>
 <footer class="site">
