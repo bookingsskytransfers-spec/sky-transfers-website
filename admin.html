@@ -204,9 +204,11 @@
       <h2>New booking for a guest</h2>
       <div id="nb-msg" class="msg" hidden></div>
       <div id="nb-amend" class="msg ok" hidden style="margin-bottom:12px">
-        Amending <strong id="nb-amend-ref"></strong> &mdash; saving re-prices it, switches off the old payment link,
-        makes a new one and emails the guest the updated confirmation.
+        Amending <strong id="nb-amend-ref"></strong> &mdash; <span id="nb-amend-how">saving re-prices it, switches off the old payment link,
+        makes a new one and emails the guest the updated confirmation.</span>
         <button type="button" id="nb-amend-cancel" style="margin-left:10px">Cancel</button>
+        <label id="nb-manual-wrap" hidden style="display:block;margin-top:8px;cursor:pointer">
+          <input type="checkbox" id="nb-manual"> Settle the money by hand &mdash; no automatic refund or balance link (tick only if you have already sorted it in Stripe or with the guest)</label>
       </div>
       <p class="muted" style="margin:0 0 12px">
         Priced exactly as the website prices it &mdash; airport fares from the table, any other two
@@ -554,12 +556,21 @@
       }).catch(function(err){ show($("nb-msg"), "Could not load the suburb and vehicle lists: " + err.message + " Refresh the page and sign in again."); });
     };
     var amendRef = null;
-    function setAmend(ref){
+    var amendPaid = false;
+    function setAmend(ref, b){
       amendRef = ref;
+      amendPaid = !!(b && b.status === "paid");
       $("nb-amend").hidden = !ref;
       $("nb-amend-ref").textContent = ref || "";
       $("nb-mode-wrap").hidden = !!ref;
-      $("nb-submit").textContent = ref ? "Save changes and re-send the confirmation" : "Book it and send the confirmation";
+      $("nb-manual-wrap").hidden = !amendPaid;
+      $("nb-manual").checked = false;
+      $("nb-amend-how").textContent = amendPaid
+        ? "this booking is PAID ($" + Number(b.total || 0).toFixed(0) + "). If the new price is lower, the difference is refunded to the guest's card automatically; if higher, the guest is emailed a link for the difference only. Either way they get the updated confirmation."
+        : "saving re-prices it, switches off the old payment link, makes a new one and emails the guest the updated confirmation.";
+      $("nb-submit").textContent = ref
+        ? (amendPaid ? "Save changes, settle the difference and re-send" : "Save changes and re-send the confirmation")
+        : "Book it and send the confirmation";
     }
     $("nb-amend-cancel").addEventListener("click", function(){ setAmend(null); show($("nb-msg"), ""); });
     nbAmend = function(b){
@@ -575,7 +586,7 @@
       $("nb-pax").value = b.pax || 1; $("nb-seats").value = String(b.childSeats || 0); $("nb-trailer").checked = !!b.trailer;
       $("nb-name").value = b.name || ""; $("nb-phone").value = b.phone || ""; $("nb-email").value = b.email || "";
       $("nb-address").value = b.address || ""; $("nb-notes").value = b.notes || ""; $("nb-override").value = "";
-      setAmend(b.ref);
+      setAmend(b.ref, b);
       card.scrollIntoView({ behavior: "smooth", block: "start" });
     };
     $("nb-submit").addEventListener("click", function(){
@@ -593,12 +604,15 @@
       };
       btn.disabled = true; show($("nb-msg"), "");
       var path = amendRef ? "/admin/web-booking/amend" : "/admin/web-booking/create";
-      if (amendRef) body.ref = amendRef;
+      if (amendRef) { body.ref = amendRef; if (amendPaid) body.manualMoney = $("nb-manual").checked; }
       api(path, { method: "POST", body: body }).then(function(d){
         show($("nb-msg"), amendRef
           ? ("Changed " + d.ref + ": was $" + d.was + ", now $" + d.total + ". " +
-             (d.emailed ? "Updated confirmation sent to " + d.emailed + (d.payUrl ? " with a new payment link; the old link is switched off." : ".")
-                        : d.status === "confirmed" ? "No email on the booking, so only the office copy was sent."
+             (d.refunded ? "$" + d.refunded + " refunded to the guest's card. " : "") +
+             (d.balance ? "Guest emailed a link for the $" + d.balance + " balance. " : "") +
+             (d.manual ? "Money to be settled by hand. " : "") +
+             (d.emailed ? "Updated confirmation sent to " + d.emailed + (d.payUrl && !d.balance ? " with a new payment link; the old link is switched off." : ".")
+                        : d.status === "confirmed" || d.status === "paid" ? "No email on the booking, so only the office copy was sent."
                         : "Not emailed - it is still a request; confirm it from the dispatch email when ready."))
           : ("Booked " + d.ref + " for $" + d.total + ". " +
              (d.emailed ? "Confirmation sent to " + d.emailed + (d.payUrl ? " with the payment link." : ".")
@@ -672,7 +686,7 @@
             act.appendChild(armBtn("Resend", "Send it?", "", function(){ return resendWeb(b, to.value.trim()); }));
             act.appendChild(document.createTextNode(" "));
           }
-          if (b.status !== "paid" && b.status !== "declined") {
+          if (b.status !== "declined") {
             /* Loads the row into the New booking card; nothing happens until Save. */
             act.appendChild(actionBtn("Amend", "", function(){ nbAmend(b); }));
             act.appendChild(document.createTextNode(" "));
