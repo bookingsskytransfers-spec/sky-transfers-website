@@ -71,6 +71,11 @@
   .msg.ok{background:var(--ok-soft)}
   .empty{text-align:center;color:var(--muted);padding:40px 12px}
   .pay{font-weight:800;color:var(--ok)}
+  .week{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  .week .wtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .week .wtot{font-size:24px;font-weight:800;color:var(--ink)}
+  .week ul{list-style:none;margin:10px 0 0;padding:0;font-size:15px}
+  .week li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -78,12 +83,13 @@
 <header>
   <div class="row">
     <h1>Sky Transfers <small id="hello">My jobs</small></h1>
-    <button id="refresh" type="button">Refresh</button>
+    <span><button id="paybtn" type="button">My pay</button> <button id="refresh" type="button">Refresh</button></span>
   </div>
 </header>
 <main>
   <div id="msg" class="msg" hidden></div>
   <div id="list"><p class="empty">Loading your jobs&hellip;</p></div>
+  <div id="pay" hidden></div>
 </main>
 <script>
 (function(){
@@ -211,10 +217,49 @@
     }).catch(function(err){ btn.disabled = false; btn.textContent = was; msg(err.message); });
   }
 
-  $("refresh").addEventListener("click", load);
+  /* My pay: done jobs and their pay for this week and the four before. */
+  var payOpen = false;
+  $("paybtn").addEventListener("click", function(){
+    payOpen = !payOpen;
+    $("paybtn").textContent = payOpen ? "My jobs" : "My pay";
+    $("list").hidden = payOpen; $("pay").hidden = !payOpen;
+    if (payOpen) loadPay(); else load();
+  });
+  function loadPay(){
+    var box = $("pay"); box.innerHTML = "<p class='empty'>Loading your pay&hellip;</p>";
+    post("/driver/pay", { t: t }).then(function(d){
+      msg(""); box.innerHTML = "";
+      d.weeks.forEach(function(w, i){
+        var c = el("div", "week");
+        var top = el("div", "wtop");
+        var lbl = el("div"); lbl.appendChild(el("h2", "", i === 0 ? "This week" : i === 1 ? "Last week" : "Week of " + niceDate(w.from)));
+        lbl.firstChild.style.margin = "0";
+        lbl.appendChild(el("div", "date", niceDate(w.from) + " – " + niceDate(w.to)));
+        top.appendChild(lbl);
+        var right = el("div"); right.style.textAlign = "right";
+        right.appendChild(el("div", "wtot", "$" + w.total));
+        right.appendChild(el("span", "pill" + (w.allPaid ? " ok" : w.total ? "" : ""), !w.jobs.length ? "No jobs" : w.allPaid ? "Paid" : "$" + w.unpaid + " to come"));
+        top.appendChild(right); c.appendChild(top);
+        if (w.jobs.length) {
+          var ul = el("ul");
+          w.jobs.forEach(function(j){
+            var li = el("li");
+            li.appendChild(el("span", "", niceDate(j.date) + " " + j.time + " · " + (j.hours && (!j.to || j.to === "As directed") ? j.from + " (" + j.hours + " h)" : j.from + " → " + j.to)));
+            li.appendChild(el("b", "", (j.pay != null ? "$" + j.pay : "—") + (j.paid ? " ✓" : "")));
+            ul.appendChild(li);
+          });
+          c.appendChild(ul);
+        }
+        box.appendChild(c);
+      });
+      box.appendChild(el("p", "date", "Only jobs marked Done count. Anything wrong? Message the office before pay day."));
+    }).catch(function(err){ box.innerHTML = ""; msg(err.message); });
+  }
+
+  $("refresh").addEventListener("click", function(){ if (payOpen) loadPay(); else load(); });
   /* Jobs move while the phone sits on the dash. */
-  setInterval(function(){ if (document.visibilityState === "visible") load(); }, 60000);
-  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") load(); });
+  setInterval(function(){ if (document.visibilityState === "visible" && !payOpen) load(); }, 60000);
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible" && !payOpen) load(); });
   load();
 })();
 </script>

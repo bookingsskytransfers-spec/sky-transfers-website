@@ -131,6 +131,16 @@
   .linkbox code{display:block;font-size:13px;margin:6px 0 10px;opacity:.95}
   .linkbox .act{color:var(--navy-text);border-color:rgba(255,255,255,.35)}
   .empty{text-align:center;color:var(--muted);padding:26px 10px}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .overdue{color:var(--err);font-weight:700}
+  .totals{display:flex;justify-content:flex-end;gap:22px;flex-wrap:wrap;margin:12px 0;font-size:15px}
+  .totals b{color:var(--ink);font-size:17px}
+  .pay-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .pay-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .pay-head h3{margin:0;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:19px;color:var(--ink)}
+  .warn{font-size:13.5px;font-weight:700;color:var(--gold-deep);margin:4px 0}
+  table.tight{min-width:0}
+  table.tight td,table.tight th{padding:7px 9px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -163,6 +173,8 @@
       <button role="tab" data-tab="drivers" aria-selected="false">Drivers</button>
       <button role="tab" data-tab="vehicles" aria-selected="false">Vehicles</button>
       <button role="tab" data-tab="account" aria-selected="false">Account job</button>
+      <button role="tab" data-tab="invoices" aria-selected="false">Invoices</button>
+      <button role="tab" data-tab="pay" aria-selected="false">Driver pay</button>
     </div>
 
     <!-- ===================== JOBS ===================== -->
@@ -318,6 +330,96 @@
         <span id="a-cancel-wrap"></span>
       </div>
     </section>
+
+    <!-- ===================== INVOICES ===================== -->
+    <section id="tab-invoices" hidden>
+      <div id="i-bank" class="msg" hidden>Invoices show card payment only. To add your bank transfer details to every invoice, set <b>INVOICE_BANK_DETAILS</b> on the booking server in Render (e.g. "Account name, BSB 000-000, Account 00000000").</div>
+      <div class="card">
+        <h2>Accounts</h2>
+        <div id="i-acc-msg" class="msg" hidden></div>
+        <div class="summary" id="i-summary" style="margin:0 0 12px"></div>
+        <div class="scroll">
+          <table class="tight">
+            <thead><tr><th>Account</th><th class="num">Not invoiced yet</th><th class="num">Owing</th><th class="num">Overdue</th><th></th></tr></thead>
+            <tbody id="i-acc-rows"><tr><td colspan="5" class="muted">Loading&hellip;</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" id="i-acc-card">
+        <h2 id="i-acc-h">Add an account</h2>
+        <p class="muted" style="margin:0 0 12px">The name must match what is typed in <b>Account</b> on its jobs (capitals don't matter). Agents from the agent portal are listed above automatically.</p>
+        <input type="hidden" id="ac-id">
+        <div class="row3">
+          <div><label for="ac-name">Account name</label><input id="ac-name" autocomplete="off"></div>
+          <div><label for="ac-email">Invoices go to (email)</label><input id="ac-email" type="email" autocomplete="off"></div>
+          <div><label for="ac-contact">Contact name</label><input id="ac-contact" autocomplete="off"></div>
+        </div>
+        <div class="row3">
+          <div><label for="ac-abn">Their ABN (optional)</label><input id="ac-abn" autocomplete="off"></div>
+          <div><label for="ac-terms">Payment terms (days)</label><input id="ac-terms" type="number" min="0" max="120" value="14"></div>
+          <div><label for="ac-active">Status</label><select id="ac-active"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+        </div>
+        <div class="row2">
+          <div><label for="ac-address">Billing address</label><input id="ac-address" autocomplete="off"></div>
+          <div><label for="ac-notes">Notes</label><input id="ac-notes" autocomplete="off"></div>
+        </div>
+        <button class="cta" id="ac-save">Save account</button>
+        <button class="act" id="ac-clear" style="margin-left:6px">Clear</button>
+      </div>
+      <div class="card" id="i-new-card">
+        <h2>New invoice</h2>
+        <div id="i-new-msg" class="msg" hidden></div>
+        <div class="toolbar">
+          <div style="min-width:220px"><label for="in-party">Account</label><select id="in-party"></select></div>
+          <div><label for="in-from">Jobs from</label><input id="in-from" type="date"></div>
+          <div><label for="in-to">To</label><input id="in-to" type="date"></div>
+          <button class="act" id="in-lastmonth">Last month</button>
+          <button class="act" id="in-thismonth">This month</button>
+          <button class="cta" id="in-show">Show jobs</button>
+        </div>
+        <div id="in-draft" hidden>
+          <div class="scroll" style="margin-top:12px">
+            <table class="tight">
+              <thead><tr><th><input type="checkbox" id="in-all" checked style="width:auto"></th><th>Date</th><th>Ref</th><th>Description</th><th>Job</th><th class="num">Amount</th></tr></thead>
+              <tbody id="in-rows"></tbody>
+            </table>
+          </div>
+          <div class="totals"><span>GST included <b id="in-gst">$0</b></span><span>Invoice total <b id="in-total">$0</b></span></div>
+          <button class="cta" id="in-issue">Issue invoice</button>
+          <span class="muted" style="margin-left:8px">Gets an invoice number and a card payment link. Nothing is emailed until you press Email.</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Invoices</h2>
+        <div id="i-list-msg" class="msg" hidden></div>
+        <div class="toolbar">
+          <div><label for="il-status">Show</label>
+            <select id="il-status"><option value="issued">Open (not paid)</option><option value="paid">Paid</option><option value="void">Void</option><option value="">All</option></select></div>
+        </div>
+        <div class="scroll" style="margin-top:10px">
+          <table class="tight">
+            <thead><tr><th>Invoice</th><th>Account</th><th>Issued</th><th>Due</th><th class="num">Total</th><th>Status</th><th></th></tr></thead>
+            <tbody id="il-rows"><tr><td colspan="7" class="muted">Loading&hellip;</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DRIVER PAY ===================== -->
+    <section id="tab-pay" hidden>
+      <div class="card">
+        <div class="toolbar">
+          <div><label for="p-week">Week containing</label><input id="p-week" type="date"></div>
+          <button class="act" id="p-this">This week</button>
+          <button class="act" id="p-last">Last week</button>
+          <button class="act" id="p-csv">Download CSV</button>
+        </div>
+        <p class="muted" id="p-range" style="margin:10px 0 0"></p>
+        <div class="summary" id="p-summary"></div>
+      </div>
+      <div id="p-msg" class="msg" hidden></div>
+      <div id="p-list"><p class="empty">Loading&hellip;</p></div>
+    </section>
   </div>
 </div>
 
@@ -391,13 +493,15 @@
   function expClass(d){ if (!d) return ""; var t = bneToday(); return d < t ? "exp-bad" : d <= addDays(t, 30) ? "exp-soon" : ""; }
 
   /* ---------- tabs ---------- */
-  var TABS = ["jobs", "drivers", "vehicles", "account"];
+  var TABS = ["jobs", "drivers", "vehicles", "account", "invoices", "pay"];
   function openTab(name){
     TABS.forEach(function(t){
       $("tab-" + t).hidden = t !== name;
       document.querySelector('[data-tab="' + t + '"]').setAttribute("aria-selected", t === name ? "true" : "false");
     });
     try { localStorage.setItem("sky_dispatch_tab", name); } catch (e) {}
+    if (name === "invoices" && window.__loadBilling) window.__loadBilling();
+    if (name === "pay" && window.__loadPay) window.__loadPay();
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-tab]"), function(b){
     b.addEventListener("click", function(){ openTab(b.getAttribute("data-tab")); });
@@ -774,7 +878,7 @@
   function loadAccounts(){
     var dl = $("a-accounts"); dl.innerHTML = "";
     var l = []; try { l = JSON.parse(localStorage.getItem("sky_accounts") || "[]"); } catch (e) {}
-    ["Rallys", "Krishiv", "Phoenix", "Nexus"].forEach(function(n){ if (l.indexOf(n) === -1) l.push(n); });
+    (window.__accountNames || ["Rallys", "Krishiv", "Phoenix", "Nexus"]).forEach(function(n){ if (l.indexOf(n) === -1) l.push(n); });
     l.forEach(function(n){ dl.appendChild(new Option(n, n)); });
   }
 
@@ -850,6 +954,274 @@
     $("a-fill-msg").textContent = filled.length
       ? "Filled " + filled.length + " field" + (filled.length === 1 ? "" : "s") + " — check them, then save."
       : "Couldn't read any labelled lines (like \"Date: 25/10/2026\"). Fill the form by hand.";
+  });
+
+  /* ================= INVOICES ================= */
+  var PARTIES = [];
+  function monthRange(offset){
+    var t = bneToday(), y = +t.slice(0, 4), m = +t.slice(5, 7) - 1 + offset;
+    var first = new Date(Date.UTC(y, m, 1)), last = new Date(Date.UTC(y, m + 1, 0));
+    return [first.toISOString().slice(0, 10), last.toISOString().slice(0, 10)];
+  }
+  function niceFull(d){ return d ? niceDate(d) + " " + d.slice(0, 4) : ""; }
+  function loadBilling(){
+    show($("i-acc-msg"), "");
+    return api("/ops/billing").then(function(d){
+      PARTIES = d.parties || [];
+      window.__accountNames = PARTIES.filter(function(p){ return p.type === "account"; }).map(function(p){ return p.name; });
+      loadAccounts();
+      $("i-bank").hidden = !!d.bankDetailsSet;
+      var tb = $("i-acc-rows"); tb.innerHTML = "";
+      var owing = 0, overdue = 0, unb = 0;
+      PARTIES.forEach(function(p){ owing += p.open; overdue += p.overdue; unb += p.unbilled; });
+      var s = $("i-summary"); s.innerHTML = "";
+      s.appendChild(el("span", "chip", "Not invoiced: " + money(unb)));
+      s.appendChild(el("span", "chip", "Owing: " + money(owing)));
+      if (overdue) s.appendChild(el("span", "chip unpaid", "Overdue: " + money(overdue)));
+      PARTIES.concat((d.unknown || []).map(function(u){ return { type: "unknown", name: u.name, unbilledCount: u.unbilledCount, unbilled: u.unbilled, open: 0, overdue: 0, active: true }; }))
+        .forEach(function(p){
+          var tr = tb.insertRow(); if (p.active === false) tr.className = "off";
+          var c0 = tr.insertCell(); c0.appendChild(document.createTextNode(p.name + " "));
+          c0.appendChild(el("span", "chip " + (p.type === "agent" ? "agent" : p.type === "unknown" ? "unpaid" : "web"), p.type === "agent" ? "Agent" : p.type === "unknown" ? "Not set up" : "Account"));
+          var c1 = tr.insertCell(); c1.className = "num"; c1.textContent = p.unbilledCount ? p.unbilledCount + " job" + (p.unbilledCount === 1 ? "" : "s") + " · " + money(p.unbilled) : "—";
+          var c2 = tr.insertCell(); c2.className = "num"; c2.textContent = p.open ? money(p.open) : "—";
+          var c3 = tr.insertCell(); c3.className = "num" + (p.overdue ? " overdue" : ""); c3.textContent = p.overdue ? money(p.overdue) : "—";
+          var act = tr.insertCell(); act.style.whiteSpace = "nowrap";
+          if (p.type === "unknown") {
+            var su = el("button", "act", "Set up"); su.addEventListener("click", function(){ accountFormFill({ name: p.name }); });
+            act.appendChild(su);
+          } else {
+            var iv = el("button", "act", "Invoice…"); iv.addEventListener("click", function(){
+              $("in-party").value = p.type + ":" + p.key; $("i-new-card").scrollIntoView({ behavior: "smooth" }); showDraft();
+            });
+            act.appendChild(iv);
+            if (p.type === "account") { act.appendChild(document.createTextNode(" ")); var ed = el("button", "act", "Edit"); ed.addEventListener("click", function(){ accountFormFill(p); }); act.appendChild(ed); }
+          }
+        });
+      var sel = $("in-party"), keep = sel.value; sel.innerHTML = "";
+      PARTIES.filter(function(p){ return p.active !== false; }).forEach(function(p){ sel.appendChild(new Option(p.name + (p.type === "agent" ? " (agent)" : ""), p.type + ":" + p.key)); });
+      if (keep) sel.value = keep;
+      if (!$("in-from").value) { var r = monthRange(-1); $("in-from").value = r[0]; $("in-to").value = r[1]; }
+      return loadInvoices();
+    }).catch(function(err){ show($("i-acc-msg"), err.message); });
+  }
+  window.__loadBilling = loadBilling;
+
+  function accountFormFill(p){
+    $("i-acc-h").textContent = p && p.id ? "Edit " + p.name : "Add an account";
+    $("ac-id").value = p && p.id || ""; $("ac-name").value = p && p.name || ""; $("ac-email").value = p && p.email || "";
+    $("ac-contact").value = p && p.contact || ""; $("ac-abn").value = p && p.abn || ""; $("ac-terms").value = p && p.terms != null ? p.terms : 14;
+    $("ac-active").value = p && p.active === false ? "false" : "true"; $("ac-address").value = p && p.address || ""; $("ac-notes").value = p && p.notes || "";
+    $("i-acc-card").scrollIntoView({ behavior: "smooth" });
+  }
+  $("ac-clear").addEventListener("click", function(){ accountFormFill(null); });
+  $("ac-save").addEventListener("click", function(){
+    var b = $("ac-save"); b.disabled = true;
+    api("/ops/account", { method: "POST", body: { id: $("ac-id").value || undefined, name: $("ac-name").value, email: $("ac-email").value,
+      contact: $("ac-contact").value, abn: $("ac-abn").value, terms: $("ac-terms").value, active: $("ac-active").value === "true",
+      address: $("ac-address").value, notes: $("ac-notes").value } })
+      .then(function(){ show($("i-acc-msg"), "Saved " + $("ac-name").value + ".", true); accountFormFill(null); return loadBilling(); })
+      .catch(function(err){ show($("i-acc-msg"), err.message); $("i-acc-msg").scrollIntoView({ behavior: "smooth" }); })
+      .then(function(){ b.disabled = false; });
+  });
+
+  $("in-lastmonth").addEventListener("click", function(){ var r = monthRange(-1); $("in-from").value = r[0]; $("in-to").value = r[1]; showDraft(); });
+  $("in-thismonth").addEventListener("click", function(){ var r = monthRange(0); $("in-from").value = r[0]; $("in-to").value = r[1]; showDraft(); });
+  $("in-show").addEventListener("click", showDraft);
+  var DRAFT = null;
+  function partyOf(){ var v = $("in-party").value.split(":"); return { partyType: v[0], partyKey: v.slice(1).join(":") }; }
+  function showDraft(){
+    show($("i-new-msg"), ""); $("in-draft").hidden = true;
+    var p = partyOf(); if (!p.partyType) return;
+    api("/ops/invoice/draft", { method: "POST", body: { partyType: p.partyType, partyKey: p.partyKey, from: $("in-from").value, to: $("in-to").value } })
+      .then(function(d){
+        DRAFT = d; var tb = $("in-rows"); tb.innerHTML = "";
+        if (!d.lines.length) { show($("i-new-msg"), "No jobs to invoice for " + d.party.name + " between " + niceFull(d.from) + " and " + niceFull(d.to) + " — either none, or they are already on an invoice.", true); return; }
+        d.lines.forEach(function(l){
+          var tr = tb.insertRow();
+          var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = true; cb.style.width = "auto"; cb.dataset.ref = l.ref; cb.dataset.amount = l.amount;
+          cb.addEventListener("change", draftTotals);
+          tr.insertCell().appendChild(cb);
+          tr.insertCell().textContent = niceDate(l.date) + " " + (l.time || "");
+          tr.insertCell().textContent = l.ref;
+          var dc = tr.insertCell(); dc.textContent = l.description; dc.style.whiteSpace = "normal";
+          var st = tr.insertCell();
+          st.appendChild(el("span", "st st-" + l.status, l.future ? "Not yet travelled" : STATUS_LABEL[l.status] || l.status));
+          var am = tr.insertCell(); am.className = "num" + (l.amount ? "" : " overdue"); am.textContent = l.amount ? money(l.amount) : "$0 — no price";
+        });
+        $("in-all").checked = true; draftTotals(); $("in-draft").hidden = false;
+      }).catch(function(err){ show($("i-new-msg"), err.message); });
+  }
+  $("in-all").addEventListener("change", function(){
+    Array.prototype.forEach.call(document.querySelectorAll("#in-rows input[type=checkbox]"), function(c){ c.checked = $("in-all").checked; });
+    draftTotals();
+  });
+  function draftTotals(){
+    var t = 0; Array.prototype.forEach.call(document.querySelectorAll("#in-rows input:checked"), function(c){ t += +c.dataset.amount; });
+    $("in-total").textContent = money(Math.round(t * 100) / 100); $("in-gst").textContent = "$" + (Math.round(t * 100 / 11) / 100).toFixed(2);
+  }
+  $("in-issue").addEventListener("click", function(){
+    var refs = Array.prototype.map.call(document.querySelectorAll("#in-rows input:checked"), function(c){ return c.dataset.ref; });
+    if (!refs.length) { show($("i-new-msg"), "Tick at least one job."); return; }
+    var b = $("in-issue"); b.disabled = true; var p = partyOf();
+    api("/ops/invoice", { method: "POST", body: { partyType: p.partyType, partyKey: p.partyKey, from: $("in-from").value, to: $("in-to").value, refs: refs } })
+      .then(function(d){
+        show($("i-new-msg"), "Issued " + d.invoice.number + " to " + d.invoice.partyName + " for " + money(d.invoice.total) + " — download or email it below.", true);
+        $("in-draft").hidden = true; $("il-status").value = "issued"; return loadBilling();
+      }).catch(function(err){ show($("i-new-msg"), err.message); })
+      .then(function(){ b.disabled = false; });
+  });
+
+  function downloadPdf(inv){
+    return fetch(API + "/ops/invoice/pdf?id=" + inv.id, { headers: { Authorization: "Bearer " + token } }).then(function(r){
+      if (r.status === 401) { signOut(); throw new Error("Please sign in again."); }
+      if (!r.ok) throw new Error("Could not make that PDF.");
+      return r.blob();
+    }).then(function(blob){
+      var u = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = u; a.download = inv.number + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(u); }, 10000);
+    });
+  }
+  $("il-status").addEventListener("change", loadInvoices);
+  function loadInvoices(){
+    var st = $("il-status").value;
+    return api("/ops/invoices" + (st ? "?status=" + st : "")).then(function(d){
+      var tb = $("il-rows"); tb.innerHTML = "";
+      if (!d.invoices.length) { var r0 = tb.insertRow(); var c0 = r0.insertCell(); c0.colSpan = 7; c0.className = "muted"; c0.textContent = "No invoices here yet."; return; }
+      d.invoices.forEach(function(inv){
+        var tr = tb.insertRow(); if (inv.status === "void") tr.className = "off";
+        tr.insertCell().textContent = inv.number + " · " + inv.lineCount + " job" + (inv.lineCount === 1 ? "" : "s");
+        tr.insertCell().textContent = inv.partyName;
+        tr.insertCell().textContent = niceFull(inv.issued);
+        var due = tr.insertCell(); due.textContent = niceFull(inv.due) + (inv.overdue ? " · " + inv.daysOverdue + " days overdue" : ""); if (inv.overdue) due.className = "overdue";
+        var tot = tr.insertCell(); tot.className = "num"; tot.textContent = money(inv.total);
+        var stc = tr.insertCell();
+        stc.appendChild(el("span", "st " + (inv.status === "paid" ? "st-done" : inv.status === "void" ? "st-unassigned" : inv.overdue ? "st-declined" : "st-assigned"),
+          inv.status === "paid" ? "Paid" : inv.status === "void" ? "Void" : inv.overdue ? "Overdue" : "Open"));
+        if (inv.sentAt) stc.appendChild(el("div", "muted", "Sent to " + inv.sentTo));
+        if (inv.paidNote && inv.status === "paid") stc.appendChild(el("div", "muted", inv.paidNote));
+        var act = tr.insertCell(); act.style.whiteSpace = "nowrap";
+        var msg = el("div", "muted");
+        var pdf = el("button", "act", "PDF"); pdf.addEventListener("click", function(){ downloadPdf(inv).catch(function(err){ msg.textContent = err.message; }); });
+        act.appendChild(pdf); act.appendChild(document.createTextNode(" "));
+        if (inv.status !== "void") {
+          var to = document.createElement("input"); to.type = "email"; to.value = inv.billEmail || ""; to.placeholder = "email to send to";
+          to.style.cssText = "width:190px;padding:5px 8px;font-size:13px;margin:0 4px 0 0";
+          act.appendChild(to);
+          act.appendChild(armBtn("Email", "Send it?", "", function(){
+            return api("/ops/invoice/send", { method: "POST", body: { id: inv.id, to: to.value.trim() } })
+              .then(function(r){ msg.textContent = "Sent to " + r.to; setTimeout(loadInvoices, 600); }).catch(function(err){ msg.textContent = err.message; });
+          }));
+          act.appendChild(document.createTextNode(" "));
+        }
+        if (inv.status === "issued") {
+          if (inv.payUrl) {
+            var cp = el("button", "act", "Copy card link");
+            cp.addEventListener("click", function(){ if (navigator.clipboard) navigator.clipboard.writeText(inv.payUrl).then(function(){ msg.textContent = "Card payment link copied."; }); });
+            act.appendChild(cp); act.appendChild(document.createTextNode(" "));
+          }
+          act.appendChild(armBtn("Mark paid", "Paid in full?", "", function(){
+            return api("/ops/invoice/paid", { method: "POST", body: { id: inv.id } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
+          }));
+          act.appendChild(document.createTextNode(" "));
+          act.appendChild(armBtn("Void", "Void it?", "danger", function(){
+            return api("/ops/invoice/void", { method: "POST", body: { id: inv.id } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
+          }));
+        } else if (inv.status === "paid") {
+          act.appendChild(armBtn("Re-open", "Mark unpaid?", "", function(){
+            return api("/ops/invoice/paid", { method: "POST", body: { id: inv.id, paid: false } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
+          }));
+        }
+        act.appendChild(msg);
+      });
+    }).catch(function(err){ show($("i-list-msg"), err.message); });
+  }
+
+  /* ================= DRIVER PAY ================= */
+  var PAY = null;
+  function mondayOf(d){ var x = new Date(d + "T00:00:00Z"); return addDays(d, -((x.getUTCDay() + 6) % 7)); }
+  $("p-this").addEventListener("click", function(){ $("p-week").value = bneToday(); loadPay(); });
+  $("p-last").addEventListener("click", function(){ $("p-week").value = addDays(mondayOf(bneToday()), -7); loadPay(); });
+  $("p-week").addEventListener("change", loadPay);
+  function loadPay(){
+    if (!$("p-week").value) $("p-week").value = addDays(mondayOf(bneToday()), -7);
+    show($("p-msg"), "");
+    return api("/ops/pay?from=" + $("p-week").value).then(function(d){
+      PAY = d;
+      $("p-range").textContent = "Week of " + niceDate(d.from) + " to " + niceDate(d.to) + " " + d.to.slice(0, 4) + " — done jobs only count towards pay.";
+      var s = $("p-summary"); s.innerHTML = "";
+      var tot = 0, unpaid = 0, jobs = 0;
+      d.drivers.forEach(function(x){ tot += x.total; unpaid += x.unpaid; jobs += x.doneCount; });
+      s.appendChild(el("span", "chip", jobs + " done job" + (jobs === 1 ? "" : "s")));
+      s.appendChild(el("span", "chip", "Pay " + money(tot)));
+      if (unpaid) s.appendChild(el("span", "chip unpaid", "Still to pay " + money(unpaid)));
+      var list = $("p-list"); list.innerHTML = "";
+      if (!d.drivers.length) { list.appendChild(el("p", "empty", "No driver had a job that week.")); return; }
+      d.drivers.forEach(function(x){ list.appendChild(payCard(x, d)); });
+    }).catch(function(err){ show($("p-msg"), err.message); $("p-list").innerHTML = ""; });
+  }
+  window.__loadPay = loadPay;
+  function payCard(x, week){
+    var c = el("div", "pay-card");
+    var h = el("div", "pay-head");
+    h.appendChild(el("h3", "", x.name));
+    if (x.kind === "subcontractor") h.appendChild(el("span", "chip", "Subcontractor"));
+    h.appendChild(el("span", "chip", x.doneCount + " done · " + money(x.total)));
+    h.appendChild(el("span", "chip " + (x.allPaid ? "ok" : x.unpaid ? "unpaid" : ""), x.allPaid ? "Paid" : x.unpaid ? money(x.unpaid) + " to pay" : "Nothing owed"));
+    c.appendChild(h);
+    if (x.missingPay) c.appendChild(el("div", "warn", "⚠ " + x.missingPay + " done job" + (x.missingPay === 1 ? " has" : "s have") + " no pay set — set it on the Jobs tab."));
+    if (x.notDone) c.appendChild(el("div", "warn", "⚠ " + x.notDone + " job" + (x.notDone === 1 ? " isn't" : "s aren't") + " marked done yet, so not counted."));
+    var wrap = el("div", "scroll"); var t = document.createElement("table"); t.className = "tight";
+    t.innerHTML = "<thead><tr><th>Date</th><th>Ref</th><th>Trip</th><th>Status</th><th class='num'>Pay</th><th>Paid</th></tr></thead>";
+    var tb = document.createElement("tbody");
+    x.jobs.forEach(function(j){
+      var tr = tb.insertRow(); if (j.status !== "done") tr.className = "off";
+      tr.insertCell().textContent = niceDate(j.date) + " " + j.time;
+      tr.insertCell().textContent = j.ref + (j.leg === "ret" ? " (return)" : "");
+      var tc = tr.insertCell(); tc.style.whiteSpace = "normal"; tc.textContent = j.hours && (!j.to || j.to === "As directed") ? j.from + " — " + j.hours + " h" : j.from + " → " + j.to;
+      tr.insertCell().textContent = STATUS_LABEL[j.status] || j.status;
+      var pc = tr.insertCell(); pc.className = "num"; pc.textContent = j.pay != null ? money(j.pay) : "—";
+      tr.insertCell().textContent = j.paidAt ? "✓" : "";
+    });
+    t.appendChild(tb); wrap.appendChild(t); c.appendChild(wrap);
+    var acts = el("div", "job-actions"); var msg = el("span", "muted");
+    if (x.doneCount) {
+      if (!x.allPaid) acts.appendChild(armBtn("Mark week paid", "Paid " + money(x.unpaid) + "?", "", function(){
+        return api("/ops/pay/mark", { method: "POST", body: { driverId: x.id, from: week.from } }).then(loadPay).catch(function(err){ msg.textContent = err.message; });
+      }));
+      else acts.appendChild(armBtn("Undo paid", "Mark unpaid?", "", function(){
+        return api("/ops/pay/mark", { method: "POST", body: { driverId: x.id, from: week.from, paid: false } }).then(loadPay).catch(function(err){ msg.textContent = err.message; });
+      }));
+    }
+    var d = driverById(x.id) || x;
+    if (d.phone && x.doneCount) {
+      var wa = el("button", "act wa", "WhatsApp pay summary");
+      wa.addEventListener("click", function(){
+        var w = window.open("about:blank", "_blank");
+        getLink(x.id).then(function(link){
+          var L = ["*Sky Transfers pay* — week of " + niceDate(week.from) + " to " + niceDate(week.to), ""];
+          x.jobs.filter(function(j){ return j.status === "done"; }).forEach(function(j){
+            L.push(niceDate(j.date) + " " + j.time + " · " + j.ref + " · " + (j.pay != null ? "$" + j.pay : "pay to confirm"));
+          });
+          L.push(""); L.push("Total: $" + x.total + (x.allPaid ? " (paid)" : ""));
+          L.push("Check the details here: " + link);
+          var url = "https://wa.me/" + waNumber(d.phone) + "?text=" + encodeURIComponent(L.join("\n"));
+          if (w) w.location.href = url; else window.location.href = url;
+        }).catch(function(err){ if (w) w.close(); msg.textContent = err.message; });
+      });
+      acts.appendChild(wa);
+    }
+    acts.appendChild(msg); c.appendChild(acts);
+    return c;
+  }
+  $("p-csv").addEventListener("click", function(){
+    if (!PAY) return;
+    var rows = [["Week from", "Driver", "Date", "Time", "Ref", "Leg", "From", "To", "Status", "Pay", "Paid"]];
+    PAY.drivers.forEach(function(x){ x.jobs.forEach(function(j){ rows.push([PAY.from, x.name, j.date, j.time, j.ref, j.leg, j.from, j.to, j.status, j.pay != null ? j.pay : "", j.paidAt ? "yes" : ""]); }); });
+    var csv = rows.map(function(r){ return r.map(function(v){ v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(","); }).join("\r\n");
+    var u = URL.createObjectURL(new Blob([csv], { type: "text/csv" })), a = document.createElement("a");
+    a.href = u; a.download = "driver-pay-" + PAY.from + ".csv"; document.body.appendChild(a); a.click(); a.remove();
   });
 
   /* ================= start ================= */
