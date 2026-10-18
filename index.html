@@ -941,7 +941,7 @@ var SEAT_PRICE = 15, TRAILER_PRICE = 30;
 /* puLoc/droLoc are {lat,lng} when the end came from a Google pick, else null.
    p2p is set only while the quote on screen came from the point-to-point
    engine, and carries exactly what the server priced. */
-var state = {pu:null, dro:null, puAddr:null, droAddr:null, puLoc:null, droLoc:null, vehicle:null, price:null, p2p:null, hourly:false};
+var state = {pu:null, dro:null, puAddr:null, droAddr:null, puLoc:null, droLoc:null, puUnlisted:false, droUnlisted:false, vehicle:null, price:null, p2p:null, kmq:null, hourly:false};
 
 function $(id){return document.getElementById(id);}
 /* The airport fine print as written in the HTML, so it can be put back after
@@ -1173,20 +1173,28 @@ function attachAC(inputId, listId, onPick){
       }
       var addr = place.formatted_address || it.label;
       var sub = suburbFromComponents(place.address_components, addr);
-      if (!sub) {
-        var raw = rawSuburb(place.address_components);
-        note("We don't publish a fare for " + (raw || "that address") +
-             " yet. Call +61 481 437 772 and we'll quote it.");
-        input.value = "";
-        onPick(null, null);
-        return;
-      }
-      input.value = addr;
       var loc = null;
       try {
         var g = place.geometry && place.geometry.location;
         if (g) loc = { lat: typeof g.lat === "function" ? g.lat() : g.lat, lng: typeof g.lng === "function" ? g.lng() : g.lng };
       } catch (e) { loc = null; }
+      if (!sub) {
+        /* Not on our suburb list. To or from an airport it is still priced -
+           on the road distance (the server measures from these coordinates) -
+           so keep it, flagged as unlisted, under the name Google gives it. */
+        var raw = rawSuburb(place.address_components);
+        if (!loc) {
+          note("We don't publish a fare for " + (raw || "that address") +
+               " yet. Call +61 481 437 772 and we'll quote it.");
+          input.value = "";
+          onPick(null, null);
+          return;
+        }
+        input.value = addr;
+        onPick(raw || addr.split(",")[0], addr, loc, true);
+        return;
+      }
+      input.value = addr;
       onPick(sub, addr, loc);
     });
   }
@@ -1241,14 +1249,16 @@ function getRates(pu, dro){
     /* No plus() here: the $25 terminal surcharge only applies to the cruise
        terminal, which is bneLike, so bump is always 0 on this branch. */
     if(BM_OOL_SUBURB[other]) return {rates: BM_OOL_RATES[BM_OOL_SUBURB[other]]};
-    return {custom:"We do run " + other + " to Gold Coast Airport, but at well over two hours it is too long a trip for a fixed online fare — send the booking through or call +61 481 437 772 and we’ll come straight back with a price."};
+    return {km:true}; // no zone fare from OOL: priced on road distance (to 300 km)
   }
   if(LD_LIVE && LD_SUBURB[other]){
     var ldRates = (bneLike ? LD_BNE_RATES : LD_OOL_RATES)[LD_SUBURB[other]];
     if(ldRates) return {rates: plus(ldRates)};
-    return {custom:"We do run " + other + " transfers from " + hub + ", but it is too long a trip for a fixed online fare — send the booking through or call +61 481 437 772 and we’ll come straight back with a price."};
+    return {km:true};
   }
-  return {custom:"We don’t have an instant rate for “" + other + "” — we’ll quote it individually, usually within the hour."};
+  /* Not on the suburb list (a Google address, kept with its coordinates):
+     the server prices it on the road distance to the airport, to 300 km. */
+  return {km:true};
 }
 
 function refresh(){
@@ -1259,11 +1269,17 @@ function refresh(){
   var sb = $("submit-btn");
   sb.disabled = false;
   sb.textContent = SERVER_URL && ENABLE_ONLINE_PAYMENT ? "Request booking — pay later" : "Request this booking";
-  state.p2p = null;
+  state.p2p = null; state.kmq = null;
   p2pSeq++;                                   /* any quote still in flight is stale */
   /* By the hour needs only a starting point; the price is on the page. */
   if(state.hourly){
     if(!state.pu){ qc.hidden = true; cc.hidden = true; bc.hidden = true; return; }
+    /* The hourly rate has no travel in it, so it starts only from places we list. */
+    if(state.puUnlisted){
+      qc.hidden = true; bc.hidden = true;
+      $("custom-msg").textContent = "Hourly hire online starts from the suburbs we list. For " + state.pu + ", call +61 481 437 772 and we’ll quote it.";
+      cc.hidden = false; return;
+    }
     cc.hidden = true; setTripKind(true); quoteHourly(); return;
   }
   if(!state.pu || !state.dro){ qc.hidden = true; cc.hidden = true; bc.hidden = true; return; }
@@ -1277,6 +1293,7 @@ function refresh(){
   cc.hidden = true;
   setTripKind(!!res.p2p);
   if(res.p2p){ quoteP2P(); return; }
+  if(res.km){ quoteKm(); return; }
   $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>";
   var f0 = $("veh-fine");
   if (f0 && VEH_FINE_DEFAULT) { f0.textContent = VEH_FINE_DEFAULT; updateVehFine(); }
@@ -1328,6 +1345,43 @@ function quoteP2P(){
       : "We couldn’t fix a price for that route just now — send the booking through and we’ll come straight back with one, usually within the hour.";
     cc.hidden = false;
     track("p2p_quote_failed", {reason: String((err && err.message) || err || "unknown").slice(0, 100)});
+  });
+}
+
+/* An airport transfer to a place with no zone fare: the server measures the
+   road from the address to the airport and prices it from the km table (to
+   300 km). Same waiting state and stale-reply guard as point-to-point. */
+function quoteKm(){
+  var qc = $("quote-card"), cc = $("custom-card"), bc = $("book-card");
+  var seq = ++p2pSeq;
+  var hubIsPu = state.pu === OOL || state.pu === BNE || state.pu === CRUISE;
+  var name = hubIsPu ? state.dro : state.pu, addr = hubIsPu ? state.droAddr : state.puAddr, loc = hubIsPu ? state.droLoc : state.puLoc;
+  var pl = { suburb: name, address: addr || (name + ", QLD, Australia") };
+  if (loc && typeof loc.lat === "number" && typeof loc.lng === "number") { pl.lat = loc.lat; pl.lng = loc.lng; }
+  $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>";
+  $("veh-grid").innerHTML = "<div class='quote-wait'>Measuring the distance and fixing your price…</div>";
+  qc.hidden = false; bc.hidden = true;
+  postJSON("/km-quote", { pickup: state.pu, dropoff: state.dro, place: pl }).then(function(r){
+    if (seq !== p2pSeq) return;
+    if (!(r.ok && r.data && r.data.fares)) throw new Error((r.data && r.data.error) || "no quote");
+    state.kmq = { place: pl, km: r.data.km };
+    $("route-line").innerHTML = "<b>" + state.pu + "</b> → <b>" + state.dro + "</b>" +
+      (r.data.km ? " <span class='km'>· " + Math.round(r.data.km) + " km</span>" : "");
+    var f = $("veh-fine");
+    if (f) f.textContent = (isReturn()
+      ? "All prices AUD, return (both legs, 10% off), GST inclusive."
+      : "All prices AUD, one-way, GST inclusive.") +
+      " Tolls included. A fixed price set by the road distance to the airport — the same fare at any hour, no surge. Child seats $15 each.";
+    renderGrid(r.data.fares);
+    track("km_quote", {route: state.pu + " -> " + state.dro, km: Math.round(r.data.km)});
+  }).catch(function(err){
+    if (seq !== p2pSeq) return;
+    qc.hidden = true; bc.hidden = true;
+    $("custom-msg").textContent = (err && err.message && /quote it|price online|by hand|suggestions|published fare/.test(err.message))
+      ? err.message
+      : "We couldn’t fix a price for that trip just now — send the booking through and we’ll come straight back with one, usually within the hour.";
+    cc.hidden = false;
+    track("km_quote_failed", {reason: String((err && err.message) || err || "unknown").slice(0, 100)});
   });
 }
 
@@ -1502,8 +1556,8 @@ function syncAddr(){
   if (bp) bp.addEventListener("change", function(){ apply(parseInt(bp.value, 10) || 1); });
 })();
 
-attachAC("pu", "pu-list", function(p, addr, loc){ state.pu = p; state.puAddr = addr || null; state.puLoc = loc || null; syncAddr(); refresh(); });
-attachAC("do", "do-list", function(p, addr, loc){ state.dro = p; state.droAddr = addr || null; state.droLoc = loc || null; syncAddr(); refresh(); });
+attachAC("pu", "pu-list", function(p, addr, loc, unlisted){ state.pu = p; state.puAddr = addr || null; state.puLoc = loc || null; state.puUnlisted = !!unlisted; syncAddr(); refresh(); });
+attachAC("do", "do-list", function(p, addr, loc, unlisted){ state.dro = p; state.droAddr = addr || null; state.droLoc = loc || null; state.droUnlisted = !!unlisted; syncAddr(); refresh(); });
 
 /* The One-way / Return buttons drive the hidden checkbox that everything else
    reads, so isReturn(), the totals and the return-date rules are unchanged. */
@@ -1533,7 +1587,7 @@ function setHourly(on){
   if (hw) hw.hidden = !on;
   if (ht) ht.hidden = on;
   if (hh) hh.hidden = !on;
-  if (on) { state.dro = "As directed"; state.droAddr = null; state.droLoc = null; }
+  if (on) { state.dro = "As directed"; state.droAddr = null; state.droLoc = null; state.droUnlisted = false; }
   else if (state.dro === "As directed") { state.dro = null; $("do").value = ""; }
   refresh();
 }
@@ -1564,6 +1618,7 @@ $("swap").addEventListener("click", function(){
   var t = state.pu; state.pu = state.dro; state.dro = t;
   var ta = state.puAddr; state.puAddr = state.droAddr; state.droAddr = ta;
   var tl = state.puLoc; state.puLoc = state.droLoc; state.droLoc = tl;
+  var tu = state.puUnlisted; state.puUnlisted = state.droUnlisted; state.droUnlisted = tu;
   refresh();
 });
 
@@ -1704,6 +1759,8 @@ function bookingPayload(){
     /* Exactly the two endpoints the server priced, so it can measure the same
        road again before charging. Absent on an airport booking. */
     p2p: (!state.hourly && state.p2p) ? { pickup: state.p2p.pickup, dropoff: state.p2p.dropoff } : undefined,
+    /* An airport trip priced on road distance: the end the server measures. */
+    km: (!state.hourly && state.kmq) ? { place: state.kmq.place } : undefined,
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
     notes: $("bf-notes").value,
