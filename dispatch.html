@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dispatch — Sky Transfers</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#101828">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --ground:#F7F4ED; --card:#FFFFFF; --ink:#141D30; --text:#333B4C; --muted:#68707F;
+    --line:#E5E0D2; --gold:#C9A227; --gold-deep:#6F5510; --gold-soft:#F6EED9;
+    --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --ok-soft:#E3F2EA; --err:#B0392F; --err-soft:#FBE9E7;
+    --blue:#1F5FA8; --blue-soft:#E6EFFA;
+    --shadow:0 1px 3px rgba(20,29,48,.06), 0 6px 20px rgba(20,29,48,.06);
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+      --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+      --navy:#1B2A47; --ok:#4CC08A; --ok-soft:#173326; --err:#E28078; --err-soft:#3A1F1E;
+      --blue:#7FB1EE; --blue-soft:#1A2C45;
+      --shadow:0 2px 14px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+    --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+    --navy:#1B2A47; --ok:#4CC08A; --ok-soft:#173326; --err:#E28078; --err-soft:#3A1F1E;
+    --blue:#7FB1EE; --blue-soft:#1A2C45;
+    --shadow:0 2px 14px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--text);
+    font-family:"Figtree",-apple-system,"Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.5}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 16px 70px}
+  header.brand{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .brand h1{font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:clamp(22px,4vw,30px);
+    letter-spacing:.05em;color:var(--ink);margin:0}
+  .brand .sub{color:var(--muted);font-size:13.5px;letter-spacing:.12em;text-transform:uppercase}
+  .brand a{color:var(--gold-deep);font-weight:600;text-decoration:none;font-size:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+  h2{font-family:"Marcellus",Georgia,serif;font-weight:400;color:var(--ink);font-size:20px;margin:0 0 12px}
+  h3.day{font-family:"Marcellus",Georgia,serif;font-weight:400;color:var(--ink);font-size:18px;margin:22px 0 10px;
+    display:flex;align-items:baseline;gap:10px}
+  h3.day small{font-family:"Figtree",sans-serif;font-size:13px;color:var(--muted)}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin:0 0 4px}
+  input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;
+    background:var(--ground);color:var(--text);font:inherit;font-size:15px}
+  textarea{resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:-1px}
+  .row2,.row3,.row4{display:grid;gap:10px;margin-bottom:10px}
+  .row2{grid-template-columns:1fr 1fr} .row3{grid-template-columns:1fr 1fr 1fr} .row4{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:760px){ .row3,.row4{grid-template-columns:1fr 1fr} }
+  @media (max-width:480px){ .row2,.row3,.row4{grid-template-columns:1fr} }
+  .cta{display:inline-block;padding:11px 18px;border:0;border-radius:8px;cursor:pointer;
+    background:var(--navy);color:var(--navy-text);font:inherit;font-weight:700;font-size:15px}
+  .cta:hover{background:var(--gold);color:#141D30}
+  .cta[disabled]{opacity:.55;cursor:default}
+  .cta.block{display:block;width:100%}
+  .act{background:none;border:1px solid var(--line);border-radius:6px;padding:6px 11px;font:inherit;
+    font-size:13.5px;font-weight:600;color:var(--gold-deep);cursor:pointer}
+  .act:hover{border-color:var(--gold);background:var(--gold-soft)}
+  .act.wa{border-color:#1E9E57;color:#1E7F4F}
+  .act.danger{border-color:#C0463C;color:#C0463C}
+  .act.armed{background:var(--gold);color:#141D30;border-color:var(--gold)}
+  .act.danger.armed{background:#C0463C;color:#fff;border-color:#C0463C}
+  .act[disabled]{opacity:.5;cursor:default}
+  .msg{border-radius:8px;padding:10px 12px;font-size:14.5px;margin-bottom:12px;
+    border-left:3px solid var(--err);background:var(--gold-soft);color:var(--ink)}
+  .msg.ok{border-left-color:var(--ok)}
+  .muted{color:var(--muted);font-size:13.5px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;
+    padding:8px 16px;font:inherit;font-weight:600;font-size:14.5px;cursor:pointer}
+  .tabs button[aria-selected="true"]{background:var(--navy);color:var(--navy-text);border-color:var(--navy)}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px}
+  .toolbar > div{min-width:150px}
+  .toolbar .act{padding:9px 12px}
+  .summary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}
+  .chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;
+    background:var(--gold-soft);color:var(--gold-deep);white-space:nowrap}
+  .chip.web{background:var(--blue-soft);color:var(--blue)}
+  .chip.agent,.chip.account{background:var(--gold-soft);color:var(--gold-deep)}
+  .chip.unpaid{background:var(--err-soft);color:var(--err)}
+  .chip.ok{background:var(--ok-soft);color:var(--ok)}
+  .st{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .st-unassigned{background:var(--err-soft);color:var(--err)}
+  .st-assigned{background:var(--gold-soft);color:var(--gold-deep)}
+  .st-accepted,.st-on_way,.st-on_location,.st-pob{background:var(--blue-soft);color:var(--blue)}
+  .st-done{background:var(--ok-soft);color:var(--ok)}
+  .st-declined{background:#C0463C;color:#fff}
+  .job{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;
+    padding:14px 14px 12px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .job.s-unassigned,.job.s-declined{border-left-color:#C0463C}
+  .job.s-assigned{border-left-color:var(--gold)}
+  .job.s-accepted,.job.s-on_way,.job.s-on_location,.job.s-pob{border-left-color:var(--blue)}
+  .job.s-done{border-left-color:var(--ok);opacity:.82}
+  .job-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .job-time{font-family:"Marcellus",Georgia,serif;font-size:24px;color:var(--ink);line-height:1;margin-right:4px}
+  .job-ref{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .job-route{font-weight:700;color:var(--ink);font-size:16px;margin:2px 0 4px;overflow-wrap:anywhere}
+  .job-meta{font-size:14px;color:var(--text);display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:6px}
+  .job-meta b{color:var(--ink)}
+  .job-note{font-size:13.5px;color:var(--muted);margin:0 0 6px;overflow-wrap:anywhere}
+  .conflict{font-size:13.5px;font-weight:700;color:var(--err);margin:4px 0}
+  .assign{display:grid;grid-template-columns:1.3fr 1.3fr .7fr 1.4fr;gap:8px;margin-top:8px;align-items:end}
+  @media (max-width:760px){ .assign{grid-template-columns:1fr 1fr} }
+  .assign label{font-size:11.5px;color:var(--muted);font-weight:600}
+  .job-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  .job-actions .sent{font-size:12.5px;color:var(--ok);font-weight:600}
+  .job-actions select{width:auto;padding:6px 8px;font-size:13.5px}
+  .progress{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:760px}
+  th{background:var(--navy);color:var(--navy-text);font-size:12px;letter-spacing:.05em;
+    text-transform:uppercase;padding:9px 11px;text-align:left;white-space:nowrap}
+  td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  tr.off td{opacity:.5}
+  .exp-bad{color:var(--err);font-weight:700}
+  .exp-soon{color:var(--gold-deep);font-weight:700}
+  .linkbox{background:var(--navy);color:var(--navy-text);border-radius:10px;padding:14px 16px;margin-bottom:14px;overflow-wrap:anywhere}
+  .linkbox .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+  .linkbox code{display:block;font-size:13px;margin:6px 0 10px;opacity:.95}
+  .linkbox .act{color:var(--navy-text);border-color:rgba(255,255,255,.35)}
+  .empty{text-align:center;color:var(--muted);padding:26px 10px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <div>
+      <h1>SKY TRANSFERS</h1>
+      <div class="sub">Dispatch</div>
+    </div>
+    <div><a href="/admin.html">Bookings &amp; agents &rarr;</a> <span id="who" class="muted" hidden></span></div>
+  </header>
+
+  <section id="signin" class="card" style="max-width:400px;margin-inline:auto">
+    <h2>Office sign in</h2>
+    <div id="login-msg" class="msg" hidden></div>
+    <form id="login-form">
+      <div style="margin-bottom:12px">
+        <label for="pin">Admin PIN</label>
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+      </div>
+      <button class="cta block" type="submit" id="login-btn">Sign in</button>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="jobs" aria-selected="true">Jobs</button>
+      <button role="tab" data-tab="drivers" aria-selected="false">Drivers</button>
+      <button role="tab" data-tab="vehicles" aria-selected="false">Vehicles</button>
+      <button role="tab" data-tab="account" aria-selected="false">Account job</button>
+    </div>
+
+    <!-- ===================== JOBS ===================== -->
+    <section id="tab-jobs">
+      <div class="card">
+        <div class="toolbar">
+          <div><label for="j-from">From</label><input id="j-from" type="date"></div>
+          <div><label for="j-to">To</label><input id="j-to" type="date"></div>
+          <button class="act" data-range="-1">Yesterday</button>
+          <button class="act" data-range="0">Today</button>
+          <button class="act" data-range="1">Tomorrow</button>
+          <button class="act" data-range="week">Next 7 days</button>
+          <div><label for="j-filter">Show</label>
+            <select id="j-filter">
+              <option value="">All jobs</option>
+              <option value="unassigned">Needs a driver</option>
+              <option value="unsent">Assigned, not sent</option>
+              <option value="live">In progress</option>
+              <option value="done">Done</option>
+            </select></div>
+          <button class="cta" id="j-refresh">Refresh</button>
+        </div>
+        <div class="summary" id="j-summary"></div>
+      </div>
+      <div id="j-msg" class="msg" hidden></div>
+      <div id="j-list"><p class="empty">Loading&hellip;</p></div>
+    </section>
+
+    <!-- ===================== DRIVERS ===================== -->
+    <section id="tab-drivers" hidden>
+      <div id="d-link" class="linkbox" hidden>
+        <div class="lbl">Job link for <span id="d-link-for"></span></div>
+        <code id="d-link-url"></code>
+        <button class="act" id="d-link-copy">Copy link</button>
+        <a class="act" id="d-link-wa" target="_blank" rel="noopener">Send on WhatsApp</a>
+      </div>
+      <div class="card">
+        <h2 id="d-form-h">Add a driver</h2>
+        <div id="d-msg" class="msg" hidden></div>
+        <input type="hidden" id="d-id">
+        <div class="row3">
+          <div><label for="d-name">Name</label><input id="d-name" autocomplete="off"></div>
+          <div><label for="d-phone">Mobile (jobs go here)</label><input id="d-phone" type="tel" autocomplete="off" placeholder="04xx xxx xxx"></div>
+          <div><label for="d-email">Email (optional)</label><input id="d-email" type="email" autocomplete="off"></div>
+        </div>
+        <div class="row4">
+          <div><label for="d-kind">Type</label>
+            <select id="d-kind"><option value="employee">Our driver</option><option value="subcontractor">Subcontractor</option></select></div>
+          <div><label for="d-paytype">Pay</label>
+            <select id="d-paytype"><option value="fixed">Fixed $ per job</option><option value="percent">% of the fare</option></select></div>
+          <div><label for="d-payvalue" id="d-payvalue-l">Usual pay per job ($)</label><input id="d-payvalue" type="number" min="0" step="1"></div>
+          <div><label style="margin-top:22px;display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="d-own" style="width:auto"> Drives own vehicle</label></div>
+        </div>
+        <div class="row3">
+          <div><label for="d-lic">Licence expiry</label><input id="d-lic" type="date"></div>
+          <div><label for="d-auth">Driver authorisation expiry</label><input id="d-auth" type="date"></div>
+          <div><label for="d-active">Status</label>
+            <select id="d-active"><option value="true">Active</option><option value="false">Inactive</option></select></div>
+        </div>
+        <div style="margin-bottom:12px"><label for="d-notes">Notes</label><input id="d-notes" autocomplete="off"></div>
+        <button class="cta" id="d-save">Save driver</button>
+        <button class="act" id="d-clear" style="margin-left:6px">Clear</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Driver</th><th>Mobile</th><th>Type</th><th>Pay</th><th>Licence</th><th>Authorisation</th><th></th></tr></thead>
+          <tbody id="d-rows"><tr><td colspan="7" class="muted">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== VEHICLES ===================== -->
+    <section id="tab-vehicles" hidden>
+      <div class="card">
+        <h2 id="v-form-h">Add a vehicle</h2>
+        <div id="v-msg" class="msg" hidden></div>
+        <input type="hidden" id="v-id">
+        <div class="row3">
+          <div><label for="v-label">Name</label><input id="v-label" autocomplete="off" placeholder="Kia Carnival — white"></div>
+          <div><label for="v-class">Class it can run as</label><select id="v-class"></select></div>
+          <div><label for="v-seats">Seats</label><input id="v-seats" type="number" min="1" max="60"></div>
+        </div>
+        <div class="row4">
+          <div><label for="v-rego">Rego (office only)</label><input id="v-rego" autocomplete="off"></div>
+          <div><label for="v-regoexp">Rego expiry</label><input id="v-regoexp" type="date"></div>
+          <div><label for="v-ins">Insurance expiry</label><input id="v-ins" type="date"></div>
+          <div><label for="v-svc">Service due</label><input id="v-svc" type="date"></div>
+        </div>
+        <div class="row3">
+          <div><label for="v-owner">Belongs to (subcontractor)</label><select id="v-owner"></select></div>
+          <div><label for="v-active">Status</label>
+            <select id="v-active"><option value="true">In service</option><option value="false">Off the road</option></select></div>
+          <div><label for="v-notes">Notes</label><input id="v-notes" autocomplete="off"></div>
+        </div>
+        <button class="cta" id="v-save">Save vehicle</button>
+        <button class="act" id="v-clear" style="margin-left:6px">Clear</button>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Vehicle</th><th>Class</th><th>Seats</th><th>Rego</th><th>Rego exp.</th><th>Insurance</th><th>Service</th><th></th></tr></thead>
+          <tbody id="v-rows"><tr><td colspan="8" class="muted">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===================== ACCOUNT JOB ===================== -->
+    <section id="tab-account" hidden>
+      <div class="card">
+        <h2 id="a-form-h">New account job</h2>
+        <p class="muted" style="margin:0 0 12px">For work an account emails or phones in &mdash; Rallys, Krishiv, Phoenix, Nexus and the like.
+          Nothing is sent to anyone from here; the job goes on the board for dispatch, priced at what you agreed with the account.</p>
+        <div id="a-msg" class="msg" hidden></div>
+        <label for="a-paste">Paste the booking (optional)</label>
+        <textarea id="a-paste" rows="5" placeholder="Paste the email or message here — Date, Pickup time, Pax, Vehicle, Pick up, Drop off, Flight, Name, Phone, Price…"></textarea>
+        <p style="margin:8px 0 16px"><button class="act" id="a-fill">Fill the form from what I pasted</button>
+          <span class="muted" id="a-fill-msg"></span></p>
+        <input type="hidden" id="a-ref">
+        <div class="row3">
+          <div><label for="a-account">Account</label><input id="a-account" list="a-accounts" autocomplete="off" placeholder="Rallys"><datalist id="a-accounts"></datalist></div>
+          <div><label for="a-accref">Their reference (optional)</label><input id="a-accref" autocomplete="off"></div>
+          <div><label for="a-price">Price agreed ($, GST incl.)</label><input id="a-price" type="number" min="0" step="1"></div>
+        </div>
+        <div class="row3">
+          <div><label for="a-pickup">Pick-up</label><input id="a-pickup" autocomplete="off"></div>
+          <div><label for="a-dropoff">Drop-off (blank if by the hour)</label><input id="a-dropoff" autocomplete="off"></div>
+          <div><label for="a-vehicle">Vehicle</label><select id="a-vehicle"></select></div>
+        </div>
+        <div class="row4">
+          <div><label for="a-date">Date</label><input id="a-date" type="date"></div>
+          <div><label for="a-time">Pick-up time</label><input id="a-time" type="time"></div>
+          <div><label for="a-flight">Flight</label><input id="a-flight" autocomplete="off"></div>
+          <div><label for="a-hours">By the hour (hours)</label><input id="a-hours" type="number" min="1" max="24" placeholder="—"></div>
+        </div>
+        <div class="row3">
+          <div><label for="a-rdate">Return date (optional)</label><input id="a-rdate" type="date"></div>
+          <div><label for="a-rtime">Return time</label><input id="a-rtime" type="time"></div>
+          <div><label for="a-rflight">Return flight</label><input id="a-rflight" autocomplete="off"></div>
+        </div>
+        <div class="row4">
+          <div><label for="a-name">Guest name</label><input id="a-name" autocomplete="off"></div>
+          <div><label for="a-phone">Guest phone</label><input id="a-phone" type="tel" autocomplete="off"></div>
+          <div><label for="a-pax">Passengers</label><input id="a-pax" type="number" min="1" value="1"></div>
+          <div><label for="a-seats">Child seats</label>
+            <select id="a-seats"><option value="0">None</option><option>1</option><option>2</option><option>3</option></select></div>
+        </div>
+        <div class="row2">
+          <div><label for="a-address">Exact address / hotel</label><input id="a-address" autocomplete="off"></div>
+          <div><label for="a-notes">Notes for the driver</label><input id="a-notes" autocomplete="off"></div>
+        </div>
+        <p style="margin:0 0 14px"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="a-trailer" style="width:auto"> Luggage trailer</label></p>
+        <button class="cta" id="a-save">Put it on the board</button>
+        <button class="act" id="a-clear" style="margin-left:6px">Clear</button>
+        <span id="a-cancel-wrap"></span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  var API = "https://sky-transfers-booking-server.onrender.com";
+  var SITE = "https://www.skytransfers.com.au";
+  function $(id){ return document.getElementById(id); }
+  function show(el, msg, ok){ el.hidden = !msg; el.textContent = msg || ""; el.classList.toggle("ok", !!ok); }
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  /* Same session as admin.html - signing in on one signs in on both. */
+  var token = null;
+  try { token = sessionStorage.getItem("sky_admin_token"); } catch (e) {}
+  function api(path, opts){
+    opts = opts || {};
+    var headers = { "Content-Type": "application/json" };
+    if (token) headers.Authorization = "Bearer " + token;
+    return fetch(API + path, { method: opts.method || "GET", headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
+      .then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(data){
+          if (r.status === 401) { signOut(); throw new Error(data.error || "Please sign in again."); }
+          if (!r.ok) throw new Error(data.error || "Something went wrong.");
+          return data;
+        });
+      });
+  }
+  $("login-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var btn = $("login-btn"); btn.disabled = true; btn.textContent = "Signing in…";
+    show($("login-msg"), "");
+    api("/admin/login", { method: "POST", body: { pin: $("pin").value } }).then(function(d){
+      token = d.token; try { sessionStorage.setItem("sky_admin_token", token); } catch (e) {}
+      $("pin").value = ""; enter();
+    }).catch(function(err){ show($("login-msg"), err.message); })
+      .then(function(){ btn.disabled = false; btn.textContent = "Sign in"; });
+  });
+  function signOut(){
+    token = null; try { sessionStorage.removeItem("sky_admin_token"); } catch (e) {}
+    $("app").hidden = true; $("signin").hidden = false; $("who").hidden = true;
+  }
+
+  /* Two presses for anything that cannot be undone - a confirm() dialog never
+     appears in Aman's browser, which made earlier buttons look dead. */
+  function armBtn(label, armed, cls, run){
+    var b = el("button", "act" + (cls ? " " + cls : ""), label), on = false, timer = null;
+    function reset(){ on = false; b.textContent = label; b.classList.remove("armed"); if (timer) clearTimeout(timer); }
+    b.addEventListener("click", function(){
+      if (!on) { on = true; b.textContent = armed; b.classList.add("armed"); timer = setTimeout(reset, 6000); return; }
+      reset(); b.disabled = true;
+      Promise.resolve(run()).catch(function(){}).then(function(){ b.disabled = false; });
+    });
+    return b;
+  }
+
+  /* ---------- formatting ---------- */
+  var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function niceDate(d){ var x = new Date(d + "T00:00:00Z"); return DAYS[x.getUTCDay()] + " " + x.getUTCDate() + " " + MONTHS[x.getUTCMonth()]; }
+  function addDays(d, n){ return new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10); }
+  function bneToday(){ return new Date(Date.now() + 10 * 36e5).toISOString().slice(0, 10); }
+  function money(n){ return n == null ? "" : "$" + (Math.round(n * 100) / 100).toFixed(n % 1 ? 2 : 0); }
+  /* wa.me needs the number in international form with no plus: 0412... -> 61412... */
+  function waNumber(p){
+    var d = String(p || "").replace(/\D/g, "");
+    if (d.indexOf("61") === 0) return d;
+    if (d.indexOf("0") === 0) return "61" + d.slice(1);
+    return d;
+  }
+  var STATUS_LABEL = { unassigned: "Needs a driver", assigned: "Assigned", accepted: "Accepted", on_way: "On the way",
+    on_location: "On location", pob: "Passenger on board", done: "Done", declined: "Driver declined" };
+  function expClass(d){ if (!d) return ""; var t = bneToday(); return d < t ? "exp-bad" : d <= addDays(t, 30) ? "exp-soon" : ""; }
+
+  /* ---------- tabs ---------- */
+  var TABS = ["jobs", "drivers", "vehicles", "account"];
+  function openTab(name){
+    TABS.forEach(function(t){
+      $("tab-" + t).hidden = t !== name;
+      document.querySelector('[data-tab="' + t + '"]').setAttribute("aria-selected", t === name ? "true" : "false");
+    });
+    try { localStorage.setItem("sky_dispatch_tab", name); } catch (e) {}
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-tab]"), function(b){
+    b.addEventListener("click", function(){ openTab(b.getAttribute("data-tab")); });
+  });
+
+  /* ---------- shared state ---------- */
+  var DRIVERS = [], VEHICLES = [], CLASSES = [], LINKS = {};
+  function driverById(id){ for (var i = 0; i < DRIVERS.length; i++) if (DRIVERS[i].id === id) return DRIVERS[i]; return null; }
+  function vehicleById(id){ for (var i = 0; i < VEHICLES.length; i++) if (VEHICLES[i].id === id) return VEHICLES[i]; return null; }
+  function getLink(driverId){
+    if (LINKS[driverId]) return Promise.resolve(LINKS[driverId]);
+    return api("/ops/driver/link", { method: "POST", body: { id: driverId } }).then(function(d){ LINKS[driverId] = d.url; return d.url; });
+  }
+  function payFor(driver, price){
+    if (!driver) return "";
+    if (driver.pay_type === "percent") return price ? Math.round(price * driver.pay_value / 100) : "";
+    return driver.pay_value || "";
+  }
+
+  /* ================= JOBS ================= */
+  var JOBS = [];
+  function setRange(a, b){ $("j-from").value = a; $("j-to").value = b; loadJobs(); }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-range]"), function(b){
+    b.addEventListener("click", function(){
+      var r = b.getAttribute("data-range"), t = bneToday();
+      if (r === "week") setRange(t, addDays(t, 6)); else setRange(addDays(t, +r), addDays(t, +r));
+    });
+  });
+  $("j-refresh").addEventListener("click", loadJobs);
+  $("j-filter").addEventListener("change", renderJobs);
+  $("j-from").addEventListener("change", function(){ if ($("j-to").value < $("j-from").value) $("j-to").value = $("j-from").value; loadJobs(); });
+  $("j-to").addEventListener("change", loadJobs);
+
+  function loadJobs(){
+    show($("j-msg"), "");
+    var from = $("j-from").value || bneToday(), to = $("j-to").value || from;
+    return api("/ops/jobs?from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to)).then(function(d){
+      JOBS = d.jobs || []; DRIVERS = d.drivers || []; VEHICLES = d.vehicles || []; CLASSES = d.vehicleClasses || CLASSES;
+      if (d.to !== to) $("j-to").value = d.to;
+      fillSelects(); renderJobs(); renderDrivers(); renderVehicles();
+    }).catch(function(err){ show($("j-msg"), err.message); $("j-list").innerHTML = ""; });
+  }
+
+  function matches(j, f){
+    if (!f) return true;
+    if (f === "unassigned") return j.status === "unassigned" || j.status === "declined";
+    if (f === "unsent") return j.status === "assigned" && !j.sentAt;
+    if (f === "live") return ["accepted", "on_way", "on_location", "pob"].indexOf(j.status) !== -1;
+    if (f === "done") return j.status === "done";
+    return true;
+  }
+
+  function renderJobs(){
+    var list = $("j-list"); list.innerHTML = "";
+    var f = $("j-filter").value;
+    var counts = { total: JOBS.length, unassigned: 0, unsent: 0, live: 0, done: 0 };
+    JOBS.forEach(function(j){ ["unassigned", "unsent", "live", "done"].forEach(function(k){ if (matches(j, k)) counts[k]++; }); });
+    var s = $("j-summary"); s.innerHTML = "";
+    s.appendChild(el("span", "chip", counts.total + " job" + (counts.total === 1 ? "" : "s")));
+    if (counts.unassigned) s.appendChild(el("span", "chip unpaid", counts.unassigned + " need a driver"));
+    if (counts.unsent) s.appendChild(el("span", "chip", counts.unsent + " not sent"));
+    if (counts.live) s.appendChild(el("span", "chip web", counts.live + " in progress"));
+    if (counts.done) s.appendChild(el("span", "chip ok", counts.done + " done"));
+    var shown = JOBS.filter(function(j){ return matches(j, f); });
+    if (!shown.length) { list.appendChild(el("p", "empty", JOBS.length ? "Nothing matches that filter." : "No jobs in these dates.")); return; }
+    var day = null;
+    shown.forEach(function(j){
+      if (j.date !== day) {
+        day = j.date;
+        var h = el("h3", "day", niceDate(day));
+        var n = shown.filter(function(x){ return x.date === day; }).length;
+        h.appendChild(el("small", "", n + " job" + (n === 1 ? "" : "s") + (day === bneToday() ? " · today" : "")));
+        list.appendChild(h);
+      }
+      list.appendChild(jobCard(j));
+    });
+  }
+
+  function jobCard(j){
+    var c = el("div", "job s-" + j.status);
+    var top = el("div", "job-top");
+    top.appendChild(el("span", "job-time", j.time || "--:--"));
+    top.appendChild(el("span", "st st-" + j.status, STATUS_LABEL[j.status] || j.status));
+    if (j.isReturn) top.appendChild(el("span", "chip", j.leg === "ret" ? "Return leg" : "Outbound leg"));
+    if (j.hours) top.appendChild(el("span", "chip", "By the hour · " + j.hours + " h"));
+    if (j.source === "web") {
+      top.appendChild(el("span", "chip web", "Website"));
+      top.appendChild(el("span", "chip " + (j.payState === "paid" ? "ok" : "unpaid"),
+        j.payState === "paid" ? (j.balance ? "Paid · $" + j.balance + " owing" : "Paid") : j.payState === "confirmed" ? "Confirmed · unpaid" : "Request — not confirmed"));
+    } else {
+      top.appendChild(el("span", "chip " + j.source, (j.source === "agent" ? "Agent: " : "") + (j.account || "Account") + (j.accountRef ? " · " + j.accountRef : "")));
+    }
+    top.appendChild(el("span", "job-ref", j.ref));
+    c.appendChild(top);
+
+    c.appendChild(el("div", "job-route", j.hours && (!j.to || j.to === "As directed")
+      ? j.from + " — " + j.hours + " h as directed" : j.from + "  →  " + j.to));
+    var m = el("div", "job-meta");
+    function meta(label, val){ if (val === "" || val == null || val === 0 || val === false) return; var s = el("span"); s.appendChild(el("b", "", label + " ")); s.appendChild(document.createTextNode(String(val))); m.appendChild(s); }
+    meta("", j.vehicleClass); meta("Pax", j.pax); meta("Seats", j.childSeats); if (j.trailer) meta("", "Trailer");
+    meta("Flight", j.flight); meta("Guest", j.guest + (j.phone ? " · " + j.phone : ""));
+    meta("Fare", j.price ? money(j.price) : "");
+    c.appendChild(m);
+    if (j.address) c.appendChild(el("p", "job-note", "Address: " + j.address));
+    if (j.notes) c.appendChild(el("p", "job-note", "Guest notes: " + j.notes));
+    (j.conflicts || []).forEach(function(x){ c.appendChild(el("div", "conflict", "⚠ " + x)); });
+    if (j.status === "declined" && j.driverName) c.appendChild(el("div", "conflict", j.driverName + " turned this job down — choose another driver."));
+
+    /* assignment */
+    var a = el("div", "assign");
+    function field(label, input){ var w = el("div"); var l = el("label", "", label); w.appendChild(l); w.appendChild(input); a.appendChild(w); return input; }
+    var dSel = document.createElement("select");
+    dSel.appendChild(new Option("— no driver —", ""));
+    DRIVERS.filter(function(d){ return d.active || d.id === j.driverId; }).forEach(function(d){
+      dSel.appendChild(new Option(d.name + (d.kind === "subcontractor" ? " (sub)" : ""), d.id));
+    });
+    dSel.value = j.driverId || "";
+    var vSel = document.createElement("select");
+    vSel.appendChild(new Option("— no vehicle —", ""));
+    VEHICLES.filter(function(v){ return v.active || v.id === j.vehicleId; }).forEach(function(v){
+      vSel.appendChild(new Option(v.label + (v.class && v.class !== j.vehicleClass ? " · " + v.class : "") + (v.class === j.vehicleClass ? " ✓" : ""), v.id));
+    });
+    vSel.value = j.vehicleId || "";
+    var pay = document.createElement("input"); pay.type = "number"; pay.min = "0"; pay.step = "1";
+    pay.value = j.driverPay != null ? j.driverPay : "";
+    var note = document.createElement("input"); note.placeholder = "Note for the driver"; note.value = j.officeNote || "";
+    field("Driver", dSel); field("Vehicle", vSel); field("Driver pay $", pay); field("Office note", note);
+    /* Filling the pay from the driver's rule only while it has not been typed
+       over - a hand-agreed figure for one job must survive a driver change. */
+    var payTouched = j.driverPay != null;
+    pay.addEventListener("input", function(){ payTouched = true; });
+    dSel.addEventListener("change", function(){
+      var d = driverById(+dSel.value);
+      if (!payTouched) pay.value = payFor(d, j.price);
+      /* A subcontractor's own car is the obvious one to pre-select. */
+      if (d && d.own_vehicle && !vSel.value) {
+        var own = VEHICLES.filter(function(v){ return v.owner_driver_id === d.id && v.active; })[0];
+        if (own) vSel.value = own.id;
+      }
+    });
+    c.appendChild(a);
+
+    var acts = el("div", "job-actions");
+    var save = el("button", "act", "Save");
+    var wa = el("button", "act wa", "WhatsApp to driver");
+    var msg = el("span", "muted");
+    function saveNow(){
+      save.disabled = true; msg.textContent = "Saving…";
+      return api("/ops/assign", { method: "POST", body: { ref: j.ref, leg: j.leg, driverId: dSel.value ? +dSel.value : null,
+        vehicleId: vSel.value ? +vSel.value : null, driverPay: pay.value, officeNote: note.value } })
+        .then(function(d){
+          j.driverId = dSel.value ? +dSel.value : null; j.vehicleId = vSel.value ? +vSel.value : null;
+          j.driverPay = pay.value === "" ? null : +pay.value; j.officeNote = note.value; j.status = d.status;
+          msg.textContent = "Saved ✓"; return d;
+        })
+        .catch(function(err){ msg.textContent = err.message; throw err; })
+        .then(function(d){ save.disabled = false; return d; }, function(e){ save.disabled = false; throw e; });
+    }
+    save.addEventListener("click", function(){ saveNow().then(function(){ loadJobs(); }).catch(function(){}); });
+    wa.addEventListener("click", function(){
+      var d = driverById(+dSel.value);
+      if (!d) { msg.textContent = "Choose a driver first."; return; }
+      if (!d.phone) { msg.textContent = d.name + " has no mobile number on file."; return; }
+      /* Open the window now, inside the click, or a popup blocker eats it once
+         the save and the link lookup have gone round the network. */
+      var w = window.open("about:blank", "_blank");
+      saveNow().then(function(){ return getLink(d.id); }).then(function(link){
+        var text = jobSheet(j, d, vehicleById(+vSel.value), pay.value, note.value, link);
+        var url = "https://wa.me/" + waNumber(d.phone) + "?text=" + encodeURIComponent(text);
+        if (w) w.location.href = url; else window.location.href = url;
+        return api("/ops/sent", { method: "POST", body: { ref: j.ref, leg: j.leg } });
+      }).then(function(){ j.sentAt = new Date().toISOString(); msg.textContent = "Sent to " + d.name; setTimeout(loadJobs, 800); })
+        .catch(function(err){ if (w) w.close(); msg.textContent = err.message; });
+    });
+    acts.appendChild(save); acts.appendChild(wa);
+    if (j.sentAt) acts.appendChild(el("span", "sent", "Sent " + new Date(j.sentAt).toLocaleString("en-AU", { timeZone: "Australia/Brisbane", hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })));
+    var st = document.createElement("select");
+    st.appendChild(new Option("Set status…", ""));
+    ["assigned", "accepted", "on_way", "on_location", "pob", "done", "unassigned"].forEach(function(k){ st.appendChild(new Option(STATUS_LABEL[k], k)); });
+    st.addEventListener("change", function(){
+      if (!st.value) return;
+      api("/ops/status", { method: "POST", body: { ref: j.ref, leg: j.leg, status: st.value } })
+        .then(loadJobs).catch(function(err){ msg.textContent = err.message; st.value = ""; });
+    });
+    acts.appendChild(st);
+    if (j.source === "account") {
+      var ed = el("button", "act", "Edit job");
+      ed.addEventListener("click", function(){ editAccountJob(j.ref); });
+      acts.appendChild(ed);
+    }
+    acts.appendChild(msg);
+    c.appendChild(acts);
+    var t = j.times || {}, steps = [];
+    [["accepted", "accepted"], ["onWay", "on the way"], ["onLocation", "on location"], ["pob", "passenger on board"], ["done", "done"]].forEach(function(p){
+      if (t[p[0]]) steps.push(p[1] + " " + new Date(t[p[0]]).toLocaleTimeString("en-AU", { timeZone: "Australia/Brisbane", hour: "2-digit", minute: "2-digit" }));
+    });
+    if (steps.length) c.appendChild(el("div", "progress", "Driver: " + steps.join(" · ")));
+    return c;
+  }
+
+  /* The job sheet as the driver reads it on WhatsApp. No fare - that is
+     between us and the guest; their own pay is theirs to see. */
+  function jobSheet(j, d, v, pay, note, link){
+    var L = [];
+    L.push("*Sky Transfers job* — " + j.ref + (j.isReturn ? (j.leg === "ret" ? " (return leg)" : " (outbound leg)") : ""));
+    L.push("📅 " + niceDate(j.date) + ", " + j.time);
+    if (j.hours && (!j.to || j.to === "As directed")) {
+      L.push("📍 From: " + j.from); L.push("⏱ By the hour: " + j.hours + " hours as directed");
+    } else { L.push("📍 From: " + j.from); L.push("🏁 To: " + j.to); }
+    if (j.flight) L.push("✈️ Flight: " + j.flight);
+    L.push("👤 " + (j.guest || "Guest") + (j.phone ? " · " + j.phone : "") + " · " + j.pax + " pax");
+    L.push("🚐 " + (v ? v.label : j.vehicleClass) + (v && v.class && v.class !== j.vehicleClass ? " (booked as " + j.vehicleClass + ")" : ""));
+    if (j.childSeats) L.push("🧒 Child seats: " + j.childSeats);
+    if (j.trailer) L.push("🧳 Luggage trailer");
+    if (j.address) L.push("🏠 Address: " + j.address);
+    if (j.notes) L.push("📝 Guest notes: " + j.notes);
+    if (note) L.push("📌 Office: " + note);
+    if (j.source !== "web" && j.account) L.push("🏢 Account: " + j.account + (j.accountRef ? " · ref " + j.accountRef : ""));
+    if (pay !== "" && pay != null) L.push("💵 Your pay: $" + pay);
+    L.push("");
+    L.push("Accept and update the job here:");
+    L.push(link);
+    return L.join("\n");
+  }
+
+  /* ================= DRIVERS ================= */
+  function fillSelects(){
+    var owner = $("v-owner"), keep = owner.value;
+    owner.innerHTML = ""; owner.appendChild(new Option("— our own vehicle —", ""));
+    DRIVERS.forEach(function(d){ owner.appendChild(new Option(d.name, d.id)); });
+    owner.value = keep;
+    [["v-class", "— any —"], ["a-vehicle", "— choose —"]].forEach(function(p){
+      var s = $(p[0]), k = s.value; s.innerHTML = ""; s.appendChild(new Option(p[1], ""));
+      CLASSES.forEach(function(c){ s.appendChild(new Option(c, c)); }); s.value = k;
+    });
+  }
+  function driverForm(d){
+    $("d-form-h").textContent = d ? "Edit " + d.name : "Add a driver";
+    $("d-id").value = d ? d.id : ""; $("d-name").value = d ? d.name : ""; $("d-phone").value = d ? d.phone : "";
+    $("d-email").value = d && d.email || ""; $("d-kind").value = d ? d.kind : "employee";
+    $("d-paytype").value = d ? d.pay_type : "fixed"; $("d-payvalue").value = d ? d.pay_value : "";
+    $("d-own").checked = !!(d && d.own_vehicle); $("d-lic").value = d && d.licence_expiry || "";
+    $("d-auth").value = d && d.authority_expiry || ""; $("d-active").value = d && !d.active ? "false" : "true";
+    $("d-notes").value = d && d.notes || ""; payLabel(); show($("d-msg"), "");
+  }
+  function payLabel(){ $("d-payvalue-l").textContent = $("d-paytype").value === "percent" ? "Share of the fare (%)" : "Usual pay per job ($)"; }
+  $("d-paytype").addEventListener("change", payLabel);
+  $("d-clear").addEventListener("click", function(){ driverForm(null); });
+  $("d-save").addEventListener("click", function(){
+    var b = $("d-save"); b.disabled = true;
+    api("/ops/driver", { method: "POST", body: { id: $("d-id").value || undefined, name: $("d-name").value, phone: $("d-phone").value,
+      email: $("d-email").value, kind: $("d-kind").value, payType: $("d-paytype").value, payValue: $("d-payvalue").value,
+      ownVehicle: $("d-own").checked, licenceExpiry: $("d-lic").value, authorityExpiry: $("d-auth").value,
+      active: $("d-active").value === "true", notes: $("d-notes").value } })
+      .then(function(){ show($("d-msg"), "Saved " + $("d-name").value + ".", true); driverForm(null); return loadJobs(); })
+      .catch(function(err){ show($("d-msg"), err.message); })
+      .then(function(){ b.disabled = false; });
+  });
+  function showLink(d, url){
+    $("d-link").hidden = false; $("d-link-for").textContent = d.name; $("d-link-url").textContent = url;
+    $("d-link-wa").href = "https://wa.me/" + waNumber(d.phone) + "?text=" + encodeURIComponent(
+      "Hi " + d.name.split(" ")[0] + ", this is your Sky Transfers job list. Save this link — every job we send you shows here, and you update each one from it:\n" + url);
+    $("d-link").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  $("d-link-copy").addEventListener("click", function(){
+    var t = $("d-link-url").textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ $("d-link-copy").textContent = "Copied ✓"; setTimeout(function(){ $("d-link-copy").textContent = "Copy link"; }, 2000); });
+  });
+  function renderDrivers(){
+    var tb = $("d-rows"); tb.innerHTML = "";
+    if (!DRIVERS.length) { var r0 = tb.insertRow(); var c0 = r0.insertCell(); c0.colSpan = 7; c0.className = "muted"; c0.textContent = "No drivers yet — add the first one above."; return; }
+    DRIVERS.forEach(function(d){
+      var tr = tb.insertRow(); if (!d.active) tr.className = "off";
+      var cells = [d.name + (d.own_vehicle ? " · own car" : ""), d.phone, d.kind === "subcontractor" ? "Subcontractor" : "Our driver",
+        d.pay_type === "percent" ? d.pay_value + "% of fare" : (d.pay_value ? "$" + d.pay_value + " per job" : "—")];
+      cells.forEach(function(v){ tr.insertCell().textContent = v; });
+      [d.licence_expiry, d.authority_expiry].forEach(function(x){ var c = tr.insertCell(); c.textContent = x ? niceDate(x) + " " + x.slice(0, 4) : "—"; c.className = expClass(x); });
+      var act = tr.insertCell(); act.style.whiteSpace = "nowrap";
+      var e = el("button", "act", "Edit"); e.addEventListener("click", function(){ driverForm(d); window.scrollTo({ top: 0, behavior: "smooth" }); });
+      act.appendChild(e); act.appendChild(document.createTextNode(" "));
+      if (d.active) {
+        var l = el("button", "act", "Job link"); l.addEventListener("click", function(){ getLink(d.id).then(function(u){ showLink(d, u); }).catch(function(err){ show($("d-msg"), err.message); }); });
+        act.appendChild(l); act.appendChild(document.createTextNode(" "));
+        act.appendChild(armBtn("Reset link", "Old link stops — sure?", "danger", function(){
+          return api("/ops/driver/link", { method: "POST", body: { id: d.id, reset: true } }).then(function(r){ LINKS[d.id] = r.url; showLink(d, r.url); });
+        }));
+      }
+    });
+  }
+
+  /* ================= VEHICLES ================= */
+  function vehicleForm(v){
+    $("v-form-h").textContent = v ? "Edit " + v.label : "Add a vehicle";
+    $("v-id").value = v ? v.id : ""; $("v-label").value = v ? v.label : ""; $("v-class").value = v ? v.class : "";
+    $("v-seats").value = v && v.seats || ""; $("v-rego").value = v && v.rego || "";
+    $("v-regoexp").value = v && v.rego_expiry || ""; $("v-ins").value = v && v.insurance_expiry || "";
+    $("v-svc").value = v && v.service_due || ""; $("v-owner").value = v && v.owner_driver_id || "";
+    $("v-active").value = v && !v.active ? "false" : "true"; $("v-notes").value = v && v.notes || ""; show($("v-msg"), "");
+  }
+  $("v-clear").addEventListener("click", function(){ vehicleForm(null); });
+  $("v-save").addEventListener("click", function(){
+    var b = $("v-save"); b.disabled = true;
+    api("/ops/vehicle", { method: "POST", body: { id: $("v-id").value || undefined, label: $("v-label").value, class: $("v-class").value,
+      seats: $("v-seats").value, rego: $("v-rego").value, regoExpiry: $("v-regoexp").value, insuranceExpiry: $("v-ins").value,
+      serviceDue: $("v-svc").value, ownerDriverId: $("v-owner").value || null, active: $("v-active").value === "true", notes: $("v-notes").value } })
+      .then(function(){ show($("v-msg"), "Saved " + $("v-label").value + ".", true); vehicleForm(null); return loadJobs(); })
+      .catch(function(err){ show($("v-msg"), err.message); })
+      .then(function(){ b.disabled = false; });
+  });
+  function renderVehicles(){
+    var tb = $("v-rows"); tb.innerHTML = "";
+    if (!VEHICLES.length) { var r0 = tb.insertRow(); var c0 = r0.insertCell(); c0.colSpan = 8; c0.className = "muted"; c0.textContent = "No vehicles yet — add the fleet above."; return; }
+    VEHICLES.forEach(function(v){
+      var tr = tb.insertRow(); if (!v.active) tr.className = "off";
+      var owner = v.owner_driver_id ? driverById(v.owner_driver_id) : null;
+      [v.label + (owner ? " · " + owner.name : ""), v.class || "—", v.seats || "—", v.rego || "—"].forEach(function(x){ tr.insertCell().textContent = x; });
+      [v.rego_expiry, v.insurance_expiry, v.service_due].forEach(function(x){ var c = tr.insertCell(); c.textContent = x ? niceDate(x) + " " + x.slice(0, 4) : "—"; c.className = expClass(x); });
+      var act = tr.insertCell(); var e = el("button", "act", "Edit");
+      e.addEventListener("click", function(){ vehicleForm(v); window.scrollTo({ top: 0, behavior: "smooth" }); });
+      act.appendChild(e);
+    });
+  }
+
+  /* ================= ACCOUNT JOB ================= */
+  function A(id){ return $("a-" + id); }
+  function accountForm(j){
+    $("a-form-h").textContent = j ? "Edit account job " + j.ref : "New account job";
+    A("ref").value = j ? j.ref : ""; A("account").value = j && j.account || ""; A("accref").value = j && j.account_ref || "";
+    A("price").value = j ? (j.price_cents || 0) / 100 : ""; A("pickup").value = j ? j.pickup : "";
+    A("dropoff").value = j && j.dropoff !== "As directed" ? j.dropoff : ""; A("vehicle").value = j ? j.vehicle : "";
+    A("date").value = j ? j.d : ""; A("time").value = j ? j.t : ""; A("flight").value = j && j.flight || "";
+    A("hours").value = j && j.hire_hours || ""; A("rdate").value = j && j.rd || ""; A("rtime").value = j && j.rt || "";
+    A("rflight").value = j && j.rf || ""; A("name").value = j ? j.passenger_name : ""; A("phone").value = j ? j.passenger_phone : "";
+    A("pax").value = j ? j.pax : 1; A("seats").value = j ? String(j.child_seats || 0) : "0";
+    A("address").value = j && j.address || ""; A("notes").value = j && j.notes || ""; A("trailer").checked = !!(j && j.trailer);
+    A("save").textContent = j ? "Save changes" : "Put it on the board";
+    var cw = $("a-cancel-wrap"); cw.innerHTML = "";
+    if (j) cw.appendChild(armBtn("Cancel this job", "Take it off the board?", "danger", function(){
+      return api("/ops/job/cancel", { method: "POST", body: { ref: j.ref } }).then(function(){
+        show($("a-msg"), j.ref + " cancelled and taken off the board.", true); accountForm(null); loadJobs();
+      }).catch(function(err){ show($("a-msg"), err.message); });
+    }));
+    show($("a-msg"), "");
+  }
+  function editAccountJob(ref){
+    api("/ops/job?ref=" + encodeURIComponent(ref)).then(function(d){ accountForm(d.job); openTab("account"); window.scrollTo({ top: 0 }); })
+      .catch(function(err){ show($("j-msg"), err.message); });
+  }
+  $("a-clear").addEventListener("click", function(){ accountForm(null); A("paste").value = ""; $("a-fill-msg").textContent = ""; });
+  $("a-save").addEventListener("click", function(){
+    var b = A("save"); b.disabled = true;
+    api("/ops/job", { method: "POST", body: { ref: A("ref").value || undefined, account: A("account").value, accountRef: A("accref").value,
+      price: A("price").value, pickup: A("pickup").value, dropoff: A("dropoff").value, vehicle: A("vehicle").value,
+      date: A("date").value, time: A("time").value, flight: A("flight").value, hours: A("hours").value,
+      returnDate: A("rdate").value, returnTime: A("rtime").value, returnFlight: A("rflight").value,
+      name: A("name").value, phone: A("phone").value, pax: A("pax").value, childSeats: A("seats").value,
+      address: A("address").value, notes: A("notes").value, trailer: A("trailer").checked } })
+      .then(function(d){
+        var said = (A("ref").value ? "Saved " : "On the board as ") + d.ref + " for " + niceDate(A("date").value) + " — assign a driver below.";
+        rememberAccount(A("account").value); var date = A("date").value; accountForm(null); A("paste").value = ""; $("a-fill-msg").textContent = "";
+        /* Straight to the board on that day, where the job now needs a driver. */
+        $("j-from").value = date; $("j-to").value = date; openTab("jobs");
+        return loadJobs().then(function(){ show($("j-msg"), said, true); });
+      })
+      .catch(function(err){ show($("a-msg"), err.message); })
+      .then(function(){ b.disabled = false; });
+  });
+  /* Accounts typed before are offered again, from this browser only. */
+  function rememberAccount(name){
+    if (!name) return;
+    try { var l = JSON.parse(localStorage.getItem("sky_accounts") || "[]"); if (l.indexOf(name) === -1) { l.push(name); l.sort(); localStorage.setItem("sky_accounts", JSON.stringify(l)); } } catch (e) {}
+    loadAccounts();
+  }
+  function loadAccounts(){
+    var dl = $("a-accounts"); dl.innerHTML = "";
+    var l = []; try { l = JSON.parse(localStorage.getItem("sky_accounts") || "[]"); } catch (e) {}
+    ["Rallys", "Krishiv", "Phoenix", "Nexus"].forEach(function(n){ if (l.indexOf(n) === -1) l.push(n); });
+    l.forEach(function(n){ dl.appendChild(new Option(n, n)); });
+  }
+
+  /* ---- paste-to-fill ------------------------------------------------------
+     Reads the labelled lines accounts send ("Date: 25/10/2026", "Pick up: ...",
+     "Pax: 3"). It fills only what it is sure of and leaves the rest, so
+     nothing it guesses goes on the board without the office seeing it. */
+  var KEYS = [
+    ["account", /^(account|supplier|agent|client|company|agency)$/],
+    ["accref", /^(ref|reference|booking ref|booking reference|booking no|booking number|confirmation|conf|job no|job number|res|reservation|reservation no)$/],
+    ["date", /^(date|pick ?up date|pickup date|travel date|service date|transfer date|arrival date|departure date)$/],
+    ["time", /^(time|pick ?up time|pickup time|p\/?u time|start time|arrival time|departure time)$/],
+    ["pax", /^(pax|passengers|no of pax|number of passengers|guests|adults|no\. of pax)$/],
+    ["vehicle", /^(vehicle|car|vehicle type|car type|service type)$/],
+    ["pickup", /^(pick ?up|pickup|from|pick ?up location|pickup location|pick ?up address|collect from)$/],
+    ["dropoff", /^(drop ?off|dropoff|to|destination|drop ?off location|drop ?off address|drop to)$/],
+    ["flight", /^(flight|flight no|flight number|flight #|arrival flight|departure flight)$/],
+    ["name", /^(name|passenger|passenger name|guest|guest name|lead|lead passenger|lead name|client name|pax name)$/],
+    ["phone", /^(phone|mobile|contact|contact number|phone number|mobile number|tel|cell)$/],
+    ["price", /^(price|rate|cost|amount|fare|total|charge|quote)$/],
+    ["notes", /^(notes|note|remarks|comments|special requests|instructions)$/],
+    ["address", /^(address|hotel|accommodation)$/],
+    ["hours", /^(hours|duration)$/],
+  ];
+  function parseDate(s){
+    s = s.trim(); var m;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s))) return m[1] + "-" + m[2].padStart(2, "0") + "-" + m[3].padStart(2, "0");
+    if ((m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/.exec(s))) {
+      var y = m[3].length === 2 ? "20" + m[3] : m[3];
+      return y + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+    }
+    if ((m = /(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,})\.?,?\s+(\d{4})/.exec(s))) {
+      var mi = MONTHS.map(function(x){ return x.toLowerCase(); }).indexOf(m[2].slice(0, 3).toLowerCase());
+      if (mi !== -1) return m[3] + "-" + String(mi + 1).padStart(2, "0") + "-" + m[1].padStart(2, "0");
+    }
+    return "";
+  }
+  function parseTime(s){
+    var m = /(\d{1,2})[:.]?(\d{2})?\s*(am|pm|a\.m\.|p\.m\.)?/i.exec(s.trim()); if (!m) return "";
+    var h = +m[1], min = m[2] ? +m[2] : 0, ap = (m[3] || "").toLowerCase().replace(/\./g, "");
+    if (!m[2] && !ap && String(m[1]).length > 2) return "";
+    if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0;
+    if (h > 23 || min > 59) return "";
+    return String(h).padStart(2, "0") + ":" + String(min).padStart(2, "0");
+  }
+  function parseVehicle(s){
+    var t = s.toLowerCase();
+    var map = [[/sprinter.*18|18.?seat|mini ?coach/, "Mercedes Sprinter 18-Seater"], [/sprinter.*14|14.?seat|1[2-4] ?seat/, "Mercedes Sprinter 14-Seater"],
+      [/sprinter.*10|10.?seat|1[01] ?seat/, "Mercedes Sprinter 10-Seater"], [/v.?class|luxury (mini)?van|lux(ury)? people/, "Luxury Minivan"],
+      [/lux(ury)? sedan|lexus|executive|prestige/, "Luxury Sedan"], [/people ?mover|minivan|carnival|van|7 ?seat/, "People Mover"],
+      [/suv/, "SUV"], [/sedan|car\b|standard/, "Sedan"]];
+    for (var i = 0; i < map.length; i++) if (map[i][0].test(t) && CLASSES.indexOf(map[i][1]) !== -1) return map[i][1];
+    return "";
+  }
+  $("a-fill").addEventListener("click", function(){
+    var got = {}, lines = A("paste").value.split(/\r?\n/);
+    lines.forEach(function(line){
+      var m = /^\s*[*\-•]?\s*([A-Za-z][A-Za-z .\/#'-]{0,30}?)\s*[:\-–]\s*(.+?)\s*$/.exec(line);
+      if (!m) return;
+      var k = m[1].toLowerCase().replace(/\s+/g, " ").trim(), v = m[2];
+      for (var i = 0; i < KEYS.length; i++) if (KEYS[i][1].test(k) && !got[KEYS[i][0]]) { got[KEYS[i][0]] = v; break; }
+    });
+    var filled = [];
+    function put(id, val){ if (val !== "" && val != null) { A(id).value = val; filled.push(id); } }
+    put("account", got.account); put("accref", got.accref);
+    put("date", got.date ? parseDate(got.date) : ""); put("time", got.time ? parseTime(got.time) : "");
+    put("pax", got.pax ? (String(got.pax).match(/\d+/) || [""])[0] : "");
+    put("vehicle", got.vehicle ? parseVehicle(got.vehicle) : "");
+    put("pickup", got.pickup); put("dropoff", got.dropoff); put("flight", got.flight ? got.flight.toUpperCase().replace(/\s+/g, "") : "");
+    put("name", got.name); put("phone", got.phone); put("address", got.address); put("notes", got.notes);
+    put("price", got.price ? (String(got.price).replace(/,/g, "").match(/\d+(\.\d+)?/) || [""])[0] : "");
+    put("hours", got.hours ? (String(got.hours).match(/\d+/) || [""])[0] : "");
+    $("a-fill-msg").textContent = filled.length
+      ? "Filled " + filled.length + " field" + (filled.length === 1 ? "" : "s") + " — check them, then save."
+      : "Couldn't read any labelled lines (like \"Date: 25/10/2026\"). Fill the form by hand.";
+  });
+
+  /* ================= start ================= */
+  function enter(){
+    $("signin").hidden = true; $("app").hidden = false; $("who").hidden = false; $("who").textContent = "· signed in as office";
+    var t = bneToday(); if (!$("j-from").value) { $("j-from").value = t; $("j-to").value = addDays(t, 1); }
+    loadAccounts(); accountForm(null); driverForm(null); vehicleForm(null);
+    var last = null; try { last = localStorage.getItem("sky_dispatch_tab"); } catch (e) {}
+    openTab(TABS.indexOf(last) !== -1 ? last : "jobs");
+    loadJobs();
+  }
+  if (token) enter();
+})();
+</script>
+</body>
+</html>

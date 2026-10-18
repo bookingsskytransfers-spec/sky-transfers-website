@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My jobs — Sky Transfers</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#101828">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root{
+    --ground:#F7F4ED; --card:#FFFFFF; --ink:#141D30; --text:#333B4C; --muted:#68707F;
+    --line:#E5E0D2; --gold:#C9A227; --gold-deep:#6F5510; --gold-soft:#F6EED9;
+    --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --ok-soft:#E3F2EA; --err:#B0392F; --err-soft:#FBE9E7;
+    --blue:#1F5FA8; --blue-soft:#E6EFFA;
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+      --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+      --navy:#1B2A47; --ok:#4CC08A; --ok-soft:#173326; --err:#E28078; --err-soft:#3A1F1E;
+      --blue:#7FB1EE; --blue-soft:#1A2C45;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+    --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+    --navy:#1B2A47; --ok:#4CC08A; --ok-soft:#173326; --err:#E28078; --err-soft:#3A1F1E;
+    --blue:#7FB1EE; --blue-soft:#1A2C45;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--text);
+    font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.45}
+  header{background:var(--navy);color:var(--navy-text);padding:16px 16px 14px;position:sticky;top:0;z-index:5}
+  header .row{display:flex;justify-content:space-between;align-items:center;gap:10px;max-width:640px;margin:0 auto}
+  header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.02em}
+  header small{display:block;font-size:13px;opacity:.75;font-weight:400}
+  header button{background:none;border:1px solid rgba(255,255,255,.35);color:var(--navy-text);border-radius:8px;
+    padding:8px 12px;font:inherit;font-size:14px;font-weight:600}
+  main{max-width:640px;margin:0 auto;padding:12px 12px 60px}
+  h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 4px 8px;font-weight:700}
+  .job{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;
+    padding:14px;margin-bottom:12px}
+  .job.s-accepted,.job.s-on_way,.job.s-on_location,.job.s-pob{border-left-color:var(--blue)}
+  .job.s-done{border-left-color:var(--ok);opacity:.75}
+  .job.s-declined{border-left-color:var(--err);opacity:.75}
+  .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .time{font-size:28px;font-weight:800;color:var(--ink);line-height:1}
+  .date{font-size:14px;color:var(--muted)}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--gold-soft);color:var(--gold-deep)}
+  .pill.live{background:var(--blue-soft);color:var(--blue)} .pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.bad{background:var(--err-soft);color:var(--err)}
+  .route{margin:8px 0 6px}
+  .route a{display:block;color:var(--ink);text-decoration:none;font-weight:700;font-size:17px;padding:4px 0}
+  .route a span{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:15px;margin:6px 0}
+  .facts b{color:var(--ink)}
+  .note{background:var(--gold-soft);color:var(--ink);border-radius:8px;padding:8px 10px;font-size:15px;margin:8px 0;overflow-wrap:anywhere}
+  .contact{display:flex;gap:8px;margin:10px 0}
+  .contact a{flex:1;text-align:center;border:1px solid var(--line);border-radius:10px;padding:11px 8px;color:var(--ink);
+    text-decoration:none;font-weight:700;font-size:15px;background:var(--ground)}
+  .go{display:block;width:100%;border:0;border-radius:12px;padding:16px;font:inherit;font-size:18px;font-weight:800;
+    background:var(--navy);color:var(--navy-text);margin-top:8px;cursor:pointer}
+  .go.green{background:var(--ok);color:#fff}
+  .go.ghost{background:none;border:2px solid var(--err);color:var(--err);font-size:15px;padding:11px}
+  .go.ghost.armed{background:var(--err);color:#fff}
+  .go[disabled]{opacity:.55}
+  .msg{background:var(--err-soft);color:var(--ink);border-radius:10px;padding:12px;margin:12px 0;font-size:15px}
+  .msg.ok{background:var(--ok-soft)}
+  .empty{text-align:center;color:var(--muted);padding:40px 12px}
+  .pay{font-weight:800;color:var(--ok)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <h1>Sky Transfers <small id="hello">My jobs</small></h1>
+    <button id="refresh" type="button">Refresh</button>
+  </div>
+</header>
+<main>
+  <div id="msg" class="msg" hidden></div>
+  <div id="list"><p class="empty">Loading your jobs&hellip;</p></div>
+</main>
+<script>
+(function(){
+  var API = "https://sky-transfers-booking-server.onrender.com";
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  /* The link lives in the URL fragment (#t=...), which the browser never sends
+     to any server. Kept on this phone so a bookmark without it still works;
+     a newer link from the office replaces it. */
+  var t = "";
+  var m = /[#&]t=([^&]+)/.exec(location.hash || "");
+  if (m) { t = decodeURIComponent(m[1]); try { localStorage.setItem("sky_driver_t", t); } catch (e) {} }
+  else { try { t = localStorage.getItem("sky_driver_t") || ""; } catch (e) {} }
+
+  function post(path, body){
+    return fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if (!r.ok) throw new Error(d.error || "Something went wrong."); return d; }); });
+  }
+  function msg(text, ok){ var b = $("msg"); b.hidden = !text; b.textContent = text || ""; b.classList.toggle("ok", !!ok); }
+
+  var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function niceDate(d){ var x = new Date(d + "T00:00:00Z"); return DAYS[x.getUTCDay()] + " " + x.getUTCDate() + " " + MONTHS[x.getUTCMonth()]; }
+  function addDays(d, n){ return new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10); }
+  function maps(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + ", Queensland, Australia"); }
+
+  var LABEL = { assigned: "New job", accepted: "Accepted", on_way: "On my way", on_location: "On location", pob: "Passenger on board", done: "Done", declined: "Turned down" };
+  /* The one next step for each state, in the order a job runs. */
+  var NEXT = { assigned: ["accepted", "Accept job"], accepted: ["on_way", "I'm on my way"], on_way: ["on_location", "I'm on location"],
+               on_location: ["pob", "Passenger on board"], pob: ["done", "Job done"], declined: ["accepted", "Actually, I can do it"] };
+
+  var TODAY = null;
+  function load(){
+    if (!t) { $("list").innerHTML = ""; msg("Open this page from the job link the office sent you on WhatsApp."); return; }
+    return post("/driver/jobs", { t: t }).then(function(d){
+      msg(""); TODAY = d.today;
+      $("hello").textContent = "Hi " + String(d.driver.name || "").split(" ")[0] + " — your jobs";
+      render(d.jobs || []);
+    }).catch(function(err){ $("list").innerHTML = ""; msg(err.message); });
+  }
+
+  function render(jobs){
+    var list = $("list"); list.innerHTML = "";
+    if (!jobs.length) { list.appendChild(el("p", "empty", "No jobs for you right now. New ones show up here as soon as the office assigns them.")); return; }
+    var groups = [["Earlier", function(j){ return j.date < TODAY; }], ["Today", function(j){ return j.date === TODAY; }],
+                  ["Tomorrow", function(j){ return j.date === addDays(TODAY, 1); }], ["Coming up", function(j){ return j.date > addDays(TODAY, 1); }]];
+    groups.forEach(function(g){
+      var these = jobs.filter(g[1]);
+      /* Finished jobs from yesterday are history, not work. */
+      if (g[0] === "Earlier") these = these.filter(function(j){ return j.status !== "done" && j.status !== "declined"; });
+      if (!these.length) return;
+      list.appendChild(el("h2", "", g[0]));
+      these.forEach(function(j){ list.appendChild(card(j)); });
+    });
+  }
+
+  function card(j){
+    var c = el("div", "job s-" + j.status);
+    var top = el("div", "top");
+    top.appendChild(el("span", "time", j.time));
+    top.appendChild(el("span", "date", niceDate(j.date)));
+    var live = ["accepted", "on_way", "on_location", "pob"].indexOf(j.status) !== -1;
+    top.appendChild(el("span", "pill" + (live ? " live" : j.status === "done" ? " ok" : j.status === "declined" ? " bad" : ""), LABEL[j.status] || j.status));
+    if (j.isReturn) top.appendChild(el("span", "pill", j.leg === "ret" ? "Return leg" : "Outbound"));
+    c.appendChild(top);
+
+    var r = el("div", "route");
+    var a1 = el("a"); a1.href = maps(j.address && j.leg === "out" ? j.address : j.from); a1.target = "_blank"; a1.rel = "noopener";
+    a1.appendChild(el("span", "", "Pick up")); a1.appendChild(document.createTextNode(j.from)); r.appendChild(a1);
+    if (j.hours && (!j.to || j.to === "As directed")) {
+      r.appendChild(el("div", "facts", "By the hour — " + j.hours + " hours as directed"));
+    } else {
+      var a2 = el("a"); a2.href = maps(j.address && j.leg === "ret" ? j.address : j.to); a2.target = "_blank"; a2.rel = "noopener";
+      a2.appendChild(el("span", "", "Drop off")); a2.appendChild(document.createTextNode(j.to)); r.appendChild(a2);
+    }
+    c.appendChild(r);
+
+    var f = el("div", "facts");
+    function fact(label, val){ if (!val) return; var s = el("span"); if (label) s.appendChild(el("b", "", label + " ")); s.appendChild(document.createTextNode(String(val))); f.appendChild(s); }
+    fact("", j.guest); fact("Pax", j.pax); fact("Flight", j.flight); fact("", j.vehicleLabel || j.vehicleClass);
+    if (j.childSeats) fact("Child seats", j.childSeats); if (j.trailer) fact("", "Trailer");
+    if (j.account) fact("Account", j.account);
+    if (j.pay != null) { var p = el("span", "pay", "Your pay $" + j.pay); f.appendChild(p); }
+    c.appendChild(f);
+    if (j.address) c.appendChild(el("div", "note", "Address: " + j.address));
+    if (j.notes) c.appendChild(el("div", "note", "Guest notes: " + j.notes));
+    if (j.officeNote) c.appendChild(el("div", "note", "Office: " + j.officeNote));
+
+    if (j.phone && j.status !== "done") {
+      var ct = el("div", "contact");
+      var call = el("a", "", "Call guest"); call.href = "tel:" + j.phone.replace(/[^\d+]/g, ""); ct.appendChild(call);
+      var sms = el("a", "", "Text guest"); sms.href = "sms:" + j.phone.replace(/[^\d+]/g, ""); ct.appendChild(sms);
+      if (j.flight) { var fl = el("a", "", "Flight status"); fl.href = "https://www.google.com/search?q=" + encodeURIComponent(j.flight + " flight status"); fl.target = "_blank"; fl.rel = "noopener"; ct.appendChild(fl); }
+      c.appendChild(ct);
+    }
+
+    var nx = NEXT[j.status];
+    if (nx) {
+      var go = el("button", "go" + (nx[0] === "done" || nx[0] === "pob" ? " green" : ""), nx[1]);
+      go.type = "button";
+      go.addEventListener("click", function(){ step(j, nx[0], go); });
+      c.appendChild(go);
+    }
+    /* Turning a job down is the one press that can't be taken back quietly -
+       it emails the office - so it asks twice. */
+    if (j.status === "assigned" || j.status === "accepted") {
+      var no = el("button", "go ghost", "I can't do this job"), armed = false, timer = null;
+      no.type = "button";
+      no.addEventListener("click", function(){
+        if (!armed) { armed = true; no.classList.add("armed"); no.textContent = "Tap again to tell the office"; timer = setTimeout(function(){ armed = false; no.classList.remove("armed"); no.textContent = "I can't do this job"; }, 5000); return; }
+        clearTimeout(timer); step(j, "declined", no);
+      });
+      c.appendChild(no);
+    }
+    return c;
+  }
+
+  function step(j, status, btn){
+    btn.disabled = true; var was = btn.textContent; btn.textContent = "Saving…";
+    post("/driver/status", { t: t, ref: j.ref, leg: j.leg, status: status }).then(function(){
+      /* After the refresh, which clears the message box. */
+      return load().then(function(){
+        if (status === "declined") msg("Thanks — the office has been told you can't do " + j.ref + ".", true);
+      });
+    }).catch(function(err){ btn.disabled = false; btn.textContent = was; msg(err.message); });
+  }
+
+  $("refresh").addEventListener("click", load);
+  /* Jobs move while the phone sits on the dash. */
+  setInterval(function(){ if (document.visibilityState === "visible") load(); }, 60000);
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") load(); });
+  load();
+})();
+</script>
+</body>
+</html>
