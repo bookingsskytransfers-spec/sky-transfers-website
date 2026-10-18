@@ -141,6 +141,21 @@
   .warn{font-size:13.5px;font-weight:700;color:var(--gold-deep);margin:4px 0}
   table.tight{min-width:0}
   table.tight td,table.tight th{padding:7px 9px}
+  .ap-row{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+  .ap-row:first-of-type{border-top:0}
+  .ap-row h3{margin:2px 0 0;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:18px;color:var(--ink)}
+  .ap-row p{margin:0 0 8px}
+  .ap-ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .ap-ctl > div{min-width:130px}
+  .ap-ctl select,.ap-ctl input{width:auto;min-width:120px}
+  @media (max-width:640px){ .ap-row{grid-template-columns:1fr;gap:6px} }
+  .ev{display:grid;grid-template-columns:110px 92px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+  .ev:first-child{border-top:0}
+  .ev time{color:var(--muted);font-variant-numeric:tabular-nums}
+  @media (max-width:640px){ .ev{grid-template-columns:1fr} }
+  .chip.auto{background:var(--blue-soft);color:var(--blue)}
+  .chip.check{background:var(--err-soft);color:var(--err)}
+  #ap-sched select{min-width:140px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -175,6 +190,7 @@
       <button role="tab" data-tab="account" aria-selected="false">Account job</button>
       <button role="tab" data-tab="invoices" aria-selected="false">Invoices</button>
       <button role="tab" data-tab="pay" aria-selected="false">Driver pay</button>
+      <button role="tab" data-tab="autopilot" aria-selected="false">Autopilot</button>
     </div>
 
     <!-- ===================== JOBS ===================== -->
@@ -363,6 +379,9 @@
           <div><label for="ac-address">Billing address</label><input id="ac-address" autocomplete="off"></div>
           <div><label for="ac-notes">Notes</label><input id="ac-notes" autocomplete="off"></div>
         </div>
+        <div style="margin-bottom:10px"><label for="ac-intake">Bookings come from (for Autopilot)</label>
+          <input id="ac-intake" autocomplete="off" placeholder="reservations@rallys.com.au, @krishivtravel.com">
+          <p class="muted" style="margin:4px 0 0">Addresses, or a whole domain starting with @. Autopilot reads booking emails from these into the board, marked <b>Check</b>. Leave empty to keep entering them by hand.</p></div>
         <button class="cta" id="ac-save">Save account</button>
         <button class="act" id="ac-clear" style="margin-left:6px">Clear</button>
       </div>
@@ -419,6 +438,99 @@
       </div>
       <div id="p-msg" class="msg" hidden></div>
       <div id="p-list"><p class="empty">Loading&hellip;</p></div>
+    </section>
+
+    <!-- ===================== AUTOPILOT ===================== -->
+    <section id="tab-autopilot" hidden>
+      <div class="card">
+        <h2>Autopilot</h2>
+        <p class="muted" style="margin:0 0 6px">The routine office work, done on a timer, with an email to you each time.
+          It never messages a driver or a customer by itself: drivers still get jobs when you tap <b>Send</b>, and invoices go out only when you press <b>Approve</b>.
+          Each part is off until you switch it on. It checks every five minutes.</p>
+        <p class="muted" id="ap-now" style="margin:0 0 4px"></p>
+        <div id="ap-msg" class="msg" hidden></div>
+        <div class="ap-row">
+          <h3>Dispatch</h3>
+          <div>
+            <p class="muted">The evening before, it picks a driver and car for every job that has none - free at that time, papers in date, the right class of car, staff before subcontractors, the lightest day first - and emails you one list ready to send. A booking made later, or a job a driver turns down, is picked again within minutes and you're told. A job you've touched yourself is left alone.</p>
+            <div class="ap-ctl">
+              <div><label for="ap-dispatch">Dispatch</label><select id="ap-dispatch"><option value="false">Off</option><option value="true">On</option></select></div>
+              <div><label for="ap-dispatch-at">Pick tomorrow's drivers at</label><input id="ap-dispatch-at" type="time" step="300"></div>
+              <span id="ap-run-dispatch"></span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-row">
+          <h3>Closing jobs</h3>
+          <div>
+            <p class="muted">A job still open some hours after it should have finished is chased by email. If the driver had reached the passenger (on location or passenger on board) and just forgot Done, it can be marked done for you.</p>
+            <div class="ap-ctl">
+              <div><label for="ap-close">Closing</label><select id="ap-close"><option value="false">Off</option><option value="true">On</option></select></div>
+              <div><label for="ap-close-h">Chase after (hours)</label><input id="ap-close-h" type="number" min="1" max="12" step="1"></div>
+              <div><label for="ap-autoclose">If the driver had started</label><select id="ap-autoclose"><option value="true">Mark it done</option><option value="false">Just tell me</option></select></div>
+              <span id="ap-run-close"></span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-row">
+          <h3>Invoices</h3>
+          <div>
+            <p class="muted">When an account's week, fortnight or month ends (set below), the invoice is issued and you get an email with an <b>Approve</b> button. Nothing goes to the customer until you press it.</p>
+            <div class="ap-ctl">
+              <div><label for="ap-invoices">Scheduled invoices</label><select id="ap-invoices"><option value="false">Off</option><option value="true">On</option></select></div>
+              <div><label for="ap-invoice-at">Prepare them at</label><input id="ap-invoice-at" type="time" step="300"></div>
+              <span id="ap-run-invoices"></span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-row">
+          <h3>Morning digest</h3>
+          <div>
+            <p class="muted">One email each morning: today's jobs, and everything that needs a person - no driver, not sent, not accepted, not closed, invoices waiting or overdue, licences and regos about to expire.</p>
+            <div class="ap-ctl">
+              <div><label for="ap-digest">Digest</label><select id="ap-digest"><option value="false">Off</option><option value="true">On</option></select></div>
+              <div><label for="ap-digest-at">Send it at</label><input id="ap-digest-at" type="time" step="300"></div>
+              <span id="ap-run-digest"></span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-row">
+          <h3>Booking emails</h3>
+          <div>
+            <p class="muted">Reads the bookings inbox (read-only - nothing is moved, deleted or marked read) for emails from the addresses on each account (Invoices tab &rarr; edit the account &rarr; <b>Bookings come from</b>). Each booking it can read goes on the board marked <b>Check</b>; anything unclear - a change, a cancellation, two bookings in one email, a missing time - is emailed to you to enter by hand. Only mail that arrives after you switch this on is read.</p>
+            <p class="muted" id="ap-intake-state"></p>
+            <div class="ap-ctl">
+              <div><label for="ap-intake">Read booking emails</label><select id="ap-intake"><option value="false">Off</option><option value="true">On</option></select></div>
+              <span id="ap-run-intake"></span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-row">
+          <h3>Emails go to</h3>
+          <div>
+            <div class="ap-ctl">
+              <div style="flex:1;min-width:240px"><label for="ap-alert">Autopilot's emails go to</label><input id="ap-alert" type="email" style="width:100%"></div>
+            </div>
+          </div>
+        </div>
+        <button class="cta" id="ap-save" style="margin-top:8px">Save Autopilot settings</button>
+      </div>
+
+      <div class="card">
+        <h2>Invoice schedules</h2>
+        <p class="muted" style="margin:0 0 12px">Weekly is Monday to Sunday. Monthly is the calendar month. Fortnightly counts fortnights from the Monday you choose. A job already on an invoice is never billed again.</p>
+        <div id="ap-sched-msg" class="msg" hidden></div>
+        <div class="scroll"><table class="tight" style="min-width:640px">
+          <thead><tr><th>Who</th><th>Every</th><th>Fortnights start</th><th>Invoiced up to</th><th></th></tr></thead>
+          <tbody id="ap-sched"><tr><td colspan="5" class="empty">Loading&hellip;</td></tr></tbody>
+        </table></div>
+      </div>
+
+      <div class="card">
+        <h2>What Autopilot did</h2>
+        <p style="margin:0 0 8px"><button class="act" id="ap-refresh">Refresh</button></p>
+        <div id="ap-events"><p class="empty">Loading&hellip;</p></div>
+      </div>
     </section>
   </div>
 </div>
@@ -493,7 +605,7 @@
   function expClass(d){ if (!d) return ""; var t = bneToday(); return d < t ? "exp-bad" : d <= addDays(t, 30) ? "exp-soon" : ""; }
 
   /* ---------- tabs ---------- */
-  var TABS = ["jobs", "drivers", "vehicles", "account", "invoices", "pay"];
+  var TABS = ["jobs", "drivers", "vehicles", "account", "invoices", "pay", "autopilot"];
   function openTab(name){
     TABS.forEach(function(t){
       $("tab-" + t).hidden = t !== name;
@@ -502,6 +614,7 @@
     try { localStorage.setItem("sky_dispatch_tab", name); } catch (e) {}
     if (name === "invoices" && window.__loadBilling) window.__loadBilling();
     if (name === "pay" && window.__loadPay) window.__loadPay();
+    if (name === "autopilot" && window.__loadAuto) window.__loadAuto();
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-tab]"), function(b){
     b.addEventListener("click", function(){ openTab(b.getAttribute("data-tab")); });
@@ -565,6 +678,8 @@
     if (counts.unsent) s.appendChild(el("span", "chip", counts.unsent + " not sent"));
     if (counts.live) s.appendChild(el("span", "chip web", counts.live + " in progress"));
     if (counts.done) s.appendChild(el("span", "chip ok", counts.done + " done"));
+    var nCheck = JOBS.filter(function(j){ return j.needsReview; }).length;
+    if (nCheck) s.appendChild(el("span", "chip check", nCheck + " to check"));
     var shown = JOBS.filter(function(j){ return matches(j, f); });
     if (!shown.length) { list.appendChild(el("p", "empty", JOBS.length ? "Nothing matches that filter." : "No jobs in these dates.")); return; }
     var day = null;
@@ -594,8 +709,11 @@
     } else {
       top.appendChild(el("span", "chip " + j.source, (j.source === "agent" ? "Agent: " : "") + (j.account || "Account") + (j.accountRef ? " · " + j.accountRef : "")));
     }
+    if (j.auto && j.driverId) top.appendChild(el("span", "chip auto", "Picked by Autopilot"));
+    if (j.needsReview) top.appendChild(el("span", "chip check", "Check - read from email"));
     top.appendChild(el("span", "job-ref", j.ref));
     c.appendChild(top);
+    if (j.needsReview && j.sourceNote) c.appendChild(el("p", "job-note", j.sourceNote + " Open it on Account job and save it once it's right."));
 
     c.appendChild(el("div", "job-route", j.hours && (!j.to || j.to === "As directed")
       ? j.from + " — " + j.hours + " h as directed" : j.from + "  →  " + j.to));
@@ -1012,6 +1130,7 @@
     $("ac-id").value = p && p.id || ""; $("ac-name").value = p && p.name || ""; $("ac-email").value = p && p.email || "";
     $("ac-contact").value = p && p.contact || ""; $("ac-abn").value = p && p.abn || ""; $("ac-terms").value = p && p.terms != null ? p.terms : 14;
     $("ac-active").value = p && p.active === false ? "false" : "true"; $("ac-address").value = p && p.address || ""; $("ac-notes").value = p && p.notes || "";
+    $("ac-intake").value = p && p.intakeFrom || "";
     $("i-acc-card").scrollIntoView({ behavior: "smooth" });
   }
   $("ac-clear").addEventListener("click", function(){ accountFormFill(null); });
@@ -1019,7 +1138,7 @@
     var b = $("ac-save"); b.disabled = true;
     api("/ops/account", { method: "POST", body: { id: $("ac-id").value || undefined, name: $("ac-name").value, email: $("ac-email").value,
       contact: $("ac-contact").value, abn: $("ac-abn").value, terms: $("ac-terms").value, active: $("ac-active").value === "true",
-      address: $("ac-address").value, notes: $("ac-notes").value } })
+      address: $("ac-address").value, notes: $("ac-notes").value, intakeFrom: $("ac-intake").value } })
       .then(function(){ show($("i-acc-msg"), "Saved " + $("ac-name").value + ".", true); accountFormFill(null); return loadBilling(); })
       .catch(function(err){ show($("i-acc-msg"), err.message); $("i-acc-msg").scrollIntoView({ behavior: "smooth" }); })
       .then(function(){ b.disabled = false; });
@@ -1225,12 +1344,119 @@
   });
 
   /* ================= start ================= */
+  /* ================= AUTOPILOT ================= */
+  function bneStamp(iso){ var x = new Date(Date.parse(iso) + 10 * 36e5).toISOString(); return niceDate(x.slice(0, 10)) + " " + x.slice(11, 16); }
+  var AP = null;
+  function loadAuto(){
+    show($("ap-msg"), "");
+    return api("/autopilot/state").then(function(d){
+      AP = d; var s = d.settings;
+      $("ap-now").textContent = "Server time in Brisbane: " + niceDate(d.now.date) + " " + d.now.time + "." + (d.mailer ? "" : " Email is not set up on the server, so Autopilot can't tell you anything - switch nothing on yet.");
+      $("ap-dispatch").value = String(s.dispatchOn); $("ap-dispatch-at").value = s.dispatchAt;
+      $("ap-close").value = String(s.closeOn); $("ap-close-h").value = s.closeAfterHours; $("ap-autoclose").value = String(s.autoCloseStarted);
+      $("ap-invoices").value = String(s.invoicesOn); $("ap-invoice-at").value = s.invoiceAt;
+      $("ap-digest").value = String(s.digestOn); $("ap-digest-at").value = s.digestAt;
+      $("ap-intake").value = String(s.intakeOn);
+      $("ap-alert").value = s.alertTo || ""; $("ap-alert").placeholder = d.alertDefault || "";
+      var senders = d.parties.filter(function(p){ return p.type === "account" && p.intakeFrom; });
+      $("ap-intake-state").textContent = (d.intake.ok ? "" : "Can't read the inbox yet: " + d.intake.why + ". ") +
+        (senders.length ? "Reading for: " + senders.map(function(p){ return p.name + " (" + p.intakeFrom.split(",").join(", ") + ")"; }).join("; ") + "."
+                        : "No account has a \"Bookings come from\" address yet, so there is nothing to read.") +
+        (s.intakeOn && s.intakeSince ? " Reading mail since " + bneStamp(s.intakeSince) + "." : "");
+      renderSchedules(); renderEvents();
+    }).catch(function(err){ show($("ap-msg"), err.message); });
+  }
+  window.__loadAuto = loadAuto;
+  function runBtn(holder, what, label, armed){
+    var h = $(holder); h.innerHTML = "";
+    function go(){
+      show($("ap-msg"), "");
+      return api("/autopilot/run", { method: "POST", body: { what: what } }).then(function(d){
+        var r = d.result || {}, msg;
+        if (what === "dispatch") msg = (r.picked && r.picked.length ? "Picked: " + r.picked.join(", ") + "." : "No job needed a driver.") + (r.missed && r.missed.length ? " No driver found for " + r.missed.join(", ") + "." : "") + (r.evening ? " The list is in your email." : "");
+        else if (what === "close") msg = (r.closed.length ? "Marked done: " + r.closed.join(", ") + ". " : "") + (r.chased.length ? "Chased: " + r.chased.join(", ") + "." : (r.closed.length ? "" : "Nothing open past its time."));
+        else if (what === "invoices") msg = r.issued && r.issued.length ? "Issued " + r.issued.join(", ") + " - the approval emails are on their way." : (r.skipped ? "Invoices are off: " + r.skipped + "." : "No schedule has a finished period waiting to be invoiced.");
+        else if (what === "digest") msg = "Digest sent.";
+        else msg = r.skipped ? "Didn't read the inbox: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new bookings. ") + (r.handed ? r.handed + " email(s) need you - see your inbox." : "");
+        show($("ap-msg"), msg, true); $("ap-msg").scrollIntoView({ behavior: "smooth", block: "center" });
+        return loadAuto().then(function(){ show($("ap-msg"), msg, true); });
+      }).catch(function(err){ show($("ap-msg"), err.message); });
+    }
+    if (armed) h.appendChild(armBtn(label, armed, "", go));
+    else { var b = el("button", "act", label); b.addEventListener("click", function(){ b.disabled = true; go().then(function(){ b.disabled = false; }); }); h.appendChild(b); }
+  }
+  runBtn("ap-run-dispatch", "dispatch", "Pick tomorrow's drivers now");
+  runBtn("ap-run-close", "close", "Check now");
+  runBtn("ap-run-invoices", "invoices", "Prepare due invoices now", "Press again to issue them");
+  runBtn("ap-run-digest", "digest", "Email me the digest now");
+  runBtn("ap-run-intake", "intake", "Check the inbox now");
+  $("ap-save").addEventListener("click", function(){
+    var b = $("ap-save"); b.disabled = true; show($("ap-msg"), "");
+    api("/autopilot/settings", { method: "POST", body: {
+      dispatchOn: $("ap-dispatch").value === "true", dispatchAt: $("ap-dispatch-at").value,
+      closeOn: $("ap-close").value === "true", closeAfterHours: $("ap-close-h").value, autoCloseStarted: $("ap-autoclose").value === "true",
+      invoicesOn: $("ap-invoices").value === "true", invoiceAt: $("ap-invoice-at").value,
+      digestOn: $("ap-digest").value === "true", digestAt: $("ap-digest-at").value,
+      intakeOn: $("ap-intake").value === "true", alertTo: $("ap-alert").value } })
+      .then(function(d){
+        var s = d.settings, on = [];
+        if (s.dispatchOn) on.push("dispatch at " + s.dispatchAt); if (s.closeOn) on.push("closing");
+        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails");
+        return loadAuto().then(function(){ show($("ap-msg"), "Saved. " + (on.length ? "On: " + on.join(", ") + "." : "Everything is off."), true); });
+      })
+      .catch(function(err){ show($("ap-msg"), err.message); })
+      .then(function(){ b.disabled = false; });
+  });
+  function renderSchedules(){
+    var tb = $("ap-sched"); tb.innerHTML = "";
+    if (!AP.parties.length) { var tr0 = el("tr"); var td0 = el("td", "empty", "No accounts yet - add them on the Invoices tab. Agents from the agent portal appear here automatically."); td0.colSpan = 5; tr0.appendChild(td0); tb.appendChild(tr0); return; }
+    AP.parties.forEach(function(p){
+      var sc = p.schedule || {}, tr = el("tr");
+      var who = el("td"); who.appendChild(el("b", "", p.name)); who.appendChild(el("div", "muted", (p.type === "agent" ? "Agent" : "Account") + (p.email ? " · " + p.email : " · no billing email yet")));
+      tr.appendChild(who);
+      var sel = document.createElement("select");
+      [["none", "Not scheduled"], ["weekly", "Week"], ["fortnightly", "Fortnight"], ["monthly", "Month"]].forEach(function(o){ sel.appendChild(new Option(o[1], o[0])); });
+      sel.value = sc.active === false ? "none" : (sc.cycle || "none");
+      var tdS = el("td"); tdS.appendChild(sel); tr.appendChild(tdS);
+      var anchor = document.createElement("input"); anchor.type = "date"; anchor.value = sc.anchor || "";
+      var tdA = el("td"); tdA.appendChild(anchor); tr.appendChild(tdA);
+      function vis(){ anchor.hidden = sel.value !== "fortnightly"; }
+      sel.addEventListener("change", vis); vis();
+      tr.appendChild(el("td", "", sc.last_through ? niceDate(sc.last_through) + " " + sc.last_through.slice(0, 4) + (sc.last_invoice ? " · " + sc.last_invoice : "") : "—"));
+      var save = el("button", "act", "Save"), tdB = el("td"); tdB.appendChild(save); tr.appendChild(tdB);
+      save.addEventListener("click", function(){
+        save.disabled = true; show($("ap-sched-msg"), "");
+        api("/autopilot/schedule", { method: "POST", body: { partyType: p.type, partyKey: p.key, cycle: sel.value, anchor: anchor.value } })
+          .then(function(){ return loadAuto().then(function(){ show($("ap-sched-msg"), p.name + ": " + (sel.value === "none" ? "not scheduled." : "invoiced every " + ({ weekly: "week", fortnightly: "fortnight", monthly: "month" })[sel.value] + "."), true); }); })
+          .catch(function(err){ show($("ap-sched-msg"), err.message); })
+          .then(function(){ save.disabled = false; });
+      });
+      tb.appendChild(tr);
+    });
+  }
+  var EV_LABEL = { assigned: "Dispatch", "no-driver": "No driver", evening: "Evening run", closed: "Closed", unclosed: "Chased", invoice: "Invoice",
+    digest: "Digest", intake: "Email", error: "Problem", settings: "Settings", run: "Run now" };
+  function renderEvents(){
+    var box = $("ap-events"); box.innerHTML = "";
+    if (!AP.events.length) { box.appendChild(el("p", "empty", "Nothing yet.")); return; }
+    AP.events.forEach(function(e){
+      var r = el("div", "ev");
+      var t = el("time", "", bneStamp(e.at)); r.appendChild(t);
+      var k = el("span"); k.appendChild(el("span", "chip" + (e.kind === "error" || e.kind === "no-driver" ? " check" : e.kind === "assigned" ? " auto" : ""), EV_LABEL[e.kind] || e.kind)); r.appendChild(k);
+      r.appendChild(el("span", "", e.message));
+      box.appendChild(r);
+    });
+  }
+  $("ap-refresh").addEventListener("click", loadAuto);
+
   function enter(){
     $("signin").hidden = true; $("app").hidden = false; $("who").hidden = false; $("who").textContent = "· signed in as office";
-    var t = bneToday(); if (!$("j-from").value) { $("j-from").value = t; $("j-to").value = addDays(t, 1); }
+    var t = bneToday(), want = (/[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search) || [])[1];
+    if (want) { $("j-from").value = want; $("j-to").value = want; }
+    else if (!$("j-from").value) { $("j-from").value = t; $("j-to").value = addDays(t, 1); }
     loadAccounts(); accountForm(null); driverForm(null); vehicleForm(null);
     var last = null; try { last = localStorage.getItem("sky_dispatch_tab"); } catch (e) {}
-    openTab(TABS.indexOf(last) !== -1 ? last : "jobs");
+    openTab(want ? "jobs" : TABS.indexOf(last) !== -1 ? last : "jobs");
     loadJobs();
   }
   if (token) enter();
