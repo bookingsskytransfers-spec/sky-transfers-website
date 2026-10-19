@@ -96,6 +96,18 @@
   .muted{color:var(--muted);font-size:13.5px}
   .editing{border-left:3px solid var(--gold);background:var(--gold-soft);padding:10px 13px;
     border-radius:8px;margin-bottom:14px;font-size:14.5px;color:var(--ink)}
+  /* One-way / return / by the hour, like the public booking form */
+  .trip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+  .trip input{position:absolute;opacity:0;width:0;height:0}
+  .trip span{display:block;padding:10px 8px;border:1.5px solid var(--line);border-radius:9px;background:var(--ground);
+    cursor:pointer;text-align:center;font-weight:700;color:var(--ink);font-size:14.5px;line-height:1.3}
+  .trip span small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+  .trip input:checked + span{border-color:var(--gold);background:var(--gold-soft)}
+  .trip input:focus-visible + span{outline:2px solid var(--gold);outline-offset:1px}
+  .ac-item .tag{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--gold-deep);margin-left:6px}
+  .hint{font-size:13px;color:var(--muted);margin:4px 0 0}
+  .veh .t{display:block;font-size:11.5px;color:var(--muted)}
+  td .sub{display:block;font-size:12px;color:var(--muted)}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -153,18 +165,28 @@
       <div id="edit-banner" class="editing" hidden></div>
       <div id="book-msg" class="msg" hidden></div>
 
+      <div class="trip" role="radiogroup" aria-label="Kind of trip">
+        <label><input type="radio" name="trip" value="one" checked><span>One-way<small>A single transfer</small></span></label>
+        <label><input type="radio" name="trip" value="return"><span>Return<small>Both legs &middot; 10% off</small></span></label>
+        <label><input type="radio" name="trip" value="hourly"><span>By the hour<small>As directed &middot; 3&ndash;6 h</small></span></label>
+      </div>
       <div class="row2">
         <div class="ac">
           <label for="pu">Pick-up</label>
-          <input id="pu" autocomplete="off" placeholder="Airport, suburb or terminal">
+          <input id="pu" autocomplete="off" spellcheck="false" placeholder="Street address, suburb or airport">
           <div class="ac-list" id="pu-list" hidden></div>
         </div>
-        <div class="ac">
+        <div class="ac" id="dro-wrap">
           <label for="dro">Drop-off</label>
-          <input id="dro" autocomplete="off" placeholder="Airport, suburb or terminal">
+          <input id="dro" autocomplete="off" spellcheck="false" placeholder="Street address, suburb or airport">
           <div class="ac-list" id="dro-list" hidden></div>
         </div>
+        <div id="hours-wrap" hidden>
+          <label for="hours">How many hours?</label>
+          <select id="hours"><option value="3">3 hours</option><option value="4">4 hours</option><option value="5">5 hours</option><option value="6">6 hours</option></select>
+        </div>
       </div>
+      <p class="hint" id="place-hint">Type a street address, a hotel, a suburb or an airport and pick from the list &mdash; any trip across the Gold Coast and Brisbane is priced on the spot, the same fares as our website.</p>
 
       <div id="quote" hidden>
         <label>Vehicle — fare, and what you earn</label>
@@ -176,9 +198,20 @@
         <div><label for="date">Pick-up date</label><input id="date" type="date"></div>
         <div><label for="time">Pick-up time</label><input id="time" type="time"></div>
       </div>
+      <div id="ret-wrap" hidden>
+        <div class="row2">
+          <div><label for="rdate">Return date</label><input id="rdate" type="date"></div>
+          <div><label for="rtime">Return pick-up time</label><input id="rtime" type="time"></div>
+        </div>
+        <div class="field"><label for="rflight">Return flight <span class="muted">(optional)</span></label><input id="rflight" placeholder="e.g. QF501"></div>
+      </div>
       <div class="row2">
         <div><label for="pname">Passenger name</label><input id="pname"></div>
         <div><label for="pphone">Passenger phone</label><input id="pphone" type="tel"></div>
+      </div>
+      <div class="row2">
+        <div><label for="pemail">Passenger email <span class="muted">(for driver details on the day)</span></label><input id="pemail" type="email" autocomplete="off"></div>
+        <div><label for="cref">Your booking reference <span class="muted">(optional)</span></label><input id="cref" autocomplete="off" placeholder="Printed on our invoice to you"></div>
       </div>
       <div class="row2">
         <div><label for="pax">Passengers</label><input id="pax" type="number" min="1" value="2"></div>
@@ -199,7 +232,7 @@
         <textarea id="notes" rows="2" placeholder="optional"></textarea>
       </div>
 
-      <button class="cta" id="book-btn" disabled>Choose a route and vehicle</button>
+      <button class="cta" id="book-btn" disabled>Choose a trip and vehicle</button>
       <p style="margin:10px 0 0" hidden id="cancel-edit-wrap">
         <button class="linkbtn" id="cancel-edit">Cancel this change and start a new booking</button>
       </p>
@@ -214,7 +247,7 @@
       <div class="scroll">
         <table>
           <thead><tr>
-            <th>Ref</th><th>Date</th><th>Route</th><th>Passenger</th>
+            <th>Ref</th><th>Date</th><th>Trip</th><th>Passenger</th>
             <th style="text-align:right">Fare</th><th style="text-align:right">You earn</th>
             <th>Status</th><th>Actions</th>
           </tr></thead>
@@ -232,13 +265,19 @@
   var API = "https://sky-transfers-booking-server.onrender.com";
   var $ = function(id){ return document.getElementById(id); };
   var money = function(n){ return "$" + Number(n || 0).toFixed(2); };
+  var OOL = "Gold Coast Airport (OOL)", BNE = "Brisbane Airport (BNE)", CRUISE = "Brisbane Cruise Terminal (Pinkenba)";
 
   /* sessionStorage, not localStorage: agents often work on a shared office
      machine, and a wallet balance should not still be there tomorrow. */
   var token = null;
   try { token = sessionStorage.getItem("sky_agent_token"); } catch (e) {}
 
-  var state = { places: [], vehicle: null, fare: 0, commission: 0, editing: null, bookings: [] };
+  /* pu / dro hold the NAME the fare engine prices on (one of our places, or
+     the suburb Google gives an address we have no zone for); puEnd / droEnd
+     the end as picked - suburb, street address, coordinates - which the
+     server measures the road from. Exactly how the public booking form works. */
+  var state = { places: [], vehicle: null, fare: 0, total: 0, commission: 0, editing: null, bookings: [],
+                pu: null, dro: null, puEnd: null, droEnd: null, trip: "one", kind: "oneway" };
 
   function show(el, msg, ok){
     if (!msg) { el.hidden = true; return; }
@@ -305,6 +344,13 @@
     b.addEventListener("click", fn);
     return b;
   }
+  function cell(tr, main, sub, cls){
+    var td = document.createElement("td");
+    if (cls) td.className = cls;
+    td.appendChild(document.createTextNode(main));
+    if (sub) { var s = document.createElement("span"); s.className = "sub"; s.textContent = sub; td.appendChild(s); }
+    tr.appendChild(td);
+  }
 
   function refresh(){
     return api("/agent/summary").then(function(d){
@@ -324,12 +370,12 @@
       d.bookings.forEach(function(b){
         var tr = document.createElement("tr");
         if (b.status !== "confirmed") tr.className = "void";
-        [b.ref, b.date + " " + b.time, b.route, b.passenger].forEach(function(v){
-          var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
-        });
-        [b.total, b.commission].forEach(function(v){
-          var td = document.createElement("td"); td.className = "num"; td.textContent = money(v); tr.appendChild(td);
-        });
+        cell(tr, b.ref, b.clientRef ? "Your ref " + b.clientRef : "");
+        cell(tr, b.date + " " + b.time, b.returnDate ? "Return " + b.returnDate + " " + (b.returnTime || "") : "");
+        cell(tr, b.hours ? b.pickup + " · " + b.hours + " h as directed" : b.route, b.returnDate ? "Return trip" : "");
+        cell(tr, b.passenger, b.email || "");
+        cell(tr, money(b.total), "", "num");
+        cell(tr, money(b.commission), "", "num");
         var st = document.createElement("td");
         var pill = document.createElement("span");
         if (b.status !== "confirmed") { pill.className = "pill void"; pill.textContent = "cancelled"; }
@@ -381,6 +427,21 @@
       .catch(function(err){ show($("book-msg"), err.message); });
   }
 
+  /* ---- one-way / return / by the hour ---- */
+  function setTrip(kind, quiet){
+    state.trip = kind;
+    var r = document.querySelector('input[name="trip"][value="' + kind + '"]'); if (r) r.checked = true;
+    $("dro-wrap").hidden = kind === "hourly";
+    $("hours-wrap").hidden = kind !== "hourly";
+    $("ret-wrap").hidden = kind !== "return";
+    if (kind !== "return") { $("rdate").value = ""; $("rtime").value = ""; $("rflight").value = ""; }
+    if (!quiet) quote();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="trip"]'), function(r){
+    r.addEventListener("change", function(){ if (r.checked) setTrip(r.value); });
+  });
+  $("hours").addEventListener("change", function(){ if (state.trip === "hourly") quote(); });
+
   /* ---- edit mode ---- */
   function startEdit(b){
     state.editing = b.ref;
@@ -388,9 +449,17 @@
     $("edit-banner").hidden = false;
     $("edit-banner").textContent = "Editing " + b.ref + " — " + b.route + ". Save to send the change to dispatch.";
     $("cancel-edit-wrap").hidden = false;
-    $("pu").value = b.pickup; $("dro").value = b.dropoff;
+    var ends = b.ends || {};
+    state.pu = b.pickup; state.puEnd = ends.pickup || null;
+    state.dro = b.hours ? null : b.dropoff; state.droEnd = b.hours ? null : (ends.dropoff || null);
+    $("pu").value = (state.puEnd && state.puEnd.address && state.puEnd.lat != null) ? state.puEnd.address : b.pickup;
+    $("dro").value = b.hours ? "" : ((state.droEnd && state.droEnd.address && state.droEnd.lat != null) ? state.droEnd.address : b.dropoff);
+    if (b.hours) $("hours").value = String(b.hours);
+    setTrip(b.hours ? "hourly" : b.returnDate ? "return" : "one", true);
+    $("rdate").value = b.returnDate || ""; $("rtime").value = b.returnTime || ""; $("rflight").value = b.returnFlight || "";
     $("date").value = b.date; $("time").value = b.time;
     $("pname").value = b.passenger; $("pphone").value = b.phone || "";
+    $("pemail").value = b.email || ""; $("cref").value = b.clientRef || "";
     $("pax").value = b.pax || 1; $("flight").value = b.flight || "";
     $("addr").value = b.address || ""; $("notes").value = b.notes || "";
     $("seats").value = String(b.childSeats || 0);
@@ -405,32 +474,131 @@
     $("form-title").textContent = "New booking";
     $("edit-banner").hidden = true;
     $("cancel-edit-wrap").hidden = true;
-    ["pname","pphone","flight","addr","notes","pu","dro","date","time"].forEach(function(id){ $(id).value = ""; });
-    $("pax").value = 2; $("seats").value = "0"; $("trailer").value = "false";
-    $("quote").hidden = true;
+    ["pname","pphone","pemail","cref","flight","addr","notes","pu","dro","date","time","rdate","rtime","rflight"].forEach(function(id){ $(id).value = ""; });
+    $("addr").dataset.autofill = "";
+    $("pax").value = 2; $("seats").value = "0"; $("trailer").value = "false"; $("hours").value = "3";
+    state.pu = state.dro = state.puEnd = state.droEnd = null;
+    setTrip("one", true);
+    $("quote").hidden = true; $("noquote").hidden = true;
     state.vehicle = null;
     setBookState();
   }
   $("cancel-edit").addEventListener("click", endEdit);
 
-  /* ---- place picker (our own priced list) ---- */
-  function attachAC(inputId, listId){
-    var input = $(inputId), list = $(listId), idx = -1, items = [], timer = null;
+  /* ---- place picker: our priced places, and any street address ----------
+     A Google pick is resolved back to one of our places where it is one, so
+     the zone fare applies; otherwise it keeps Google's suburb and its
+     coordinates and is priced by road distance, as on the website. */
+  var GP = { svc: null, det: null, token: null };
+  var GP_ALIAS = { "brisbane airport": BNE, "brisbane airport (bne)": BNE, "gold coast airport": OOL,
+                   "coolangatta airport": OOL, "gold coast airport (ool)": OOL, "pinkenba": CRUISE };
+  function gpReady(){
+    if (GP.svc) return true;
+    if (!window.google || !google.maps || !google.maps.places) return false;
+    try { GP.svc = new google.maps.places.AutocompleteService(); GP.det = new google.maps.places.PlacesService(document.createElement("div")); return true; }
+    catch (e) { return false; }
+  }
+  function gpToken(){
+    if (!GP.token && window.google && google.maps && google.maps.places) GP.token = new google.maps.places.AutocompleteSessionToken();
+    return GP.token;
+  }
+  function placeByKey(k){
+    for (var i = 0; i < state.places.length; i++) if (state.places[i].toLowerCase() === k) return state.places[i];
+    return null;
+  }
+  function suburbFromComponents(comps, formatted){
+    var want = ["locality", "sublocality_level_1", "sublocality", "postal_town", "administrative_area_level_2"];
+    for (var i = 0; i < want.length; i++) {
+      for (var j = 0; j < (comps || []).length; j++) {
+        var c = comps[j];
+        if (c.types && c.types.indexOf(want[i]) !== -1) {
+          var key = (c.long_name || "").toLowerCase();
+          if (GP_ALIAS[key]) return GP_ALIAS[key];
+          var p = placeByKey(key); if (p) return p;
+        }
+      }
+    }
+    var f = (formatted || "").toLowerCase();
+    for (var k in GP_ALIAS) { if (f.indexOf(k) !== -1) return GP_ALIAS[k]; }
+    return null;
+  }
+  function rawSuburb(comps){
+    for (var j = 0; j < (comps || []).length; j++) {
+      var c = comps[j];
+      if (c.types && (c.types.indexOf("locality") !== -1 || c.types.indexOf("sublocality_level_1") !== -1)) return c.long_name;
+    }
+    return "";
+  }
+  /* A street address picked at either end fills the "exact address" box,
+     unless the agent has typed something there of their own. */
+  function syncAddr(){
+    var el = $("addr");
+    var a = state.puEnd && state.puEnd.lat != null ? state.puEnd.address : "";
+    var b = state.trip !== "hourly" && state.droEnd && state.droEnd.lat != null ? state.droEnd.address : "";
+    var want = a && b ? "From " + a + " to " + b : (a || b);
+    if (!want) return;
+    if (!el.value || el.value === el.dataset.autofill) { el.value = want; el.dataset.autofill = want; }
+  }
+
+  function attachAC(inputId, listId, which){
+    var input = $(inputId), list = $(listId), idx = -1, items = [], timer = null, gpTimer = null;
     function close(){ list.hidden = true; idx = -1; }
-    function render(){
-      var q = input.value.trim().toLowerCase();
-      items = state.places.filter(function(p){ return !q || p.toLowerCase().indexOf(q) !== -1; }).slice(0, 40);
+    function set(name, end){
+      state[which] = name; state[which + "End"] = end;
+      syncAddr(); quote();
+    }
+    function draw(){
       list.innerHTML = "";
       if (!items.length) { close(); return; }
-      items.forEach(function(p){
+      items.forEach(function(it, i){
         var d = document.createElement("div");
-        d.className = "ac-item"; d.textContent = p;
-        d.addEventListener("mousedown", function(e){ e.preventDefault(); input.value = p; close(); quote(); });
+        d.className = "ac-item"; d.textContent = it.label;
+        var tag = it.place === OOL || it.place === BNE ? "AIRPORT" : it.place === CRUISE ? "CRUISE" : it.pending ? "ADDRESS" : "";
+        if (tag) { var t = document.createElement("span"); t.className = "tag"; t.textContent = tag; d.appendChild(t); }
+        d.addEventListener("mousedown", function(e){ e.preventDefault(); choose(it); });
         list.appendChild(d);
       });
       list.hidden = false; idx = -1;
     }
-    input.addEventListener("input", function(){ clearTimeout(timer); render(); quote(); });
+    function render(){
+      var q = input.value.trim(), lower = q.toLowerCase();
+      items = state.places.filter(function(p){ return !lower || p.toLowerCase().indexOf(lower) !== -1; })
+        .slice(0, 30).map(function(p){ return { label: p, place: p }; });
+      draw();
+      clearTimeout(gpTimer);
+      if (q.length >= 3) gpTimer = setTimeout(function(){ predict(q); }, 280);
+    }
+    function predict(q){
+      if (!gpReady() || input.value.trim() !== q) return;
+      GP.svc.getPlacePredictions({ input: q, componentRestrictions: { country: "au" }, sessionToken: gpToken() }, function(preds, status){
+        if (input.value.trim() !== q || status !== google.maps.places.PlacesServiceStatus.OK || !preds) return;
+        var have = {}; items.forEach(function(it){ have[it.label.toLowerCase()] = 1; });
+        preds.slice(0, 5).forEach(function(p){ if (p.description && !have[p.description.toLowerCase()]) items.push({ label: p.description, pending: true, placeId: p.place_id }); });
+        draw();
+      });
+    }
+    function choose(it){
+      close();
+      if (!it.pending) { input.value = it.place; set(it.place, { suburb: it.place }); return; }
+      input.value = it.label;
+      if (!gpReady()) { show($("noquote"), "Could not check that address — pick a suburb from the list instead."); return; }
+      GP.det.getDetails({ placeId: it.placeId, fields: ["address_components", "formatted_address", "name", "geometry"], sessionToken: gpToken() }, function(place, status){
+        GP.token = null;
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !place) { show($("noquote"), "Could not check that address — pick a suburb from the list instead."); return; }
+        var addr = place.formatted_address || it.label;
+        if (place.name && addr.indexOf(place.name) !== 0) addr = place.name + ", " + addr;
+        var loc = null;
+        try { var g = place.geometry && place.geometry.location; if (g) loc = { lat: g.lat(), lng: g.lng() }; } catch (e) { loc = null; }
+        var sub = suburbFromComponents(place.address_components, place.formatted_address);
+        var name = sub || rawSuburb(place.address_components) || addr.split(",")[0];
+        if (!sub && !loc) { show($("noquote"), "We can't price " + name + " online — call +61 481 437 772 and we'll quote it."); return; }
+        var end = { suburb: name, address: addr };
+        if (loc) { end.lat = loc.lat; end.lng = loc.lng; }
+        input.value = addr;
+        set(name, end);
+      });
+    }
+    input.addEventListener("input", function(){ clearTimeout(timer); state[which] = null; state[which + "End"] = null; render(); quote(); });
     input.addEventListener("focus", render);
     input.addEventListener("blur", function(){ timer = setTimeout(close, 150); });
     input.addEventListener("keydown", function(e){
@@ -438,47 +606,52 @@
       var els = list.children;
       if (e.key === "ArrowDown") { e.preventDefault(); idx = Math.min(idx + 1, els.length - 1); }
       else if (e.key === "ArrowUp") { e.preventDefault(); idx = Math.max(idx - 1, 0); }
-      else if (e.key === "Enter") { e.preventDefault(); if (idx >= 0) { input.value = items[idx]; close(); quote(); } return; }
+      else if (e.key === "Enter") { e.preventDefault(); if (idx >= 0) choose(items[idx]); else if (items.length === 1) choose(items[0]); return; }
       else if (e.key === "Escape") { close(); return; }
       else return;
       for (var i = 0; i < els.length; i++) els[i].classList.toggle("active", i === idx);
     });
   }
-  attachAC("pu", "pu-list");
-  attachAC("dro", "dro-list");
+  attachAC("pu", "pu-list", "pu");
+  attachAC("dro", "dro-list", "dro");
 
-  /* ---- quoting ---- */
-  var quoteTimer = null;
+  /* ---- quoting: the server prices it, as the website does ---- */
+  var quoteTimer = null, quoteSeq = 0;
   function quote(){
     clearTimeout(quoteTimer);
     quoteTimer = setTimeout(function(){ doQuote(); }, 180);
   }
+  function tripBody(){
+    var hourly = state.trip === "hourly";
+    return { pickup: state.pu, dropoff: hourly ? "" : state.dro,
+             ends: { pickup: state.puEnd, dropoff: hourly ? null : state.droEnd },
+             hourly: hourly ? { hours: $("hours").value } : undefined,
+             returnTrip: state.trip === "return" };
+  }
   function doQuote(preselect){
-    var pu = $("pu").value.trim(), dro = $("dro").value.trim();
-    state.vehicle = null; state.fare = 0; state.commission = 0;
+    var seq = ++quoteSeq;
+    state.vehicle = null; state.fare = 0; state.total = 0; state.commission = 0;
     setBookState();
-    if (state.places.indexOf(pu) === -1 || state.places.indexOf(dro) === -1) {
-      $("quote").hidden = true; $("noquote").hidden = true; return;
-    }
-    api("/agent/quote", { method: "POST", body: { pickup: pu, dropoff: dro } })
+    if (!state.pu || (state.trip !== "hourly" && !state.dro)) { $("quote").hidden = true; $("noquote").hidden = true; return; }
+    var grid = $("veh-grid");
+    grid.innerHTML = '<div class="muted">Pricing…</div>'; $("quote").hidden = false; $("noquote").hidden = true;
+    api("/agent/quote", { method: "POST", body: tripBody() })
       .then(function(d){
-        if (!d.quotable) {
-          $("quote").hidden = true;
-          show($("noquote"), d.message);
-          return;
-        }
-        $("noquote").hidden = true;
-        var grid = $("veh-grid");
+        if (seq !== quoteSeq) return;
+        if (!d.quotable) { $("quote").hidden = true; show($("noquote"), d.message); return; }
+        state.kind = d.kind;
         grid.innerHTML = "";
+        var unit = d.kind === "return" ? "return, both legs" : d.kind === "hourly" ? "for " + d.hours + " hours" : "one way";
         d.vehicles.forEach(function(v){
           var b = document.createElement("button");
           b.type = "button"; b.className = "veh";
-          b.innerHTML = '<span class="n"></span><span class="f"></span><span class="c"></span>';
+          b.innerHTML = '<span class="n"></span><span class="f"></span><span class="t"></span><span class="c"></span>';
           b.querySelector(".n").textContent = v.vehicle;
-          b.querySelector(".f").textContent = money(v.fare);
+          b.querySelector(".f").textContent = money(v.total);
+          b.querySelector(".t").textContent = unit;
           b.querySelector(".c").textContent = "you earn " + money(v.commission);
           b.addEventListener("click", function(){
-            state.vehicle = v.vehicle; state.fare = v.fare; state.commission = v.commission;
+            state.vehicle = v.vehicle; state.fare = v.fare; state.total = v.total; state.commission = v.commission;
             [].forEach.call(grid.children, function(c){ c.classList.remove("on"); });
             b.classList.add("on");
             setBookState();
@@ -488,31 +661,37 @@
         });
         $("quote").hidden = false;
       })
-      .catch(function(err){ show($("book-msg"), err.message); });
+      .catch(function(err){ if (seq === quoteSeq) { $("quote").hidden = true; show($("noquote"), err.message); } });
   }
 
   function setBookState(){
     var btn = $("book-btn");
     btn.disabled = !state.vehicle;
-    if (!state.vehicle) { btn.textContent = "Choose a route and vehicle"; return; }
+    if (!state.vehicle) { btn.textContent = "Choose a trip and vehicle"; return; }
     btn.textContent = (state.editing ? "Save change — " : "Book ") + state.vehicle + " · " +
-      money(state.fare) + " · you earn " + money(state.commission);
+      money(state.total) + " · you earn " + money(state.commission);
   }
 
   /* ---- book / save ---- */
   $("book-btn").addEventListener("click", function(){
-    var required = { "Pick-up": $("pu").value, "Drop-off": $("dro").value, "Pick-up date": $("date").value,
+    var required = { "Pick-up": state.pu, "Pick-up date": $("date").value,
       "Pick-up time": $("time").value, "Passenger name": $("pname").value, "Passenger phone": $("pphone").value };
+    if (state.trip !== "hourly") required["Drop-off"] = state.dro;
+    if (state.trip === "return") { required["Return date"] = $("rdate").value; required["Return pick-up time"] = $("rtime").value; }
     for (var k in required) {
-      if (!String(required[k]).trim()) { show($("book-msg"), "Please fill in: " + k); return; }
+      if (!String(required[k] || "").trim()) { show($("book-msg"), "Please fill in: " + k); return; }
     }
     var btn = $("book-btn"), label = btn.textContent;
     btn.disabled = true; btn.textContent = state.editing ? "Saving…" : "Booking…";
     show($("book-msg"), "");
+    var t = tripBody();
     var payload = {
-      pickup: $("pu").value.trim(), dropoff: $("dro").value.trim(), vehicle: state.vehicle,
+      pickup: t.pickup, dropoff: t.dropoff, ends: t.ends, hourly: t.hourly, vehicle: state.vehicle,
       date: $("date").value, time: $("time").value,
-      name: $("pname").value.trim(), phone: $("pphone").value.trim(),
+      returnDate: state.trip === "return" ? $("rdate").value : "", returnTime: state.trip === "return" ? $("rtime").value : "",
+      returnFlight: state.trip === "return" ? $("rflight").value.trim() : "",
+      name: $("pname").value.trim(), phone: $("pphone").value.trim(), email: $("pemail").value.trim(),
+      clientRef: $("cref").value.trim(),
       pax: $("pax").value, flight: $("flight").value.trim(), address: $("addr").value.trim(),
       childSeats: $("seats").value, trailer: $("trailer").value, notes: $("notes").value.trim()
     };
@@ -534,8 +713,10 @@
   /* Today in Brisbane is the earliest date worth offering; the server enforces
      the six-hour rule once a time is entered. */
   try {
-    $("date").min = new Date(Date.now() + 10 * 3600 * 1000).toISOString().slice(0, 10);
+    var today = new Date(Date.now() + 10 * 3600 * 1000).toISOString().slice(0, 10);
+    $("date").min = today; $("rdate").min = today;
   } catch (e) {}
+  $("date").addEventListener("change", function(){ if ($("date").value) $("rdate").min = $("date").value; });
 
   if (token) enter();
 })();
