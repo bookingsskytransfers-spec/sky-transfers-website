@@ -191,6 +191,7 @@
       <button role="tab" data-tab="invoices" aria-selected="false">Invoices</button>
       <button role="tab" data-tab="pay" aria-selected="false">Driver pay</button>
       <button role="tab" data-tab="autopilot" aria-selected="false">Autopilot</button>
+      <button role="tab" data-tab="import" aria-selected="false">Import</button>
     </div>
 
     <!-- ===================== JOBS ===================== -->
@@ -440,6 +441,31 @@
       <div id="p-list"><p class="empty">Loading&hellip;</p></div>
     </section>
 
+    <!-- ===================== IMPORT (Limo Anywhere) ===================== -->
+    <section id="tab-import" hidden>
+      <div class="card">
+        <h2>Bring bookings across from Limo Anywhere</h2>
+        <p class="muted" style="margin:0 0 10px"><b>Switch-over: Monday 26 October 2026.</b> From then, new bookings go only into this system. Until then you can import as often as you like - a booking already brought across is never added twice.</p>
+        <ol class="muted" style="margin:0 0 12px;padding-left:20px">
+          <li>Open the <b>BOOKINGS 2026</b> Google Sheet and click the <b>LA Bookings</b> tab.</li>
+          <li><b>File &rarr; Download &rarr; Comma-separated values (.csv)</b>. That downloads just that tab.</li>
+          <li>Choose the file below. Nothing is saved until you press <b>Import</b>.</li>
+        </ol>
+        <input type="file" id="im-file" accept=".csv,text/csv" style="max-width:420px">
+        <div id="im-msg" class="msg" hidden style="margin-top:12px"></div>
+      </div>
+      <div class="card" id="im-preview" hidden>
+        <h2>What will happen</h2>
+        <div class="summary" id="im-summary"></div>
+        <p class="muted" id="im-accounts" style="margin:10px 0"></p>
+        <p style="margin:12px 0"><span id="im-go"></span> <label style="display:inline;font-weight:400;margin-left:10px"><input type="checkbox" id="im-all" style="width:auto"> show skipped rows too</label></p>
+        <div class="scroll"><table class="tight">
+          <thead><tr><th>Row</th><th>What</th><th>When</th><th>Account</th><th>Passenger</th><th>Trip</th><th>Vehicle</th><th class="num">Price</th></tr></thead>
+          <tbody id="im-rows"></tbody>
+        </table></div>
+      </div>
+    </section>
+
     <!-- ===================== AUTOPILOT ===================== -->
     <section id="tab-autopilot" hidden>
       <div class="card">
@@ -621,7 +647,7 @@
   function expClass(d){ if (!d) return ""; var t = bneToday(); return d < t ? "exp-bad" : d <= addDays(t, 30) ? "exp-soon" : ""; }
 
   /* ---------- tabs ---------- */
-  var TABS = ["jobs", "drivers", "vehicles", "account", "invoices", "pay", "autopilot"];
+  var TABS = ["jobs", "drivers", "vehicles", "account", "invoices", "pay", "autopilot", "import"];
   function openTab(name){
     TABS.forEach(function(t){
       $("tab-" + t).hidden = t !== name;
@@ -726,7 +752,7 @@
       top.appendChild(el("span", "chip " + j.source, (j.source === "agent" ? "Agent: " : "") + (j.account || "Account") + (j.accountRef ? " · " + j.accountRef : "")));
     }
     if (j.auto && j.driverId) top.appendChild(el("span", "chip auto", "Picked by Autopilot"));
-    if (j.needsReview) top.appendChild(el("span", "chip check", "Check - read from email"));
+    if (j.needsReview) top.appendChild(el("span", "chip check", /^Imported/.test(j.sourceNote || "") ? "Check - imported" : "Check - read from email"));
     top.appendChild(el("span", "job-ref", j.ref));
     c.appendChild(top);
     if (j.needsReview && j.sourceNote) c.appendChild(el("p", "job-note", j.sourceNote + " Open it on Account job and save it once it's right."));
@@ -1360,6 +1386,122 @@
   });
 
   /* ================= start ================= */
+  /* ================= IMPORT (Limo Anywhere sheet) ================= */
+  /* RFC 4180 CSV: quoted fields, doubled quotes, commas and line breaks
+     inside quotes, a byte-order mark at the start. */
+  function parseCSV(text){
+    var rows = [], row = [], f = "", q = false, i = 0, c;
+    text = String(text || "").replace(/^﻿/, "");
+    for (; i < text.length; i++) {
+      c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; }
+        else f += c;
+      } else if (c === '"') q = true;
+      else if (c === ",") { row.push(f); f = ""; }
+      else if (c === "\n" || c === "\r") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        row.push(f); f = ""; rows.push(row); row = [];
+      } else f += c;
+    }
+    if (f !== "" || row.length) { row.push(f); rows.push(row); }
+    return rows.filter(function(r){ return r.some(function(x){ return String(x).trim() !== ""; }); });
+  }
+  var IM = { rows: null, plan: null };
+  var IM_LABEL = { "import": "Will import", exists: "Already here", website: "Website booking - already here", duplicate: "Twice in file", past: "Past", unreadable: "Can't read" };
+  function imRender(){
+    var p = IM.plan, tb = $("im-rows"); tb.innerHTML = "";
+    var c = p.counts || {}, s = $("im-summary"); s.innerHTML = "";
+    var nImport = c["import"] || 0, nCheck = p.rows.filter(function(r){ return r.status === "import" && r.why; }).length;
+    s.appendChild(el("span", "chip ok", nImport + " to import"));
+    if (nCheck) s.appendChild(el("span", "chip check", nCheck + " will be marked Check"));
+    if (c.exists) s.appendChild(el("span", "chip", c.exists + " already here"));
+    if (c.website) s.appendChild(el("span", "chip web", c.website + " website bookings already here"));
+    if (c.duplicate) s.appendChild(el("span", "chip", c.duplicate + " twice in the file"));
+    if (c.past) s.appendChild(el("span", "chip", c.past + " past (left out)"));
+    if (c.unreadable) s.appendChild(el("span", "chip unpaid", c.unreadable + " can't be read"));
+    $("im-accounts").textContent = p.newAccounts && p.newAccounts.length
+      ? "New accounts that will be created (add their billing email and ABN afterwards on the Invoices tab): " + p.newAccounts.join(", ") + "."
+      : "No new accounts needed.";
+    var list = $("im-all").checked ? p.rows : p.rows.filter(function(r){ return r.status === "import" || r.status === "unreadable"; });
+    list.forEach(function(r){
+      var tr = el("tr");
+      tr.appendChild(el("td", "", String(r.row)));
+      var w = el("td"); w.appendChild(el("span", "chip" + (r.status === "import" ? (r.why ? " check" : " ok") : r.status === "unreadable" ? " unpaid" : ""), IM_LABEL[r.status] || r.status));
+      if (r.why) w.appendChild(el("div", "muted", r.why));
+      tr.appendChild(w);
+      tr.appendChild(el("td", "", r.date ? niceDate(r.date) + " " + (r.time || "") : "—"));
+      tr.appendChild(el("td", "", r.account || (r.status === "import" ? "(no account)" : "")));
+      tr.appendChild(el("td", "", r.name || ""));
+      tr.appendChild(el("td", "", (r.from || "") + (r.to ? "  →  " + r.to : "")));
+      tr.appendChild(el("td", "", r.vehicle || ""));
+      tr.appendChild(el("td", "num", r.price != null ? money(r.price) : "—"));
+      tb.appendChild(tr);
+    });
+    if (!list.length) { var tr0 = el("tr"), td0 = el("td", "empty", "Nothing new to import."); td0.colSpan = 8; tr0.appendChild(td0); tb.appendChild(tr0); }
+    var go = $("im-go"); go.innerHTML = "";
+    if (nImport) go.appendChild(armBtn("Import " + nImport + " booking" + (nImport === 1 ? "" : "s"), "Press again to import " + nImport, "", imCommit));
+    $("im-preview").hidden = false;
+  }
+  /* The server takes at most ~100 KB a request, so rows go 100 at a time and
+     the answers are added together. Past rows never leave the page. */
+  function imSend(dryRun){
+    var chunks = [], i;
+    for (i = 0; i < IM.rows.length; i += 100) chunks.push(IM.rows.slice(i, i + 100));
+    var acc = { counts: {}, newAccounts: [], rows: [], imported: 0, accountsCreated: [], checks: 0 };
+    if (IM.past) acc.counts.past = IM.past;
+    return chunks.reduce(function(p, ch){
+      return p.then(function(){
+        return api("/ops/import/la", { method: "POST", body: { rows: ch, dryRun: dryRun } }).then(function(d){
+          Object.keys(d.counts || {}).forEach(function(k){ acc.counts[k] = (acc.counts[k] || 0) + d.counts[k]; });
+          (d.newAccounts || []).forEach(function(n){ if (acc.newAccounts.indexOf(n) === -1) acc.newAccounts.push(n); });
+          (d.accountsCreated || []).forEach(function(n){ if (acc.accountsCreated.indexOf(n) === -1) acc.accountsCreated.push(n); });
+          acc.rows = acc.rows.concat(d.rows || []);
+          acc.imported += d.imported || 0; acc.checks += d.checks || 0;
+        });
+      });
+    }, Promise.resolve()).then(function(){ return acc; });
+  }
+  function imPlan(){
+    show($("im-msg"), "Checking " + IM.rows.length + " upcoming rows…", true);
+    return imSend(true).then(function(d){
+      IM.plan = d; show($("im-msg"), ""); imRender();
+    }).catch(function(err){ show($("im-msg"), err.message); $("im-preview").hidden = true; });
+  }
+  function imCommit(){
+    show($("im-msg"), "Importing…", true);
+    return imSend(false).then(function(d){
+      var msg = "Imported " + d.imported + " booking" + (d.imported === 1 ? "" : "s") + "." +
+        (d.accountsCreated && d.accountsCreated.length ? " Created " + d.accountsCreated.length + " account" + (d.accountsCreated.length === 1 ? "" : "s") + ": " + d.accountsCreated.join(", ") + "." : "") +
+        (d.checks ? " " + d.checks + " marked Check - filter the board by date to see them." : "");
+      return imPlan().then(function(){ show($("im-msg"), msg, true); });
+    }).catch(function(err){ show($("im-msg"), err.message); });
+  }
+  $("im-all").addEventListener("change", function(){ if (IM.plan) imRender(); });
+  $("im-file").addEventListener("change", function(){
+    var file = $("im-file").files && $("im-file").files[0];
+    $("im-preview").hidden = true; IM.rows = null; IM.plan = null;
+    if (!file) return;
+    var rd = new FileReader();
+    rd.onload = function(){
+      var t = parseCSV(rd.result);
+      if (t.length < 2) { show($("im-msg"), "That file is empty."); return; }
+      var head = t[0].map(function(h){ return String(h).trim(); });
+      if (head.indexOf("Pickup DateTime") === -1 || head.indexOf("Pickup Address") === -1) {
+        show($("im-msg"), "That doesn't look like the LA Bookings tab - its first row should start \"Pickup DateTime, Passenger First Name…\". Check you downloaded the right tab.");
+        return;
+      }
+      var all = t.slice(1).map(function(r, n){ var o = { __row: n + 2 }; head.forEach(function(h, i){ o[h] = r[i] == null ? "" : r[i]; }); return o; });
+      var today = bneToday();
+      IM.rows = all.filter(function(o){ var d = String(o["Pickup DateTime"] || "").trim(); return !(/^\d{4}-\d{2}-\d{2}/.test(d) && d.slice(0, 10) < today); });
+      IM.past = all.length - IM.rows.length;
+      if (!IM.rows.length) { show($("im-msg"), "Every booking in that file is in the past - nothing to bring across."); return; }
+      imPlan();
+    };
+    rd.onerror = function(){ show($("im-msg"), "Couldn't read that file."); };
+    rd.readAsText(file);
+  });
+
   /* ================= AUTOPILOT ================= */
   function bneStamp(iso){ var x = new Date(Date.parse(iso) + 10 * 36e5).toISOString(); return niceDate(x.slice(0, 10)) + " " + x.slice(11, 16); }
   var AP = null;
