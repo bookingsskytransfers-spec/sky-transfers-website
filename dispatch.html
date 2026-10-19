@@ -378,8 +378,9 @@
           <div><label for="ac-terms">Payment terms (days)</label><input id="ac-terms" type="number" min="0" max="120" value="14"></div>
           <div><label for="ac-active">Status</label><select id="ac-active"><option value="true">Active</option><option value="false">Inactive</option></select></div>
         </div>
-        <div class="row2">
+        <div class="row3">
           <div><label for="ac-address">Billing address</label><input id="ac-address" autocomplete="off"></div>
+          <div><label for="ac-phone">Their phone (printed on invoices)</label><input id="ac-phone" type="tel" autocomplete="off"></div>
           <div><label for="ac-notes">Notes</label><input id="ac-notes" autocomplete="off"></div>
         </div>
         <div style="margin-bottom:10px"><label for="ac-intake">Bookings come from (for Autopilot)</label>
@@ -1180,7 +1181,7 @@
     $("i-acc-h").textContent = p && p.id ? "Edit " + p.name : "Add an account";
     $("ac-id").value = p && p.id || ""; $("ac-name").value = p && p.name || ""; $("ac-email").value = p && p.email || "";
     $("ac-contact").value = p && p.contact || ""; $("ac-abn").value = p && p.abn || ""; $("ac-terms").value = p && p.terms != null ? p.terms : 14;
-    $("ac-active").value = p && p.active === false ? "false" : "true"; $("ac-address").value = p && p.address || ""; $("ac-notes").value = p && p.notes || "";
+    $("ac-active").value = p && p.active === false ? "false" : "true"; $("ac-address").value = p && p.address || ""; $("ac-notes").value = p && p.notes || ""; $("ac-phone").value = p && p.phone || "";
     $("ac-intake").value = p && p.intakeFrom || "";
     $("i-acc-card").scrollIntoView({ behavior: "smooth" });
   }
@@ -1189,7 +1190,7 @@
     var b = $("ac-save"); b.disabled = true;
     api("/ops/account", { method: "POST", body: { id: $("ac-id").value || undefined, name: $("ac-name").value, email: $("ac-email").value,
       contact: $("ac-contact").value, abn: $("ac-abn").value, terms: $("ac-terms").value, active: $("ac-active").value === "true",
-      address: $("ac-address").value, notes: $("ac-notes").value, intakeFrom: $("ac-intake").value } })
+      address: $("ac-address").value, phone: $("ac-phone").value, notes: $("ac-notes").value, intakeFrom: $("ac-intake").value } })
       .then(function(){ show($("i-acc-msg"), "Saved " + $("ac-name").value + ".", true); accountFormFill(null); return loadBilling(); })
       .catch(function(err){ show($("i-acc-msg"), err.message); $("i-acc-msg").scrollIntoView({ behavior: "smooth" }); })
       .then(function(){ b.disabled = false; });
