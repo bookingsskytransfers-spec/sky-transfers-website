@@ -8,6 +8,7 @@ Disallow: /agent.html
 Disallow: /admin.html
 Disallow: /dispatch.html
 Disallow: /driver.html
+Disallow: /track.html
 Disallow: /wp-admin/
 
 # DELIBERATELY NOT BLOCKED: /author/, /category/, /tag/, /*/feed/
