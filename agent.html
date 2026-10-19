@@ -124,6 +124,21 @@
   .stmt .big{font-size:22px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
   .stmt .big.late{color:var(--err)}
   .copy{background:none;border:0;padding:0;margin-left:6px;font:inherit;font-size:12px;font-weight:600;color:var(--gold-deep);cursor:pointer;text-decoration:underline}
+  /* the tour basket and the team list */
+  .cta.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--gold);margin-top:10px}
+  .cta.alt:hover{background:var(--gold-soft);color:var(--ink)}
+  .tour-leg{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+  .tour-leg:last-child{border-bottom:0}
+  .tour-leg .n{font-weight:700;color:var(--ink);min-width:22px}
+  .tour-leg .what{flex:1;min-width:0}
+  .tour-leg .what b{color:var(--ink)}
+  .tour-leg .fare{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tour-total{display:flex;justify-content:space-between;font-weight:700;color:var(--ink);font-size:16px;padding:12px 0 4px;border-top:2px solid var(--line);margin-top:4px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--gold-soft);color:var(--gold-deep);margin-left:4px}
+  .pinbox{border:1.5px dashed var(--gold);border-radius:9px;padding:14px;margin:0 0 14px;background:var(--gold-soft);color:var(--ink)}
+  .pinbox .pin{font-size:28px;font-weight:700;letter-spacing:.18em;font-variant-numeric:tabular-nums;margin:4px 0}
+  .row3{display:grid;grid-template-columns:1.2fr 1.2fr 1fr;gap:12px;margin-bottom:12px}
+  @media (max-width:600px){ .row3{grid-template-columns:1fr} }
   [hidden]{display:none!important}
 </style>
 </head>
@@ -149,6 +164,7 @@
       <div class="field">
         <label for="pin">PIN</label>
         <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+        <p class="hint">Your agency's PIN, or your own PIN if your manager gave you a login.</p>
       </div>
       <button class="cta" type="submit" id="login-btn">Sign in</button>
     </form>
@@ -166,7 +182,7 @@
          style="color:var(--gold-deep);font-weight:600">Read the step-by-step guide (PDF)</a>.
     </p>
 
-    <div class="wallet">
+    <div class="wallet" id="wallet">
       <div class="lbl">Your wallet</div>
       <div class="big" id="w-balance">$0.00</div>
       <div class="split">
@@ -211,7 +227,7 @@
       <p class="hint" id="place-hint">Type a street address, a hotel, a suburb or an airport and pick from the list &mdash; any trip across the Gold Coast and Brisbane is priced on the spot, the same fares as our website.</p>
 
       <div id="quote" hidden>
-        <label>Vehicle — fare, and what you earn</label>
+        <label id="veh-label">Vehicle — fare, and what you earn</label>
         <div class="veh-grid" id="veh-grid"></div>
       </div>
       <div id="noquote" class="msg" hidden></div>
@@ -255,13 +271,29 @@
       </div>
 
       <button class="cta" id="book-btn" disabled>Choose a trip and vehicle</button>
+      <button class="cta alt" id="tour-add" type="button" hidden>+ Add this trip to a tour instead</button>
       <p style="margin:10px 0 0" hidden id="cancel-edit-wrap">
         <button class="linkbtn" id="cancel-edit">Cancel this change and start a new booking</button>
       </p>
       <p class="muted" style="margin:12px 0 0" id="book-note">
-        No payment now — trips go on your monthly invoice at the full fare, and your commission is paid out to you from your wallet.
+        <span id="book-note-pay">No payment now — trips go on your monthly invoice at the full fare, and your commission is paid out to you from your wallet.</span>
         Bookings close 6 hours before pick-up; changes and cancellations close 24 hours before.
+        Booking a group itinerary? Add each trip to a tour and book them all in one go.
       </p>
+    </section>
+
+    <section class="card" id="tour-card" hidden>
+      <h2>Tour</h2>
+      <div id="tour-msg" class="msg" hidden></div>
+      <div class="row2">
+        <div><label for="tour-name">Tour name <span class="muted">(the group or lead passenger)</span></label><input id="tour-name" maxlength="80" placeholder="e.g. Lee family, 27–30 Oct"></div>
+        <div><label for="tour-ref">Your reference for the tour <span class="muted">(optional)</span></label><input id="tour-ref" maxlength="60" autocomplete="off" placeholder="Used for any trip without its own"></div>
+      </div>
+      <div id="tour-legs"></div>
+      <div class="tour-total"><span id="tour-count">0 trips</span><span id="tour-sum">$0.00</span></div>
+      <p class="hint" style="margin:0 0 12px">Each trip is priced and checked again when you book. Either every trip is booked, or none is.</p>
+      <button class="cta" id="tour-book" type="button" disabled>Add at least two trips</button>
+      <p style="margin:10px 0 0"><button class="linkbtn" id="tour-clear" type="button">Clear this tour</button></p>
     </section>
 
     <section class="card">
@@ -270,7 +302,7 @@
         <table>
           <thead><tr>
             <th>Ref</th><th>Date</th><th>Trip</th><th>Passenger</th>
-            <th>Driver &amp; tracking</th><th style="text-align:right">Fare</th><th style="text-align:right">You earn</th>
+            <th>Driver &amp; tracking</th><th style="text-align:right">Fare</th><th style="text-align:right" id="th-earn">You earn</th>
             <th>Status</th><th>Actions</th>
           </tr></thead>
           <tbody id="rows"><tr><td colspan="9" class="muted">Nothing booked yet.</td></tr></tbody>
@@ -297,6 +329,26 @@
       </div>
       <p class="muted" style="margin:12px 0 0">Invoices are at the full fare, with a GST tax invoice for every trip. Your commission is in your wallet above and is paid out to you separately. Pay by card from any open invoice, or by bank transfer using the details on the invoice.</p>
     </section>
+
+    <section class="card" id="team-card" hidden>
+      <h2>Your team</h2>
+      <div id="team-msg" class="msg" hidden></div>
+      <div id="pinbox" class="pinbox" hidden></div>
+      <p class="muted" style="margin:0 0 14px">Give each person at your agency their own login. They sign in with your agency code and their own PIN, and every booking shows who made it.
+        <b>Bookings only</b> can book, change, cancel and download vouchers, and sees fares but not your commission, wallet or invoices. <b>Manager</b> sees everything and can manage the team.</p>
+      <div class="scroll" style="margin-bottom:16px">
+        <table style="min-width:680px">
+          <thead><tr><th>Name</th><th>Access</th><th>Last signed in</th><th style="text-align:right">Bookings</th><th>Actions</th></tr></thead>
+          <tbody id="team-rows"><tr><td colspan="5" class="muted">Just you so far.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="row3">
+        <div><label for="tm-name">Name</label><input id="tm-name" maxlength="80" autocomplete="off"></div>
+        <div><label for="tm-email">Email <span class="muted">(optional, for their own booking copies)</span></label><input id="tm-email" type="email" maxlength="120" autocomplete="off"></div>
+        <div><label for="tm-role">Access</label><select id="tm-role"><option value="staff">Bookings only</option><option value="manager">Manager — everything</option></select></div>
+      </div>
+      <button class="cta" id="tm-add" type="button">Add this person</button>
+    </section>
   </div>
 </div>
 
@@ -320,7 +372,12 @@
   var state = { places: [], vehicle: null, fare: 0, total: 0, commission: 0, editing: null, bookings: [],
                 pu: null, dro: null, puEnd: null, droEnd: null, trip: "one", kind: "oneway",
                 /* stops on the way: s0..s2 and s0End..s2End, like pu/puEnd */
-                stopsShown: 0, s0: null, s1: null, s2: null, s0End: null, s1End: null, s2End: null };
+                stopsShown: 0, s0: null, s1: null, s2: null, s0End: null, s1End: null, s2End: null,
+                /* who is signed in: the agency's main login, a manager, or
+                   bookings-only staff (no commission, wallet or invoices) */
+                me: { role: "owner", canMoney: true, canManage: true },
+                tour: [], tourMax: 15 };
+  var canMoney = function(){ return !state.me || state.me.canMoney !== false; };
 
   function show(el, msg, ok){
     if (!msg) { el.hidden = true; return; }
@@ -365,7 +422,9 @@
 
   function signOut(){
     token = null;
-    try { sessionStorage.removeItem("sky_agent_token"); } catch (e) {}
+    try { sessionStorage.removeItem("sky_agent_token"); sessionStorage.removeItem(TOUR_KEY); } catch (e) {}
+    state.tour = []; $("tour-name").value = ""; $("tour-ref").value = ""; drawTour();
+    $("pinbox").hidden = true;
     $("portal").hidden = true;
     $("signin").hidden = false;
     $("who").hidden = true;
@@ -376,8 +435,24 @@
     $("signin").hidden = true;
     $("portal").hidden = false;
     api("/agent/places").then(function(d){ state.places = d.places || []; }).catch(function(){});
-    refresh();
-    loadInvoices();
+    loadTour();
+    refresh().then(function(){
+      if (canMoney()) loadInvoices();
+      if (state.me && state.me.canManage) loadTeam();
+    });
+  }
+
+  /* What a login can see. The server enforces it; this only tidies the page. */
+  function applyRole(){
+    var m = canMoney();
+    $("wallet").hidden = !m;
+    $("inv-card").hidden = !m;
+    $("th-earn").hidden = !m;
+    $("veh-label").textContent = m ? "Vehicle — fare, and what you earn" : "Vehicle and fare";
+    $("team-card").hidden = !(state.me && state.me.canManage);
+    $("book-note-pay").textContent = m
+      ? "No payment now — trips go on your monthly invoice at the full fare, and your commission is paid out to you from your wallet."
+      : "No payment now — trips go on your agency's monthly invoice.";
   }
 
   /* ---- bookings table ---- */
@@ -399,12 +474,18 @@
   function refresh(){
     return api("/agent/summary").then(function(d){
       state.bookings = d.bookings;
+      state.me = d.user || { role: "owner", canMoney: true, canManage: true };
+      if (d.tourMax) state.tourMax = d.tourMax;
+      applyRole();
       $("who").hidden = false;
-      $("who").textContent = d.agent.name + " · " + d.agent.code;
-      $("w-balance").textContent = money(d.wallet.balance);
-      $("w-earned").textContent = money(d.wallet.earned);
-      $("w-paid").textContent = money(d.wallet.paid);
-      $("w-pct").textContent = d.agent.commissionPct + "%";
+      $("who").textContent = (state.me.role !== "owner" && state.me.name ? state.me.name + " · " : "") + d.agent.name + " · " + d.agent.code;
+      if (d.wallet) {
+        $("w-balance").textContent = money(d.wallet.balance);
+        $("w-earned").textContent = money(d.wallet.earned);
+        $("w-paid").textContent = money(d.wallet.paid);
+        $("w-pct").textContent = d.agent.commissionPct + "%";
+      }
+      var m = canMoney();
       var tb = $("rows");
       if (!d.bookings.length) {
         tb.innerHTML = '<tr><td colspan="9" class="muted">Nothing booked yet.</td></tr>';
@@ -414,17 +495,19 @@
       d.bookings.forEach(function(b){
         var tr = document.createElement("tr");
         if (b.status !== "confirmed") tr.className = "void";
-        cell(tr, b.ref, b.clientRef ? "Your ref " + b.clientRef : "");
+        cell(tr, b.ref, [b.clientRef ? "Your ref " + b.clientRef : "", b.bookedBy ? "by " + b.bookedBy : ""].filter(Boolean).join(" · "));
         cell(tr, b.date + " " + b.time, b.returnDate ? "Return " + b.returnDate + " " + (b.returnTime || "") : "");
         cell(tr, b.hours ? b.pickup + " · " + b.hours + " h as directed" : b.route,
-          [b.stops && b.stops.length ? "via " + b.stops.length + (b.stops.length === 1 ? " stop" : " stops") : "", b.returnDate ? "Return trip" : ""].filter(Boolean).join(" · "));
+          [b.tourRef ? "Tour: " + (b.tourName || b.tourRef) + " · " + b.tourSeq + " of " + (b.tourCount || b.tourSeq) : "",
+           b.stops && b.stops.length ? "via " + b.stops.length + (b.stops.length === 1 ? " stop" : " stops") : "", b.returnDate ? "Return trip" : ""].filter(Boolean).join(" · "));
         cell(tr, b.passenger, b.email || "");
         tr.appendChild(tripCell(b));
         cell(tr, money(b.total), "", "num");
-        cell(tr, money(b.commission), "", "num");
+        if (m) cell(tr, money(b.commission), "", "num");
         var st = document.createElement("td");
         var pill = document.createElement("span");
         if (b.status !== "confirmed") { pill.className = "pill void"; pill.textContent = "cancelled"; }
+        else if (!m) { pill.className = "pill"; pill.textContent = "confirmed"; }
         else if (b.settled) { pill.className = "pill paid"; pill.textContent = "paid"; }
         else { pill.className = "pill"; pill.textContent = "in wallet"; }
         st.appendChild(pill); tr.appendChild(st);
@@ -432,6 +515,7 @@
         var acts = document.createElement("td");
         if (b.status === "confirmed") {
           acts.appendChild(actionBtn("Voucher", "", function(){ downloadVoucher(b.ref); }));
+          if (b.tourRef) acts.appendChild(actionBtn("Tour voucher", "", function(){ downloadTourVoucher(b.tourRef); }));
           if (b.changeable) {
             acts.appendChild(actionBtn("Change", "", function(){ startEdit(b); }));
             acts.appendChild(actionBtn("Cancel", "danger", function(){ cancelBooking(b); }));
@@ -525,23 +609,30 @@
   function downloadVoucher(ref){
     /* Fetched rather than linked so the session token stays out of browser
        history, then handed to the browser as a normal file save. */
-    fetch(API + "/agent/booking/voucher?ref=" + encodeURIComponent(ref), {
+    savePdf("/agent/booking/voucher?ref=" + encodeURIComponent(ref), "SkyTransfers-" + ref + ".pdf", "Could not build that voucher.");
+  }
+  /* the itinerary, then one voucher per trip, in one file */
+  function downloadTourVoucher(tourRef){
+    savePdf("/agent/tour/voucher?tour=" + encodeURIComponent(tourRef), "SkyTransfers-" + tourRef + ".pdf", "Could not build that tour voucher.");
+  }
+  function savePdf(path, name, failMsg){
+    fetch(API + path, {
       headers: { Authorization: "Bearer " + token }
     }).then(function(r){
-      if (!r.ok) throw new Error("Could not build that voucher.");
+      if (!r.ok) throw new Error(failMsg);
       return r.blob();
     }).then(function(blob){
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
-      a.href = url; a.download = "SkyTransfers-" + ref + ".pdf";
+      a.href = url; a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     }).catch(function(err){ show($("book-msg"), err.message); });
   }
 
   function cancelBooking(b){
-    if (!window.confirm("Cancel " + b.ref + " — " + b.route + " on " + b.date + "?\n\nYour " +
-        money(b.commission) + " commission on this booking is reversed.")) return;
+    if (!window.confirm("Cancel " + b.ref + " — " + b.route + " on " + b.date + "?" +
+        (b.commission != null ? "\n\nYour " + money(b.commission) + " commission on this booking is reversed." : ""))) return;
     api("/agent/booking/cancel", { method: "POST", body: { ref: b.ref } })
       .then(function(){ show($("book-msg"), b.ref + " is cancelled. We've told dispatch.", true); refresh(); })
       .catch(function(err){ show($("book-msg"), err.message); });
@@ -820,7 +911,7 @@
           b.querySelector(".n").textContent = v.vehicle;
           b.querySelector(".f").textContent = money(v.total);
           b.querySelector(".t").textContent = unit + (v.stopsExtra > 0 ? " · incl. " + money(v.stopsExtra) + " for stops" : "");
-          b.querySelector(".c").textContent = "you earn " + money(v.commission);
+          b.querySelector(".c").textContent = v.commission != null ? "you earn " + money(v.commission) : "";
           b.addEventListener("click", function(){
             state.vehicle = v.vehicle; state.fare = v.fare; state.total = v.total; state.commission = v.commission;
             [].forEach.call(grid.children, function(c){ c.classList.remove("on"); });
@@ -838,26 +929,27 @@
   function setBookState(){
     var btn = $("book-btn");
     btn.disabled = !state.vehicle;
+    $("tour-add").hidden = !state.vehicle || !!state.editing;
     if (!state.vehicle) { btn.textContent = "Choose a trip and vehicle"; return; }
     btn.textContent = (state.editing ? "Save change — " : "Book ") + state.vehicle + " · " +
-      money(state.total) + " · you earn " + money(state.commission);
+      money(state.total) + (canMoney() && state.commission != null ? " · you earn " + money(state.commission) : "");
   }
 
   /* ---- book / save ---- */
-  $("book-btn").addEventListener("click", function(){
+  function formProblem(){
     var required = { "Pick-up": state.pu, "Pick-up date": $("date").value,
       "Pick-up time": $("time").value, "Passenger name": $("pname").value, "Passenger phone": $("pphone").value };
     if (state.trip !== "hourly") required["Drop-off"] = state.dro;
     if (state.trip === "return") { required["Return date"] = $("rdate").value; required["Return pick-up time"] = $("rtime").value; }
     for (var k in required) {
-      if (!String(required[k] || "").trim()) { show($("book-msg"), "Please fill in: " + k); return; }
+      if (!String(required[k] || "").trim()) return "Please fill in: " + k;
     }
-    if (state.trip !== "hourly" && pendingStop()) { show($("book-msg"), "Choose stop " + pendingStop() + " from the list, or remove it."); return; }
-    var btn = $("book-btn"), label = btn.textContent;
-    btn.disabled = true; btn.textContent = state.editing ? "Saving…" : "Booking…";
-    show($("book-msg"), "");
+    if (state.trip !== "hourly" && pendingStop()) return "Choose stop " + pendingStop() + " from the list, or remove it.";
+    return "";
+  }
+  function bookingPayload(){
     var t = tripBody();
-    var payload = {
+    return {
       pickup: t.pickup, dropoff: t.dropoff, ends: t.ends, hourly: t.hourly, stops: t.stops, vehicle: state.vehicle,
       date: $("date").value, time: $("time").value,
       returnDate: state.trip === "return" ? $("rdate").value : "", returnTime: state.trip === "return" ? $("rtime").value : "",
@@ -867,19 +959,197 @@
       pax: $("pax").value, flight: $("flight").value.trim(), address: $("addr").value.trim(),
       childSeats: $("seats").value, trailer: $("trailer").value, notes: $("notes").value.trim()
     };
+  }
+  $("book-btn").addEventListener("click", function(){
+    var problem = formProblem();
+    if (problem) { show($("book-msg"), problem); return; }
+    var btn = $("book-btn"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = state.editing ? "Saving…" : "Booking…";
+    show($("book-msg"), "");
+    var payload = bookingPayload();
     var editing = state.editing;
     if (editing) payload.ref = editing;
     api(editing ? "/agent/booking/update" : "/agent/book", { method: "POST", body: payload })
       .then(function(d){
+        var earn = d.commission != null;
         show($("book-msg"), editing
-          ? "Saved — " + d.ref + " updated and dispatch notified. Your commission is now " + money(d.commission) + "."
-          : "Booked — reference " + d.ref + ". " + money(d.commission) + " added to your wallet.", true);
+          ? "Saved — " + d.ref + " updated and dispatch notified." + (earn ? " Your commission is now " + money(d.commission) + "." : "")
+          : "Booked — reference " + d.ref + "." + (earn ? " " + money(d.commission) + " added to your wallet." : " Dispatch has it."), true);
         endEdit();
         refresh();
       }).catch(function(err){
         show($("book-msg"), err.message);
         btn.disabled = false; btn.textContent = label;
       });
+  });
+
+  /* ---- a tour: several trips, booked in one go ----------------------------
+     Each trip is filled in on the normal form and added to the basket; the
+     passenger details stay for the next one. Kept in sessionStorage so a
+     reload doesn't lose a half-built itinerary, and cleared on sign out. */
+  var TOUR_KEY = "sky_agent_tour";
+  function saveTour(){
+    try { sessionStorage.setItem(TOUR_KEY, JSON.stringify({ legs: state.tour, name: $("tour-name").value, ref: $("tour-ref").value })); } catch (e) {}
+  }
+  function loadTour(){
+    try {
+      var j = JSON.parse(sessionStorage.getItem(TOUR_KEY) || "null");
+      if (j && Array.isArray(j.legs)) { state.tour = j.legs; $("tour-name").value = j.name || ""; $("tour-ref").value = j.ref || ""; }
+    } catch (e) {}
+    drawTour();
+  }
+  function drawTour(){
+    var legs = state.tour, box = $("tour-legs");
+    $("tour-card").hidden = !legs.length;
+    box.innerHTML = "";
+    var sum = 0, extras = false;
+    legs.forEach(function(l, i){
+      sum += Number(l.total) || 0;
+      if (l.extras) extras = true;
+      var row = document.createElement("div"); row.className = "tour-leg";
+      var n = document.createElement("span"); n.className = "n"; n.textContent = (i + 1) + ".";
+      var what = document.createElement("div"); what.className = "what";
+      var top = document.createElement("b"); top.textContent = niceDate(l.p.date) + " " + l.p.time + " · " + l.route;
+      var sub = document.createElement("span"); sub.className = "sub";
+      sub.textContent = [l.vehicle, l.kind, l.p.flight ? "flight " + l.p.flight : "", l.extras].filter(Boolean).join(" · ");
+      what.appendChild(top); what.appendChild(sub);
+      var fare = document.createElement("span"); fare.className = "fare"; fare.textContent = money(l.total);
+      var x = document.createElement("button"); x.type = "button"; x.className = "act danger"; x.textContent = "Remove";
+      x.addEventListener("click", function(){ state.tour.splice(i, 1); saveTour(); drawTour(); });
+      row.appendChild(n); row.appendChild(what); row.appendChild(fare); row.appendChild(x);
+      box.appendChild(row);
+    });
+    $("tour-count").textContent = legs.length + (legs.length === 1 ? " trip" : " trips") + (extras ? " (plus child seats / trailer)" : "");
+    $("tour-sum").textContent = money(sum);
+    var btn = $("tour-book");
+    btn.disabled = legs.length < 2;
+    btn.textContent = legs.length < 2 ? "Add at least two trips" : "Book all " + legs.length + " trips · " + money(sum);
+  }
+  $("tour-name").addEventListener("input", saveTour);
+  $("tour-ref").addEventListener("input", saveTour);
+
+  $("tour-add").addEventListener("click", function(){
+    var problem = formProblem();
+    if (problem) { show($("book-msg"), problem); return; }
+    if (state.tour.length >= state.tourMax) { show($("book-msg"), "A tour can have up to " + state.tourMax + " trips — book this one on its own, or start a second tour."); return; }
+    var p = bookingPayload();
+    var hourly = state.trip === "hourly";
+    var stops = (p.stops || []).length;
+    var seats = parseInt(p.childSeats, 10) || 0;
+    state.tour.push({
+      p: p, vehicle: state.vehicle, total: state.total,
+      route: hourly ? state.pu + " · " + $("hours").value + " h as directed" : state.pu + " → " + state.dro,
+      kind: [state.trip === "return" ? "return " + niceDate(p.returnDate) + " " + p.returnTime : "", stops ? "via " + stops + (stops === 1 ? " stop" : " stops") : ""].filter(Boolean).join(" · "),
+      extras: [seats ? seats + (seats === 1 ? " child seat" : " child seats") : "", p.trailer === "true" ? "trailer" : ""].filter(Boolean).join(", ")
+    });
+    state.tour.sort(function(a, b){ return (a.p.date + a.p.time) < (b.p.date + b.p.time) ? -1 : 1; });
+    if (!$("tour-name").value.trim()) $("tour-name").value = p.name;
+    if (!$("tour-ref").value.trim() && p.clientRef) $("tour-ref").value = p.clientRef;
+    saveTour(); drawTour();
+    /* clear the trip, keep the passenger for the next leg */
+    ["pu","dro","date","time","rdate","rtime","rflight","flight","addr","notes"].forEach(function(id){ $(id).value = ""; });
+    $("addr").dataset.autofill = "";
+    state.pu = state.dro = state.puEnd = state.droEnd = null;
+    setStops([]); setTrip("one", true);
+    $("quote").hidden = true; $("noquote").hidden = true;
+    state.vehicle = null; setBookState();
+    show($("book-msg"), "Trip added — " + state.tour.length + (state.tour.length === 1 ? " trip" : " trips") +
+      " in the tour so far. Fill in the next one (the passenger details are kept), or book the whole tour below.", true);
+    window.scrollTo({ top: $("book-msg").getBoundingClientRect().top + window.scrollY - 20, behavior: "smooth" });
+  });
+
+  $("tour-clear").addEventListener("click", function(){
+    if (!window.confirm("Clear this tour? Nothing has been booked yet, so nothing is cancelled.")) return;
+    state.tour = []; $("tour-name").value = ""; $("tour-ref").value = ""; saveTour(); drawTour();
+    show($("tour-msg"), "");
+  });
+
+  $("tour-book").addEventListener("click", function(){
+    var name = $("tour-name").value.trim();
+    if (!name) { show($("tour-msg"), "Give the tour a name — the group or lead passenger."); $("tour-name").focus(); return; }
+    var btn = $("tour-book"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "Booking " + state.tour.length + " trips…";
+    show($("tour-msg"), "");
+    api("/agent/tour", { method: "POST", body: { tourName: name, clientRef: $("tour-ref").value.trim(), legs: state.tour.map(function(l){ return l.p; }) } })
+      .then(function(d){
+        state.tour = []; $("tour-name").value = ""; $("tour-ref").value = ""; saveTour(); drawTour();
+        show($("book-msg"), "Tour booked — " + d.tourName + ", " + d.refs.length + " trips, tour reference " + d.tourRef + " (" + d.refs.join(", ") + "). " +
+          "Total " + money(d.total) + (d.commission != null ? ", " + money(d.commission) + " added to your wallet" : "") +
+          ". Use Tour voucher in your bookings for one file with every trip.", true);
+        refresh();
+        window.scrollTo({ top: $("book-msg").getBoundingClientRect().top + window.scrollY - 20, behavior: "smooth" });
+      }).catch(function(err){
+        show($("tour-msg"), err.message + " Nothing was booked — fix that trip (remove it and add it again) and try again.");
+        btn.disabled = false; btn.textContent = label;
+      });
+  });
+
+  /* ---- your team: staff logins (main login and managers only) ---- */
+  function showPin(name, pin){
+    var box = $("pinbox");
+    box.innerHTML = "";
+    var a = document.createElement("div"); a.textContent = "PIN for " + name + ":";
+    var b = document.createElement("div"); b.className = "pin"; b.textContent = pin;
+    var c = document.createElement("div"); c.className = "muted";
+    c.textContent = "Give it to them yourself — it is not shown again and we don't email it. They sign in here with your agency code and this PIN.";
+    var x = document.createElement("button"); x.type = "button"; x.className = "linkbtn"; x.style.marginTop = "8px"; x.textContent = "Done — hide this PIN";
+    x.addEventListener("click", function(){ box.hidden = true; box.innerHTML = ""; });
+    box.appendChild(a); box.appendChild(b); box.appendChild(c); box.appendChild(x);
+    box.hidden = false;
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function teamCall(path, body, done){
+    show($("team-msg"), "");
+    api(path, { method: "POST", body: body }).then(function(d){ if (done) done(d); loadTeam(); })
+      .catch(function(err){ show($("team-msg"), err.message); });
+  }
+  function loadTeam(){
+    return api("/agent/team").then(function(d){
+      var tb = $("team-rows");
+      if (!d.team.length) { tb.innerHTML = '<tr><td colspan="5" class="muted">Just you so far.</td></tr>'; return; }
+      tb.innerHTML = "";
+      d.team.forEach(function(u){
+        var tr = document.createElement("tr");
+        if (!u.active) tr.className = "void";
+        var me = d.you && d.you === u.id;
+        cell(tr, u.name + (me ? " (you)" : ""), u.email || "");
+        cell(tr, u.role === "manager" ? "Manager" : "Bookings only", u.active ? "" : "switched off");
+        cell(tr, u.lastLogin ? niceDate(String(u.lastLogin).slice(0, 10)) : "never");
+        cell(tr, String(u.bookings || 0), "", "num");
+        var acts = document.createElement("td");
+        if (!me) {
+          if (u.active) {
+            acts.appendChild(actionBtn("New PIN", "", function(){
+              if (!window.confirm("Give " + u.name + " a new PIN? Their old one stops working straight away.")) return;
+              teamCall("/agent/team/pin", { id: u.id }, function(r){ showPin(u.name, r.pin); });
+            }));
+            acts.appendChild(actionBtn(u.role === "manager" ? "Make bookings only" : "Make manager", "", function(){
+              teamCall("/agent/team/update", { id: u.id, role: u.role === "manager" ? "staff" : "manager" });
+            }));
+            acts.appendChild(actionBtn("Switch off", "danger", function(){
+              if (!window.confirm("Switch off " + u.name + "'s login? They are signed out at once. Their bookings stay as they are.")) return;
+              teamCall("/agent/team/update", { id: u.id, active: false });
+            }));
+          } else {
+            acts.appendChild(actionBtn("Switch back on", "", function(){
+              teamCall("/agent/team/update", { id: u.id, active: true }, function(r){ if (r.pin) showPin(u.name, r.pin); });
+            }));
+          }
+        }
+        tr.appendChild(acts);
+        tb.appendChild(tr);
+      });
+    }).catch(function(err){ show($("team-msg"), err.message); });
+  }
+  $("tm-add").addEventListener("click", function(){
+    var name = $("tm-name").value.trim();
+    if (name.length < 2) { show($("team-msg"), "Enter the person's name."); return; }
+    var btn = $("tm-add"); btn.disabled = true;
+    teamCall("/agent/team/add", { name: name, email: $("tm-email").value.trim(), role: $("tm-role").value }, function(r){
+      $("tm-name").value = ""; $("tm-email").value = ""; $("tm-role").value = "staff";
+      showPin(r.user.name, r.pin);
+    });
+    setTimeout(function(){ btn.disabled = false; }, 1200);
   });
 
   /* Today in Brisbane is the earliest date worth offering; the server enforces
