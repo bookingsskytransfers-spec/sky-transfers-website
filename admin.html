@@ -83,6 +83,8 @@
   .act.armed{background:var(--gold);color:#141D30;border-color:var(--gold);font-weight:600}
   .act.danger.armed{background:#C0463C;color:#fff;border-color:#C0463C}
   .muted{color:var(--muted);font-size:13.5px}
+  td .sub{display:block;font-size:12px;color:var(--muted)}
+  #staff-card table{min-width:640px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -199,6 +201,30 @@
         </table>
       </div>
       <p style="margin:14px 0 0"><button class="linkbtn" id="close-bookings">Close</button></p>
+    </section>
+
+    <section class="card" id="staff-card" hidden>
+      <h2 id="staff-title">Staff logins</h2>
+      <div id="staff-msg" class="msg" hidden></div>
+      <div id="staff-pin" class="pinbox" hidden>
+        <div class="lbl">PIN for <span id="staff-pin-for"></span></div>
+        <div class="val" id="staff-pin-val"></div>
+        <p>Give this to them (or to the agency) now — it is not shown again and is never emailed. They sign in with the agency code and this PIN.</p>
+      </div>
+      <p class="muted" style="margin:0 0 14px">Extra people at this agency, each with their own PIN. <b>Bookings only</b> can book, change and cancel but never sees commission, the wallet or invoices; <b>Manager</b> sees everything and can manage the team. The agency manages these itself in its portal — use this when they can't, or when someone should be switched off now.</p>
+      <div class="scroll" style="margin-bottom:16px">
+        <table>
+          <thead><tr><th>Name</th><th>Access</th><th>Last signed in</th><th style="text-align:right">Bookings</th><th>Actions</th></tr></thead>
+          <tbody id="srows"></tbody>
+        </table>
+      </div>
+      <div class="row3">
+        <div><label for="s-name">Name</label><input id="s-name" maxlength="80" autocomplete="off"></div>
+        <div><label for="s-email">Email <span class="muted">(optional)</span></label><input id="s-email" type="email" maxlength="120" autocomplete="off"></div>
+        <div><label for="s-role">Access</label><select id="s-role"><option value="staff">Bookings only</option><option value="manager">Manager — everything</option></select></div>
+      </div>
+      <button class="cta" id="s-add" type="button">Add a staff login &amp; issue a PIN</button>
+      <p style="margin:14px 0 0"><button class="linkbtn" id="close-staff">Close</button></p>
     </section>
 
     <section class="card" id="nb-card">
@@ -923,6 +949,7 @@
         acts.appendChild(actionBtn("Edit", "", function(){ editAgent(a); }));
         acts.appendChild(armBtn("New PIN", "Issue a new PIN?", "", function(){ return resetPin(a); }));
         acts.appendChild(actionBtn("Bookings", "", function(){ showBookings(a); }));
+        acts.appendChild(actionBtn("Staff" + (a.staff ? " (" + a.staff + ")" : ""), "", function(){ showStaff(a); }));
         if (a.owing > 0) acts.appendChild(armBtn("Mark paid", "Confirm " + money(a.owing) + " paid?", "pay", function(){ return settle(a); }));
         tr.appendChild(acts);
         tb.appendChild(tr);
@@ -1015,8 +1042,12 @@
         d.bookings.forEach(function(b){
           var tr = document.createElement("tr");
           if (b.status !== "confirmed") tr.className = "off";
-          [b.ref, b.date + " " + b.time, b.route, b.passenger].forEach(function(v){
-            var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+          /* who at the agency made it, and the tour it belongs to */
+          [[b.ref, b.bookedBy ? "by " + b.bookedBy : ""], [b.date + " " + b.time, ""],
+           [b.route, b.tourRef ? "Tour: " + (b.tourName || b.tourRef) + " · trip " + b.tourSeq : ""], [b.passenger, ""]].forEach(function(v){
+            var td = document.createElement("td"); td.textContent = v[0];
+            if (v[1]) { var s = document.createElement("span"); s.className = "sub"; s.textContent = v[1]; td.appendChild(s); }
+            tr.appendChild(td);
           });
           [money(b.total), money(b.commission)].forEach(function(v){
             var td = document.createElement("td"); td.className = "num"; td.textContent = v; tr.appendChild(td);
@@ -1034,6 +1065,79 @@
   $("web-refresh").addEventListener("click", loadWeb);
   $("web-status").addEventListener("change", loadWeb);
   $("close-bookings").addEventListener("click", function(){ $("bookings-card").hidden = true; });
+
+  /* ---- an agency's staff logins ---- */
+  var staffAgent = null;
+  function staffPin(name, pin){
+    $("staff-pin-for").textContent = name + " (" + staffAgent.code + ")";
+    $("staff-pin-val").textContent = pin;
+    $("staff-pin").hidden = false;
+    $("staff-pin").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function staffCall(path, body, done){
+    show($("staff-msg"), "");
+    body.code = staffAgent.code;
+    return api(path, { method: "POST", body: body })
+      .then(function(d){ if (done) done(d); return loadStaff(); })
+      .catch(function(err){ show($("staff-msg"), err.message); });
+  }
+  function showStaff(a){
+    staffAgent = a;
+    $("staff-title").textContent = "Staff logins — " + a.name + " (" + a.code + ")";
+    $("staff-pin").hidden = true;
+    show($("staff-msg"), "");
+    loadStaff().then(function(){
+      $("staff-card").hidden = false;
+      $("staff-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+  function shortWhen(v){ return v ? String(v).slice(8, 10) + "/" + String(v).slice(5, 7) + "/" + String(v).slice(0, 4) : "never"; }
+  function loadStaff(){
+    return api("/admin/agent/staff?code=" + encodeURIComponent(staffAgent.code)).then(function(d){
+      var tb = $("srows");
+      if (!d.team.length) { tb.innerHTML = '<tr><td colspan="5" class="muted">No staff logins — just the agency\'s own code and PIN.</td></tr>'; return; }
+      tb.innerHTML = "";
+      d.team.forEach(function(u){
+        var tr = document.createElement("tr");
+        if (!u.active) tr.className = "off";
+        [[u.name, u.email || ""], [u.role === "manager" ? "Manager" : "Bookings only", u.active ? "" : "switched off"], [shortWhen(u.lastLogin), ""]].forEach(function(v){
+          var td = document.createElement("td"); td.textContent = v[0];
+          if (v[1]) { var s = document.createElement("span"); s.className = "sub"; s.textContent = v[1]; td.appendChild(s); }
+          tr.appendChild(td);
+        });
+        var n = document.createElement("td"); n.className = "num"; n.textContent = String(u.bookings || 0); tr.appendChild(n);
+        var acts = document.createElement("td");
+        if (u.active) {
+          acts.appendChild(armBtn("New PIN", "Issue a new PIN?", "", function(){
+            return staffCall("/admin/agent/staff/pin", { id: u.id }, function(r){ staffPin(u.name, r.pin); });
+          }));
+          acts.appendChild(actionBtn(u.role === "manager" ? "Make bookings only" : "Make manager", "", function(){
+            staffCall("/admin/agent/staff/update", { id: u.id, role: u.role === "manager" ? "staff" : "manager" });
+          }));
+          acts.appendChild(armBtn("Switch off", "Sign them out now?", "danger", function(){
+            return staffCall("/admin/agent/staff/update", { id: u.id, active: false });
+          }));
+        } else {
+          acts.appendChild(actionBtn("Switch back on", "", function(){
+            staffCall("/admin/agent/staff/update", { id: u.id, active: true }, function(r){ if (r.pin) staffPin(u.name, r.pin); });
+          }));
+        }
+        tr.appendChild(acts);
+        tb.appendChild(tr);
+      });
+    }).catch(function(err){ show($("staff-msg"), err.message); });
+  }
+  $("s-add").addEventListener("click", function(){
+    var name = $("s-name").value.trim();
+    if (name.length < 2) { show($("staff-msg"), "Enter the person's name."); return; }
+    var btn = $("s-add"); btn.disabled = true;
+    staffCall("/admin/agent/staff/add", { name: name, email: $("s-email").value.trim(), role: $("s-role").value }, function(r){
+      $("s-name").value = ""; $("s-email").value = ""; $("s-role").value = "staff";
+      staffPin(r.user.name, r.pin);
+      load();
+    }).then(function(){ btn.disabled = false; });
+  });
+  $("close-staff").addEventListener("click", function(){ $("staff-card").hidden = true; $("staff-pin").hidden = true; });
 
   if (token) enter();
 })();
