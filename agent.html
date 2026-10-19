@@ -79,7 +79,7 @@
   .ac-item{padding:9px 12px;cursor:pointer;font-size:14.5px}
   .ac-item:hover,.ac-item.active{background:var(--gold-soft)}
   .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--card)}
-  table{width:100%;border-collapse:collapse;font-size:14px;min-width:820px}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:980px}
   th{background:var(--navy);color:var(--navy-text);font-size:12px;letter-spacing:.05em;
     text-transform:uppercase;padding:9px 11px;text-align:left;white-space:nowrap}
   td{padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
@@ -108,6 +108,13 @@
   .hint{font-size:13px;color:var(--muted);margin:4px 0 0}
   .veh .t{display:block;font-size:11.5px;color:var(--muted)}
   td .sub{display:block;font-size:12px;color:var(--muted)}
+  /* where the trip is, per leg, as the passenger's tracking page shows it */
+  .leg{margin:0 0 6px}
+  .leg:last-child{margin:0}
+  .step{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold-deep)}
+  .step.live{background:rgba(30,127,79,.13);color:var(--ok)}
+  .step.done{background:rgba(104,112,127,.14);color:var(--muted)}
+  .copy{background:none;border:0;padding:0;margin-left:6px;font:inherit;font-size:12px;font-weight:600;color:var(--gold-deep);cursor:pointer;text-decoration:underline}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -248,10 +255,10 @@
         <table>
           <thead><tr>
             <th>Ref</th><th>Date</th><th>Trip</th><th>Passenger</th>
-            <th style="text-align:right">Fare</th><th style="text-align:right">You earn</th>
+            <th>Driver &amp; tracking</th><th style="text-align:right">Fare</th><th style="text-align:right">You earn</th>
             <th>Status</th><th>Actions</th>
           </tr></thead>
-          <tbody id="rows"><tr><td colspan="8" class="muted">Nothing booked yet.</td></tr></tbody>
+          <tbody id="rows"><tr><td colspan="9" class="muted">Nothing booked yet.</td></tr></tbody>
         </table>
       </div>
       <p style="margin:14px 0 0"><button class="linkbtn" id="signout">Sign out</button></p>
@@ -363,7 +370,7 @@
       $("w-pct").textContent = d.agent.commissionPct + "%";
       var tb = $("rows");
       if (!d.bookings.length) {
-        tb.innerHTML = '<tr><td colspan="8" class="muted">Nothing booked yet.</td></tr>';
+        tb.innerHTML = '<tr><td colspan="9" class="muted">Nothing booked yet.</td></tr>';
         return;
       }
       tb.innerHTML = "";
@@ -374,6 +381,7 @@
         cell(tr, b.date + " " + b.time, b.returnDate ? "Return " + b.returnDate + " " + (b.returnTime || "") : "");
         cell(tr, b.hours ? b.pickup + " · " + b.hours + " h as directed" : b.route, b.returnDate ? "Return trip" : "");
         cell(tr, b.passenger, b.email || "");
+        tr.appendChild(tripCell(b));
         cell(tr, money(b.total), "", "num");
         cell(tr, money(b.commission), "", "num");
         var st = document.createElement("td");
@@ -400,6 +408,35 @@
         tb.appendChild(tr);
       });
     }).catch(function(err){ show($("book-msg"), err.message); });
+  }
+
+  /* One line per leg: the step, who is driving and in what (once the office
+     has sent them the job), and the passenger's tracking link to pass on. */
+  function tripCell(b){
+    var td = document.createElement("td");
+    td.style.whiteSpace = "normal"; td.style.minWidth = "190px";
+    if (b.status !== "confirmed" || !b.trip || !b.trip.length) { td.className = "muted"; td.textContent = b.status === "confirmed" ? "Booked" : "—"; return td; }
+    b.trip.forEach(function(l){
+      var row = document.createElement("div"); row.className = "leg";
+      if (b.trip.length > 1) { var w = document.createElement("span"); w.className = "muted"; w.textContent = (l.leg === "ret" ? "Return" : "Outbound") + " "; row.appendChild(w); }
+      var st = document.createElement("span");
+      st.className = "step" + (/^(on_way|arrived|on_board)$/.test(l.step) ? " live" : l.step === "done" ? " done" : "");
+      st.textContent = l.label; row.appendChild(st);
+      if (l.trackUrl && l.step !== "done") {
+        var c = document.createElement("button"); c.type = "button"; c.className = "copy"; c.textContent = "Copy tracking link";
+        c.addEventListener("click", function(){ copyLink(l.trackUrl, b.ref); });
+        row.appendChild(c);
+      }
+      if (l.driver) { var who = document.createElement("span"); who.className = "sub"; who.textContent = l.driver + (l.car ? " · " + l.car : ""); row.appendChild(who); }
+      td.appendChild(row);
+    });
+    return td;
+  }
+  function copyLink(url, ref){
+    var done = function(){ show($("book-msg"), "Tracking link for " + ref + " copied — send it to your client. It shows the driver and where they are, never a price.", true); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, function(){ window.prompt("Copy this tracking link:", url); });
+    } else { window.prompt("Copy this tracking link:", url); }
   }
 
   function downloadVoucher(ref){
