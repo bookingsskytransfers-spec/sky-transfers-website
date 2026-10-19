@@ -162,6 +162,10 @@
     if (j.hours && (!j.to || j.to === "As directed")) {
       r.appendChild(el("div", "facts", "By the hour — " + j.hours + " hours as directed"));
     } else {
+      (j.stops || []).forEach(function(s, i){
+        var as = el("a"); as.href = maps(s); as.target = "_blank"; as.rel = "noopener";
+        as.appendChild(el("span", "", "Stop " + (i + 1))); as.appendChild(document.createTextNode(s)); r.appendChild(as);
+      });
       var a2 = el("a"); a2.href = maps(j.address && j.leg === "ret" ? j.address : j.to); a2.target = "_blank"; a2.rel = "noopener";
       a2.appendChild(el("span", "", "Drop off")); a2.appendChild(document.createTextNode(j.to)); r.appendChild(a2);
     }

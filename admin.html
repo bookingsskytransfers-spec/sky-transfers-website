@@ -129,6 +129,7 @@
             <option value="confirmed">Confirmed, not paid</option>
             <option value="paid">Paid</option>
             <option value="declined">Declined</option>
+            <option value="cancelled">Cancelled</option>
           </select></div>
         <div><label for="web-limit">How many</label>
           <select id="web-limit"><option>50</option><option selected>200</option><option>500</option></select></div>
@@ -247,6 +248,12 @@
         <div><label for="nb-email">Email (for the confirmation)</label><input id="nb-email" type="email" autocomplete="off"></div>
       </div>
       <div style="margin-bottom:10px"><label for="nb-address">Exact pick-up / drop-off address</label><input id="nb-address" autocomplete="off"></div>
+      <div class="row3" style="margin-bottom:4px">
+        <div><label for="nb-stop1">Stop on the way 1 (optional)</label><input id="nb-stop1" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
+        <div><label for="nb-stop2">Stop 2 (optional)</label><input id="nb-stop2" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
+        <div><label for="nb-stop3">Stop 3 (optional)</label><input id="nb-stop3" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
+      </div>
+      <p class="muted" style="margin:0 0 10px">Stops are on the outbound journey and priced by the extra road distance they add &mdash; the price includes them automatically. Type a full street address for accuracy.</p>
       <div style="margin-bottom:10px"><label for="nb-notes">Notes (optional)</label><input id="nb-notes" autocomplete="off"></div>
       <div class="row3" style="margin-bottom:12px">
         <div><label for="nb-override">Override total $ (only if no online price, or a special rate)</label>
@@ -513,7 +520,75 @@
     return s === "requested" ? "Awaiting an answer"
          : s === "confirmed" ? "Confirmed, not paid"
          : s === "declined"  ? "Declined"
+         : s === "cancelled" ? "Cancelled"
          : s === "paid"      ? "Paid" : String(s || "");
+  }
+  /* Hours from now to the pick-up, Brisbane time (UTC+10, no daylight saving). */
+  function hoursOut(b){
+    var d = b.dateText || String(b.date || "").slice(0, 10), t = String(b.time || "00:00").slice(0, 5);
+    var ms = Date.parse(d + "T" + t + ":00+10:00");
+    return isNaN(ms) ? null : (ms - Date.now()) / 36e5;
+  }
+  /* The cancel panel opens under the booking's row. Terms: more than 24 hours
+     out a full refund; within 24 hours the office chooses (suggested: none). */
+  function cancelPanel(b, tr){
+    var open = tr.nextSibling && tr.nextSibling.className === "cancel-row";
+    if (open) { tr.parentNode.removeChild(tr.nextSibling); return; }
+    var row = document.createElement("tr"); row.className = "cancel-row";
+    var td = document.createElement("td"); td.colSpan = 8;
+    td.style.cssText = "background:#FBE9E7;padding:12px 14px;white-space:normal";
+    /* The bookings table scrolls sideways on a small screen; the panel stays
+       in view at the left edge, as wide as the visible part of the table. */
+    var sc = tr.closest ? tr.closest(".scroll") : null;
+    if (sc) sc.scrollLeft = 0;
+    var box = document.createElement("div");
+    box.style.cssText = "position:sticky;left:14px;max-width:" + Math.max(260, (sc ? sc.clientWidth : 600) - 30) + "px";
+    td.appendChild(box);
+    var h = hoursOut(b), paid = b.status === "paid";
+    var paidAmt = paid ? Math.max(0, Math.round(Number(b.total || 0) - Number(b.balance || 0))) : 0;
+    var early = h != null && h > 24;
+    var p = document.createElement("p"); p.style.margin = "0 0 8px";
+    p.textContent = "Cancel " + b.ref + " - " + (h == null ? "" : h > 0 ? "pick-up is in " + (h >= 48 ? Math.round(h / 24) + " days" : Math.round(h) + " hours") + ". " : "the pick-up time has passed. ") +
+      (paid ? (early ? "More than 24 hours out, so your terms give a full refund of $" + paidAmt + "."
+                     : "Within 24 hours of pick-up: your terms allow a fee of up to the full fare. Choose the refund (0 to $" + paidAmt + ").")
+            : "Nothing has been paid, so there is nothing to refund - the payment link is switched off.");
+    box.appendChild(p);
+    var refund = null;
+    if (paid) {
+      var lr = document.createElement("label"); lr.style.cssText = "display:inline-block;margin:0 14px 8px 0";
+      lr.appendChild(document.createTextNode("Refund $ "));
+      refund = document.createElement("input"); refund.type = "number"; refund.min = "0"; refund.max = String(paidAmt); refund.step = "1";
+      refund.value = String(early ? paidAmt : 0); refund.style.cssText = "width:90px;display:inline-block;font:inherit;padding:4px 6px";
+      lr.appendChild(refund); box.appendChild(lr);
+    }
+    var reason = document.createElement("input"); reason.placeholder = "Reason (for your records, optional)";
+    reason.style.cssText = "width:280px;max-width:100%;display:inline-block;font:inherit;font-size:13px;padding:4px 6px;margin:0 14px 8px 0"; box.appendChild(reason);
+    var lg = document.createElement("label"); lg.style.cssText = "display:inline-block;margin:0 14px 8px 0;cursor:pointer";
+    var notify = document.createElement("input"); notify.type = "checkbox"; notify.style.cssText = "width:auto;margin:0 6px 0 0;vertical-align:middle"; notify.checked = !!b.email; notify.disabled = !b.email;
+    lg.appendChild(notify); lg.appendChild(document.createTextNode(b.email ? "Email the guest" : "(no guest email)")); box.appendChild(lg);
+    var manual = null;
+    if (paid) {
+      var lm = document.createElement("label"); lm.style.cssText = "display:inline-block;margin:0 14px 8px 0;cursor:pointer";
+      manual = document.createElement("input"); manual.type = "checkbox"; manual.style.cssText = "width:auto;margin:0 6px 0 0;vertical-align:middle";
+      lm.appendChild(manual); lm.appendChild(document.createTextNode("Settle the money by hand (no automatic refund)")); box.appendChild(lm);
+    }
+    var go = document.createElement("div");
+    go.appendChild(armBtn("Cancel this booking", "Really cancel?", "danger", function(){
+      var body = { ref: b.ref, reason: reason.value.trim(), notifyGuest: notify.checked };
+      if (refund) body.refund = refund.value === "" ? 0 : Number(refund.value);
+      if (manual) body.manualMoney = manual.checked;
+      return api("/admin/web-booking/cancel", { method: "POST", body: body }).then(function(d){
+        var tell = (d.drivers || []).map(function(x){ return x.name + " (" + x.phone + ")"; }).join(", ");
+        show($("web-msg"), "Cancelled " + d.ref + ". " +
+          (d.refunded ? "$" + d.refunded + " refunded to the guest's card. " : d.refundManual ? "Refund $" + d.refundManual + " by hand in Stripe. " : "No refund. ") +
+          (d.emailed ? "Guest emailed at " + d.emailed + ". " : "Guest not emailed. ") +
+          (tell ? "TELL THE DRIVER - it had been sent to " + tell + "." : ""), true);
+        loadWeb();
+      }).catch(function(err){ show($("web-msg"), err.message); });
+    }));
+    box.appendChild(go);
+    row.appendChild(td);
+    tr.parentNode.insertBefore(row, tr.nextSibling);
   }
   function shortDate(v){
     if (!v) return "\u2014";
@@ -586,6 +661,8 @@
       $("nb-pax").value = b.pax || 1; $("nb-seats").value = String(b.childSeats || 0); $("nb-trailer").checked = !!b.trailer;
       $("nb-name").value = b.name || ""; $("nb-phone").value = b.phone || ""; $("nb-email").value = b.email || "";
       $("nb-address").value = b.address || ""; $("nb-notes").value = b.notes || ""; $("nb-override").value = "";
+      var st = b.stops || [];
+      $("nb-stop1").value = st[0] || ""; $("nb-stop2").value = st[1] || ""; $("nb-stop3").value = st[2] || "";
       setAmend(b.ref, b);
       card.scrollIntoView({ behavior: "smooth", block: "start" });
     };
@@ -599,6 +676,7 @@
         pax: nbVal("nb-pax"), childSeats: nbVal("nb-seats"), trailer: nbVal("nb-trailer"), flight: nbVal("nb-flight"),
         name: nbVal("nb-name"), phone: nbVal("nb-phone"), email: nbVal("nb-email"),
         address: nbVal("nb-address"), notes: nbVal("nb-notes"),
+        stops: [nbVal("nb-stop1"), nbVal("nb-stop2"), nbVal("nb-stop3")].filter(function(x){ return x.length >= 3; }),
         overrideTotal: nbVal("nb-override"),
         mode: document.querySelector('input[name="nb-mode"]:checked').value
       };
@@ -633,7 +711,7 @@
     api("/admin/web-bookings?limit=" + encodeURIComponent(lim) + (st ? "&status=" + encodeURIComponent(st) : ""))
       .then(function(d){
         var sum = d.summary || {}, parts = [];
-        ["requested", "confirmed", "paid", "declined"].forEach(function(k){
+        ["requested", "confirmed", "paid", "declined", "cancelled"].forEach(function(k){
           if (sum[k]) parts.push(sum[k].count + " " + webLabel(k).toLowerCase() +
                                  " ($" + Number(sum[k].total).toFixed(0) + ")");
         });
@@ -657,10 +735,11 @@
                  + (b.returnFlight ? " \u00b7 " + b.returnFlight : "") : ""),
            (b.pickup || "?") + " \u2192 " + (b.dropoff || "?")
              + (b.returnDate ? "  (RETURN)" : "")
-             + (b.hours ? "  (BY THE HOUR \u00b7 " + b.hours + " h)" : ""),
+             + (b.hours ? "  (BY THE HOUR \u00b7 " + b.hours + " h)" : "")
+             + (b.stops && b.stops.length ? "  \u00b7 via " + b.stops.join(" \u2192 ") : ""),
            (b.name || "") + (b.phone ? "  \u00b7  " + b.phone : ""),
            "$" + Number(b.total || 0).toFixed(0),
-           webLabel(b.status)
+           webLabel(b.status) + (b.status === "cancelled" && b.refunded ? " ($" + Number(b.refunded).toFixed(0) + " refunded)" : "")
           ].forEach(function(v, i){
             var td = document.createElement("td");
             /* textContent, never innerHTML: every value here was typed by a
@@ -676,7 +755,7 @@
           /* Send the guest their confirmation again - the branded email and
              PDF, with the payment link if it is still unpaid. Armed like the
              rest, because it emails a member of the public. */
-          if (b.status !== "declined") {
+          if (b.status !== "declined" && b.status !== "cancelled") {
             /* Editable so the office can send it to a corrected address, a
                travel agent or a second passenger. The booking is not changed. */
             var to = document.createElement("input");
@@ -687,12 +766,16 @@
             act.appendChild(armBtn("Resend", "Send it?", "", function(){ return resendWeb(b, to.value.trim()); }));
             act.appendChild(document.createTextNode(" "));
           }
-          if (b.status !== "declined") {
+          if (b.status !== "declined" && b.status !== "cancelled") {
             /* Loads the row into the New booking card; nothing happens until Save. */
             act.appendChild(actionBtn("Amend", "", function(){ nbAmend(b); }));
             act.appendChild(document.createTextNode(" "));
+            /* Opens the cancel panel under this row - refund choice, reason,
+               email the guest. Nothing happens until its own button. */
+            act.appendChild(actionBtn("Cancel", "danger", function(){ cancelPanel(b, tr); }));
+            act.appendChild(document.createTextNode(" "));
           }
-          if (b.status !== "paid") {
+          if (b.status !== "paid" && !(b.status === "cancelled" && b.paidAt)) {
             act.appendChild(armBtn("Remove", "Really remove?", "danger", function(){ return removeWeb(b); }));
           }
           tr.appendChild(act);
