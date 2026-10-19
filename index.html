@@ -317,6 +317,15 @@
   .ac-item .tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold-deep);margin-left:6px}
   .ac-item:hover,.ac-item.active{background:var(--gold-soft)}
   .hint{font-size:13px;color:var(--muted);margin:10px 0 0}
+  /* Stops on the way: up to three, each priced by the distance it adds. */
+  .stop-row{margin-top:10px}
+  .stop-row input{padding-right:42px}
+  .stop-x{position:absolute;right:4px;bottom:4px;height:34px;width:34px;border:0;border-radius:6px;
+    background:transparent;color:var(--muted);font-size:20px;line-height:1;cursor:pointer}
+  .stop-x:hover{color:var(--err)}
+  .add-stop{margin-top:10px;padding:6px 0;border:0;background:none;color:var(--gold-deep);
+    font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .add-stop:hover{text-decoration:underline}
   .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .route-line{font-size:15px;color:var(--muted)}
   .route-line b{color:var(--ink)}
@@ -669,6 +678,28 @@
         <select id="hours"><option value="3">3 hours</option><option value="4">4 hours</option><option value="5">5 hours</option><option value="6">6 hours</option></select>
       </div>
     </div>
+    <div id="stops-wrap">
+      <div class="field stop-row" id="stop-row1" hidden>
+        <label for="stop1">Stop 1 on the way</label>
+        <input id="stop1" type="text" placeholder="Street address or suburb" autocomplete="off" spellcheck="false">
+        <button class="stop-x" type="button" data-stop="1" aria-label="Remove stop 1">&times;</button>
+        <div class="ac-list" id="stop1-list" hidden></div>
+      </div>
+      <div class="field stop-row" id="stop-row2" hidden>
+        <label for="stop2">Stop 2 on the way</label>
+        <input id="stop2" type="text" placeholder="Street address or suburb" autocomplete="off" spellcheck="false">
+        <button class="stop-x" type="button" data-stop="2" aria-label="Remove stop 2">&times;</button>
+        <div class="ac-list" id="stop2-list" hidden></div>
+      </div>
+      <div class="field stop-row" id="stop-row3" hidden>
+        <label for="stop3">Stop 3 on the way</label>
+        <input id="stop3" type="text" placeholder="Street address or suburb" autocomplete="off" spellcheck="false">
+        <button class="stop-x" type="button" data-stop="3" aria-label="Remove stop 3">&times;</button>
+        <div class="ac-list" id="stop3-list" hidden></div>
+      </div>
+      <button class="add-stop" id="add-stop" type="button">+ Add a stop on the way</button>
+      <p class="hint" id="stops-note" hidden></p>
+    </div>
     <p class="hint" id="hint-hourly" hidden>Your chauffeur and vehicle stay with you for the evening &mdash; dinner, a show, a few bars, home &mdash; as many stops as you like around the Gold Coast or Brisbane. Three hours minimum, up to six; for a longer day see <a href="/charters.html">charters</a>. The same rate at any hour, no evening loading.</p>
     <p class="hint" id="hint-trip">Type a street address, a suburb, or an airport — start typing and pick from the list. Airport transfers have published fixed fares; any two addresses across the Gold Coast and Brisbane get a fixed price on the spot — restaurants, hotels, a night out, the cruise terminal.</p>
   </section>
@@ -941,7 +972,11 @@ var SEAT_PRICE = 15, TRAILER_PRICE = 30;
 /* puLoc/droLoc are {lat,lng} when the end came from a Google pick, else null.
    p2p is set only while the quote on screen came from the point-to-point
    engine, and carries exactly what the server priced. */
-var state = {pu:null, dro:null, puAddr:null, droAddr:null, puLoc:null, droLoc:null, puUnlisted:false, droUnlisted:false, vehicle:null, price:null, p2p:null, kmq:null, hourly:false};
+var state = {pu:null, dro:null, puAddr:null, droAddr:null, puLoc:null, droLoc:null, puUnlisted:false, droUnlisted:false, vehicle:null, price:null, p2p:null, kmq:null, hourly:false,
+  /* Stops on the way: stops[i] is the pick for stop i+1 (null = empty or not
+     yet chosen); stopsQ the server's extra per vehicle for the current set;
+     stopExtra what the chosen vehicle adds; lastRates the grid's own fares. */
+  stops:[null, null, null], stopsShown:0, stopsQ:null, stopX:null, stopExtra:0, lastRates:null};
 
 function $(id){return document.getElementById(id);}
 /* The airport fine print as written in the HTML, so it can be put back after
@@ -1270,7 +1305,9 @@ function refresh(){
   sb.disabled = false;
   sb.textContent = SERVER_URL && ENABLE_ONLINE_PAYMENT ? "Request booking — pay later" : "Request this booking";
   state.p2p = null; state.kmq = null;
-  p2pSeq++;                                   /* any quote still in flight is stale */
+  state.lastRates = null; state.stopX = null; state.stopExtra = 0;
+  p2pSeq++; stopsSeq++;                       /* any quote still in flight is stale */
+  showStops();
   /* By the hour needs only a starting point; the price is on the page. */
   if(state.hourly){
     if(!state.pu){ qc.hidden = true; cc.hidden = true; bc.hidden = true; return; }
@@ -1398,6 +1435,72 @@ function quoteHourly(){
   track("hourly_quote", {hours: n, pickup: state.pu});
 }
 
+/* ---- stops on the way ----
+   Up to three, on the outbound journey, each chosen from the same list as the
+   pick-up. The server measures pick-up -> stops -> drop-off against the direct
+   road and prices the extra distance per vehicle (/stops-quote); the booking
+   carries the same stops and ends so it is priced again, identically, before
+   anyone is charged. By the hour has no stops - it is as directed already. */
+var stopsSeq = 0;
+function stopInput(n){ return $("stop" + n); }
+function showStops(){
+  var wrap = $("stops-wrap"); if (!wrap) return;
+  wrap.hidden = !!state.hourly;
+  for (var n = 1; n <= 3; n++) { var r = $("stop-row" + n); if (r) r.hidden = n > state.stopsShown; }
+  var add = $("add-stop"); if (add) add.hidden = state.stopsShown >= 3;
+}
+function stopsWanted(){
+  for (var n = 1; n <= state.stopsShown; n++) if (state.stops[n - 1] || stopInput(n).value.trim()) return true;
+  return false;
+}
+function pendingStop(){
+  for (var n = 1; n <= state.stopsShown; n++) if (!state.stops[n - 1] && stopInput(n).value.trim()) return n;
+  return 0;
+}
+function pickedStops(){
+  var out = [];
+  for (var n = 1; n <= state.stopsShown; n++) if (state.stops[n - 1]) out.push(state.stops[n - 1]);
+  return out;
+}
+function endFor(which){
+  var pu = which === "pu";
+  var name = pu ? state.pu : state.dro, addr = pu ? state.puAddr : state.droAddr, loc = pu ? state.puLoc : state.droLoc;
+  var o = { name: name, suburb: name };
+  if (addr) o.address = addr;
+  if (loc && typeof loc.lat === "number" && typeof loc.lng === "number") { o.lat = loc.lat; o.lng = loc.lng; }
+  return o;
+}
+function stopsKey(){ return JSON.stringify([endFor("pu"), endFor("do"), pickedStops()]); }
+function quoteStops(rates, key){
+  var qc = $("quote-card"), cc = $("custom-card"), bc = $("book-card");
+  var seq = ++stopsSeq;
+  $("veh-grid").innerHTML = "<div class='quote-wait'>Measuring the route through your stops…</div>";
+  qc.hidden = false; bc.hidden = true;
+  postJSON("/stops-quote", { pickup: endFor("pu"), dropoff: endFor("do"), stops: pickedStops() }).then(function(r){
+    if (seq !== stopsSeq) return;                     /* guest moved on */
+    if (!(r.ok && r.data && r.data.extras)) throw new Error((r.data && r.data.error) || "no quote");
+    state.stopsQ = { key: key, km: r.data.km, extras: r.data.extras };
+    renderGrid(rates);
+    track("stops_quote", {stops: pickedStops().length, km: r.data.km});
+  }).catch(function(err){
+    if (seq !== stopsSeq) return;
+    qc.hidden = true; bc.hidden = true;
+    $("custom-msg").textContent = (err && err.message && /suggestions|within the hour|stops just now/.test(err.message))
+      ? err.message
+      : "We couldn’t price those stops just now — send the booking through and we’ll come straight back with a price, usually within the hour.";
+    cc.hidden = false;
+    track("stops_quote_failed", {reason: String((err && err.message) || err || "unknown").slice(0, 100)});
+  });
+}
+/* A change to the stops re-prices the stops only, never the trip itself. */
+function stopsChanged(){
+  stopsSeq++;
+  if (!state.lastRates || state.hourly) return;
+  state.vehicle = null; state.price = null; state.stopExtra = 0;
+  $("custom-card").hidden = true; $("book-card").hidden = true; $("quote-card").hidden = false;
+  renderGrid(state.lastRates);
+}
+
 /* Builds the vehicle cards from a fare per vehicle (null = quoted by hand).
    Shared by the airport table and the point-to-point quote so the two can
    never drift apart in how they look or what they let the guest choose. */
@@ -1405,6 +1508,28 @@ function renderGrid(rates){
   var qc = $("quote-card"), bc = $("book-card");
   var res = { rates: rates };
   var grid = $("veh-grid"); grid.innerHTML = "";
+  /* Stops: the grid waits for the server's price for the extra distance, and
+     shows each fare with it already added. A stop typed but not chosen from
+     the list holds the grid back, so nobody books without the stop they meant. */
+  state.lastRates = rates; state.stopX = null; state.stopExtra = 0;
+  var sn = $("stops-note");
+  if (sn) { sn.hidden = true; sn.textContent = ""; }
+  if (!state.hourly && stopsWanted()) {
+    var pend = pendingStop();
+    if (pend) {
+      grid.innerHTML = "<div class='quote-wait'>Choose stop " + pend + " from the suggestions to see the price.</div>";
+      qc.hidden = false; bc.hidden = true; return;
+    }
+    var key = stopsKey();
+    if (!state.stopsQ || state.stopsQ.key !== key) { quoteStops(rates, key); return; }
+    state.stopX = state.stopsQ.extras;
+    if (sn) {
+      var nst = pickedStops().length;
+      sn.textContent = (nst === 1 ? "Your stop adds " : "Your stops add ") + state.stopsQ.km +
+        " km to the trip. The prices below include it" + (isReturn() ? ", on the outbound journey." : ".");
+      sn.hidden = false;
+    }
+  }
   var pax = Math.max(1, parseInt(($("qc-pax") || {}).value, 10) || 1);
   /* VEHICLES is in ascending price order on every route, so the first one that
      seats the party is also the cheapest that seats it. The 18-seat Sprinter is
@@ -1452,13 +1577,14 @@ function renderGrid(rates){
        three, where halving the fare tells nobody anything they cannot see. */
     /* A null fare means this vehicle is quoted by hand on this route - the
        18-seater always, and anything the point-to-point engine declined. */
-    var byHand = v.quote || res.rates[i] == null;
+    var sx = state.stopX ? state.stopX[i] : 0;
+    var byHand = v.quote || res.rates[i] == null || sx == null;
     var pp = (!byHand && fits && pax >= 3)
-      ? "<span class='pp'>" + money(Math.round(res.rates[i] / pax)) + " each for " + pax + "</span>" : "";
+      ? "<span class='pp'>" + money(Math.round((res.rates[i] + sx) / pax)) + " each for " + pax + "</span>" : "";
     var badge = (i === recIdx) ? "<span class='rec'>Best fit</span>" : "";
     b.innerHTML = "<span class='veh-art'>" + VEH_SVG[i] + "</span><span class='name'>" + v.name + "</span><span class='cap'>" + v.cap + "</span>" +
       "<span class='price'>" + (byHand ? "Quote <small>on request</small>"
-        : money(tripPrice(res.rates[i])) + " <small>" + (isReturn() ? "return" : state.hourly ? "for " + hoursSel() + " h" : "one-way") + "</small>"
+        : money(tripPrice(res.rates[i]) + sx) + " <small>" + (isReturn() ? "return" : state.hourly ? "for " + hoursSel() + " h" : "one-way") + "</small>"
           + (isReturn() ? "<small class='saving'>save " + money(res.rates[i] * 2 - returnTransfer(res.rates[i])) + "</small>" : "")) + "</span>" + pp + badge;
     b.addEventListener("click", function(){
       /* Dimmed was not the same as blocked. A party of six could still click
@@ -1492,7 +1618,7 @@ function renderGrid(rates){
         return;
       }
       $("custom-card").hidden = true;
-      state.vehicle = v.name; state.price = res.rates[i];
+      state.vehicle = v.name; state.price = res.rates[i]; state.stopExtra = sx || 0;
       track("select_vehicle", {vehicle: v.name, value: res.rates[i], currency: "AUD",
         route: state.pu + " -> " + state.dro});
       var all = grid.children;
@@ -1558,6 +1684,33 @@ function syncAddr(){
 
 attachAC("pu", "pu-list", function(p, addr, loc, unlisted){ state.pu = p; state.puAddr = addr || null; state.puLoc = loc || null; state.puUnlisted = !!unlisted; syncAddr(); refresh(); });
 attachAC("do", "do-list", function(p, addr, loc, unlisted){ state.dro = p; state.droAddr = addr || null; state.droLoc = loc || null; state.droUnlisted = !!unlisted; syncAddr(); refresh(); });
+[1, 2, 3].forEach(function(n){
+  attachAC("stop" + n, "stop" + n + "-list", function(p, addr, loc){
+    var s = null;
+    if (p) {
+      s = { suburb: p, address: addr || (p + ", QLD, Australia") };
+      if (loc && typeof loc.lat === "number" && typeof loc.lng === "number") { s.lat = loc.lat; s.lng = loc.lng; }
+    }
+    state.stops[n - 1] = s;
+    stopsChanged();
+  });
+});
+$("add-stop").addEventListener("click", function(){
+  if (state.stopsShown >= 3) return;
+  state.stopsShown++; showStops();
+  var i = stopInput(state.stopsShown); if (i) i.focus();
+});
+/* Removing a stop moves the ones after it up, so they stay in order. */
+Array.prototype.forEach.call(document.querySelectorAll(".stop-x"), function(btn){
+  btn.addEventListener("click", function(){
+    var n = parseInt(btn.getAttribute("data-stop"), 10), last = state.stopsShown;
+    if (!n || n > last) return;
+    for (var k = n; k < last; k++) { state.stops[k - 1] = state.stops[k]; stopInput(k).value = stopInput(k + 1).value; }
+    state.stops[last - 1] = null; stopInput(last).value = "";
+    for (var m = 1; m <= 3; m++) { var nt = document.getElementById("stop" + m + "-note"); if (nt) nt.remove(); }
+    state.stopsShown = last - 1; showStops(); stopsChanged();
+  });
+});
 
 /* The One-way / Return buttons drive the hidden checkbox that everything else
    reads, so isReturn(), the totals and the return-date rules are unchanged. */
@@ -1619,6 +1772,11 @@ $("swap").addEventListener("click", function(){
   var ta = state.puAddr; state.puAddr = state.droAddr; state.droAddr = ta;
   var tl = state.puLoc; state.puLoc = state.droLoc; state.droLoc = tl;
   var tu = state.puUnlisted; state.puUnlisted = state.droUnlisted; state.droUnlisted = tu;
+  /* The way back passes the same stops in the opposite order. */
+  var ps = [], vs = [], n;
+  for (n = 1; n <= state.stopsShown; n++) { ps.push(state.stops[n - 1]); vs.push(stopInput(n).value); }
+  ps.reverse(); vs.reverse();
+  for (n = 1; n <= state.stopsShown; n++) { state.stops[n - 1] = ps[n - 1]; stopInput(n).value = vs[n - 1]; }
   refresh();
 });
 
@@ -1675,12 +1833,17 @@ function tripPrice(fare){ return isReturn() ? returnTransfer(fare) : fare; }
 function currentTotal(){
   var seats = parseInt($("bf-seats").value, 10) || 0;
   var legs = isReturn() ? 2 : 1;
+  /* Stops are on the outbound journey only, so their extra is added once,
+     after the return discount - the same as stripe-server.js. */
   return tripPrice(state.price)
-       + (seats * SEAT_PRICE + ($("bf-trailer").checked ? TRAILER_PRICE : 0)) * legs;
+       + (seats * SEAT_PRICE + ($("bf-trailer").checked ? TRAILER_PRICE : 0)) * legs
+       + (state.stopX ? (state.stopExtra || 0) : 0);
 }
 function updateTotal(){
   if(state.price == null) return;
-  $("total-label").textContent = "Total — " + state.vehicle + (isReturn() ? " (return)" : state.hourly ? " (" + hoursSel() + " h)" : "");
+  var nst = state.stopX ? pickedStops().length : 0;
+  $("total-label").textContent = "Total — " + state.vehicle + (isReturn() ? " (return)" : state.hourly ? " (" + hoursSel() + " h)" : "") +
+    (nst ? " with " + nst + (nst === 1 ? " stop" : " stops") : "");
   $("total").textContent = "$" + currentTotal();
 }
 /* The fine print under the grid states one-way prices; it would be wrong the
@@ -1761,6 +1924,10 @@ function bookingPayload(){
     p2p: (!state.hourly && state.p2p) ? { pickup: state.p2p.pickup, dropoff: state.p2p.dropoff } : undefined,
     /* An airport trip priced on road distance: the end the server measures. */
     km: (!state.hourly && state.kmq) ? { place: state.kmq.place } : undefined,
+    /* Stops on the way, and the two ends exactly as /stops-quote measured
+       them, so the server prices the same route before charging. */
+    stops: (!state.hourly && state.stopX) ? pickedStops() : undefined,
+    stopsEnds: (!state.hourly && state.stopX) ? { pickup: endFor("pu"), dropoff: endFor("do") } : undefined,
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value, address: $("bf-addr").value,
     notes: $("bf-notes").value,
@@ -1912,6 +2079,10 @@ function buildRequest(){
       ") — " + money(returnTransfer(state.price)) + " for both legs" : "Trip: one-way"),
     "Baby/child seats: " + $("bf-seats").value + " ($" + SEAT_PRICE + " each)",
     "Luggage trailer: " + ($("bf-trailer").checked ? "YES (+$" + TRAILER_PRICE + ")" : "No"),
+    (state.stopX && pickedStops().length
+      ? "Stops on the way: " + pickedStops().map(function(s, i){ return (i + 1) + ") " + s.address; }).join("; ") +
+        " (+" + money(state.stopExtra || 0) + ", adds " + state.stopsQ.km + " km)"
+      : "Stops on the way: none"),
     "TOTAL: " + money(currentTotal()),
     "",
     "Date: " + $("bf-date").value,
