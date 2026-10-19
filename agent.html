@@ -114,6 +114,10 @@
   .step{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold-deep)}
   .step.live{background:rgba(30,127,79,.13);color:var(--ok)}
   .step.done{background:rgba(104,112,127,.14);color:var(--muted)}
+  .stop-row{margin-top:10px}
+  .stop-row input{padding-right:40px}
+  .stop-x{position:absolute;right:4px;top:26px;height:34px;width:32px;border:0;background:none;color:var(--muted);font-size:19px;cursor:pointer}
+  .stop-x:hover{color:var(--err)}
   .copy{background:none;border:0;padding:0;margin-left:6px;font:inherit;font-size:12px;font-weight:600;color:var(--gold-deep);cursor:pointer;text-decoration:underline}
   [hidden]{display:none!important}
 </style>
@@ -192,6 +196,12 @@
           <label for="hours">How many hours?</label>
           <select id="hours"><option value="3">3 hours</option><option value="4">4 hours</option><option value="5">5 hours</option><option value="6">6 hours</option></select>
         </div>
+      </div>
+      <div id="stops-wrap">
+        <div class="ac stop-row" id="stop-row0" hidden><label for="stop0">Stop 1 on the way</label><input id="stop0" autocomplete="off" spellcheck="false" placeholder="Street address or suburb"><button class="stop-x" type="button" data-stop="0" aria-label="Remove stop 1">&times;</button><div class="ac-list" id="stop0-list" hidden></div></div>
+        <div class="ac stop-row" id="stop-row1" hidden><label for="stop1">Stop 2 on the way</label><input id="stop1" autocomplete="off" spellcheck="false" placeholder="Street address or suburb"><button class="stop-x" type="button" data-stop="1" aria-label="Remove stop 2">&times;</button><div class="ac-list" id="stop1-list" hidden></div></div>
+        <div class="ac stop-row" id="stop-row2" hidden><label for="stop2">Stop 3 on the way</label><input id="stop2" autocomplete="off" spellcheck="false" placeholder="Street address or suburb"><button class="stop-x" type="button" data-stop="2" aria-label="Remove stop 3">&times;</button><div class="ac-list" id="stop2-list" hidden></div></div>
+        <p style="margin:10px 0 0"><button class="linkbtn" id="add-stop" type="button">+ Add a stop on the way</button></p>
       </div>
       <p class="hint" id="place-hint">Type a street address, a hotel, a suburb or an airport and pick from the list &mdash; any trip across the Gold Coast and Brisbane is priced on the spot, the same fares as our website.</p>
 
@@ -284,7 +294,9 @@
      the end as picked - suburb, street address, coordinates - which the
      server measures the road from. Exactly how the public booking form works. */
   var state = { places: [], vehicle: null, fare: 0, total: 0, commission: 0, editing: null, bookings: [],
-                pu: null, dro: null, puEnd: null, droEnd: null, trip: "one", kind: "oneway" };
+                pu: null, dro: null, puEnd: null, droEnd: null, trip: "one", kind: "oneway",
+                /* stops on the way: s0..s2 and s0End..s2End, like pu/puEnd */
+                stopsShown: 0, s0: null, s1: null, s2: null, s0End: null, s1End: null, s2End: null };
 
   function show(el, msg, ok){
     if (!msg) { el.hidden = true; return; }
@@ -379,7 +391,8 @@
         if (b.status !== "confirmed") tr.className = "void";
         cell(tr, b.ref, b.clientRef ? "Your ref " + b.clientRef : "");
         cell(tr, b.date + " " + b.time, b.returnDate ? "Return " + b.returnDate + " " + (b.returnTime || "") : "");
-        cell(tr, b.hours ? b.pickup + " · " + b.hours + " h as directed" : b.route, b.returnDate ? "Return trip" : "");
+        cell(tr, b.hours ? b.pickup + " · " + b.hours + " h as directed" : b.route,
+          [b.stops && b.stops.length ? "via " + b.stops.length + (b.stops.length === 1 ? " stop" : " stops") : "", b.returnDate ? "Return trip" : ""].filter(Boolean).join(" · "));
         cell(tr, b.passenger, b.email || "");
         tr.appendChild(tripCell(b));
         cell(tr, money(b.total), "", "num");
@@ -472,6 +485,7 @@
     $("hours-wrap").hidden = kind !== "hourly";
     $("ret-wrap").hidden = kind !== "return";
     if (kind !== "return") { $("rdate").value = ""; $("rtime").value = ""; $("rflight").value = ""; }
+    showStops();
     if (!quiet) quote();
   }
   Array.prototype.forEach.call(document.querySelectorAll('input[name="trip"]'), function(r){
@@ -493,6 +507,7 @@
     $("dro").value = b.hours ? "" : ((state.droEnd && state.droEnd.address && state.droEnd.lat != null) ? state.droEnd.address : b.dropoff);
     if (b.hours) $("hours").value = String(b.hours);
     setTrip(b.hours ? "hourly" : b.returnDate ? "return" : "one", true);
+    setStops(b.hours ? [] : b.stops);
     $("rdate").value = b.returnDate || ""; $("rtime").value = b.returnTime || ""; $("rflight").value = b.returnFlight || "";
     $("date").value = b.date; $("time").value = b.time;
     $("pname").value = b.passenger; $("pphone").value = b.phone || "";
@@ -515,6 +530,7 @@
     $("addr").dataset.autofill = "";
     $("pax").value = 2; $("seats").value = "0"; $("trailer").value = "false"; $("hours").value = "3";
     state.pu = state.dro = state.puEnd = state.droEnd = null;
+    setStops([]);
     setTrip("one", true);
     $("quote").hidden = true; $("noquote").hidden = true;
     state.vehicle = null;
@@ -652,6 +668,52 @@
   attachAC("pu", "pu-list", "pu");
   attachAC("dro", "dro-list", "dro");
 
+  /* ---- stops on the way: up to three, outbound only, priced by the extra
+     distance on the server - the website's own charge. ---- */
+  function showStops(){
+    $("stops-wrap").hidden = state.trip === "hourly";
+    for (var i = 0; i < 3; i++) $("stop-row" + i).hidden = i >= state.stopsShown;
+    $("add-stop").hidden = state.stopsShown >= 3;
+  }
+  function pendingStop(){
+    for (var i = 0; i < state.stopsShown; i++) if ($("stop" + i).value.trim() && !state["s" + i + "End"]) return i + 1;
+    return 0;
+  }
+  function pickedStops(){
+    var out = [];
+    if (state.trip === "hourly") return out;
+    for (var i = 0; i < state.stopsShown; i++) if (state["s" + i + "End"]) out.push(state["s" + i + "End"]);
+    return out;
+  }
+  function setStops(list){
+    list = (list || []).slice(0, 3);
+    for (var i = 0; i < 3; i++) {
+      var x = list[i] || null;
+      state["s" + i] = x ? (x.suburb || x.address) : null; state["s" + i + "End"] = x;
+      $("stop" + i).value = x ? (x.address || x.suburb || "") : "";
+    }
+    state.stopsShown = list.length; showStops();
+  }
+  $("add-stop").addEventListener("click", function(){
+    if (state.stopsShown >= 3) return;
+    state.stopsShown++; showStops(); $("stop" + (state.stopsShown - 1)).focus();
+  });
+  /* removing one moves the ones after it up, so they stay in order */
+  Array.prototype.forEach.call(document.querySelectorAll(".stop-x"), function(btn){
+    btn.addEventListener("click", function(){
+      var k = parseInt(btn.getAttribute("data-stop"), 10), last = state.stopsShown - 1;
+      for (var i = k; i < last; i++) {
+        state["s" + i] = state["s" + (i + 1)]; state["s" + i + "End"] = state["s" + (i + 1) + "End"];
+        $("stop" + i).value = $("stop" + (i + 1)).value;
+      }
+      state["s" + last] = null; state["s" + last + "End"] = null; $("stop" + last).value = "";
+      state.stopsShown = last; showStops(); quote();
+    });
+  });
+  attachAC("stop0", "stop0-list", "s0");
+  attachAC("stop1", "stop1-list", "s1");
+  attachAC("stop2", "stop2-list", "s2");
+
   /* ---- quoting: the server prices it, as the website does ---- */
   var quoteTimer = null, quoteSeq = 0;
   function quote(){
@@ -663,13 +725,15 @@
     return { pickup: state.pu, dropoff: hourly ? "" : state.dro,
              ends: { pickup: state.puEnd, dropoff: hourly ? null : state.droEnd },
              hourly: hourly ? { hours: $("hours").value } : undefined,
-             returnTrip: state.trip === "return" };
+             returnTrip: state.trip === "return", stops: pickedStops() };
   }
   function doQuote(preselect){
     var seq = ++quoteSeq;
     state.vehicle = null; state.fare = 0; state.total = 0; state.commission = 0;
     setBookState();
     if (!state.pu || (state.trip !== "hourly" && !state.dro)) { $("quote").hidden = true; $("noquote").hidden = true; return; }
+    var pend = state.trip !== "hourly" && pendingStop();
+    if (pend) { $("quote").hidden = true; show($("noquote"), "Choose stop " + pend + " from the list to see the price."); return; }
     var grid = $("veh-grid");
     grid.innerHTML = '<div class="muted">Pricing…</div>'; $("quote").hidden = false; $("noquote").hidden = true;
     api("/agent/quote", { method: "POST", body: tripBody() })
@@ -685,7 +749,7 @@
           b.innerHTML = '<span class="n"></span><span class="f"></span><span class="t"></span><span class="c"></span>';
           b.querySelector(".n").textContent = v.vehicle;
           b.querySelector(".f").textContent = money(v.total);
-          b.querySelector(".t").textContent = unit;
+          b.querySelector(".t").textContent = unit + (v.stopsExtra > 0 ? " · incl. " + money(v.stopsExtra) + " for stops" : "");
           b.querySelector(".c").textContent = "you earn " + money(v.commission);
           b.addEventListener("click", function(){
             state.vehicle = v.vehicle; state.fare = v.fare; state.total = v.total; state.commission = v.commission;
@@ -718,12 +782,13 @@
     for (var k in required) {
       if (!String(required[k] || "").trim()) { show($("book-msg"), "Please fill in: " + k); return; }
     }
+    if (state.trip !== "hourly" && pendingStop()) { show($("book-msg"), "Choose stop " + pendingStop() + " from the list, or remove it."); return; }
     var btn = $("book-btn"), label = btn.textContent;
     btn.disabled = true; btn.textContent = state.editing ? "Saving…" : "Booking…";
     show($("book-msg"), "");
     var t = tripBody();
     var payload = {
-      pickup: t.pickup, dropoff: t.dropoff, ends: t.ends, hourly: t.hourly, vehicle: state.vehicle,
+      pickup: t.pickup, dropoff: t.dropoff, ends: t.ends, hourly: t.hourly, stops: t.stops, vehicle: state.vehicle,
       date: $("date").value, time: $("time").value,
       returnDate: state.trip === "return" ? $("rdate").value : "", returnTime: state.trip === "return" ? $("rtime").value : "",
       returnFlight: state.trip === "return" ? $("rflight").value.trim() : "",
