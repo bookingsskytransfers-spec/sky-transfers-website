@@ -506,6 +506,22 @@
           </div>
         </div>
         <div class="ap-row">
+          <h3>Guest updates</h3>
+          <div>
+            <p class="muted">Messages to the guest: <b>driver assigned</b> the evening before (only once you've sent the job to the driver), <b>on the way</b> when the driver taps it, and <b>arrived</b> with where to meet. Each has a "track your driver" link. They show the driver's first name and the car - never the fare, the driver's number or a rego.</p>
+            <p class="muted" id="ap-wa-state"></p>
+            <div class="ap-ctl">
+              <div><label for="ap-guest">Guest updates</label><select id="ap-guest"><option value="false">Off</option><option value="true">On</option></select></div>
+              <div><label for="ap-guest-at">Send "driver assigned" from</label><input id="ap-guest-at" type="time" step="300"></div>
+              <div><label for="ap-guest-aa">Agent &amp; account guests</label><select id="ap-guest-aa"><option value="false">Don't message them</option><option value="true">Message them too</option></select></div>
+              <div><label for="ap-guest-wa">WhatsApp as well</label><select id="ap-guest-wa"><option value="false">Email only</option><option value="true">Email + WhatsApp</option></select></div>
+              <span><button class="act" id="ap-guest-sample">Email me a sample of each</button></span>
+            </div>
+            <details style="margin-top:10px"><summary class="muted" style="cursor:pointer">WhatsApp message templates to submit to Meta</summary>
+              <div id="ap-wa-templates" class="muted" style="margin-top:8px"></div></details>
+          </div>
+        </div>
+        <div class="ap-row">
           <h3>Emails go to</h3>
           <div>
             <div class="ap-ctl">
@@ -1357,6 +1373,21 @@
       $("ap-invoices").value = String(s.invoicesOn); $("ap-invoice-at").value = s.invoiceAt;
       $("ap-digest").value = String(s.digestOn); $("ap-digest-at").value = s.digestAt;
       $("ap-intake").value = String(s.intakeOn);
+      $("ap-guest").value = String(!!s.guestOn); $("ap-guest-at").value = s.guestNoticeAt || "19:00";
+      $("ap-guest-aa").value = String(!!s.guestAgentAccount); $("ap-guest-wa").value = String(!!s.guestWhatsApp);
+      api("/guest/state").then(function(g){
+        var w = g.whatsapp || {};
+        $("ap-wa-state").textContent = w.connected
+          ? "WhatsApp is connected." + (s.guestWhatsApp ? "" : " Choose \"Email + WhatsApp\" to use it.")
+          : "WhatsApp is not connected yet - guests get email only. It switches on once the Meta setup is done and its two keys are on the server.";
+        var box = $("ap-wa-templates"); box.innerHTML = "";
+        (w.templates || []).forEach(function(t){
+          var p = document.createElement("p"); p.style.margin = "0 0 10px";
+          var b = document.createElement("b"); b.textContent = t.name; p.appendChild(b);
+          p.appendChild(document.createTextNode(" (Utility, English): " + t.body));
+          box.appendChild(p);
+        });
+      }).catch(function(){ $("ap-wa-state").textContent = ""; });
       $("ap-alert").value = s.alertTo || ""; $("ap-alert").placeholder = d.alertDefault || "";
       var senders = d.parties.filter(function(p){ return p.type === "account" && p.intakeFrom; });
       $("ap-intake-state").textContent = (d.intake.ok ? "" : "Can't read the inbox yet: " + d.intake.why + ". ") +
@@ -1397,11 +1428,13 @@
       closeOn: $("ap-close").value === "true", closeAfterHours: $("ap-close-h").value, autoCloseStarted: $("ap-autoclose").value === "true",
       invoicesOn: $("ap-invoices").value === "true", invoiceAt: $("ap-invoice-at").value,
       digestOn: $("ap-digest").value === "true", digestAt: $("ap-digest-at").value,
-      intakeOn: $("ap-intake").value === "true", alertTo: $("ap-alert").value } })
+      intakeOn: $("ap-intake").value === "true", alertTo: $("ap-alert").value,
+      guestOn: $("ap-guest").value === "true", guestNoticeAt: $("ap-guest-at").value,
+      guestAgentAccount: $("ap-guest-aa").value === "true", guestWhatsApp: $("ap-guest-wa").value === "true" } })
       .then(function(d){
         var s = d.settings, on = [];
         if (s.dispatchOn) on.push("dispatch at " + s.dispatchAt); if (s.closeOn) on.push("closing");
-        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails");
+        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.guestOn) on.push("guest updates");
         return loadAuto().then(function(){ show($("ap-msg"), "Saved. " + (on.length ? "On: " + on.join(", ") + "." : "Everything is off."), true); });
       })
       .catch(function(err){ show($("ap-msg"), err.message); })
@@ -1448,6 +1481,13 @@
     });
   }
   $("ap-refresh").addEventListener("click", loadAuto);
+  $("ap-guest-sample").addEventListener("click", function(){
+    var b = $("ap-guest-sample"); b.disabled = true; show($("ap-msg"), "");
+    api("/guest/sample", { method: "POST", body: {} })
+      .then(function(d){ show($("ap-msg"), "Three sample guest emails sent to " + d.to + " - marked [SAMPLE].", true); })
+      .catch(function(err){ show($("ap-msg"), err.message); })
+      .then(function(){ b.disabled = false; $("ap-msg").scrollIntoView({ behavior: "smooth", block: "center" }); });
+  });
 
   function enter(){
     $("signin").hidden = true; $("app").hidden = false; $("who").hidden = false; $("who").textContent = "· signed in as office";
