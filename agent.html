@@ -118,6 +118,11 @@
   .stop-row input{padding-right:40px}
   .stop-x{position:absolute;right:4px;top:26px;height:34px;width:32px;border:0;background:none;color:var(--muted);font-size:19px;cursor:pointer}
   .stop-x:hover{color:var(--err)}
+  .stmt{display:flex;gap:24px;flex-wrap:wrap;margin:0 0 14px}
+  .stmt div{min-width:140px}
+  .stmt .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .stmt .big{font-size:22px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .stmt .big.late{color:var(--err)}
   .copy{background:none;border:0;padding:0;margin-left:6px;font:inherit;font-size:12px;font-weight:600;color:var(--gold-deep);cursor:pointer;text-decoration:underline}
   [hidden]{display:none!important}
 </style>
@@ -254,7 +259,7 @@
         <button class="linkbtn" id="cancel-edit">Cancel this change and start a new booking</button>
       </p>
       <p class="muted" style="margin:12px 0 0" id="book-note">
-        No payment now — these go on your monthly invoice, less your commission.
+        No payment now — trips go on your monthly invoice at the full fare, and your commission is paid out to you from your wallet.
         Bookings close 6 hours before pick-up; changes and cancellations close 24 hours before.
       </p>
     </section>
@@ -272,6 +277,25 @@
         </table>
       </div>
       <p style="margin:14px 0 0"><button class="linkbtn" id="signout">Sign out</button></p>
+    </section>
+
+    <section class="card" id="inv-card">
+      <h2>Invoices &amp; statement</h2>
+      <div id="inv-msg" class="msg" hidden></div>
+      <div class="stmt">
+        <div><div class="lbl">Owing</div><div class="big" id="st-owing">$0.00</div><div class="muted" id="st-owing-n"></div></div>
+        <div><div class="lbl">Overdue</div><div class="big" id="st-overdue">$0.00</div><div class="muted" id="st-overdue-n"></div></div>
+        <div><div class="lbl">Not invoiced yet</div><div class="big" id="st-unbilled">$0.00</div><div class="muted" id="st-unbilled-n"></div></div>
+      </div>
+      <div class="scroll">
+        <table style="min-width:720px">
+          <thead><tr>
+            <th>Invoice</th><th>Issued</th><th>Period</th><th>Due</th><th style="text-align:right">Amount (inc GST)</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="inv-rows"><tr><td colspan="7" class="muted">No invoices yet.</td></tr></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin:12px 0 0">Invoices are at the full fare, with a GST tax invoice for every trip. Your commission is in your wallet above and is paid out to you separately. Pay by card from any open invoice, or by bank transfer using the details on the invoice.</p>
     </section>
   </div>
 </div>
@@ -353,6 +377,7 @@
     $("portal").hidden = false;
     api("/agent/places").then(function(d){ state.places = d.places || []; }).catch(function(){});
     refresh();
+    loadInvoices();
   }
 
   /* ---- bookings table ---- */
@@ -450,6 +475,51 @@
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(done, function(){ window.prompt("Copy this tracking link:", url); });
     } else { window.prompt("Copy this tracking link:", url); }
+  }
+
+  /* ---- invoices & statement: read only, the agency's own ---- */
+  function niceDate(d){ return d ? d.slice(8, 10) + "/" + d.slice(5, 7) + "/" + d.slice(0, 4) : ""; }
+  function loadInvoices(){
+    return api("/agent/invoices").then(function(d){
+      var st = d.statement || {};
+      $("st-owing").textContent = money(st.owing); $("st-owing-n").textContent = st.owingCount ? st.owingCount + (st.owingCount === 1 ? " open invoice" : " open invoices") : "nothing open";
+      $("st-overdue").textContent = money(st.overdue); $("st-overdue").className = "big" + (st.overdue > 0 ? " late" : "");
+      $("st-overdue-n").textContent = st.overdueCount ? st.overdueCount + " past due" : "none";
+      $("st-unbilled").textContent = money(st.uninvoiced); $("st-unbilled-n").textContent = st.uninvoicedCount ? st.uninvoicedCount + (st.uninvoicedCount === 1 ? " trip" : " trips") + ", on your next invoice" : "all invoiced";
+      var tb = $("inv-rows");
+      if (!d.invoices || !d.invoices.length) { tb.innerHTML = '<tr><td colspan="7" class="muted">No invoices yet.</td></tr>'; return; }
+      tb.innerHTML = "";
+      d.invoices.forEach(function(inv){
+        var tr = document.createElement("tr");
+        cell(tr, inv.number, inv.trips ? inv.trips + (inv.trips === 1 ? " trip" : " trips") : "");
+        cell(tr, niceDate(inv.issued));
+        cell(tr, inv.from && inv.to ? niceDate(inv.from) + " – " + niceDate(inv.to) : "");
+        cell(tr, niceDate(inv.due));
+        cell(tr, money(inv.total), "GST " + money(inv.gst), "num");
+        var stc = document.createElement("td"), pill = document.createElement("span");
+        if (inv.status === "paid") { pill.className = "pill paid"; pill.textContent = "paid"; }
+        else if (inv.overdue) { pill.className = "pill void"; pill.textContent = inv.daysOverdue + (inv.daysOverdue === 1 ? " day" : " days") + " overdue"; }
+        else { pill.className = "pill"; pill.textContent = "open"; }
+        stc.appendChild(pill); tr.appendChild(stc);
+        var acts = document.createElement("td");
+        acts.appendChild(actionBtn("Download PDF", "", function(){ downloadInvoice(inv); }));
+        if (inv.payUrl) {
+          var a = document.createElement("a"); a.className = "act"; a.textContent = "Pay by card"; a.href = inv.payUrl; a.target = "_blank"; a.rel = "noopener";
+          a.style.textDecoration = "none"; acts.appendChild(a);
+        }
+        tr.appendChild(acts);
+        tb.appendChild(tr);
+      });
+    }).catch(function(err){ show($("inv-msg"), err.message); });
+  }
+  function downloadInvoice(inv){
+    fetch(API + "/agent/invoice/pdf?id=" + encodeURIComponent(inv.id), { headers: { Authorization: "Bearer " + token } })
+      .then(function(r){ if (!r.ok) throw new Error("Could not download that invoice."); return r.blob(); })
+      .then(function(blob){
+        var url = URL.createObjectURL(blob), a = document.createElement("a");
+        a.href = url; a.download = inv.number + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      }).catch(function(err){ show($("inv-msg"), err.message); });
   }
 
   function downloadVoucher(ref){
