@@ -779,7 +779,12 @@
         </label>
         <div class="total-line"><span id="total-label">Total</span><span id="total">$0</span></div>
       </div>
-      <div><label for="bf-addr">Exact pick-up or drop-off address (street &amp; number, or hotel name)</label><input id="bf-addr" autocomplete="street-address" required></div>
+      <!-- One box per end (20 Oct 2026). An airport end needs no address, so
+           its box hides; syncAddr() decides which are shown and required. -->
+      <div class="row2" id="bf-addr-row">
+        <div id="bf-pu-addr-wrap"><label for="bf-pu-addr">Pick-up address (street &amp; number, or hotel name)</label><input id="bf-pu-addr" autocomplete="street-address"></div>
+        <div id="bf-do-addr-wrap"><label for="bf-do-addr">Drop-off address (street &amp; number, or hotel name)</label><input id="bf-do-addr" autocomplete="off"></div>
+      </div>
       <div><label for="bf-notes">Notes (optional)</label><textarea id="bf-notes" rows="2" placeholder="Extra luggage, return trip, special requests&hellip;"></textarea></div>
       <button class="cta" type="button" id="pay-btn" hidden style="margin-bottom:10px">Pay securely &amp; confirm now</button>
       <button class="cta" type="submit" id="submit-btn">Request this booking</button>
@@ -1624,6 +1629,7 @@ function renderGrid(rates){
       var all = grid.children;
       for(var k=0;k<all.length;k++) all[k].classList.toggle("selected", k===i);
       updateTotal();
+      syncAddr();
       $("book-card").hidden = false;
       $("book-card").scrollIntoView({behavior:"smooth", block:"start"});
     });
@@ -1631,23 +1637,35 @@ function renderGrid(rates){
   });
 }
 
-/* When a pick-up or drop-off was chosen as a street address, carry it into the
-   "exact address" field further down so the customer is not asked to type the
-   same thing twice. Only ever fills a blank field or one this put there, so a
-   hand-typed address is never overwritten. */
+/* The pick-up and drop-off address boxes further down. An airport (or the
+   cruise terminal) needs no street address, so its box hides and is not
+   required; by the hour has no drop-off. When an end was chosen as a street
+   address in step one it is carried down so the customer is not asked to type
+   it twice - but only into a blank box or one this put there, so a hand-typed
+   address is never overwritten. */
+function hubPlace(p){ return p === OOL || p === BNE || p === CRUISE; }
 function syncAddr(){
-  var el = $("bf-addr");
-  if (!el) return;
-  /* Two street addresses - a point-to-point trip - carry both; the airport
-     form only ever has one worth copying. */
-  var want = (state.puAddr && state.droAddr)
-    ? "From " + state.puAddr + " to " + state.droAddr
-    : (state.puAddr || state.droAddr || "");
-  if (!want) return;
-  if (!el.value || el.value === el.dataset.autofill) {
-    el.value = want;
-    el.dataset.autofill = want;
-  }
+  [["pu", state.pu, state.puAddr, false], ["do", state.dro, state.droAddr, !!state.hourly]].forEach(function(e){
+    var wrap = $("bf-" + e[0] + "-addr-wrap"), el = $("bf-" + e[0] + "-addr");
+    if (!wrap || !el) return;
+    var off = e[3] || hubPlace(e[1]);
+    wrap.hidden = off;
+    el.required = !off;
+    if (off) return;
+    var want = e[2] || "";
+    if (want && (!el.value || el.value === el.dataset.autofill)) { el.value = want; el.dataset.autofill = want; }
+  });
+  var row = $("bf-addr-row"), a = $("bf-pu-addr-wrap"), d = $("bf-do-addr-wrap");
+  if (row) row.hidden = a.hidden && d.hidden;
+  /* one box on its own takes the full width */
+  a.style.gridColumn = d.hidden ? "1 / -1" : ""; d.style.gridColumn = a.hidden ? "1 / -1" : "";
+}
+/* The two boxes as the server stores them, and the single line the dispatch
+   text has always carried: the non-airport end(s), "A to B" when both. */
+function addrPair(){
+  var pu = $("bf-pu-addr-wrap").hidden ? "" : $("bf-pu-addr").value.trim();
+  var dro = $("bf-do-addr-wrap").hidden ? "" : $("bf-do-addr").value.trim();
+  return { pu: pu, dro: dro, line: [pu, dro].filter(Boolean).join(" to ") };
 }
 
 /* Party size drives the quote card: best-fit badge, per-head price, and dimming
@@ -1742,6 +1760,7 @@ function setHourly(on){
   if (hh) hh.hidden = !on;
   if (on) { state.dro = "As directed"; state.droAddr = null; state.droLoc = null; state.droUnlisted = false; }
   else if (state.dro === "As directed") { state.dro = null; $("do").value = ""; }
+  syncAddr();
   refresh();
 }
 (function(){ var s = $("hours"); if (s) s.addEventListener("change", function(){ if (state.hourly) refresh(); }); })();
@@ -1929,7 +1948,8 @@ function bookingPayload(){
     stops: (!state.hourly && state.stopX) ? pickedStops() : undefined,
     stopsEnds: (!state.hourly && state.stopX) ? { pickup: endFor("pu"), dropoff: endFor("do") } : undefined,
     name: $("bf-name").value, phone: $("bf-phone").value,
-    email: $("bf-email").value, address: $("bf-addr").value,
+    email: $("bf-email").value,
+    pickupAddress: addrPair().pu, dropoffAddress: addrPair().dro, address: addrPair().line,
     notes: $("bf-notes").value,
     /* Which client placed this booking. A customer told us in September that his
        AI assistant made the booking and could not pay by card - which is the
@@ -2093,7 +2113,7 @@ function buildRequest(){
     "Name: " + $("bf-name").value,
     "Phone: " + $("bf-phone").value,
     "Email: " + $("bf-email").value,
-    "Exact pick-up/drop-off address: " + $("bf-addr").value,
+    "Exact pick-up/drop-off address: " + addrPair().line,
     "Notes: " + ($("bf-notes").value || "-")
   ];
   var subject = "Booking request: " + state.pu + " -> " + state.dro + " (" + $("bf-date").value + ")";
@@ -2335,20 +2355,24 @@ document.addEventListener("DOMContentLoaded", function(){
 /* ---- Google Places address autocomplete (graceful: plain input if unavailable) ---- */
 window.initGPlaces = function(){
   try{
-    var el = document.getElementById("bf-addr");
-    if(!el || !window.google || !google.maps || !google.maps.places) return;
-    var ac = new google.maps.places.Autocomplete(el, {
-      componentRestrictions: { country: "au" },
-      fields: ["formatted_address", "name"],
-      types: ["geocode", "establishment"]
-    });
-    ac.addListener("place_changed", function(){
-      var p = ac.getPlace();
-      if(p){
-        var label = p.formatted_address || "";
-        if(p.name && label.indexOf(p.name) !== 0) label = p.name + ", " + label;
-        if(label) el.value = label;
-      }
+    if(!window.google || !google.maps || !google.maps.places) return;
+    /* both address boxes, pick-up and drop-off */
+    ["bf-pu-addr", "bf-do-addr"].forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      var ac = new google.maps.places.Autocomplete(el, {
+        componentRestrictions: { country: "au" },
+        fields: ["formatted_address", "name"],
+        types: ["geocode", "establishment"]
+      });
+      ac.addListener("place_changed", function(){
+        var p = ac.getPlace();
+        if(p){
+          var label = p.formatted_address || "";
+          if(p.name && label.indexOf(p.name) !== 0) label = p.name + ", " + label;
+          if(label) el.value = label;
+        }
+      });
     });
   }catch(e){}
 };
@@ -2378,7 +2402,7 @@ if (typeof GMAPS_KEY !== "undefined" && GMAPS_KEY) {
     }
     /* Safety net: any focus on the address field itself, however it is reached. */
     document.addEventListener("focusin", function(e){
-      if (e.target && e.target.id === "bf-addr") loadPlaces();
+      if (e.target && (e.target.id === "bf-pu-addr" || e.target.id === "bf-do-addr")) loadPlaces();
     });
   })();
 }
