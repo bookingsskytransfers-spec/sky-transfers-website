@@ -244,17 +244,27 @@
         and PDF the website sends.
       </p>
       <datalist id="nb-places"></datalist>
+      <p style="margin:0 0 10px">
+        <label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer;margin-right:22px"><input type="radio" name="nb-kind" value="transfer" checked> Transfer (A to B)</label>
+        <label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer"><input type="radio" name="nb-kind" value="hourly"> By the hour / charter (vehicle held for set hours, as directed)</label>
+      </p>
       <div class="row3" style="margin-bottom:10px">
         <div><label for="nb-pickup">Pick-up (suburb or airport &mdash; choose from the list)</label><input id="nb-pickup" list="nb-places" placeholder="Start typing a suburb…" autocomplete="off"></div>
-        <div><label for="nb-dropoff">Drop-off (suburb or airport &mdash; choose from the list)</label><input id="nb-dropoff" list="nb-places" placeholder="Start typing a suburb…" autocomplete="off"></div>
+        <div id="nb-dropoff-wrap"><label for="nb-dropoff">Drop-off (suburb or airport &mdash; choose from the list)</label><input id="nb-dropoff" list="nb-places" placeholder="Start typing a suburb…" autocomplete="off"></div>
+        <div id="nb-hours-wrap" hidden><label for="nb-hours">Hours booked</label><select id="nb-hours"></select></div>
         <div><label for="nb-vehicle">Vehicle</label><select id="nb-vehicle"></select></div>
       </div>
+      <p class="muted" id="nb-hours-note" hidden style="margin:0 0 10px">
+        3 to 6 hours is priced at the website's hourly rate unless you type an agreed total. Anything longer (or shorter) is a charter:
+        type the agreed total in the override box. Over 6 hours the guest's confirmation and payment link say <b>Charter &mdash; N hours as directed</b>.
+        Put the itinerary in Notes.
+      </p>
       <div class="row3" style="margin-bottom:10px">
         <div><label for="nb-date">Pick-up date</label><input id="nb-date" type="date"></div>
         <div><label for="nb-time">Pick-up time</label><input id="nb-time" type="time"></div>
         <div><label for="nb-flight">Flight (optional)</label><input id="nb-flight" placeholder="JQ431" maxlength="40"></div>
       </div>
-      <p style="margin:0 0 10px"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer">
+      <p style="margin:0 0 10px" id="nb-return-wrap"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer">
         <input type="checkbox" id="nb-return"> Return trip (both legs, 10% off)</label></p>
       <div class="row3" id="nb-return-row" hidden style="margin-bottom:10px">
         <div><label for="nb-rdate">Return date</label><input id="nb-rdate" type="date"></div>
@@ -274,12 +284,14 @@
         <div><label for="nb-email">Email (for the confirmation)</label><input id="nb-email" type="email" autocomplete="off"></div>
       </div>
       <div style="margin-bottom:10px"><label for="nb-address">Exact pick-up / drop-off address</label><input id="nb-address" autocomplete="off"></div>
+      <div id="nb-stops-wrap">
       <div class="row3" style="margin-bottom:4px">
         <div><label for="nb-stop1">Stop on the way 1 (optional)</label><input id="nb-stop1" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
         <div><label for="nb-stop2">Stop 2 (optional)</label><input id="nb-stop2" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
         <div><label for="nb-stop3">Stop 3 (optional)</label><input id="nb-stop3" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
       </div>
       <p class="muted" style="margin:0 0 10px">Stops are on the outbound journey and priced by the extra road distance they add &mdash; the price includes them automatically. Type a full street address for accuracy.</p>
+      </div>
       <div style="margin-bottom:10px"><label for="nb-notes">Notes (optional)</label><input id="nb-notes" autocomplete="off"></div>
       <div class="row3" style="margin-bottom:12px">
         <div><label for="nb-override">Override total $ (only if no online price, or a special rate)</label>
@@ -643,6 +655,24 @@
     if (!card) return;
     var ret = $("nb-return");
     ret.addEventListener("change", function(){ $("nb-return-row").hidden = !ret.checked; });
+    /* Transfer, or the vehicle held for set hours (hourly hire / charter):
+       no drop-off, no return leg, no stops. */
+    for (var h = 1; h <= 16; h++) {
+      var ho = document.createElement("option"); ho.value = String(h); ho.textContent = h + (h === 1 ? " hour" : " hours");
+      $("nb-hours").appendChild(ho);
+    }
+    $("nb-hours").value = "8";
+    function nbKind(){ var k = document.querySelector('input[name="nb-kind"]:checked'); return k ? k.value : "transfer"; }
+    function setKind(kind){
+      var r = document.querySelector('input[name="nb-kind"][value="' + kind + '"]'); if (r) r.checked = true;
+      var hourly = kind === "hourly";
+      $("nb-dropoff-wrap").hidden = hourly; $("nb-hours-wrap").hidden = !hourly; $("nb-hours-note").hidden = !hourly;
+      $("nb-return-wrap").hidden = hourly; $("nb-stops-wrap").hidden = hourly;
+      if (hourly) { ret.checked = false; $("nb-return-row").hidden = true; }
+    }
+    [].forEach.call(document.querySelectorAll('input[name="nb-kind"]'), function(r){
+      r.addEventListener("change", function(){ if (r.checked) setKind(r.value); });
+    });
     /* The place and vehicle lists need the admin token, so they are loaded
        from enter() - after sign-in - not here at page load. Loading them here
        fired before the PIN was typed on a fresh tab, was refused, and left both
@@ -676,7 +706,9 @@
     $("nb-amend-cancel").addEventListener("click", function(){ setAmend(null); show($("nb-msg"), ""); });
     nbAmend = function(b){
       show($("nb-msg"), "");
-      $("nb-pickup").value = b.pickup || ""; $("nb-dropoff").value = b.dropoff || "";
+      setKind(b.hours ? "hourly" : "transfer");
+      if (b.hours) $("nb-hours").value = String(b.hours);
+      $("nb-pickup").value = b.pickup || ""; $("nb-dropoff").value = b.hours ? "" : (b.dropoff || "");
       $("nb-vehicle").value = b.vehicle || "";
       $("nb-date").value = b.dateText || String(b.date || "").slice(0, 10); $("nb-time").value = (b.time || "").slice(0, 5);
       $("nb-flight").value = b.flight || "";
@@ -694,15 +726,17 @@
     };
     $("nb-submit").addEventListener("click", function(){
       var btn = this;
+      var hourly = nbKind() === "hourly";
       var body = {
-        pickup: nbVal("nb-pickup"), dropoff: nbVal("nb-dropoff"), vehicle: nbVal("nb-vehicle"),
+        tripType: hourly ? "hourly" : "transfer", hours: hourly ? nbVal("nb-hours") : "",
+        pickup: nbVal("nb-pickup"), dropoff: hourly ? "" : nbVal("nb-dropoff"), vehicle: nbVal("nb-vehicle"),
         date: nbVal("nb-date"), time: nbVal("nb-time"),
         returnDate: ret.checked ? nbVal("nb-rdate") : "", returnTime: ret.checked ? nbVal("nb-rtime") : "",
         returnFlight: ret.checked ? nbVal("nb-rflight") : "",
         pax: nbVal("nb-pax"), childSeats: nbVal("nb-seats"), trailer: nbVal("nb-trailer"), flight: nbVal("nb-flight"),
         name: nbVal("nb-name"), phone: nbVal("nb-phone"), email: nbVal("nb-email"),
         address: nbVal("nb-address"), notes: nbVal("nb-notes"),
-        stops: [nbVal("nb-stop1"), nbVal("nb-stop2"), nbVal("nb-stop3")].filter(function(x){ return x.length >= 3; }),
+        stops: hourly ? [] : [nbVal("nb-stop1"), nbVal("nb-stop2"), nbVal("nb-stop3")].filter(function(x){ return x.length >= 3; }),
         overrideTotal: nbVal("nb-override"),
         mode: document.querySelector('input[name="nb-mode"]:checked').value
       };
@@ -725,6 +759,7 @@
         card.querySelectorAll("input:not([type=radio]):not([type=checkbox]),textarea").forEach(function(el){ el.value = ""; });
         $("nb-return").checked = false; $("nb-return-row").hidden = true; $("nb-trailer").checked = false;
         $("nb-pax").value = "2"; $("nb-seats").value = "0";
+        setKind("transfer"); $("nb-hours").value = "8";
         loadWeb();
       }).catch(function(err){ show($("nb-msg"), err.message); })
         .then(function(){ btn.disabled = false; });
@@ -761,7 +796,7 @@
                  + (b.returnFlight ? " \u00b7 " + b.returnFlight : "") : ""),
            (b.pickup || "?") + " \u2192 " + (b.dropoff || "?")
              + (b.returnDate ? "  (RETURN)" : "")
-             + (b.hours ? "  (BY THE HOUR \u00b7 " + b.hours + " h)" : "")
+             + (b.hours ? (b.hours > 6 ? "  (CHARTER \u00b7 " : "  (BY THE HOUR \u00b7 ") + b.hours + " h)" : "")
              + (b.stops && b.stops.length ? "  \u00b7 via " + b.stops.join(" \u2192 ") : ""),
            (b.name || "") + (b.phone ? "  \u00b7  " + b.phone : ""),
            "$" + Number(b.total || 0).toFixed(0),
