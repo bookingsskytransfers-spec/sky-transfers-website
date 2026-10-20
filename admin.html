@@ -283,7 +283,10 @@
         <div><label for="nb-phone">Phone</label><input id="nb-phone" autocomplete="off"></div>
         <div><label for="nb-email">Email (for the confirmation)</label><input id="nb-email" type="email" autocomplete="off"></div>
       </div>
-      <div style="margin-bottom:10px"><label for="nb-address">Exact pick-up / drop-off address</label><input id="nb-address" autocomplete="off"></div>
+      <div class="row2" style="margin-bottom:10px">
+        <div><label for="nb-pu-address">Pick-up address <span class="muted">(street &amp; number or hotel; blank at an airport)</span></label><input id="nb-pu-address" autocomplete="off"></div>
+        <div id="nb-do-address-wrap"><label for="nb-do-address">Drop-off address <span class="muted">(blank at an airport)</span></label><input id="nb-do-address" autocomplete="off"></div>
+      </div>
       <div id="nb-stops-wrap">
       <div class="row3" style="margin-bottom:4px">
         <div><label for="nb-stop1">Stop on the way 1 (optional)</label><input id="nb-stop1" list="nb-places" placeholder="Address or suburb" autocomplete="off"></div>
@@ -667,7 +670,7 @@
       var r = document.querySelector('input[name="nb-kind"][value="' + kind + '"]'); if (r) r.checked = true;
       var hourly = kind === "hourly";
       $("nb-dropoff-wrap").hidden = hourly; $("nb-hours-wrap").hidden = !hourly; $("nb-hours-note").hidden = !hourly;
-      $("nb-return-wrap").hidden = hourly; $("nb-stops-wrap").hidden = hourly;
+      $("nb-return-wrap").hidden = hourly; $("nb-stops-wrap").hidden = hourly; $("nb-do-address-wrap").hidden = hourly;
       if (hourly) { ret.checked = false; $("nb-return-row").hidden = true; }
     }
     [].forEach.call(document.querySelectorAll('input[name="nb-kind"]'), function(r){
@@ -718,7 +721,12 @@
       $("nb-rtime").value = hasRet ? (b.returnTime || "").slice(0, 5) : ""; $("nb-rflight").value = hasRet ? (b.returnFlight || "") : "";
       $("nb-pax").value = b.pax || 1; $("nb-seats").value = String(b.childSeats || 0); $("nb-trailer").checked = !!b.trailer;
       $("nb-name").value = b.name || ""; $("nb-phone").value = b.phone || ""; $("nb-email").value = b.email || "";
-      $("nb-address").value = b.address || ""; $("nb-notes").value = b.notes || ""; $("nb-override").value = "";
+      /* the two addresses; a booking from before they were split has one,
+         which belongs to whichever end is not an airport */
+      var pa = b.puAddress || "", da = b.doAddress || "";
+      if (!pa && !da && b.address) { if (/Airport|Cruise Terminal/.test(b.pickup || "") && !b.hours) da = b.address; else pa = b.address; }
+      $("nb-pu-address").value = pa; $("nb-do-address").value = b.hours ? "" : da;
+      $("nb-notes").value = b.notes || ""; $("nb-override").value = "";
       var st = b.stops || [];
       $("nb-stop1").value = st[0] || ""; $("nb-stop2").value = st[1] || ""; $("nb-stop3").value = st[2] || "";
       setAmend(b.ref, b);
@@ -735,7 +743,7 @@
         returnFlight: ret.checked ? nbVal("nb-rflight") : "",
         pax: nbVal("nb-pax"), childSeats: nbVal("nb-seats"), trailer: nbVal("nb-trailer"), flight: nbVal("nb-flight"),
         name: nbVal("nb-name"), phone: nbVal("nb-phone"), email: nbVal("nb-email"),
-        address: nbVal("nb-address"), notes: nbVal("nb-notes"),
+        pickupAddress: nbVal("nb-pu-address"), dropoffAddress: hourly ? "" : nbVal("nb-do-address"), notes: nbVal("nb-notes"),
         stops: hourly ? [] : [nbVal("nb-stop1"), nbVal("nb-stop2"), nbVal("nb-stop3")].filter(function(x){ return x.length >= 3; }),
         overrideTotal: nbVal("nb-override"),
         mode: document.querySelector('input[name="nb-mode"]:checked').value
