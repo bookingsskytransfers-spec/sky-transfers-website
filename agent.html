@@ -279,6 +279,7 @@
         <span id="book-note-pay">No payment now — trips go on your monthly invoice at the full fare, and your commission is paid out to you from your wallet.</span>
         Bookings close 6 hours before pick-up; changes and cancellations close 24 hours before.
         Booking a group itinerary? Add each trip to a tour and book them all in one go.
+        Rather pay a trip by card, or have your client pay it? Use Pay by card on it in your bookings below.
       </p>
     </section>
 
@@ -298,6 +299,7 @@
 
     <section class="card">
       <h2>Your bookings</h2>
+      <div id="pay-box" class="pinbox" hidden></div>
       <div class="scroll">
         <table>
           <thead><tr>
@@ -502,7 +504,7 @@
            b.stops && b.stops.length ? "via " + b.stops.length + (b.stops.length === 1 ? " stop" : " stops") : "", b.returnDate ? "Return trip" : ""].filter(Boolean).join(" · "));
         cell(tr, b.passenger, b.email || "");
         tr.appendChild(tripCell(b));
-        cell(tr, money(b.total), "", "num");
+        cell(tr, money(b.total), b.cardPaid ? "paid by card" : b.payUrl ? "card link made" : "", "num");
         if (m) cell(tr, money(b.commission), "", "num");
         var st = document.createElement("td");
         var pill = document.createElement("span");
@@ -516,6 +518,7 @@
         if (b.status === "confirmed") {
           acts.appendChild(actionBtn("Voucher", "", function(){ downloadVoucher(b.ref); }));
           if (b.tourRef) acts.appendChild(actionBtn("Tour voucher", "", function(){ downloadTourVoucher(b.tourRef); }));
+          if (!b.cardPaid) acts.appendChild(actionBtn("Pay by card", "", function(){ payByCard(b); }));
           if (b.changeable) {
             acts.appendChild(actionBtn("Change", "", function(){ startEdit(b); }));
             acts.appendChild(actionBtn("Cancel", "danger", function(){ cancelBooking(b); }));
@@ -611,6 +614,34 @@
        history, then handed to the browser as a normal file save. */
     savePdf("/agent/booking/voucher?ref=" + encodeURIComponent(ref), "SkyTransfers-" + ref + ".pdf", "Could not build that voucher.");
   }
+  /* Pay one booking by card instead of on the monthly invoice: a secure
+     Stripe page, the plain fare. Pay it yourself, or copy the link and send
+     it to your client so they pay with their own card. */
+  function payByCard(b){
+    var box = $("pay-box");
+    show($("book-msg"), "");
+    api("/agent/booking/pay-link", { method: "POST", body: { ref: b.ref } }).then(function(d){
+      box.innerHTML = "";
+      var t = document.createElement("div"); t.style.fontWeight = "700";
+      t.textContent = "Card payment for " + b.ref + " - " + money(d.total);
+      var p = document.createElement("div"); p.className = "muted"; p.style.margin = "4px 0 10px";
+      p.textContent = "Pay it now, or copy the link and send it to your client to pay with their own card. Once it is paid the trip comes off your monthly invoice; your commission stays in your wallet.";
+      var open = document.createElement("a"); open.className = "act"; open.href = d.url; open.target = "_blank"; open.rel = "noopener";
+      open.style.textDecoration = "none"; open.textContent = "Open the payment page";
+      var copy = actionBtn("Copy link for your client", "", function(){
+        var done = function(){ show($("book-msg"), "Payment link for " + b.ref + " copied - send it to your client.", true); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.url).then(done, function(){ window.prompt("Copy this payment link:", d.url); });
+        else window.prompt("Copy this payment link:", d.url);
+      });
+      var x = document.createElement("button"); x.type = "button"; x.className = "linkbtn"; x.style.marginLeft = "10px"; x.textContent = "Close";
+      x.addEventListener("click", function(){ box.hidden = true; });
+      box.appendChild(t); box.appendChild(p); box.appendChild(open); box.appendChild(copy); box.appendChild(x);
+      box.hidden = false;
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+      refresh();
+    }).catch(function(err){ show($("book-msg"), err.message); });
+  }
+
   /* the itinerary, then one voucher per trip, in one file */
   function downloadTourVoucher(tourRef){
     savePdf("/agent/tour/voucher?tour=" + encodeURIComponent(tourRef), "SkyTransfers-" + tourRef + ".pdf", "Could not build that tour voucher.");
