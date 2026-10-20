@@ -535,6 +535,19 @@
           </div>
         </div>
         <div class="ap-row">
+          <h3>Google Calendar</h3>
+          <div>
+            <p class="muted">Reads the bookings calendar (read-only - nothing is ever changed in it) every 5 minutes and puts each upcoming job on the board. Jobs it can read cleanly go straight on; anything unclear - no price, no phone, two vehicles, a time still TBC - is marked <b>Check</b>. A booking already here (a website or agent booking, or a Limo Anywhere import) is linked, not doubled. When an event changes, the job is <b>not</b> changed: it's marked <b>Calendar changed</b> and you apply it or keep the job. A deleted event marks its job <b>Removed from calendar</b>; cancelling it is up to you.</p>
+            <p class="muted" id="ap-cal-state"></p>
+            <div class="ap-ctl">
+              <div><label for="ap-cal">Read the calendar</label><select id="ap-cal"><option value="false">Off</option><option value="true">On</option></select></div>
+              <span><button class="act" id="ap-cal-preview">Preview what it would add</button></span>
+              <span id="ap-run-cal"></span>
+            </div>
+            <div id="ap-cal-out" class="muted" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="ap-row">
           <h3>Guest updates</h3>
           <div>
             <p class="muted">Messages to the guest: <b>driver assigned</b> the evening before (only once you've sent the job to the driver), <b>on the way</b> when the driver taps it, and <b>arrived</b> with where to meet. Each has a "track your driver" link. They show the driver's first name and the car - never the fare, the driver's number or a rego.</p>
@@ -755,10 +768,38 @@
       top.appendChild(el("span", "chip " + j.source, (j.source === "agent" ? "Agent: " : "") + (j.account || "Account") + (j.accountRef ? " · " + j.accountRef : "")));
     }
     if (j.auto && j.driverId) top.appendChild(el("span", "chip auto", "Picked by Autopilot"));
-    if (j.needsReview) top.appendChild(el("span", "chip check", /^Imported/.test(j.sourceNote || "") ? "Check - imported" : "Check - read from email"));
+    var sn = j.sourceNote || "";
+    var calChange = /^Calendar changed/.test(sn), calGone = /^Removed from the calendar/.test(sn);
+    if (j.needsReview) top.appendChild(el("span", "chip check", calChange ? "Calendar changed" : calGone ? "Removed from calendar"
+      : /^From the Google Calendar/.test(sn) ? "Check - from calendar" : /^Imported/.test(sn) ? "Check - imported" : "Check - read from email"));
     top.appendChild(el("span", "job-ref", j.ref));
     c.appendChild(top);
-    if (j.needsReview && j.sourceNote) c.appendChild(el("p", "job-note", j.sourceNote + " Open it on Account job and save it once it's right."));
+    if (j.needsReview && sn) {
+      /* the first paragraph is what to check; the rest is the calendar's own notes */
+      var parts = sn.split("\n\n");
+      c.appendChild(el("p", "job-note", parts[0] + (calChange ? "" : " Open it on Account job and save it once it's right.")));
+      if (parts.length > 1) {
+        var det = document.createElement("details"); det.className = "job-note";
+        det.appendChild(el("summary", "", "Calendar notes")); var pre = el("div", "", parts.slice(1).join("\n\n")); pre.style.whiteSpace = "pre-wrap"; det.appendChild(pre);
+        c.appendChild(det);
+      }
+      if (calChange && j.source === "account") {
+        var cm = el("div", "job-note");
+        var calMsg = el("span", "muted", "");
+        cm.appendChild(armBtn("Apply the change", "Press again to apply", "", function(){
+          return api("/ops/cal/apply", { method: "POST", body: { ref: j.ref } }).then(function(d){
+            calMsg.textContent = "Applied." + (d.sentTo ? " Tell " + d.sentTo + " - the job had been sent." : ""); setTimeout(loadJobs, 900);
+          }).catch(function(err){ calMsg.textContent = err.message; });
+        }));
+        cm.appendChild(document.createTextNode(" "));
+        cm.appendChild(armBtn("Keep the job as it is", "Press again to keep it", "", function(){
+          return api("/ops/cal/keep", { method: "POST", body: { ref: j.ref } }).then(function(){ calMsg.textContent = "Kept."; setTimeout(loadJobs, 900); })
+            .catch(function(err){ calMsg.textContent = err.message; });
+        }));
+        cm.appendChild(document.createTextNode(" ")); cm.appendChild(calMsg);
+        c.appendChild(cm);
+      }
+    }
 
     c.appendChild(el("div", "job-route", j.hours && (!j.to || j.to === "As directed")
       ? j.from + " — " + j.hours + " h as directed" : j.from + "  →  " + j.to));
@@ -1525,6 +1566,8 @@
       $("ap-invoices").value = String(s.invoicesOn); $("ap-invoice-at").value = s.invoiceAt;
       $("ap-digest").value = String(s.digestOn); $("ap-digest-at").value = s.digestAt;
       $("ap-intake").value = String(s.intakeOn);
+      $("ap-cal").value = String(!!s.calOn);
+      $("ap-cal-state").textContent = d.calendar && d.calendar.ok ? (s.calOn ? "Reading the calendar." : "Ready - switch it on and save.") : "Can't read the calendar yet: " + ((d.calendar && d.calendar.why) || "not set up") + ".";
       $("ap-guest").value = String(!!s.guestOn); $("ap-guest-at").value = s.guestNoticeAt || "19:00";
       $("ap-guest-aa").value = String(!!s.guestAgentAccount); $("ap-guest-wa").value = String(!!s.guestWhatsApp);
       api("/guest/state").then(function(g){
@@ -1560,6 +1603,7 @@
         else if (what === "close") msg = (r.closed.length ? "Marked done: " + r.closed.join(", ") + ". " : "") + (r.chased.length ? "Chased: " + r.chased.join(", ") + "." : (r.closed.length ? "" : "Nothing open past its time."));
         else if (what === "invoices") msg = r.issued && r.issued.length ? "Issued " + r.issued.join(", ") + " - the approval emails are on their way." : (r.skipped ? "Invoices are off: " + r.skipped + "." : "No schedule has a finished period waiting to be invoiced.");
         else if (what === "digest") msg = "Digest sent.";
+        else if (what === "calendar") msg = r.skipped ? "Didn't read the calendar: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new jobs. ") + (r.linked ? r.linked + " already on the board, linked. " : "") + (r.changed.length ? r.changed.length + " changed - marked on the board. " : "") + (r.removed.length ? r.removed.length + " removed from the calendar - marked on the board. " : "") + (r.skipped ? r.skipped + " couldn't go on (see your email)." : "");
         else msg = r.skipped ? "Didn't read the inbox: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new bookings. ") + (r.handed ? r.handed + " email(s) need you - see your inbox." : "");
         show($("ap-msg"), msg, true); $("ap-msg").scrollIntoView({ behavior: "smooth", block: "center" });
         return loadAuto().then(function(){ show($("ap-msg"), msg, true); });
@@ -1573,6 +1617,31 @@
   runBtn("ap-run-invoices", "invoices", "Prepare due invoices now", "Press again to issue them");
   runBtn("ap-run-digest", "digest", "Email me the digest now");
   runBtn("ap-run-intake", "intake", "Check the inbox now");
+  runBtn("ap-run-cal", "calendar", "Read the calendar now", "Press again to put them on the board");
+  /* A look at what the first read would do - nothing is saved. */
+  $("ap-cal-preview").addEventListener("click", function(){
+    var b = $("ap-cal-preview"), out = $("ap-cal-out"); b.disabled = true; out.textContent = "Reading the calendar…";
+    api("/ops/cal/preview").then(function(d){
+      out.innerHTML = "";
+      if (d.skipped) { out.textContent = "Can't read the calendar yet: " + d.skipped + "."; return; }
+      var rows = d.rows || [], add = rows.filter(function(r){ return r.action === "create"; }), link = rows.filter(function(r){ return r.action === "link"; }), skip = rows.filter(function(r){ return r.action === "skip"; });
+      out.appendChild(el("p", "", d.events + " events in the calendar. New to the board: " + add.length + " (" + add.filter(function(r){ return r.checks.length; }).length + " marked Check). Already here, would be linked: " + link.length + ". Can't go on: " + skip.length + ". Nothing has been saved."));
+      if (!rows.length) return;
+      var t = el("table", "tight"); t.innerHTML = "<thead><tr><th>When</th><th>Event</th><th>Would</th><th>Read as</th></tr></thead>";
+      var tb = el("tbody");
+      rows.forEach(function(r){
+        var tr = el("tr");
+        tr.appendChild(el("td", "", niceDate(r.date) + " " + (r.time || "")));
+        tr.appendChild(el("td", "", r.title));
+        tr.appendChild(el("td", "", r.action === "create" ? (r.checks.length ? "Add - Check" : "Add") : r.action === "link" ? "Link to " + r.ref : "Skip"));
+        tr.appendChild(el("td", "", r.action === "create"
+          ? [r.account || "Direct", r.from + " → " + r.to, r.vehicle || "vehicle?", r.pax + " pax", r.name || "name?", r.phone || "phone?", r.price != null ? money(r.price) : "price?"].join(" · ") + (r.checks.length ? "  — CHECK: " + r.checks.join("; ") : "")
+          : r.why || ""));
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb); out.appendChild(t);
+    }).catch(function(err){ out.textContent = err.message; }).then(function(){ b.disabled = false; });
+  });
   $("ap-save").addEventListener("click", function(){
     var b = $("ap-save"); b.disabled = true; show($("ap-msg"), "");
     api("/autopilot/settings", { method: "POST", body: {
@@ -1580,13 +1649,13 @@
       closeOn: $("ap-close").value === "true", closeAfterHours: $("ap-close-h").value, autoCloseStarted: $("ap-autoclose").value === "true",
       invoicesOn: $("ap-invoices").value === "true", invoiceAt: $("ap-invoice-at").value,
       digestOn: $("ap-digest").value === "true", digestAt: $("ap-digest-at").value,
-      intakeOn: $("ap-intake").value === "true", alertTo: $("ap-alert").value,
+      intakeOn: $("ap-intake").value === "true", calOn: $("ap-cal").value === "true", alertTo: $("ap-alert").value,
       guestOn: $("ap-guest").value === "true", guestNoticeAt: $("ap-guest-at").value,
       guestAgentAccount: $("ap-guest-aa").value === "true", guestWhatsApp: $("ap-guest-wa").value === "true" } })
       .then(function(d){
         var s = d.settings, on = [];
         if (s.dispatchOn) on.push("dispatch at " + s.dispatchAt); if (s.closeOn) on.push("closing");
-        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.guestOn) on.push("guest updates");
+        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.calOn) on.push("Google Calendar"); if (s.guestOn) on.push("guest updates");
         return loadAuto().then(function(){ show($("ap-msg"), "Saved. " + (on.length ? "On: " + on.join(", ") + "." : "Everything is off."), true); });
       })
       .catch(function(err){ show($("ap-msg"), err.message); })
@@ -1620,7 +1689,7 @@
     });
   }
   var EV_LABEL = { assigned: "Dispatch", "no-driver": "No driver", evening: "Evening run", closed: "Closed", unclosed: "Chased", invoice: "Invoice",
-    digest: "Digest", intake: "Email", error: "Problem", settings: "Settings", run: "Run now" };
+    digest: "Digest", intake: "Email", calendar: "Calendar", import: "Import", error: "Problem", settings: "Settings", run: "Run now" };
   function renderEvents(){
     var box = $("ap-events"); box.innerHTML = "";
     if (!AP.events.length) { box.appendChild(el("p", "empty", "Nothing yet.")); return; }
