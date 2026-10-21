@@ -175,7 +175,6 @@
     function fact(label, val){ if (!val) return; var s = el("span"); if (label) s.appendChild(el("b", "", label + " ")); s.appendChild(document.createTextNode(String(val))); f.appendChild(s); }
     fact("", j.guest); fact("Pax", j.pax); fact("Flight", j.flight); fact("", j.vehicleLabel || j.vehicleClass);
     if (j.childSeats) fact("Child seats", j.childSeats); if (j.trailer) fact("", "Trailer");
-    if (j.account) fact("Account", j.account);
     if (j.pay != null) { var p = el("span", "pay", "Your pay $" + j.pay); f.appendChild(p); }
     c.appendChild(f);
     if (j.address) c.appendChild(el("div", "note", "Address: " + j.address));
