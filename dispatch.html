@@ -548,6 +548,20 @@
           </div>
         </div>
         <div class="ap-row">
+          <h3>AI inbox reader (Outlook)</h3>
+          <div>
+            <p class="muted">Reads new mail in the Outlook bookings inbox once an hour (read-only - nothing is marked read, moved or answered) and has Claude decide what each email is. A <b>firm booking</b> - from an agency, a confirmation PDF or a customer - goes into the <b>Google Calendar</b> in the usual format, one event per trip; the calendar read then puts it on the board marked <b>Check</b>. A <b>change or cancellation</b> is never applied: the job is marked <b>Changed by email</b> and you're emailed what it asks for. Quotes, enquiries and newsletters are left alone. A booking from a sender Outlook can't verify comes to you instead. Only mail that arrives after you switch it on is read.</p>
+            <p class="muted" id="ap-ai-state"></p>
+            <div class="ap-ctl">
+              <div><label for="ap-ai">Read Outlook with AI</label><select id="ap-ai"><option value="false">Off</option><option value="true">On</option></select></div>
+              <span><button class="act" id="ap-ai-check">Test the connections</button></span>
+              <span><button class="act" id="ap-ai-preview">Preview the last day's mail</button></span>
+              <span id="ap-run-ai"></span>
+            </div>
+            <div id="ap-ai-out" class="muted" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="ap-row">
           <h3>Guest updates</h3>
           <div>
             <p class="muted">Messages to the guest: <b>driver assigned</b> the evening before (only once you've sent the job to the driver), <b>on the way</b> when the driver taps it, and <b>arrived</b> with where to meet. Each has a "track your driver" link. They show the driver's first name and the car - never the fare, the driver's number or a rego.</p>
@@ -679,7 +693,8 @@
   });
 
   /* ---------- shared state ---------- */
-  var DRIVERS = [], VEHICLES = [], CLASSES = [], LINKS = {};
+  var DRIVERS = [], VEHICLES = [], CLASSES = [], LINKS = {}, WA_API = false;
+  function loadWaStatus(){ return api("/ops/wa-status").then(function(d){ WA_API = !!d.connected; }).catch(function(){ WA_API = false; }); }
   function driverById(id){ for (var i = 0; i < DRIVERS.length; i++) if (DRIVERS[i].id === id) return DRIVERS[i]; return null; }
   function vehicleById(id){ for (var i = 0; i < VEHICLES.length; i++) if (VEHICLES[i].id === id) return VEHICLES[i]; return null; }
   function getLink(driverId){
@@ -770,7 +785,8 @@
     if (j.auto && j.driverId) top.appendChild(el("span", "chip auto", "Picked by Autopilot"));
     var sn = j.sourceNote || "";
     var calChange = /^Calendar changed/.test(sn), calGone = /^Removed from the calendar/.test(sn);
-    if (j.needsReview) top.appendChild(el("span", "chip check", calChange ? "Calendar changed" : calGone ? "Removed from calendar"
+    var emChange = /^Email change/.test(sn), emCancel = /^Email cancellation/.test(sn);
+    if (j.needsReview) top.appendChild(el("span", "chip check", emCancel ? "Cancelled by email?" : emChange ? "Changed by email" : calChange ? "Calendar changed" : calGone ? "Removed from calendar"
       : /^From the Google Calendar/.test(sn) ? "Check - from calendar" : /^Imported/.test(sn) ? "Check - imported" : "Check - read from email"));
     top.appendChild(el("span", "job-ref", j.ref));
     c.appendChild(top);
@@ -866,10 +882,21 @@
         .then(function(d){ save.disabled = false; return d; }, function(e){ save.disabled = false; throw e; });
     }
     save.addEventListener("click", function(){ saveNow().then(function(){ loadJobs(); }).catch(function(){}); });
+    var waPhone = false;
     wa.addEventListener("click", function(){
       var d = driverById(+dSel.value);
       if (!d) { msg.textContent = "Choose a driver first."; return; }
       if (!d.phone) { msg.textContent = d.name + " has no mobile number on file."; return; }
+      /* WhatsApp connected on the server: the job goes from the Sky Transfers
+         number as the approved template. If Meta refuses it, the next press
+         opens WhatsApp on this phone the old way. */
+      if (WA_API && !waPhone) {
+        wa.disabled = true; msg.textContent = "Sending by WhatsApp…";
+        saveNow().then(function(){ return api("/ops/wa-driver", { method: "POST", body: { ref: j.ref, leg: j.leg } }); })
+          .then(function(r){ wa.disabled = false; j.sentAt = new Date().toISOString(); msg.textContent = "Sent to " + r.to + " by WhatsApp ✓"; setTimeout(loadJobs, 800); })
+          .catch(function(err){ wa.disabled = false; waPhone = true; wa.textContent = "Open WhatsApp instead"; msg.textContent = err.message + " Press again to send it from this phone."; });
+        return;
+      }
       /* Open the window now, inside the click, or a popup blocker eats it once
          the save and the link lookup have gone round the network. */
       var w = window.open("about:blank", "_blank");
@@ -1573,6 +1600,10 @@
       $("ap-digest").value = String(s.digestOn); $("ap-digest-at").value = s.digestAt;
       $("ap-intake").value = String(s.intakeOn);
       $("ap-cal").value = String(!!s.calOn);
+      $("ap-ai").value = String(!!s.aiOn);
+      $("ap-ai-state").textContent = d.inboxAi && d.inboxAi.ok
+        ? (s.aiOn ? "Reading " + d.inboxAi.mailbox + " into " + d.inboxAi.calendar + (s.aiSince ? ", mail since " + bneStamp(s.aiSince) : "") + "." : "Ready - test the connections, preview, then switch it on and save.")
+        : "Can't read Outlook yet - " + ((d.inboxAi && d.inboxAi.why) || "not set up") + ".";
       $("ap-cal-state").textContent = d.calendar && d.calendar.ok ? (s.calOn ? "Reading the calendar." : "Ready - switch it on and save.") : "Can't read the calendar yet: " + ((d.calendar && d.calendar.why) || "not set up") + ".";
       $("ap-guest").value = String(!!s.guestOn); $("ap-guest-at").value = s.guestNoticeAt || "19:00";
       $("ap-guest-aa").value = String(!!s.guestAgentAccount); $("ap-guest-wa").value = String(!!s.guestWhatsApp);
@@ -1611,6 +1642,7 @@
         else if (what === "invoices") msg = r.issued && r.issued.length ? "Issued " + r.issued.join(", ") + " - the approval emails are on their way." : (r.skipped ? "Invoices are off: " + r.skipped + "." : "No schedule has a finished period waiting to be invoiced.");
         else if (what === "digest") msg = "Digest sent.";
         else if (what === "calendar") msg = r.skipped ? "Didn't read the calendar: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new jobs. ") + (r.linked ? r.linked + " already on the board, linked. " : "") + (r.applied && r.applied.length ? r.applied.length + " flight time" + (r.applied.length === 1 ? "" : "s") + " updated. " : "") + (r.changed.length ? r.changed.length + " changed - marked on the board. " : "") + (r.removed.length ? r.removed.length + " removed from the calendar - marked on the board. " : "") + (r.skipped ? r.skipped + " couldn't go on (see your email)." : "");
+        else if (what === "inbox") msg = r.skipped ? "Didn't read Outlook: " + r.skipped + "." : "Read " + r.read + " email" + (r.read === 1 ? "" : "s") + " with AI. " + (r.added.length ? "Put in the calendar: " + r.added.length + ". " : "No new bookings. ") + (r.changes.length ? r.changes.length + " change(s)/cancellation(s) flagged, not applied. " : "") + (r.dupes ? r.dupes + " already there. " : "") + (r.handed ? r.handed + " need you - see your email. " : "") + (r.error ? r.error + "." : "");
         else msg = r.skipped ? "Didn't read the inbox: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new bookings. ") + (r.handed ? r.handed + " email(s) need you - see your inbox." : "");
         show($("ap-msg"), msg, true); $("ap-msg").scrollIntoView({ behavior: "smooth", block: "center" });
         return loadAuto().then(function(){ show($("ap-msg"), msg, true); });
@@ -1625,6 +1657,42 @@
   runBtn("ap-run-digest", "digest", "Email me the digest now");
   runBtn("ap-run-intake", "intake", "Check the inbox now");
   runBtn("ap-run-cal", "calendar", "Read the calendar now", "Press again to put them on the board");
+  runBtn("ap-run-ai", "inbox", "Read Outlook now", "Press again to add bookings to the calendar");
+  $("ap-ai-check").addEventListener("click", function(){
+    var b = $("ap-ai-check"), out = $("ap-ai-out"); b.disabled = true; out.textContent = "Signing in to Outlook, Google and Claude…";
+    api("/autopilot/inbox-ai/check").then(function(d){
+      out.innerHTML = "";
+      if (!d.ok) { out.textContent = "Not ready: " + d.why + "."; return; }
+      [["outlook", "Outlook"], ["calendar", "Google Calendar"], ["claude", "Claude"]].forEach(function(k){
+        var c = d.checks[k[0]] || {}; out.appendChild(el("p", "", (c.ok ? "✓ " : "✗ ") + k[1] + ": " + (c.detail || "")));
+      });
+    }).catch(function(err){ out.textContent = err.message; }).then(function(){ b.disabled = false; });
+  });
+  /* A look at what it would make of the last 24 hours - nothing saved,
+     nothing put in the calendar. */
+  $("ap-ai-preview").addEventListener("click", function(){
+    var b = $("ap-ai-preview"), out = $("ap-ai-out"); b.disabled = true; out.textContent = "Reading the last day's mail with AI - this can take a minute…";
+    api("/autopilot/inbox-ai/preview", { method: "POST", body: {} }).then(function(d){
+      var r = d.result || {}; out.innerHTML = "";
+      if (r.skipped) { out.textContent = "Not ready: " + r.skipped + "."; return; }
+      var rows = r.preview || [];
+      out.appendChild(el("p", "", "Read " + rows.length + " email" + (rows.length === 1 ? "" : "s") + " from the last 24 hours (at most 10). Nothing has been saved or put in the calendar." + (r.error ? " " + r.error + "." : "")));
+      if (!rows.length) return;
+      var KIND = { new_booking: "Booking", change: "Change", cancellation: "Cancellation", not_a_booking: "Not a booking" };
+      var t = el("table", "tight"); t.innerHTML = "<thead><tr><th>Email</th><th>Is</th><th>Would do</th></tr></thead>";
+      var tb = el("tbody");
+      rows.forEach(function(x){
+        var tr = el("tr");
+        tr.appendChild(el("td", "", x.from + " · " + x.subject + " · " + x.received));
+        tr.appendChild(el("td", "", KIND[x.kind] || x.kind));
+        tr.appendChild(el("td", "", x.kind === "new_booking"
+          ? (x.bookings || []).map(function(k){ return [k.date + " " + k.time, k.account || "Direct", (k.passenger_name || "name?") + (k.pax ? " (" + k.pax + " pax)" : ""), k.pickup + " → " + k.dropoff, k.vehicle || k.vehicle_as_written || "vehicle?", k.price_aud ? "$" + k.price_aud : "price?"].join(" · ") + ((k.unclear || []).length ? " — CHECK: " + k.unclear.join("; ") : ""); }).join(" | ")
+          : x.kind === "not_a_booking" ? "Leave it - " + x.reason : "Flag the job, not applied: " + x.change));
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb); out.appendChild(t);
+    }).catch(function(err){ out.textContent = err.message; }).then(function(){ b.disabled = false; });
+  });
   /* A look at what the first read would do - nothing is saved. */
   $("ap-cal-preview").addEventListener("click", function(){
     var b = $("ap-cal-preview"), out = $("ap-cal-out"); b.disabled = true; out.textContent = "Reading the calendar…";
@@ -1657,13 +1725,13 @@
       closeOn: $("ap-close").value === "true", closeAfterHours: $("ap-close-h").value, autoCloseStarted: $("ap-autoclose").value === "true",
       invoicesOn: $("ap-invoices").value === "true", invoiceAt: $("ap-invoice-at").value,
       digestOn: $("ap-digest").value === "true", digestAt: $("ap-digest-at").value,
-      intakeOn: $("ap-intake").value === "true", calOn: $("ap-cal").value === "true", alertTo: $("ap-alert").value,
+      intakeOn: $("ap-intake").value === "true", calOn: $("ap-cal").value === "true", aiOn: $("ap-ai").value === "true", alertTo: $("ap-alert").value,
       guestOn: $("ap-guest").value === "true", guestNoticeAt: $("ap-guest-at").value,
       guestAgentAccount: $("ap-guest-aa").value === "true", guestWhatsApp: $("ap-guest-wa").value === "true" } })
       .then(function(d){
         var s = d.settings, on = [];
         if (s.dispatchOn) on.push("dispatch at " + s.dispatchAt); if (s.closeOn) on.push("closing");
-        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.calOn) on.push("Google Calendar"); if (s.guestOn) on.push("guest updates");
+        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.calOn) on.push("Google Calendar"); if (s.aiOn) on.push("AI inbox reader"); if (s.guestOn) on.push("guest updates");
         return loadAuto().then(function(){ show($("ap-msg"), "Saved. " + (on.length ? "On: " + on.join(", ") + "." : "Everything is off."), true); });
       })
       .catch(function(err){ show($("ap-msg"), err.message); })
@@ -1723,7 +1791,7 @@
     var t = bneToday(), want = (/[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search) || [])[1];
     if (want) { $("j-from").value = want; $("j-to").value = want; }
     else if (!$("j-from").value) { $("j-from").value = t; $("j-to").value = addDays(t, 1); }
-    loadAccounts(); accountForm(null); driverForm(null); vehicleForm(null);
+    loadAccounts(); accountForm(null); driverForm(null); vehicleForm(null); loadWaStatus();
     var last = null; try { last = localStorage.getItem("sky_dispatch_tab"); } catch (e) {}
     openTab(want ? "jobs" : TABS.indexOf(last) !== -1 ? last : "jobs");
     loadJobs();
