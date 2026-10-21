@@ -98,6 +98,13 @@
     border-radius:8px;margin-bottom:14px;font-size:14.5px;color:var(--ink)}
   /* One-way / return / by the hour, like the public booking form */
   .trip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+  .trip.four{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:600px){ .trip.four{grid-template-columns:repeat(2,1fr)} }
+  .veh .c.net{color:var(--ok)}
+  table.rc{min-width:640px}
+  table.rc td.num, table.rc th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.rc tr.grp td{font-weight:700;color:var(--gold-deep);background:var(--ground)}
+  ul.rc-notes{margin:12px 0 0;padding-left:18px;font-size:13.5px;color:var(--muted)}
   .trip input{position:absolute;opacity:0;width:0;height:0}
   .trip span{display:block;padding:10px 8px;border:1.5px solid var(--line);border-radius:9px;background:var(--ground);
     cursor:pointer;text-align:center;font-weight:700;color:var(--ink);font-size:14.5px;line-height:1.3}
@@ -197,19 +204,25 @@
       <div id="edit-banner" class="editing" hidden></div>
       <div id="book-msg" class="msg" hidden></div>
 
-      <div class="trip" role="radiogroup" aria-label="Kind of trip">
+      <div class="trip" id="trip-kinds" role="radiogroup" aria-label="Kind of trip">
         <label><input type="radio" name="trip" value="one" checked><span>One-way<small>A single transfer</small></span></label>
         <label><input type="radio" name="trip" value="return"><span>Return<small>Both legs &middot; 10% off</small></span></label>
         <label><input type="radio" name="trip" value="hourly"><span>By the hour<small>As directed &middot; 3&ndash;6 h</small></span></label>
+        <label id="trip-card" hidden><input type="radio" name="trip" value="card"><span>Rate card<small>Packages, parks, charters</small></span></label>
+      </div>
+      <div class="field" id="card-wrap" hidden>
+        <label for="card-svc">Rate card service</label>
+        <select id="card-svc"></select>
+        <p class="hint" id="card-hint"></p>
       </div>
       <div class="row2">
-        <div class="ac">
-          <label for="pu">Pick-up</label>
+        <div class="ac" id="pu-wrap">
+          <label for="pu" id="pu-lbl">Pick-up</label>
           <input id="pu" autocomplete="off" spellcheck="false" placeholder="Street address, suburb or airport">
           <div class="ac-list" id="pu-list" hidden></div>
         </div>
         <div class="ac" id="dro-wrap">
-          <label for="dro">Drop-off</label>
+          <label for="dro" id="dro-lbl">Drop-off</label>
           <input id="dro" autocomplete="off" spellcheck="false" placeholder="Street address, suburb or airport">
           <div class="ac-list" id="dro-list" hidden></div>
         </div>
@@ -238,8 +251,8 @@
       </div>
       <div id="ret-wrap" hidden>
         <div class="row2">
-          <div><label for="rdate">Return date</label><input id="rdate" type="date"></div>
-          <div><label for="rtime">Return pick-up time</label><input id="rtime" type="time"></div>
+          <div><label for="rdate" id="rdate-lbl">Return date</label><input id="rdate" type="date"></div>
+          <div><label for="rtime" id="rtime-lbl">Return pick-up time</label><input id="rtime" type="time"></div>
         </div>
         <div class="field"><label for="rflight">Return flight <span class="muted">(optional)</span></label><input id="rflight" placeholder="e.g. QF501"></div>
       </div>
@@ -277,10 +290,17 @@
       </p>
       <p class="muted" style="margin:12px 0 0" id="book-note">
         <span id="book-note-pay">No payment now — trips go on your monthly invoice at the full fare, and your commission is paid out to you from your wallet.</span>
-        Bookings close 6 hours before pick-up; changes and cancellations close 24 hours before.
+        <span id="book-note-cut">Bookings close 6 hours before pick-up; changes and cancellations close 24 hours before.</span>
         Booking a group itinerary? Add each trip to a tour and book them all in one go.
         Rather pay a trip by card, or have your client pay it? Use Pay by card on it in your bookings below.
       </p>
+    </section>
+
+    <section class="card" id="rc-card" hidden>
+      <h2>Your rate card</h2>
+      <p class="muted" style="margin:0 0 12px" id="rc-intro">Your agency's net prices, per vehicle, in AUD. Trips on the card are priced from it automatically when you book above &mdash; no commission on these, the price is your price. Anything not on the card is priced as usual, with your commission.</p>
+      <div class="scroll"><table class="rc" id="rc-table"></table></div>
+      <ul class="rc-notes" id="rc-notes"></ul>
     </section>
 
     <section class="card" id="tour-card" hidden>
@@ -329,7 +349,7 @@
           <tbody id="inv-rows"><tr><td colspan="7" class="muted">No invoices yet.</td></tr></tbody>
         </table>
       </div>
-      <p class="muted" style="margin:12px 0 0">Invoices are at the full fare, with a GST tax invoice for every trip. Your commission is in your wallet above and is paid out to you separately. Pay by card from any open invoice, or by bank transfer using the details on the invoice.</p>
+      <p class="muted" style="margin:12px 0 0"><span id="inv-basis">Invoices are at the full fare</span>, with a GST tax invoice for every trip. Your commission is in your wallet above and is paid out to you separately. Pay by card from any open invoice, or by bank transfer using the details on the invoice.</p>
     </section>
 
     <section class="card" id="team-card" hidden>
@@ -371,7 +391,7 @@
      the suburb Google gives an address we have no zone for); puEnd / droEnd
      the end as picked - suburb, street address, coordinates - which the
      server measures the road from. Exactly how the public booking form works. */
-  var state = { places: [], vehicle: null, fare: 0, total: 0, commission: 0, editing: null, bookings: [],
+  var state = { places: [], vehicle: null, fare: 0, total: 0, commission: 0, editing: null, bookings: [], card: null, net: false,
                 pu: null, dro: null, puEnd: null, droEnd: null, trip: "one", kind: "oneway",
                 /* stops on the way: s0..s2 and s0End..s2End, like pu/puEnd */
                 stopsShown: 0, s0: null, s1: null, s2: null, s0End: null, s1End: null, s2End: null,
@@ -436,7 +456,7 @@
   function enter(){
     $("signin").hidden = true;
     $("portal").hidden = false;
-    api("/agent/places").then(function(d){ state.places = d.places || []; }).catch(function(){});
+    api("/agent/places").then(function(d){ state.places = d.places || []; state.card = d.rateCard || null; applyCard(); }).catch(function(){});
     loadTour();
     refresh().then(function(){
       if (canMoney()) loadInvoices();
@@ -478,6 +498,10 @@
       state.bookings = d.bookings;
       state.me = d.user || { role: "owner", canMoney: true, canManage: true };
       if (d.tourMax) state.tourMax = d.tourMax;
+      $("book-note-cut").textContent = d.rateCard
+        ? "Bookings close 6 hours before pick-up; changes close 12 hours before. Cancelling inside 12 hours is charged at 50% of the fare, inside 6 hours at 100%."
+        : "Bookings close 6 hours before pick-up; changes and cancellations close " + (d.changeCutoffHours || 24) + " hours before.";
+      $("inv-basis").textContent = d.rateCard ? "Invoices are at the full fare, and rate card trips at your rate card price" : "Invoices are at the full fare";
       applyRole();
       $("who").hidden = false;
       $("who").textContent = (state.me.role !== "owner" && state.me.name ? state.me.name + " · " : "") + d.agent.name + " · " + d.agent.code;
@@ -499,17 +523,19 @@
         if (b.status !== "confirmed") tr.className = "void";
         cell(tr, b.ref, [b.clientRef ? "Your ref " + b.clientRef : "", b.bookedBy ? "by " + b.bookedBy : ""].filter(Boolean).join(" · "));
         cell(tr, b.date + " " + b.time, b.returnDate ? "Return " + b.returnDate + " " + (b.returnTime || "") : "");
-        cell(tr, b.hours ? b.pickup + " · " + b.hours + " h as directed" : b.route,
+        cell(tr, b.hours ? (b.rateCardKind === "pkg" ? b.route + " · " + b.hours + " h included" : b.pickup + " · " + b.hours + " h as directed") : b.route,
           [b.tourRef ? "Tour: " + (b.tourName || b.tourRef) + " · " + b.tourSeq + " of " + (b.tourCount || b.tourSeq) : "",
            b.stops && b.stops.length ? "via " + b.stops.length + (b.stops.length === 1 ? " stop" : " stops") : "", b.returnDate ? "Return trip" : ""].filter(Boolean).join(" · "));
         cell(tr, b.passenger, b.email || "");
         tr.appendChild(tripCell(b));
         cell(tr, money(b.total), b.cardPaid ? "paid by card" : b.payUrl ? "card link made" : "", "num");
-        if (m) cell(tr, money(b.commission), "", "num");
+        if (m) cell(tr, b.rateCard ? "net" : money(b.commission), b.rateCard ? "rate card" : "", "num");
         var st = document.createElement("td");
         var pill = document.createElement("span");
-        if (b.status !== "confirmed") { pill.className = "pill void"; pill.textContent = "cancelled"; }
+        if (b.status === "late_cancel") { pill.className = "pill void"; pill.textContent = "cancelled · " + (b.cancelFeePct || "") + "% charged"; }
+        else if (b.status !== "confirmed") { pill.className = "pill void"; pill.textContent = "cancelled"; }
         else if (!m) { pill.className = "pill"; pill.textContent = "confirmed"; }
+        else if (b.rateCard) { pill.className = "pill"; pill.textContent = "confirmed"; }
         else if (b.settled) { pill.className = "pill paid"; pill.textContent = "paid"; }
         else { pill.className = "pill"; pill.textContent = "in wallet"; }
         st.appendChild(pill); tr.appendChild(st);
@@ -523,6 +549,7 @@
             acts.appendChild(actionBtn("Change", "", function(){ startEdit(b); }));
             acts.appendChild(actionBtn("Cancel", "danger", function(){ cancelBooking(b); }));
           } else {
+            if (b.lateCancel) acts.appendChild(actionBtn("Cancel (" + b.lateCancel.pct + "% charge)", "danger", function(){ cancelBooking(b); }));
             var n = document.createElement("span");
             n.className = "muted";
             n.textContent = "call to change";
@@ -662,21 +689,93 @@
   }
 
   function cancelBooking(b){
+    var late = b.lateCancel;
     if (!window.confirm("Cancel " + b.ref + " — " + b.route + " on " + b.date + "?" +
-        (b.commission != null ? "\n\nYour " + money(b.commission) + " commission on this booking is reversed." : ""))) return;
-    api("/agent/booking/cancel", { method: "POST", body: { ref: b.ref } })
-      .then(function(){ show($("book-msg"), b.ref + " is cancelled. We've told dispatch.", true); refresh(); })
+        (late ? "\n\nThis is inside " + (late.pct === 100 ? 6 : 12) + " hours of pick-up, so it is charged at " + late.pct + "% of the fare: " + money(late.amount) + ". The charge goes on your monthly invoice."
+          : b.commission ? "\n\nYour " + money(b.commission) + " commission on this booking is reversed." : ""))) return;
+    api("/agent/booking/cancel", { method: "POST", body: { ref: b.ref, acceptCharge: !!late } })
+      .then(function(d){ show($("book-msg"), b.ref + " is cancelled" + (d && d.charged ? " — " + money(d.charged) + " (" + d.pct + "%) goes on your invoice" : "") + ". We've told dispatch.", true); refresh(); })
       .catch(function(err){ show($("book-msg"), err.message); });
   }
 
+  /* ---- the rate card (only for an agency on it) ---- */
+  function svcById(id){
+    var l = state.card ? state.card.services : [];
+    for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i];
+    return null;
+  }
+  function applyCard(){
+    var c = state.card;
+    $("trip-card").hidden = !c;
+    $("trip-kinds").className = "trip" + (c ? " four" : "");
+    $("rc-card").hidden = !c;
+    if (!c) return;
+    var sel = $("card-svc"); sel.innerHTML = "";
+    var groups = {};
+    c.services.forEach(function(sv){
+      if (!groups[sv.group]) { groups[sv.group] = document.createElement("optgroup"); groups[sv.group].label = sv.group; sel.appendChild(groups[sv.group]); }
+      groups[sv.group].appendChild(new Option(sv.label, sv.id));
+    });
+    var t = $("rc-table"); t.innerHTML = "";
+    var head = document.createElement("tr");
+    ["Service"].concat(c.columns).forEach(function(h, i){ var th = document.createElement("th"); th.textContent = h; if (i) th.className = "num"; head.appendChild(th); });
+    var th0 = document.createElement("thead"); th0.appendChild(head); t.appendChild(th0);
+    var tb = document.createElement("tbody");
+    function grp(label){ var tr = document.createElement("tr"); tr.className = "grp"; var td = document.createElement("td"); td.colSpan = c.columns.length + 1; td.textContent = label; tr.appendChild(td); tb.appendChild(tr); }
+    function row(label, p, unit){
+      var tr = document.createElement("tr"), td = document.createElement("td"); td.textContent = label; tr.appendChild(td);
+      p.forEach(function(v){ var x = document.createElement("td"); x.className = "num"; x.textContent = v == null ? "—" : "$" + v + (unit || ""); tr.appendChild(x); });
+      tb.appendChild(tr);
+    }
+    grp("Transfers — one way, either direction (a return is two of these)");
+    c.routes.forEach(function(r){ row(r.label, r.p); });
+    var last = "";
+    c.services.forEach(function(sv){ if (sv.group !== last) { grp(sv.group); last = sv.group; } row(sv.label, sv.p); });
+    grp("By the hour — any other hire");
+    row("Per hour", c.hourly, "/h");
+    t.appendChild(tb);
+    var notes = $("rc-notes"); notes.innerHTML = "";
+    c.surcharges.concat(["Cancellation: " + c.cancel.join("; ")], ["Surfers hotel: Surfers Paradise, Main Beach or Broadbeach. Brisbane hotel: the CBD and inner city.",
+      "The 53-seat coach is quoted on request — call +61 481 437 772.", "Valid to " + niceDate(c.validTo) + "."]).forEach(function(n){
+      var li = document.createElement("li"); li.textContent = n; notes.appendChild(li);
+    });
+  }
+  $("card-svc").addEventListener("change", function(){ if (state.trip === "card") setTrip("card"); });
+
   /* ---- one-way / return / by the hour ---- */
   function setTrip(kind, quiet){
+    /* leaving a card service: an end it filled in for the agent goes too */
+    if (state.fixedPu) { state.pu = null; state.puEnd = null; $("pu").value = ""; state.fixedPu = false; }
+    if (state.fixedDro) { state.dro = null; state.droEnd = null; $("dro").value = ""; state.fixedDro = false; }
     state.trip = kind;
     var r = document.querySelector('input[name="trip"][value="' + kind + '"]'); if (r) r.checked = true;
+    var sv = kind === "card" ? svcById($("card-svc").value) : null;
+    state.svc = sv;
+    $("card-wrap").hidden = kind !== "card";
+    $("pu-lbl").textContent = "Pick-up"; $("dro-lbl").textContent = "Drop-off";
+    $("rdate-lbl").textContent = "Return date"; $("rtime-lbl").textContent = "Return pick-up time";
+    $("pu-wrap").hidden = false;
     $("dro-wrap").hidden = kind === "hourly";
     $("hours-wrap").hidden = kind !== "hourly";
-    $("ret-wrap").hidden = kind !== "return";
-    if (kind !== "return") { $("rdate").value = ""; $("rtime").value = ""; $("rflight").value = ""; }
+    var withRet = kind === "return" || (sv && sv.kind === "park");
+    $("ret-wrap").hidden = !withRet;
+    if (!withRet) { $("rdate").value = ""; $("rtime").value = ""; $("rflight").value = ""; }
+    if (sv) {
+      if (sv.kind === "pkg") {
+        $("pu-wrap").hidden = true; state.pu = sv.from; state.puEnd = { suburb: sv.from }; $("pu").value = sv.from; state.fixedPu = true;
+        $("dro-lbl").textContent = "Surfers hotel";
+        $("card-hint").textContent = "Pick-up at " + sv.from + ", then " + sv.hours + " hours with the car, ending at a hotel in Surfers Paradise, Main Beach or Broadbeach.";
+      } else if (sv.kind === "park") {
+        $("dro-wrap").hidden = true; state.dro = sv.park; state.droEnd = { suburb: sv.park, address: sv.park }; $("dro").value = sv.park; state.fixedDro = true;
+        $("pu-lbl").textContent = "Surfers hotel";
+        $("rdate-lbl").textContent = "Date to collect them from the park"; $("rtime-lbl").textContent = "Time to collect them from the park";
+        $("card-hint").textContent = "From a hotel in Surfers Paradise, Main Beach or Broadbeach to " + sv.park + " and back, for one price.";
+      } else {
+        $("dro-wrap").hidden = true;
+        $("pu-lbl").textContent = "Start address";
+        $("card-hint").textContent = sv.hours + " hours with the car and driver on the Gold Coast, as directed.";
+      }
+    }
     showStops();
     if (!quiet) quote();
   }
@@ -684,6 +783,10 @@
     r.addEventListener("change", function(){ if (r.checked) setTrip(r.value); });
   });
   $("hours").addEventListener("change", function(){ if (state.trip === "hourly") quote(); });
+  /* on the rate card the price can move with the time (night, festive days) */
+  ["date", "time", "rdate", "rtime"].forEach(function(id){
+    $(id).addEventListener("change", function(){ if (state.card && state.pu) { clearTimeout(quoteTimer); doQuote(state.vehicle); } });
+  });
 
   /* ---- edit mode ---- */
   function startEdit(b){
@@ -697,8 +800,11 @@
     state.dro = b.hours ? null : b.dropoff; state.droEnd = b.hours ? null : (ends.dropoff || null);
     $("pu").value = (state.puEnd && state.puEnd.address && state.puEnd.lat != null) ? state.puEnd.address : b.pickup;
     $("dro").value = b.hours ? "" : ((state.droEnd && state.droEnd.address && state.droEnd.lat != null) ? state.droEnd.address : b.dropoff);
-    if (b.hours) $("hours").value = String(b.hours);
-    setTrip(b.hours ? "hourly" : b.returnDate ? "return" : "one", true);
+    var csv = state.card && b.rateCard ? svcById(b.rateCard) : null;
+    if (b.hours && !csv) $("hours").value = String(b.hours);
+    state.fixedPu = state.fixedDro = false;
+    if (csv) { $("card-svc").value = csv.id; setTrip("card", true); state.pu = b.pickup; state.puEnd = ends.pickup || { suburb: b.pickup }; state.dro = csv.kind === "charter" ? null : b.dropoff; state.droEnd = csv.kind === "charter" ? null : (ends.dropoff || { suburb: b.dropoff }); }
+    else setTrip(b.hours ? "hourly" : b.returnDate ? "return" : "one", true);
     setStops(b.hours ? [] : b.stops);
     $("rdate").value = b.returnDate || ""; $("rtime").value = b.returnTime || ""; $("rflight").value = b.returnFlight || "";
     $("date").value = b.date; $("time").value = b.time;
@@ -863,7 +969,7 @@
   /* ---- stops on the way: up to three, outbound only, priced by the extra
      distance on the server - the website's own charge. ---- */
   function showStops(){
-    $("stops-wrap").hidden = state.trip === "hourly";
+    $("stops-wrap").hidden = state.trip === "hourly" || state.trip === "card";
     for (var i = 0; i < 3; i++) $("stop-row" + i).hidden = i >= state.stopsShown;
     $("add-stop").hidden = state.stopsShown >= 3;
   }
@@ -873,7 +979,7 @@
   }
   function pickedStops(){
     var out = [];
-    if (state.trip === "hourly") return out;
+    if (state.trip === "hourly" || state.trip === "card") return out;
     for (var i = 0; i < state.stopsShown; i++) if (state["s" + i + "End"]) out.push(state["s" + i + "End"]);
     return out;
   }
@@ -912,18 +1018,25 @@
     clearTimeout(quoteTimer);
     quoteTimer = setTimeout(function(){ doQuote(); }, 180);
   }
+  function isRet(){ return state.trip === "return" || (state.trip === "card" && !!state.svc && state.svc.kind === "park"); }
+  function needsDro(){ return state.trip !== "hourly" && !(state.trip === "card" && state.svc && state.svc.kind === "charter"); }
   function tripBody(){
-    var hourly = state.trip === "hourly";
-    return { pickup: state.pu, dropoff: hourly ? "" : state.dro,
-             ends: { pickup: state.puEnd, dropoff: hourly ? null : state.droEnd },
+    var hourly = state.trip === "hourly", dro = needsDro();
+    var b = { pickup: state.pu, dropoff: dro ? state.dro : "",
+             ends: { pickup: state.puEnd, dropoff: dro ? state.droEnd : null },
              hourly: hourly ? { hours: $("hours").value } : undefined,
-             returnTrip: state.trip === "return", stops: pickedStops() };
+             returnTrip: isRet(), stops: pickedStops(),
+             /* the card adds its night and festive surcharges by the times */
+             date: $("date").value, time: $("time").value,
+             returnDate: isRet() ? $("rdate").value : "", returnTime: isRet() ? $("rtime").value : "" };
+    if (state.trip === "card" && state.svc) b.service = state.svc.id;
+    return b;
   }
   function doQuote(preselect){
     var seq = ++quoteSeq;
     state.vehicle = null; state.fare = 0; state.total = 0; state.commission = 0;
     setBookState();
-    if (!state.pu || (state.trip !== "hourly" && !state.dro)) { $("quote").hidden = true; $("noquote").hidden = true; return; }
+    if (!state.pu || (needsDro() && !state.dro)) { $("quote").hidden = true; $("noquote").hidden = true; return; }
     var pend = state.trip !== "hourly" && pendingStop();
     if (pend) { $("quote").hidden = true; show($("noquote"), "Choose stop " + pend + " from the list to see the price."); return; }
     var grid = $("veh-grid");
@@ -934,15 +1047,19 @@
         if (!d.quotable) { $("quote").hidden = true; show($("noquote"), d.message); return; }
         state.kind = d.kind;
         grid.innerHTML = "";
-        var unit = d.kind === "return" ? "return, both legs" : d.kind === "hourly" ? "for " + d.hours + " hours" : "one way";
+        var unit = d.kind === "return" || d.kind === "park" ? "return, both legs" : d.kind === "pkg" ? "with " + d.hours + " hours included"
+          : d.kind === "hourly" || d.kind === "charter" ? "for " + d.hours + " hours" : "one way";
+        state.net = !!d.net;
         d.vehicles.forEach(function(v){
           var b = document.createElement("button");
           b.type = "button"; b.className = "veh";
           b.innerHTML = '<span class="n"></span><span class="f"></span><span class="t"></span><span class="c"></span>';
           b.querySelector(".n").textContent = v.vehicle;
           b.querySelector(".f").textContent = money(v.total);
-          b.querySelector(".t").textContent = unit + (v.stopsExtra > 0 ? " · incl. " + money(v.stopsExtra) + " for stops" : "");
-          b.querySelector(".c").textContent = v.commission != null ? "you earn " + money(v.commission) : "";
+          b.querySelector(".t").textContent = unit + (v.stopsExtra > 0 ? " · incl. " + money(v.stopsExtra) + " for stops" : "") +
+            (v.surcharge && v.surcharge.length ? " · incl. " + v.surcharge.join(", ") : "");
+          if (d.net) { b.querySelector(".c").textContent = "rate card · net"; b.querySelector(".c").className = "c net"; }
+          else b.querySelector(".c").textContent = v.commission != null ? "you earn " + money(v.commission) : "";
           b.addEventListener("click", function(){
             state.vehicle = v.vehicle; state.fare = v.fare; state.total = v.total; state.commission = v.commission;
             [].forEach.call(grid.children, function(c){ c.classList.remove("on"); });
@@ -963,15 +1080,16 @@
     $("tour-add").hidden = !state.vehicle || !!state.editing;
     if (!state.vehicle) { btn.textContent = "Choose a trip and vehicle"; return; }
     btn.textContent = (state.editing ? "Save change — " : "Book ") + state.vehicle + " · " +
-      money(state.total) + (canMoney() && state.commission != null ? " · you earn " + money(state.commission) : "");
+      money(state.total) + (state.net ? " · rate card" : canMoney() && state.commission != null ? " · you earn " + money(state.commission) : "");
   }
 
   /* ---- book / save ---- */
   function formProblem(){
     var required = { "Pick-up": state.pu, "Pick-up date": $("date").value,
       "Pick-up time": $("time").value, "Passenger name": $("pname").value, "Passenger phone": $("pphone").value };
-    if (state.trip !== "hourly") required["Drop-off"] = state.dro;
-    if (state.trip === "return") { required["Return date"] = $("rdate").value; required["Return pick-up time"] = $("rtime").value; }
+    if (state.trip === "card" && !state.svc) return "Choose a rate card service.";
+    if (needsDro()) required[state.trip === "card" ? "Surfers hotel" : "Drop-off"] = state.dro;
+    if (isRet()) { required[state.trip === "card" ? "Date to collect them" : "Return date"] = $("rdate").value; required[state.trip === "card" ? "Time to collect them" : "Return pick-up time"] = $("rtime").value; }
     for (var k in required) {
       if (!String(required[k] || "").trim()) return "Please fill in: " + k;
     }
@@ -981,10 +1099,10 @@
   function bookingPayload(){
     var t = tripBody();
     return {
-      pickup: t.pickup, dropoff: t.dropoff, ends: t.ends, hourly: t.hourly, stops: t.stops, vehicle: state.vehicle,
+      pickup: t.pickup, dropoff: t.dropoff, ends: t.ends, hourly: t.hourly, stops: t.stops, vehicle: state.vehicle, service: t.service,
       date: $("date").value, time: $("time").value,
-      returnDate: state.trip === "return" ? $("rdate").value : "", returnTime: state.trip === "return" ? $("rtime").value : "",
-      returnFlight: state.trip === "return" ? $("rflight").value.trim() : "",
+      returnDate: isRet() ? $("rdate").value : "", returnTime: isRet() ? $("rtime").value : "",
+      returnFlight: isRet() ? $("rflight").value.trim() : "",
       name: $("pname").value.trim(), phone: $("pphone").value.trim(), email: $("pemail").value.trim(),
       clientRef: $("cref").value.trim(),
       pax: $("pax").value, flight: $("flight").value.trim(), address: $("addr").value.trim(),
@@ -1002,10 +1120,10 @@
     if (editing) payload.ref = editing;
     api(editing ? "/agent/booking/update" : "/agent/book", { method: "POST", body: payload })
       .then(function(d){
-        var earn = d.commission != null;
+        var earn = d.commission != null && !state.net;
         show($("book-msg"), editing
           ? "Saved — " + d.ref + " updated and dispatch notified." + (earn ? " Your commission is now " + money(d.commission) + "." : "")
-          : "Booked — reference " + d.ref + "." + (earn ? " " + money(d.commission) + " added to your wallet." : " Dispatch has it."), true);
+          : "Booked — reference " + d.ref + "." + (earn ? " " + money(d.commission) + " added to your wallet." : state.net ? " At your rate card price — dispatch has it." : " Dispatch has it."), true);
         endEdit();
         refresh();
       }).catch(function(err){

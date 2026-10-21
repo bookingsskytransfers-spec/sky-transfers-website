@@ -180,6 +180,11 @@
         <div><label for="f-active">Status</label>
           <select id="f-active"><option value="true">Active</option><option value="false">Suspended</option></select></div>
       </div>
+      <div class="row2">
+        <div><label for="f-card">DMC rate card</label>
+          <select id="f-card"><option value="false">No - website fares + commission</option><option value="true">Yes - the rate card, net, on card trips</option></select></div>
+        <div class="muted" style="align-self:end;font-size:13px">On the rate card, trips the card covers are priced from it with no commission; every other trip stays at the website fare plus their commission. Cancelling inside 12 hours is charged (50%, or 100% inside 6 hours).</div>
+      </div>
       <button class="cta" id="save-btn">Create agent &amp; issue a PIN</button>
       <p style="margin:10px 0 0" hidden id="clear-wrap">
         <button class="linkbtn" id="clear-form">Cancel — go back to adding a new agent</button>
@@ -1010,7 +1015,7 @@
       d.agents.forEach(function(a){
         var tr = document.createElement("tr");
         if (!a.active) tr.className = "off";
-        [a.code, a.name + (a.active ? "" : " (suspended)"), a.commissionPct + "%"].forEach(function(v){
+        [a.code, a.name + (a.rateCard ? " · rate card" : "") + (a.active ? "" : " (suspended)"), a.commissionPct + "%"].forEach(function(v){
           var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
         });
         [String(a.trips), money(a.gross), money(a.earned)].forEach(function(v){
@@ -1039,6 +1044,7 @@
     $("f-name").value = a.name; $("f-pct").value = a.commissionPct;
     $("f-email").value = a.email || "";
     $("f-active").value = a.active ? "true" : "false";
+    $("f-card").value = a.rateCard ? "true" : "false";
     $("save-btn").textContent = "Save changes";
     $("clear-wrap").hidden = false;
     show($("form-msg"), "");
@@ -1051,6 +1057,7 @@
     $("f-code").value = ""; $("f-code").readOnly = false;
     $("f-name").value = ""; $("f-pct").value = 10; $("f-email").value = "";
     $("f-active").value = "true";
+    $("f-card").value = "false";
     $("save-btn").textContent = "Create agent & issue a PIN";
     $("clear-wrap").hidden = true;
   }
@@ -1069,7 +1076,8 @@
       name: $("f-name").value.trim(),
       email: $("f-email").value.trim(),
       commissionPct: Number($("f-pct").value),
-      active: $("f-active").value === "true"
+      active: $("f-active").value === "true",
+      rateCard: $("f-card").value === "true"
     };
     if (!body.code || !body.name) { show($("form-msg"), "Agent code and agency name are both needed."); return; }
     var btn = $("save-btn"), label = btn.textContent;
