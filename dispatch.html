@@ -928,7 +928,8 @@
     if (j.address) L.push("🏠 Address: " + j.address);
     if (j.notes) L.push("📝 Guest notes: " + j.notes);
     if (note) L.push("📌 Office: " + note);
-    if (j.source !== "web" && j.account) L.push("🏢 Account: " + j.account + (j.accountRef ? " · ref " + j.accountRef : ""));
+    /* No account or agency name: which company booked it is the office's
+       business, not the driver's (Aman, 21 Oct 2026). */
     if (pay !== "" && pay != null) L.push("💵 Your pay: $" + pay);
     L.push("");
     L.push("Accept and update the job here:");
