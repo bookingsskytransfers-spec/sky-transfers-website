@@ -526,7 +526,7 @@
         <div class="ap-row">
           <h3>Booking emails</h3>
           <div>
-            <p class="muted">Reads the bookings inbox (read-only - nothing is moved, deleted or marked read) for emails from the addresses on each account (Invoices tab &rarr; edit the account &rarr; <b>Bookings come from</b>). Each booking it can read goes on the board marked <b>Check</b>; anything unclear - a change, a cancellation, two bookings in one email, a missing time - is emailed to you to enter by hand. Only mail that arrives after you switch this on is read.</p>
+            <p class="muted">Reads the bookings inbox (read-only - nothing is moved, deleted or marked read) for emails from the addresses on each account (Invoices tab &rarr; edit the account &rarr; <b>Bookings come from</b>). Each booking it can read goes on the board marked <b>Check</b>; anything unclear - a change, a cancellation, two bookings in one email, a missing time - is emailed to you to enter by hand. Only mail that arrives after you switch this on is read, once an hour.</p>
             <p class="muted" id="ap-intake-state"></p>
             <div class="ap-ctl">
               <div><label for="ap-intake">Read booking emails</label><select id="ap-intake"><option value="false">Off</option><option value="true">On</option></select></div>
@@ -537,7 +537,7 @@
         <div class="ap-row">
           <h3>Google Calendar</h3>
           <div>
-            <p class="muted">Reads the bookings calendar (read-only - nothing is ever changed in it) every 5 minutes and puts each upcoming job on the board. Jobs it can read cleanly go straight on; anything unclear - no price, no phone, two vehicles, a time still TBC - is marked <b>Check</b>. A booking already here (a website or agent booking, or a Limo Anywhere import) is linked, not doubled. When an event changes, the job is <b>not</b> changed: it's marked <b>Calendar changed</b> and you apply it or keep the job. A deleted event marks its job <b>Removed from calendar</b>; cancelling it is up to you.</p>
+            <p class="muted">Reads the bookings calendar (read-only - nothing is ever changed in it) once an hour and puts each upcoming job on the board. When only the <b>time</b> of a job with a flight moves (Gemini following an early or late flight), the board takes the new time by itself and emails you - and says so if the job had already gone to a driver. Jobs it can read cleanly go straight on; anything unclear - no price, no phone, two vehicles, a time still TBC - is marked <b>Check</b>. A booking already here (a website or agent booking, or a Limo Anywhere import) is linked, not doubled. Any other change to an event does <b>not</b> change the job: it's marked <b>Calendar changed</b> and you apply it or keep the job. A deleted event marks its job <b>Removed from calendar</b>; cancelling it is up to you.</p>
             <p class="muted" id="ap-cal-state"></p>
             <div class="ap-ctl">
               <div><label for="ap-cal">Read the calendar</label><select id="ap-cal"><option value="false">Off</option><option value="true">On</option></select></div>
@@ -1610,7 +1610,7 @@
         else if (what === "close") msg = (r.closed.length ? "Marked done: " + r.closed.join(", ") + ". " : "") + (r.chased.length ? "Chased: " + r.chased.join(", ") + "." : (r.closed.length ? "" : "Nothing open past its time."));
         else if (what === "invoices") msg = r.issued && r.issued.length ? "Issued " + r.issued.join(", ") + " - the approval emails are on their way." : (r.skipped ? "Invoices are off: " + r.skipped + "." : "No schedule has a finished period waiting to be invoiced.");
         else if (what === "digest") msg = "Digest sent.";
-        else if (what === "calendar") msg = r.skipped ? "Didn't read the calendar: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new jobs. ") + (r.linked ? r.linked + " already on the board, linked. " : "") + (r.changed.length ? r.changed.length + " changed - marked on the board. " : "") + (r.removed.length ? r.removed.length + " removed from the calendar - marked on the board. " : "") + (r.skipped ? r.skipped + " couldn't go on (see your email)." : "");
+        else if (what === "calendar") msg = r.skipped ? "Didn't read the calendar: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new jobs. ") + (r.linked ? r.linked + " already on the board, linked. " : "") + (r.applied && r.applied.length ? r.applied.length + " flight time" + (r.applied.length === 1 ? "" : "s") + " updated. " : "") + (r.changed.length ? r.changed.length + " changed - marked on the board. " : "") + (r.removed.length ? r.removed.length + " removed from the calendar - marked on the board. " : "") + (r.skipped ? r.skipped + " couldn't go on (see your email)." : "");
         else msg = r.skipped ? "Didn't read the inbox: " + r.skipped + "." : (r.created.length ? "Put on the board: " + r.created.join(", ") + ". " : "No new bookings. ") + (r.handed ? r.handed + " email(s) need you - see your inbox." : "");
         show($("ap-msg"), msg, true); $("ap-msg").scrollIntoView({ behavior: "smooth", block: "center" });
         return loadAuto().then(function(){ show($("ap-msg"), msg, true); });
