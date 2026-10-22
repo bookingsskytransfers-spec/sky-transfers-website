@@ -659,6 +659,24 @@
     return b;
   }
 
+  /* Change what a job is billed at, or a leg's driver pay - any time before
+     it is invoiced (Aman, 22 Oct 2026). */
+  function askAmount(label, current){
+    var v = window.prompt(label, current == null ? "" : String(current));
+    if (v == null) return null;
+    v = String(v).replace(/[$,\s]/g, "");
+    if (v === "") return "";
+    if (!/^\d+(\.\d{1,2})?$/.test(v)) { window.alert("Type a number, like 145 or 145.50."); return null; }
+    return v;
+  }
+  function changeJobAmount(ref, current, done){
+    var v = askAmount("New amount for " + ref + " (AUD, GST included, the whole booking - both legs of a return):", current);
+    if (v == null || v === "") return Promise.resolve(null);
+    return api("/ops/job-amount", { method: "POST", body: { ref: ref, amount: v } })
+      .then(function(d){ if (done) done(null, d); return d; })
+      .catch(function(err){ if (done) done(err); else window.alert(err.message); });
+  }
+
   /* ---------- formatting ---------- */
   var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function niceDate(d){ var x = new Date(d + "T00:00:00Z"); return DAYS[x.getUTCDay()] + " " + x.getUTCDate() + " " + MONTHS[x.getUTCMonth()]; }
@@ -923,6 +941,17 @@
       var ed = el("button", "act", "Edit job");
       ed.addEventListener("click", function(){ editAccountJob(j.ref); });
       acts.appendChild(ed);
+    }
+    if (j.source === "account" || j.source === "agent") {
+      var am = el("button", "act", "Change amount");
+      am.addEventListener("click", function(){
+        changeJobAmount(j.ref, Math.round(j.price * (j.isReturn ? 2 : 1) * 100) / 100, function(err, d){
+          if (err) { msg.textContent = err.message; return; }
+          msg.textContent = j.ref + ": " + money(d.was) + " → " + money(d.now) + (d.commission != null ? " (agent commission now " + money(d.commission) + ")" : "");
+          setTimeout(loadJobs, 900);
+        });
+      });
+      acts.appendChild(am);
     }
     acts.appendChild(msg);
     c.appendChild(acts);
@@ -1288,6 +1317,9 @@
           var st = tr.insertCell();
           st.appendChild(el("span", "st st-" + l.status, l.future ? "Not yet travelled" : STATUS_LABEL[l.status] || l.status));
           var am = tr.insertCell(); am.className = "num" + (l.amount ? "" : " overdue"); am.textContent = l.amount ? money(l.amount) : "$0 — no price";
+          var ch = el("button", "linkbtn", "change"); ch.type = "button"; ch.style.marginLeft = "8px"; ch.style.fontSize = "12.5px";
+          ch.addEventListener("click", function(){ changeJobAmount(l.ref, l.amount, function(err){ if (err) show($("i-new-msg"), err.message); else showDraft(); }); });
+          am.appendChild(ch);
         });
         $("in-all").checked = true; draftTotals(); $("in-draft").hidden = false;
       }).catch(function(err){ show($("i-new-msg"), err.message); });
@@ -1422,6 +1454,15 @@
       var tc = tr.insertCell(); tc.style.whiteSpace = "normal"; tc.textContent = j.hours && (!j.to || j.to === "As directed") ? j.from + " — " + j.hours + " h" : j.from + " → " + j.to;
       tr.insertCell().textContent = STATUS_LABEL[j.status] || j.status;
       var pc = tr.insertCell(); pc.className = "num"; pc.textContent = j.pay != null ? money(j.pay) : "—";
+      var pe = el("button", "linkbtn", "edit"); pe.type = "button"; pe.style.marginLeft = "8px"; pe.style.fontSize = "12.5px";
+      pe.addEventListener("click", function(){
+        var v = askAmount("Driver pay for " + j.ref + (j.leg === "ret" ? " (return)" : "") + " (AUD) - leave empty to clear it:", j.pay);
+        if (v == null) return;
+        api("/ops/leg-pay", { method: "POST", body: { ref: j.ref, leg: j.leg, driverPay: v } })
+          .then(function(d){ if (d.paidAlready) window.alert("Saved. This job was already marked paid - settle the difference with " + x.name + "."); return loadPay(); })
+          .catch(function(err){ show($("p-msg"), err.message); });
+      });
+      pc.appendChild(pe);
       tr.insertCell().textContent = j.paidAt ? "✓" : "";
     });
     t.appendChild(tb); wrap.appendChild(t); c.appendChild(wrap);
