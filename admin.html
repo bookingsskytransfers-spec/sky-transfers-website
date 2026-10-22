@@ -16,6 +16,7 @@
     --line:#E5E0D2; --gold:#C9A227; --gold-deep:#6F5510; --gold-soft:#F6EED9;
     --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --err:#B0392F;
     --shadow:0 1px 3px rgba(20,29,48,.06), 0 6px 20px rgba(20,29,48,.06);
+    --c-own:#2B5C9E; --c-sub:#C9A227; --c-un:#CFC8B4;
     color-scheme:light dark;
   }
   @media (prefers-color-scheme: dark){
@@ -24,6 +25,7 @@
       --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
       --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
       --shadow:0 2px 14px rgba(0,0,0,.4);
+      --c-own:#6FA3E0; --c-sub:#D9B44A; --c-un:#4A5568;
     }
   }
   :root[data-theme="dark"]{
@@ -31,6 +33,7 @@
     --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
     --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
     --shadow:0 2px 14px rgba(0,0,0,.4);
+    --c-own:#6FA3E0; --c-sub:#D9B44A; --c-un:#4A5568;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--text);
@@ -85,6 +88,34 @@
   .muted{color:var(--muted);font-size:13.5px}
   td .sub{display:block;font-size:12px;color:var(--muted)}
   #staff-card table{min-width:640px}
+  /* ---- dashboard ---- */
+  .dash-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+  .dash-bar .act{margin:0}
+  .dash-bar .act.on{background:var(--gold-soft);border-color:var(--gold)}
+  .dash-dates{display:flex;gap:6px;align-items:center;margin-left:auto}
+  .dash-dates input{width:auto;padding:6px 8px;font-size:13.5px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin:0 0 16px}
+  @media (max-width:420px){ .kpi .v{font-size:22px} .kpi{padding:10px 11px} }
+  .kpi{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:var(--ground)}
+  .kpi .l{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .kpi .v{font-family:"Marcellus",Georgia,serif;font-size:26px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
+  .kpi .s{font-size:12.5px;color:var(--muted)}
+  .chart-wrap{border:1px solid var(--line);border-radius:9px;padding:12px 12px 6px;margin-bottom:16px;background:var(--card)}
+  .chart-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  svg.bars{width:100%;height:220px;display:block}
+  svg.bars text{fill:var(--muted);font-size:11px;font-family:inherit}
+  svg.bars .grid{stroke:var(--line);stroke-width:1}
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){ .dash-grid{grid-template-columns:1fr} .dash-dates{margin-left:0} }
+  .dash-grid h3, #dash-card h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);margin:0 0 8px}
+  .dash-grid table, #dash-card table{min-width:0}
+  .attn{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+  .attn li{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:9px 12px;font-size:14px;background:var(--ground)}
+  .attn li.bad{border-left-color:var(--err)}
+  .attn li.ok{border-left-color:var(--ok)}
+  .attn b{color:var(--ink)}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -118,6 +149,39 @@
       <div class="val" id="pin-val"></div>
       <p>Write this down and give it to the agent now — it is not shown again. You can always issue a new one.</p>
     </div>
+
+    <section class="card" id="dash-card">
+      <h2>Dashboard</h2>
+      <div id="dash-msg" class="msg" hidden></div>
+      <div class="dash-bar" id="dash-presets">
+        <button class="act" data-p="today">Today</button>
+        <button class="act" data-p="week">This week</button>
+        <button class="act" data-p="lastweek">Last week</button>
+        <button class="act" data-p="month">This month</button>
+        <button class="act" data-p="lastmonth">Last month</button>
+        <button class="act" data-p="30">Last 30 days</button>
+        <span class="dash-dates"><input type="date" id="dash-from" aria-label="From"> to <input type="date" id="dash-to" aria-label="To"></span>
+      </div>
+      <ul class="attn" id="dash-attn"></ul>
+      <div class="kpis" id="dash-kpis"></div>
+      <div class="chart-wrap">
+        <div class="chart-head">
+          <h3 style="margin:0" id="dash-chart-title">Revenue by day</h3>
+          <div class="legend"><span><i style="background:var(--c-own)"></i>Own fleet</span><span><i style="background:var(--c-sub)"></i>Subcontractors</span><span><i style="background:var(--c-un)"></i>No driver yet</span></div>
+          <span><button class="act on" data-g="day">By day</button><button class="act" data-g="week">By week</button></span>
+        </div>
+        <svg class="bars" id="dash-chart" role="img" aria-label="Revenue chart"></svg>
+      </div>
+      <div class="dash-grid">
+        <div><h3>Own fleet vs subcontractors</h3><div class="scroll"><table id="dash-split"></table></div></div>
+        <div><h3>Where the work comes from</h3><div class="scroll"><table id="dash-src"></table></div></div>
+        <div><h3>Drivers - pay</h3><div class="scroll"><table id="dash-drv"></table></div></div>
+        <div><h3>Our own vehicles</h3><div class="scroll"><table id="dash-veh"></table></div></div>
+        <div><h3>Top customers</h3><div class="scroll"><table id="dash-cust"></table></div></div>
+        <div><h3>Vehicle classes booked</h3><div class="scroll"><table id="dash-cls"></table></div></div>
+      </div>
+      <p class="muted" style="margin:14px 0 0">Revenue is the value of trips by travel date, GST included, as on the dispatch board (a return counts each leg). It isn't cash received. Margin is revenue less driver pay, before fuel, tolls and other running costs. Own fleet means an employee in one of our cars; subcontracted means a subcontractor, or any driver in a subcontractor's car.</p>
+    </section>
 
     <section class="card" id="web-card">
       <h2>Website bookings</h2>
@@ -946,11 +1010,145 @@
     });
   }
 
+  /* ================= DASHBOARD ================= */
+  var DASH = { data: null, group: "day", preset: "week" };
+  function dIso(ms){ return new Date(ms).toISOString().slice(0, 10); }
+  function bneNow(){ return dIso(Date.now() + 10 * 36e5); }
+  function dAdd(d, n){ return dIso(Date.parse(d + "T00:00:00Z") + n * 864e5); }
+  function weekStart(d){ var w = new Date(d + "T00:00:00Z").getUTCDay(); return dAdd(d, -((w + 6) % 7)); }
+  function dShort(d){ var x = new Date(d + "T00:00:00Z"); return x.getUTCDate() + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][x.getUTCMonth()]; }
+  function dashRange(p){
+    var t = bneNow(), m = t.slice(0, 8) + "01";
+    if (p === "today") return [t, t];
+    if (p === "week") return [weekStart(t), t];
+    if (p === "lastweek") { var ws = weekStart(t); return [dAdd(ws, -7), dAdd(ws, -1)]; }
+    if (p === "month") return [m, t];
+    if (p === "lastmonth") { var lm = dAdd(m, -1); return [lm.slice(0, 8) + "01", lm]; }
+    return [dAdd(t, -29), t];
+  }
+  function whole(n){ return "$" + Math.round(Number(n) || 0).toLocaleString("en-AU"); }
+  function pct(a, b){ return b ? Math.round(a / b * 100) + "%" : "-"; }
+  function dashLoad(){
+    var f = $("dash-from").value, t = $("dash-to").value;
+    Array.prototype.forEach.call(document.querySelectorAll("#dash-presets [data-p]"), function(b){ b.classList.toggle("on", b.getAttribute("data-p") === DASH.preset); });
+    show($("dash-msg"), "");
+    return api("/admin/dashboard?from=" + encodeURIComponent(f) + "&to=" + encodeURIComponent(t)).then(function(d){
+      DASH.data = d;
+      if (DASH.preset !== "custom" && d.to > d.from && Date.parse(d.to) - Date.parse(d.from) > 45 * 864e5) DASH.group = "week";
+      dashDraw();
+    }).catch(function(err){ show($("dash-msg"), err.message); });
+  }
+  function dashTable(id, head, rows){
+    var t = $(id); t.innerHTML = "";
+    var tr = document.createElement("tr");
+    head.forEach(function(h, i){ var th = document.createElement("th"); th.textContent = h; if (i) th.style.textAlign = "right"; tr.appendChild(th); });
+    var th0 = document.createElement("thead"); th0.appendChild(tr); t.appendChild(th0);
+    var tb = document.createElement("tbody");
+    if (!rows.length) { var e = document.createElement("tr"), td = document.createElement("td"); td.colSpan = head.length; td.className = "muted"; td.textContent = "Nothing in this period."; e.appendChild(td); tb.appendChild(e); }
+    rows.forEach(function(r){
+      var row = document.createElement("tr");
+      r.forEach(function(v, i){ var td = document.createElement("td"); if (i) td.className = "num"; if (v && typeof v === "object") { td.textContent = v.t; var s2 = document.createElement("span"); s2.className = "sub"; s2.textContent = v.s; td.appendChild(s2); } else td.textContent = v; row.appendChild(td); });
+      tb.appendChild(row);
+    });
+    t.appendChild(tb);
+  }
+  function dashDraw(){
+    var d = DASH.data; if (!d) return;
+    var T = d.totals, S = d.split, N = d.snapshot;
+    /* what needs someone, whatever the period */
+    var attn = $("dash-attn"); attn.innerHTML = "";
+    function item(cls, html){ var li = document.createElement("li"); li.className = cls; li.textContent = ""; li.appendChild(html); attn.appendChild(li); }
+    function txt(bold, rest){ var f = document.createDocumentFragment(); var b = document.createElement("b"); b.textContent = bold; f.appendChild(b); f.appendChild(document.createTextNode(" " + rest)); return f; }
+    if (N.next7.unassigned) item("bad", txt(N.next7.unassigned + " job" + (N.next7.unassigned === 1 ? "" : "s"), "in the next 7 days with no driver"));
+    if (N.next7.unsent) item("", txt(N.next7.unsent + " job" + (N.next7.unsent === 1 ? "" : "s"), "given a driver but not sent yet (next 7 days)"));
+    if (T.notClosed) item("", txt(T.notClosed + " job" + (T.notClosed === 1 ? "" : "s"), "in this period not marked done"));
+    if (N.requestsWaiting) item("", txt(N.requestsWaiting + " website request" + (N.requestsWaiting === 1 ? "" : "s"), "waiting for you to confirm"));
+    if (N.invoicesOverdue.count) item("bad", txt(whole(N.invoicesOverdue.amount) + " overdue", "on " + N.invoicesOverdue.count + " invoice" + (N.invoicesOverdue.count === 1 ? "" : "s")));
+    if (N.invoicesOpen.count) item("", txt(whole(N.invoicesOpen.amount) + " owed to us", "on " + N.invoicesOpen.count + " open invoice" + (N.invoicesOpen.count === 1 ? "" : "s")));
+    if (N.balancesOwing.count) item("", txt(whole(N.balancesOwing.amount) + " in balances", "still to collect on " + N.balancesOwing.count + " deposit booking" + (N.balancesOwing.count === 1 ? "" : "s")));
+    if (N.driverPayOwed.count) item("", txt(whole(N.driverPayOwed.amount) + " driver pay owed", "for " + N.driverPayOwed.count + " finished job" + (N.driverPayOwed.count === 1 ? "" : "s")));
+    if (N.commissionOwed) item("", txt(whole(N.commissionOwed) + " agent commission", "to pay out from wallets"));
+    N.papers.slice(0, 6).forEach(function(p){ item(p.overdue ? "bad" : "", txt(p.who, p.what + (p.overdue ? " expired " : " due ") + dShort(p.date))); });
+    if (!attn.children.length) item("ok", txt("All clear", "- nothing needs you right now."));
+    /* headline figures */
+    var k = $("dash-kpis"); k.innerHTML = "";
+    [["Revenue", whole(T.revenue), whole(T.revenueExGst) + " ex GST"],
+     ["Jobs", String(T.jobs), T.done + " done · avg " + whole(T.avgFare)],
+     ["Driver pay", whole(T.driverPay), whole(T.driverPaid) + " paid so far"],
+     ["Margin after pay", whole(T.margin), pct(T.margin, T.revenue) + " of revenue"],
+     ["Own fleet", whole(S.own.revenue), S.own.jobs + " jobs · " + pct(S.own.revenue, T.revenue)],
+     ["Subcontracted", whole(S.sub.revenue), S.sub.jobs + " jobs · " + pct(S.sub.revenue, T.revenue)],
+     ["Next 7 days", whole(N.next7.revenue), N.next7.legs + " jobs booked"],
+     ["Cancelled", String(T.cancelled), T.lateFees ? whole(T.lateFees) + " in late-cancel charges" : "in this period"]].forEach(function(x){
+      var c = document.createElement("div"); c.className = "kpi";
+      var l = document.createElement("div"); l.className = "l"; l.textContent = x[0];
+      var v = document.createElement("div"); v.className = "v"; v.textContent = x[1];
+      var s2 = document.createElement("div"); s2.className = "s"; s2.textContent = x[2];
+      c.appendChild(l); c.appendChild(v); c.appendChild(s2); k.appendChild(c);
+    });
+    /* the chart: by day, or by week (Monday to Sunday) */
+    var buckets = [];
+    d.days.forEach(function(x){
+      var key = DASH.group === "week" ? weekStart(x.date) : x.date;
+      var b = buckets.length && buckets[buckets.length - 1].key === key ? buckets[buckets.length - 1] : null;
+      if (!b) { b = { key: key, own: 0, sub: 0, un: 0, jobs: 0 }; buckets.push(b); }
+      b.own += x.own; b.sub += x.sub; b.un += x.unassigned; b.jobs += x.jobs;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".chart-head [data-g]"), function(b){ b.classList.toggle("on", b.getAttribute("data-g") === DASH.group); });
+    $("dash-chart-title").textContent = "Revenue by " + DASH.group + (DASH.group === "week" ? " (Mon-Sun)" : "");
+    var svg = $("dash-chart"), W = 760, H = 220, L = 46, B = 22, top = 8;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("preserveAspectRatio", "none");
+    var max = Math.max.apply(null, buckets.map(function(b){ return b.own + b.sub + b.un; }).concat([1]));
+    var step = Math.pow(10, Math.floor(Math.log10(max))), nice = Math.ceil(max / step) * step;
+    var ns = "http://www.w3.org/2000/svg", html = [];
+    function el(name, attrs, text){ var e = document.createElementNS(ns, name); for (var a in attrs) e.setAttribute(a, attrs[a]); if (text != null) e.textContent = text; return e; }
+    svg.innerHTML = "";
+    for (var g = 0; g <= 4; g++) {
+      var y = top + (H - B - top) * (1 - g / 4);
+      svg.appendChild(el("line", { x1: L, x2: W, y1: y, y2: y, "class": "grid" }));
+      svg.appendChild(el("text", { x: L - 6, y: y + 4, "text-anchor": "end" }, whole(nice * g / 4)));
+    }
+    var n = buckets.length, slot = (W - L) / Math.max(n, 1), bw = Math.max(Math.min(slot * 0.7, 46), 2);
+    var every = Math.ceil(n / 12);
+    buckets.forEach(function(b, i){
+      var x = L + slot * i + (slot - bw) / 2, y0 = H - B, scale = (H - B - top) / nice;
+      var grp = el("g", {});
+      grp.appendChild(el("title", {}, (DASH.group === "week" ? "Week of " : "") + dShort(b.key) + ": " + whole(b.own + b.sub + b.un) + " (" + b.jobs + " jobs) - own " + whole(b.own) + ", subcontracted " + whole(b.sub) + (b.un ? ", no driver " + whole(b.un) : "")));
+      [["own", "var(--c-own)"], ["sub", "var(--c-sub)"], ["un", "var(--c-un)"]].forEach(function(p){
+        var h = b[p[0]] * scale; if (h <= 0) return;
+        y0 -= h; grp.appendChild(el("rect", { x: x, y: y0, width: bw, height: h, rx: 2, style: "fill:" + p[1] }));
+      });
+      svg.appendChild(grp);
+      if (i % every === 0) svg.appendChild(el("text", { x: x + bw / 2, y: H - 6, "text-anchor": "middle" }, dShort(b.key)));
+    });
+    /* tables */
+    dashTable("dash-split", ["", "Jobs", "Revenue", "Driver pay", "Margin"], [["own", "Own fleet"], ["sub", "Subcontractors"], ["unassigned", "No driver yet"]].map(function(p){
+      var x = S[p[0]]; return [p[1], String(x.jobs), whole(x.revenue), whole(x.driverPay), { t: whole(x.margin), s: pct(x.margin, x.revenue) }]; }));
+    dashTable("dash-src", ["", "Jobs", "Revenue", "Share"], [["web", "Website"], ["agent", "Agents"], ["account", "Accounts"]].map(function(p){
+      var x = d.sources[p[0]] || { jobs: 0, revenue: 0 }; return [p[1], String(x.jobs), whole(x.revenue), pct(x.revenue, T.revenue)]; }));
+    dashTable("dash-drv", ["Driver", "Jobs", "Pay", "Paid", "Owed"], d.drivers.map(function(x){
+      return [{ t: x.name, s: x.kind === "subcontractor" ? "subcontractor" : "employee" }, String(x.jobs), whole(x.pay), whole(x.paid), whole(x.owed)]; }));
+    dashTable("dash-veh", ["Vehicle", "Jobs", "Revenue", "Per job"], d.vehicles.filter(function(v){ return v.own; }).map(function(x){
+      return [{ t: x.label, s: x.class }, String(x.jobs), whole(x.revenue), whole(x.jobs ? x.revenue / x.jobs : 0)]; }));
+    dashTable("dash-cust", ["Customer", "Jobs", "Revenue"], d.customers.map(function(x){
+      return [{ t: x.name, s: x.source === "agent" ? "agent" : x.source === "account" ? "account" : "website" }, String(x.jobs), whole(x.revenue)]; }));
+    dashTable("dash-cls", ["Vehicle class", "Jobs", "Revenue"], d.classes.map(function(x){ return [x.vehicle, String(x.jobs), whole(x.revenue)]; }));
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("#dash-presets [data-p]"), function(b){
+    b.addEventListener("click", function(){ DASH.preset = b.getAttribute("data-p"); DASH.group = "day"; var r = dashRange(DASH.preset); $("dash-from").value = r[0]; $("dash-to").value = r[1]; dashLoad(); });
+  });
+  ["dash-from", "dash-to"].forEach(function(id){ $(id).addEventListener("change", function(){ DASH.preset = "custom"; dashLoad(); }); });
+  Array.prototype.forEach.call(document.querySelectorAll(".chart-head [data-g]"), function(b){
+    b.addEventListener("click", function(){ DASH.group = b.getAttribute("data-g"); dashDraw(); });
+  });
+  function dashStart(){ var r = dashRange(DASH.preset); $("dash-from").value = r[0]; $("dash-to").value = r[1]; dashLoad(); }
+
   function enter(){
     $("signin").hidden = true;
     $("admin").hidden = false;
     $("who").hidden = false;
     $("who").textContent = "Signed in as office";
+    dashStart();
     load();
     loadWeb();
     galLoad();
