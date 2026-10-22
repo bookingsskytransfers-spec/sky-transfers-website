@@ -14,13 +14,14 @@
 <meta property="og:description" content="Fixed-price chauffeur transfers to Gold Coast (OOL) and Brisbane (BNE) airports. Every suburb priced up-front, meet and greet, flight tracking, 24/7.">
 <meta property="og:url" content="https://www.skytransfers.com.au/">
 <meta property="og:locale" content="en_AU">
-<meta property="og:image" content="https://www.skytransfers.com.au/logo.png">
+<meta property="og:image" content="https://www.skytransfers.com.au/img/st-hero-dusk.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Airport Transfers Gold Coast &amp; Brisbane | Sky Transfers">
 <meta name="twitter:description" content="Fixed-price chauffeur transfers to Gold Coast (OOL) and Brisbane (BNE) airports. Every suburb priced up-front, meet and greet, flight tracking, 24/7.">
-<meta name="twitter:image" content="https://www.skytransfers.com.au/logo.png">
+<meta name="twitter:image" content="https://www.skytransfers.com.au/img/st-hero-dusk.jpg">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" as="image" type="image/webp" imagesrcset="/img/st-hero-dusk-640.webp 640w, /img/st-hero-dusk-1024.webp 1024w, /img/st-hero-dusk-1536.webp 1536w" imagesizes="100vw" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Google tag (gtag.js) — Google Ads AW-18399667511.
@@ -618,6 +619,91 @@
   .photo-band img{display:block;width:100%;height:auto;border-radius:12px;
     border:1px solid var(--line);box-shadow:var(--shadow)}
   .photo-band figcaption{margin:9px 2px 0;font-size:13.5px;color:var(--muted)}
+
+  /* ===================================================================
+     PHOTO REDESIGN — 23 Oct 2026. A photograph behind the hero, a numbers
+     band, a dark "why" band with the cabin photo, and photo cards for the
+     occasions. Plain CSS, no library. The booking form is untouched: it
+     still sits in .booklift, pulled up over the hero by 150px, and nothing
+     here animates it.
+     =================================================================== */
+  .hero.hero-photo{position:relative;overflow:hidden;isolation:isolate;text-align:left;
+    background:#0B1220;padding:clamp(52px,6.5vw,96px) 18px 220px}
+  .hero-photo .hero-bg,.hero-photo .hero-bg picture,.hero-photo .hero-bg img{position:absolute;inset:0;width:100%;height:100%}
+  .hero-photo .hero-bg{z-index:-2}
+  .hero-photo .hero-bg img{object-fit:cover;object-position:60% 75%;filter:brightness(1.14) contrast(1.04)}
+  .hero-photo::before{content:"";position:absolute;inset:0;z-index:-1;
+    background:
+      linear-gradient(90deg,rgba(9,14,26,.86) 0%,rgba(9,14,26,.62) 34%,rgba(9,14,26,.12) 62%,rgba(9,14,26,0) 100%),
+      linear-gradient(180deg,rgba(9,14,26,0) 62%,rgba(9,14,26,.8) 100%)}
+  .hero-in{max-width:1060px;margin:0 auto}
+  .hero-photo p.hero-kick{font-size:12.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:#D9B44A;opacity:1;margin:0 0 16px;max-width:none}
+  .hero-photo h1{font-size:clamp(36px,6.2vw,66px);line-height:1.06;max-width:700px;margin:0 0 20px;letter-spacing:.01em}
+  .hero-photo h1 span{display:block;color:#E2C46B}
+  .hero-photo h1,.hero-photo p{text-shadow:0 2px 14px rgba(0,0,0,.45)}
+  .hero-photo p{margin:0 0 26px;max-width:560px;font-size:17.5px;opacity:.92}
+  .hero-photo .chips{justify-content:flex-start;max-width:660px}
+  .hero-photo .chip{background:rgba(9,14,26,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .hero-photo p.hero-rating{margin:20px 0 0;font-size:14px;opacity:.82}
+  @media (max-width:700px){
+    .hero.hero-photo{padding-top:52px}
+    .hero-photo::before{background:linear-gradient(180deg,rgba(9,14,26,.30) 0%,rgba(9,14,26,.58) 45%,rgba(9,14,26,.92) 100%)}
+    .hero-photo .hero-bg img{object-position:72% 50%}
+    .hero-photo p{font-size:16px}
+  }
+
+  .block h2{font-size:clamp(26px,4.4vw,38px)}
+
+  .stats-band{background:linear-gradient(180deg,#101828 0%,#1C2A47 100%);color:var(--navy-text);
+    margin-top:46px;padding:34px 18px;border-top:1px solid rgba(217,180,74,.35);border-bottom:1px solid rgba(217,180,74,.35)}
+  .stats-in{max-width:1020px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;text-align:center}
+  .stat b{display:block;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:clamp(30px,4.4vw,46px);
+    color:#E2C46B;line-height:1.1;font-variant-numeric:lining-nums}
+  .stat span{display:block;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.82;margin-top:6px}
+  @media (max-width:620px){.stats-in{grid-template-columns:1fr 1fr;row-gap:26px}}
+
+  .why-split{background:linear-gradient(180deg,#101828 0%,#1C2A47 100%);color:var(--navy-text);
+    margin-top:60px;padding:60px 18px}
+  .why-split-in{max-width:1020px;margin:0 auto;display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:44px;align-items:center}
+  .why-photo img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:12px;
+    box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  .why-photo picture{display:block}
+  .why-copy .kick{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#D9B44A;margin:0 0 6px}
+  .why-copy h2{font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:clamp(26px,4.2vw,38px);margin:0 0 22px;color:#F6F2E8;text-wrap:balance}
+  .why-list{list-style:none;margin:0;padding:0;display:grid;gap:18px}
+  .why-list li{border-left:2px solid #D9B44A;padding:2px 0 2px 16px}
+  .why-list h3{margin:0 0 4px;font-size:16px;color:#F6F2E8}
+  .why-list p{margin:0;font-size:14.5px;opacity:.8}
+  @media (max-width:820px){
+    .why-split-in{grid-template-columns:1fr;gap:28px}
+    .why-photo img{aspect-ratio:3/2}
+  }
+
+  .occ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+  .occ{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;text-decoration:none;color:inherit;box-shadow:var(--shadow);
+    transition:transform var(--dur-lux) var(--ease-lux),box-shadow var(--dur-lux) var(--ease-lux),border-color var(--dur-lux) var(--ease-lux)}
+  .occ-pic{overflow:hidden;background:var(--gold-soft)}
+  .occ-pic picture{display:block}
+  .occ-pic img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;
+    transition:transform 1.2s var(--ease-lux)}
+  .occ-pic.pos-low img{object-position:50% 80%}
+  .occ:hover{transform:translateY(-3px);border-color:var(--gold);
+    box-shadow:0 2px 6px rgba(20,29,48,.07),0 16px 40px rgba(20,29,48,.12)}
+  .occ:hover .occ-pic img{transform:scale(1.04)}
+  .occ-body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+  .occ h3{margin:0 0 6px;font-size:17px;color:var(--ink)}
+  .occ p{margin:0 0 14px;font-size:14px;color:var(--muted)}
+  .occ-go{margin-top:auto;font-size:13.5px;font-weight:700;color:var(--gold-deep)}
+
+  .why.quote .stars{display:block;color:var(--gold);letter-spacing:2px;font-size:14px;margin-bottom:8px}
+  .why.quote p{font-size:15px}
+
+  @media (prefers-reduced-motion: reduce){
+    .occ,.occ-pic img{transition:none}
+    .occ:hover,.occ:hover .occ-pic img{transform:none}
+  }
 </style>
 
 
@@ -637,16 +723,20 @@
   </div>
 </nav>
 
-<header class="hero" id="top">
-  <h1>Fixed-price airport transfers, chauffeur driven</h1>
-  <p>Every Gold Coast and Brisbane suburb, to and from OOL and BNE &mdash; and a fixed price between any two addresses, or a chauffeur by the hour for the evening. The price you see is the price you pay — no surge, ever.</p>
-  <div class="chips">
-    <span class="chip"><b>✓</b> Free cancellation to 24 h</span>
-    <span class="chip"><b>✓</b> Meet &amp; greet + flight tracking</span>
-    <span class="chip"><b>✓</b> Any group size</span>
-    <span class="chip"><b>✓</b> 24/7</span>
+<header class="hero hero-photo" id="top">
+  <div class="hero-bg"><picture><source type="image/webp" srcset="/img/st-hero-dusk-640.webp 640w, /img/st-hero-dusk-1024.webp 1024w, /img/st-hero-dusk-1536.webp 1536w" sizes="100vw"><img src="/img/st-hero-dusk.jpg" width="1536" height="1024" alt="" fetchpriority="high" decoding="async"></picture></div>
+  <div class="hero-in">
+    <p class="hero-kick">Gold Coast &middot; Brisbane &middot; OOL &amp; BNE airports</p>
+    <h1>Fixed-price airport transfers, <span>chauffeur driven.</span></h1>
+    <p>Every Gold Coast and Brisbane suburb, to and from OOL and BNE &mdash; and a fixed price between any two addresses, or a chauffeur by the hour for the evening. The price you see is the price you pay — no surge, ever.</p>
+    <div class="chips">
+      <span class="chip"><b>✓</b> Free cancellation to 24 h</span>
+      <span class="chip"><b>✓</b> Meet &amp; greet + flight tracking</span>
+      <span class="chip"><b>✓</b> Any group size</span>
+      <span class="chip"><b>✓</b> 24/7</span>
+    </div>
+    <p class="hero-rating">★ 4.8 on Google (29 reviews) · 10+ years on the road · 15,000+ happy customers every year</p>
   </div>
-  <p style="margin:18px auto 0;font-size:14px;opacity:.75">★ 4.8 on Google (29 reviews) · 10+ years on the road · 15,000+ happy customers every year</p>
 </header>
 
 <div class="booklift" id="book">
@@ -2123,6 +2213,15 @@ function buildRequest(){
 </script>
 </div>
 
+<div class="stats-band" id="numbers" aria-label="Sky Transfers in numbers">
+  <div class="stats-in">
+    <div class="stat"><b>4.8★</b><span>Google rating</span></div>
+    <div class="stat"><b>15,000+</b><span>Travellers a year</span></div>
+    <div class="stat"><b>10+</b><span>Years on the road</span></div>
+    <div class="stat"><b>24/7</b><span>Bookings &amp; dispatch</span></div>
+  </div>
+</div>
+
 <section class="block" id="fleet">
   <p class="kick">The fleet</p>
   <h2>The right vehicle for every group</h2>
@@ -2217,14 +2316,19 @@ function buildRequest(){
   </div>
 </section>
 
-<section class="block">
-  <p class="kick">Why Sky Transfers</p>
-  <h2>What the big platforms can't promise</h2>
-  <div class="why-grid">
-    <div class="why"><h3>A real local fleet</h3><p>We're not a middleman reselling your trip to an unknown operator. Our own chauffeurs and vehicles back every booking — we never leave you at the airport.</p></div>
-    <div class="why"><h3>Fixed fares, shown up-front</h3><p>Zone-based prices published for every suburb and vehicle. No quote forms, no surge, no surprises — compare us openly with anyone.</p></div>
-    <div class="why"><h3>Fairer cancellation</h3><p>Free changes and full-refund cancellation to 24 hours before pick-up. Most platforms charge the full fare inside 48 hours.</p></div>
-    <div class="why"><h3>Groups are our specialty</h3><p>Luxury minivans and Mercedes Sprinters seating 10, 14 or 18, child seats fitted for $15, luggage trailer for $30. One vehicle, one price, everyone together.</p></div>
+<section class="why-split" id="why" aria-labelledby="why-h">
+  <div class="why-split-in">
+    <div class="why-photo"><picture><source type="image/webp" srcset="/img/st-interior-400.webp 400w, /img/st-interior-640.webp 640w, /img/st-interior-800.webp 800w" sizes="(max-width:820px) calc(100vw - 36px), 460px"><img src="/img/st-interior.jpg" width="800" height="533" alt="Cream leather captain chairs inside a luxury people mover at night" loading="lazy" decoding="async"></picture></div>
+    <div class="why-copy">
+      <p class="kick">Why Sky Transfers</p>
+      <h2 id="why-h">What the big platforms can't promise</h2>
+      <ul class="why-list">
+        <li><h3>A real local fleet</h3><p>We're not a middleman reselling your trip to an unknown operator. Our own chauffeurs and vehicles back every booking — we never leave you at the airport.</p></li>
+        <li><h3>Fixed fares, shown up-front</h3><p>Zone-based prices published for every suburb and vehicle. No quote forms, no surge, no surprises — compare us openly with anyone.</p></li>
+        <li><h3>Fairer cancellation</h3><p>Free changes and full-refund cancellation to 24 hours before pick-up. Most platforms charge the full fare inside 48 hours.</p></li>
+        <li><h3>Groups are our specialty</h3><p>Luxury minivans and Mercedes Sprinters seating 10, 14 or 18, child seats fitted for $15, luggage trailer for $30. One vehicle, one price, everyone together.</p></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -2232,12 +2336,13 @@ function buildRequest(){
   <p class="kick">Beyond the airport</p>
   <h2>Chauffeurs for every occasion</h2>
   <p class="lead">Airport runs are just the start — the same fleet and chauffeurs cover weddings, corporate days, tours and events across South East Queensland.</p>
-  <div class="why-grid">
-    <div class="why"><h3>Nights out &amp; point to point</h3><p>A fixed price between any two addresses from $80 — restaurants, hotels, a show, home again — or a chauffeur <a href="/point-to-point-transfers.html">by the hour from $90</a>, three hours minimum, with no evening loading.</p></div>
-    <div class="why"><h3>Corporate &amp; VIP</h3><p>Executive transfers and as-directed hire from $90 per hour — plush, punctual, discreet.</p></div>
-    <div class="why"><h3>Weddings &amp; events</h3><p>Wedding cars and event transfers from $120 per hour, styled to your day and timed to the minute.</p></div>
-    <div class="why"><h3>Day tours &amp; theme parks</h3><p>Private tours to Byron Bay, Springbrook and Tamborine Mountain, plus fixed-price theme park transfers.</p></div>
-    <div class="why"><h3>Cruise &amp; coach groups</h3><p>Cruise terminal transfers and our King Long 53-seat coach for conferences, sports clubs and school groups.</p></div>
+  <div class="occ-grid">
+    <a class="occ" href="/gold-coast-airport-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-airport-400.webp 400w, /img/occ-airport-640.webp 640w, /img/occ-airport-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-airport.jpg" width="800" height="533" alt="A chauffeur waiting in an airport arrivals hall" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Airport transfers</h3><p>Meet &amp; greet inside arrivals, flight tracking, and free waiting after you land — OOL and BNE, every suburb priced up-front.</p><span class="occ-go">Airport fares →</span></div></a>
+    <a class="occ" href="/wedding-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-wedding-400.webp 400w, /img/occ-wedding-640.webp 640w, /img/occ-wedding-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-wedding.jpg" width="800" height="533" alt="A bride and groom walking to a black wedding car in a vineyard" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Weddings &amp; events</h3><p>Wedding cars and guest shuttles from $120 per hour, styled to your day and timed to the minute.</p><span class="occ-go">Wedding transfers →</span></div></a>
+    <a class="occ" href="/corporate-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-corporate-400.webp 400w, /img/occ-corporate-640.webp 640w, /img/occ-corporate-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-corporate.jpg" width="800" height="533" alt="A business traveller's briefcase on the back seat of a luxury car" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Corporate &amp; VIP</h3><p>Executive transfers and as-directed hire from $90 per hour — plush, punctual, discreet. Accounts with monthly invoicing.</p><span class="occ-go">Corporate transfers →</span></div></a>
+    <a class="occ" href="/point-to-point-transfers.html"><div class="occ-pic pos-low"><picture><source type="image/webp" srcset="/img/occ-night-400.webp 400w, /img/occ-night-640.webp 640w, /img/occ-night-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-night.jpg" width="800" height="683" alt="A guest stepping out of a black car outside a restaurant at night" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Nights out &amp; point to point</h3><p>A fixed price between any two addresses from $80, or a chauffeur by the hour from $90 — three hours minimum, no evening loading.</p><span class="occ-go">Point to point →</span></div></a>
+    <a class="occ" href="/cruise-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-cruise-400.webp 400w, /img/occ-cruise-640.webp 640w, /img/occ-cruise-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-cruise.jpg" width="800" height="533" alt="A black people mover on the quay beside a docked cruise ship at sunrise" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Cruise transfers</h3><p>Fixed door-to-ship fares to the Brisbane International Cruise Terminal, with a name board for disembarking passengers.</p><span class="occ-go">Cruise fares →</span></div></a>
+    <a class="occ" href="/charters.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-tours-400.webp 400w, /img/occ-tours-640.webp 640w, /img/occ-tours-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-tours.jpg" width="800" height="533" alt="A black van on a winding road through misty rainforest mountains" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Day tours &amp; charters</h3><p>Private tours to Byron Bay, Springbrook and Tamborine Mountain, theme parks, and Sprinter or 53-seat coach charters.</p><span class="occ-go">Tours &amp; charters →</span></div></a>
   </div>
 </section>
 
@@ -2246,10 +2351,10 @@ function buildRequest(){
   <h2>Trusted by 15,000+ travellers every year</h2>
   <p style="margin:4px 0 0"><a href="https://www.google.com/maps?cid=9657905201752242057" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid var(--gold);color:var(--gold-deep);font-weight:700;font-size:14px;padding:9px 16px;border-radius:8px;text-decoration:none">★ 4.8 · 29 Google reviews</a></p>
   <div class="why-grid" style="margin-top:16px">
-    <div class="why quote"><p>“Sky Transfers exceeded my expectations for corporate transfers in Brisbane. From the moment I made the reservation to the drop-off at my destination, everything was flawless.”</p><h3>— Mark Y</h3></div>
-    <div class="why quote"><p>“The chauffeur was waiting for me at the airport, and the ride was smooth and comfortable.”</p><h3>— Kat K</h3></div>
-    <div class="why quote"><p>“The chauffeur was professional, the vehicle was luxurious, and they accommodated all my specific requests.”</p><h3>— Isabel S</h3></div>
-    <div class="why quote"><p>“Sky Transfers truly understands the needs of corporate travellers. My recent experience with their Gold Coast corporate transfers was exceptional.”</p><h3>— Alicia E</h3></div>
+    <div class="why quote"><span class="stars" aria-label="5 stars">★★★★★</span><p>“Sky Transfers exceeded my expectations for corporate transfers in Brisbane. From the moment I made the reservation to the drop-off at my destination, everything was flawless.”</p><h3>— Mark Y</h3></div>
+    <div class="why quote"><span class="stars" aria-label="5 stars">★★★★★</span><p>“The chauffeur was waiting for me at the airport, and the ride was smooth and comfortable.”</p><h3>— Kat K</h3></div>
+    <div class="why quote"><span class="stars" aria-label="5 stars">★★★★★</span><p>“The chauffeur was professional, the vehicle was luxurious, and they accommodated all my specific requests.”</p><h3>— Isabel S</h3></div>
+    <div class="why quote"><span class="stars" aria-label="5 stars">★★★★★</span><p>“Sky Transfers truly understands the needs of corporate travellers. My recent experience with their Gold Coast corporate transfers was exceptional.”</p><h3>— Alicia E</h3></div>
   </div>
 </section>
 
