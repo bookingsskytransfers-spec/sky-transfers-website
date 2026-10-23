@@ -472,3 +472,33 @@
   .photo-band img{display:block;width:100%;height:auto;border-radius:12px;
     border:1px solid var(--line);box-shadow:var(--shadow)}
   .photo-band figcaption{margin:9px 2px 0;font-size:13.5px;color:var(--muted)}
+
+/* ===================================================================
+   PHOTO HEADERS — 23 Oct 2026. The landing pages, the blog and every
+   generated suburb page get a photograph behind their .fares-hero,
+   the same treatment as the homepage and charters heroes (those two
+   carry their own inline copy). Markup: <header class="fares-hero photo">
+   then .hero-bg (the picture) and .hero-in (the existing words).
+   Pages link /site.css?v=… so a cached copy of the old stylesheet never
+   meets the new markup.
+   =================================================================== */
+.fares-hero.photo{position:relative;overflow:hidden;isolation:isolate;text-align:left;
+  background:#0B1220;padding:clamp(56px,7vw,104px) 18px clamp(56px,7vw,100px)}
+.fares-hero.photo .hero-bg,.fares-hero.photo .hero-bg picture,.fares-hero.photo .hero-bg img{
+  position:absolute;inset:0;width:100%;height:100%}
+.fares-hero.photo .hero-bg{z-index:-2}
+.fares-hero.photo .hero-bg img{object-fit:cover;object-position:60% 62%;filter:brightness(1.08)}
+.fares-hero.photo::before{content:"";position:absolute;inset:0;z-index:-1;
+  background:
+    linear-gradient(90deg,rgba(9,14,26,.9) 0%,rgba(9,14,26,.7) 38%,rgba(9,14,26,.2) 72%,rgba(9,14,26,.05) 100%),
+    linear-gradient(180deg,rgba(9,14,26,0) 60%,rgba(9,14,26,.6) 100%)}
+.fares-hero.photo .hero-in{max-width:1060px;margin:0 auto}
+.fares-hero.photo h1{font-size:clamp(32px,5.4vw,56px);line-height:1.08;max-width:700px;margin:0 0 18px}
+.fares-hero.photo p{margin:0 0 24px;max-width:560px;opacity:.92}
+.fares-hero.photo h1,.fares-hero.photo p{text-shadow:0 2px 14px rgba(0,0,0,.45)}
+@media (max-width:700px){
+  .fares-hero.photo{padding-top:52px;padding-bottom:52px}
+  .fares-hero.photo::before{background:linear-gradient(180deg,rgba(9,14,26,.45) 0%,rgba(9,14,26,.7) 45%,rgba(9,14,26,.9) 100%)}
+  .fares-hero.photo .hero-bg img{object-position:70% 50%}
+  .fares-hero.photo p{font-size:16px}
+}
