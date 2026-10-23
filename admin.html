@@ -890,7 +890,8 @@
            "$" + Number(b.total || 0).toFixed(0),
            (b.depositPct && b.status === "confirmed" ? "Confirmed, " + b.depositPct + "% deposit not paid"
              : b.status === "paid" && b.balance > 0 ? (b.depositPct ? "Deposit paid" : "Paid") + " · $" + Number(b.balance).toFixed(0) + " owing" + (b.balanceLinkUrl ? " (link sent)" : "")
-             : webLabel(b.status)) + (b.status === "cancelled" && b.refunded ? " ($" + Number(b.refunded).toFixed(0) + " refunded)" : "")
+             : webLabel(b.status)) + (b.status === "paid" && b.paidNote ? " (" + b.paidNote.toLowerCase() + ")" : "")
+             + (b.status === "cancelled" && b.refunded ? " ($" + Number(b.refunded).toFixed(0) + " refunded)" : "")
           ].forEach(function(v, i){
             var td = document.createElement("td");
             /* textContent, never innerHTML: every value here was typed by a
@@ -930,6 +931,24 @@
               act.appendChild(armBtn("Balance paid another way", "Paid in full?", "", function(){
                 return api("/admin/web-booking/balance-paid", { method: "POST", body: { ref: b.ref, how: "cash or bank transfer", notifyGuest: !!b.email } }).then(function(d){
                   show($("web-msg"), "Marked the $" + d.settled + " balance on " + d.ref + " as paid. " + (d.emailed ? "Paid-in-full confirmation sent to " + d.emailed + "." : ""), true);
+                  loadWeb();
+                }).catch(function(err){ show($("web-msg"), err.message); });
+              }));
+              act.appendChild(document.createTextNode(" "));
+            }
+            /* The whole fare came in outside Stripe - bank transfer, cash, a
+               card machine. Marks it paid and switches the payment link off. */
+            if (b.status === "confirmed" || b.status === "requested") {
+              var how = document.createElement("select");
+              how.setAttribute("aria-label", "How the booking was paid");
+              how.style.cssText = "font:inherit;font-size:12.5px;padding:4px 6px;margin:0 4px 4px 0";
+              ["Bank transfer", "Cash", "Card machine", "PayID", "Other"].forEach(function(o){
+                var op = document.createElement("option"); op.value = op.textContent = o; how.appendChild(op);
+              });
+              act.appendChild(how);
+              act.appendChild(armBtn("Paid another way ($" + Number(b.total || 0).toFixed(0) + ")", "Mark paid?", "", function(){
+                return api("/admin/web-booking/paid-elsewhere", { method: "POST", body: { ref: b.ref, how: how.value } }).then(function(d){
+                  show($("web-msg"), b.ref + " marked paid: $" + d.paid + " by " + d.how.toLowerCase() + ". Its payment link is switched off.", true);
                   loadWeb();
                 }).catch(function(err){ show($("web-msg"), err.message); });
               }));
