@@ -424,7 +424,7 @@ const NAV = `<nav class="sitenav">
 const FOOTER = `<footer class="site">
   <div class="foot-in">
     <div>
-      <img src="/logo.png" alt="Sky Transfers" style="height:38px;width:auto;display:block;margin-bottom:8px">
+      <img src="/logo.png" alt="Sky Transfers" width="318" height="160" loading="lazy" decoding="async" style="height:38px;width:auto;display:block;margin-bottom:8px">
       <p>Gold Coast &amp; Brisbane airport transfers, tours and charters.</p>
       <p>24 hours, 7 days.</p>
     </div>
@@ -506,8 +506,19 @@ function heroImg(region, zoneKey) {
   if (/Gold Coast|Sunshine|Byron|Tweed/.test(region || '')) return 'st-hero-dusk';
   return 'hero-city';
 }
+const HERO_ALT = {
+  'hero-airport': 'A black chauffeur car waiting outside an airport terminal at dusk',
+  'hero-city': 'A black sedan crossing a bridge in front of a city skyline at dusk',
+  'hero-motorway': 'A black sedan on a coastal motorway at sunset',
+  'hero-wedding': 'A black people mover with a white ribbon outside a wedding marquee',
+  'hero-corporate': 'A chauffeur holding the door of a black executive car outside an office tower',
+  'hero-cruise': 'A black people mover on the quay beside a docked cruise ship at dawn',
+  'hero-family': 'A parent fitting a child seat in the back of a black SUV',
+  'st-hero-dusk': 'A black people mover on a palm-lined beachfront road at dusk',
+  'ch-hero-dusk': 'A black Mercedes Sprinter on a hinterland road at golden hour'
+};
 function heroBg(name) {
-  return '<div class="hero-bg"><picture><source type="image/webp" srcset="/img/' + name + '-640.webp 640w, /img/' + name + '-1024.webp 1024w, /img/' + name + '-1536.webp 1536w" sizes="100vw"><img src="/img/' + name + '.jpg" width="1536" height="1024" alt="" fetchpriority="high" decoding="async"></picture></div>';
+  return '<div class="hero-bg"><picture><source type="image/webp" srcset="/img/' + name + '-640.webp 640w, /img/' + name + '-1024.webp 1024w, /img/' + name + '-1536.webp 1536w" sizes="100vw"><img src="/img/' + name + '.jpg" width="1536" height="1024" alt="' + (HERO_ALT[name] || '') + '" fetchpriority="high" decoding="async"></picture></div>';
 }
 
 function head(title, desc, canonical, ld) {
