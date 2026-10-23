@@ -146,6 +146,24 @@
   .pinbox .pin{font-size:28px;font-weight:700;letter-spacing:.18em;font-variant-numeric:tabular-nums;margin:4px 0}
   .row3{display:grid;grid-template-columns:1.2fr 1.2fr 1fr;gap:12px;margin-bottom:12px}
   @media (max-width:600px){ .row3{grid-template-columns:1fr} }
+  /* rate card products (23 Oct 2026): pick a product, a vehicle, a fixed price */
+  .prod-group{margin:18px 0 8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
+  .prod-group:first-child{margin-top:6px}
+  .prod-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+  .prod{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:9px;
+    padding:12px 13px;cursor:pointer;font:inherit;color:var(--ink)}
+  .prod:hover{border-color:var(--gold)}
+  .prod.on{border-color:var(--gold);background:var(--gold-soft)}
+  .prod .pn{display:block;font-weight:700;font-size:14.5px;line-height:1.3}
+  .prod .pf{display:block;margin-top:4px;font-size:13px;color:var(--muted)}
+  .prod .pf b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .prod-form{margin-top:18px;padding-top:16px;border-top:2px solid var(--line)}
+  .prod-form h3{margin:0 0 4px;font-size:17px;color:var(--ink)}
+  .veh.small{opacity:.45;cursor:not-allowed}
+  .veh .cap{display:block;font-size:11.5px;color:var(--muted)}
+  .chk{display:flex;gap:8px;align-items:center;font-weight:600;color:var(--ink);cursor:pointer}
+  .chk input{width:auto;margin:0}
+  @media (max-width:600px){ .prod-list{grid-template-columns:1fr} }
   [hidden]{display:none!important}
 </style>
 </head>
@@ -198,6 +216,58 @@
         <span>Commission <b id="w-pct">—</b></span>
       </div>
     </div>
+
+    <section class="card" id="prod-card" hidden>
+      <h2>Book from your rate card</h2>
+      <p class="muted" style="margin:0 0 6px">Pick what your client needs, pick the vehicle size, and the price is fixed &mdash; your net rate, no commission. Night pick-ups (10 pm to 5 am) and 25&ndash;26 December and 1 January surcharges are added automatically.</p>
+      <div id="prod-list"></div>
+      <div class="prod-form" id="prod-form" hidden>
+        <h3 id="pf-title"></h3>
+        <p class="hint" id="pf-hint" style="margin:0 0 14px"></p>
+        <div id="pf-msg" class="msg" hidden></div>
+        <div class="trip" id="pf-dir" role="radiogroup" aria-label="Which way" hidden></div>
+        <div class="row2" id="pf-areas"></div>
+        <div class="field" id="pf-ret-wrap" hidden>
+          <label class="chk" for="pf-ret"><input type="checkbox" id="pf-ret"> Book the return trip too <span class="muted">(two trips at the card price)</span></label>
+        </div>
+        <div class="row2">
+          <div><label for="pf-date" id="pf-date-lbl">Date</label><input id="pf-date" type="date"></div>
+          <div><label for="pf-time" id="pf-time-lbl">Pick-up time</label><input id="pf-time" type="time"></div>
+        </div>
+        <div class="row2" id="pf-r" hidden>
+          <div><label for="pf-rdate" id="pf-rdate-lbl">Return date</label><input id="pf-rdate" type="date"></div>
+          <div><label for="pf-rtime" id="pf-rtime-lbl">Return pick-up time</label><input id="pf-rtime" type="time"></div>
+        </div>
+        <div class="row2" id="pf-flights" hidden>
+          <div id="pf-flight-wrap"><label for="pf-flight">Flight number</label><input id="pf-flight" placeholder="e.g. QF501"></div>
+          <div id="pf-rflight-wrap"><label for="pf-rflight">Return flight <span class="muted">(optional)</span></label><input id="pf-rflight" placeholder="e.g. JQ420"></div>
+        </div>
+        <div class="field"><label for="pf-addr" id="pf-addr-lbl">Hotel name and address</label><input id="pf-addr" placeholder="e.g. hotel name and street"></div>
+        <div class="row2">
+          <div><label for="pf-pax">Passengers</label><input id="pf-pax" type="number" min="1" max="21" value="2"></div>
+          <div><label for="pf-seats">Child seats <span class="muted">$15 each</span></label>
+            <select id="pf-seats"><option value="0">None</option><option>1</option><option>2</option><option>3</option></select></div>
+        </div>
+        <label>Vehicle size</label>
+        <div class="veh-grid" id="pf-veh"></div>
+        <div id="pf-noquote" class="msg" hidden></div>
+        <div class="row2">
+          <div><label for="pf-name">Passenger name</label><input id="pf-name"></div>
+          <div><label for="pf-phone">Passenger phone</label><input id="pf-phone" type="tel"></div>
+        </div>
+        <div class="row2">
+          <div><label for="pf-email">Passenger email <span class="muted">(optional)</span></label><input id="pf-email" type="email" autocomplete="off"></div>
+          <div><label for="pf-cref">Your booking reference <span class="muted">(optional)</span></label><input id="pf-cref" autocomplete="off"></div>
+        </div>
+        <div class="row2">
+          <div><label for="pf-trailer">Luggage trailer <span class="muted">+$30</span></label>
+            <select id="pf-trailer"><option value="false">No</option><option value="true">Yes</option></select></div>
+          <div><label for="pf-notes">Notes <span class="muted">(optional)</span></label><input id="pf-notes"></div>
+        </div>
+        <button class="cta" id="pf-book" type="button" disabled>Choose a vehicle</button>
+        <p style="margin:10px 0 0"><button class="linkbtn" id="pf-close" type="button">Choose a different product</button></p>
+      </div>
+    </section>
 
     <section class="card">
       <h2 id="form-title">New booking</h2>
@@ -706,10 +776,13 @@
   }
   function applyCard(){
     var c = state.card;
-    $("trip-card").hidden = !c;
-    $("trip-kinds").className = "trip" + (c ? " four" : "");
+    /* New card trips are booked from the products above; the form's own
+       "Rate card" choice only appears while changing an existing one. */
+    showCardTrip(false);
     $("rc-card").hidden = !c;
+    $("prod-card").hidden = !c;
     if (!c) return;
+    renderProducts();
     var sel = $("card-svc"); sel.innerHTML = "";
     var groups = {};
     c.services.forEach(function(sv){
@@ -741,6 +814,205 @@
     });
   }
   $("card-svc").addEventListener("change", function(){ if (state.trip === "card") setTrip("card"); });
+  function showCardTrip(on){
+    $("trip-card").hidden = !on;
+    $("trip-kinds").className = "trip" + (on ? " four" : "");
+  }
+
+  /* ---- rate card products (Aman, 23 Oct 2026) -----------------------------
+     The card as a list of products: pick one, pick the vehicle size, and the
+     price is fixed. It books through the same /agent/quote and /agent/book as
+     the form below - only the ends, the service and the times are filled in
+     for the agent - so the server prices and checks it exactly as there. */
+  var CAP = { "Sedan": 3, "SUV": 4, "People Mover": 7, "Luxury Sedan": 3, "Luxury Minivan": 7,
+              "Mercedes Sprinter 10-Seater": 10, "Mercedes Sprinter 14-Seater": 14, "21 Seat Mini Bus": 21 };
+  var END_FIXED = { ool: OOL, bne: BNE, wharf: CRUISE };
+  var END_NAME = { ool: "Gold Coast Airport", bne: "Brisbane Airport", wharf: "the cruise terminal", surfers: "a Surfers hotel", city: "a Brisbane city hotel" };
+  var AREAS = { surfers: ["Surfers Paradise", "Main Beach", "Broadbeach"],
+                city: ["Brisbane CBD", "Spring Hill", "Fortitude Valley", "South Brisbane", "Kangaroo Point"],
+                charter: ["Surfers Paradise", "Main Beach", "Broadbeach", "Southport", "Burleigh Heads", "Coolangatta", OOL] };
+  var prod = { p: null, dir: 0, vehicle: null, total: 0, seq: 0, timer: null };
+  function placeOk(name){ return state.places.length === 0 || state.places.indexOf(name) !== -1; }
+  function areasOf(key){ return AREAS[key].filter(placeOk); }
+  /* every product: routes (one way, either direction) first, then the services */
+  function productList(){
+    var c = state.card, out = [];
+    c.routes.forEach(function(r){
+      var e = r.id.split("-");
+      out.push({ id: r.id, kind: "route", group: "Airport, cruise and hotel transfers", a: e[0], b: e[1], label: r.label, p: r.p });
+    });
+    c.services.forEach(function(s){
+      out.push({ id: s.id, kind: s.kind, group: s.kind === "pkg" ? "Airport arrival with hours included" : s.kind === "park" ? "Theme parks, return from a Surfers hotel" : "Gold Coast charters",
+                 label: s.label, p: s.p, hours: s.hours, from: s.from, park: s.park });
+    });
+    return out;
+  }
+  function lowest(p){ var v = p.filter(function(x){ return x != null; }); return v.length ? Math.min.apply(null, v) : null; }
+  function renderProducts(){
+    var box = $("prod-list"); box.innerHTML = "";
+    var last = "", grid = null;
+    productList().forEach(function(p){
+      if (p.group !== last) {
+        var h = document.createElement("div"); h.className = "prod-group"; h.textContent = p.group; box.appendChild(h);
+        grid = document.createElement("div"); grid.className = "prod-list"; box.appendChild(grid); last = p.group;
+      }
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "prod"; b.dataset.id = p.id;
+      b.innerHTML = '<span class="pn"></span><span class="pf">from <b></b>' + (p.kind === "route" ? " one way" : p.kind === "park" ? " return" : "") + '</span>';
+      b.querySelector(".pn").textContent = p.label.replace("↔", "⇄");
+      b.querySelector("b").textContent = "$" + lowest(p.p);
+      b.addEventListener("click", function(){ openProduct(p); });
+      grid.appendChild(b);
+    });
+  }
+  function areaSelect(id, label, list){
+    var d = document.createElement("div"), l = document.createElement("label"), s = document.createElement("select");
+    l.htmlFor = id; l.textContent = label; s.id = id;
+    list.forEach(function(n){ s.appendChild(new Option(n, n)); });
+    s.addEventListener("change", prodQuote);
+    d.appendChild(l); d.appendChild(s); return d;
+  }
+  function openProduct(p){
+    prod.p = p; prod.dir = 0; prod.vehicle = null;
+    [].forEach.call(document.querySelectorAll(".prod"), function(x){ x.classList.toggle("on", x.dataset.id === p.id); });
+    $("prod-form").hidden = false;
+    show($("pf-msg"), "");
+    $("pf-title").textContent = p.label.replace("↔", "⇄");
+    var areas = $("pf-areas"); areas.innerHTML = "";
+    var dir = $("pf-dir"); dir.innerHTML = ""; dir.hidden = p.kind !== "route";
+    $("pf-ret-wrap").hidden = p.kind !== "route"; $("pf-ret").checked = false;
+    if (p.kind === "route") {
+      [[p.a, p.b], [p.b, p.a]].forEach(function(pair, i){
+        var l = document.createElement("label"), r = document.createElement("input"), s = document.createElement("span");
+        r.type = "radio"; r.name = "pf-dir"; r.value = String(i); r.checked = i === 0;
+        s.textContent = "From " + END_NAME[pair[0]].replace(/^a /, "") + " to " + END_NAME[pair[1]].replace(/^a /, "");
+        r.addEventListener("change", function(){ if (r.checked) { prod.dir = i; prodLayout(); prodQuote(); } });
+        l.appendChild(r); l.appendChild(s); dir.appendChild(l);
+      });
+      dir.className = "trip"; dir.style.gridTemplateColumns = "1fr 1fr";
+      [p.a, p.b].forEach(function(k){ if (AREAS[k]) areas.appendChild(areaSelect("pf-area-" + k, k === "surfers" ? "Surfers hotel is in" : "Brisbane hotel is in", areasOf(k))); });
+    } else if (p.kind === "pkg") {
+      areas.appendChild(areaSelect("pf-area-surfers", "Surfers hotel is in", areasOf("surfers")));
+    } else if (p.kind === "park") {
+      areas.appendChild(areaSelect("pf-area-surfers", "Surfers hotel is in", areasOf("surfers")));
+    } else {
+      areas.appendChild(areaSelect("pf-area-charter", "Start from", areasOf("charter")));
+    }
+    prodLayout();
+    prodQuote();
+    $("prod-form").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  /* the ends in the order travelled: [from, to] as group keys, or null */
+  function routeEnds(){ var p = prod.p; return p.kind === "route" ? (prod.dir ? [p.b, p.a] : [p.a, p.b]) : null; }
+  function areaVal(k){ var s = $("pf-area-" + k); return s ? s.value : ""; }
+  function endPlace(k){ return END_FIXED[k] || areaVal(k); }
+  function isAirport(k){ return k === "ool" || k === "bne"; }
+  function prodLayout(){
+    var p = prod.p, ends = routeEnds(), withRet = p.kind === "park" || (p.kind === "route" && $("pf-ret").checked);
+    $("pf-r").hidden = !withRet;
+    $("pf-date-lbl").textContent = p.kind === "park" ? "Day at the park" : "Pick-up date";
+    $("pf-time-lbl").textContent = p.kind === "pkg" || (ends && isAirport(ends[0])) ? "Flight lands / pick-up time" : p.kind === "park" ? "Pick-up time at the hotel" : "Pick-up time";
+    $("pf-rdate-lbl").textContent = p.kind === "park" ? "Date to collect them from the park" : "Return date";
+    $("pf-rtime-lbl").textContent = p.kind === "park" ? "Time to collect them from the park" : "Return pick-up time";
+    var outFlight = p.kind === "pkg" || (ends && (isAirport(ends[0]) || isAirport(ends[1])));
+    var retFlight = p.kind === "route" && withRet && ends && (isAirport(ends[0]) || isAirport(ends[1]));
+    $("pf-flights").hidden = !outFlight; $("pf-flight-wrap").hidden = !outFlight; $("pf-rflight-wrap").hidden = !retFlight;
+    $("pf-addr-lbl").textContent = p.kind === "charter" ? "Start address" : "Hotel name and address";
+    var hint = p.kind === "pkg" ? "Met at " + p.from + ", then " + p.hours + " hours with the car and driver, ending at the hotel."
+      : p.kind === "park" ? "From the hotel to " + p.park + " and back again, one price for both trips."
+      : p.kind === "charter" ? p.hours + " hours with the car and driver on the Gold Coast, as directed."
+      : "One way" + ($("pf-ret").checked ? ", plus the return trip — each at the card price" : " — tick the box to add the return trip") + ".";
+    $("pf-hint").textContent = hint;
+  }
+  $("pf-ret").addEventListener("change", function(){ prodLayout(); prodQuote(); });
+  ["pf-date", "pf-time", "pf-rdate", "pf-rtime"].forEach(function(id){ $(id).addEventListener("change", prodQuote); });
+  $("pf-pax").addEventListener("input", function(){ drawVehicles(prod.last); });
+  $("pf-close").addEventListener("click", function(){
+    $("prod-form").hidden = true; prod.p = null;
+    [].forEach.call(document.querySelectorAll(".prod"), function(x){ x.classList.remove("on"); });
+    $("prod-card").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  /* what the server needs for this product - the shape the form below sends */
+  function prodBody(){
+    var p = prod.p, ret = p.kind === "park" || (p.kind === "route" && $("pf-ret").checked);
+    var b = { date: $("pf-date").value, time: $("pf-time").value, returnTrip: ret,
+              returnDate: ret ? $("pf-rdate").value : "", returnTime: ret ? $("pf-rtime").value : "", stops: [] };
+    if (p.kind === "route") {
+      var e = routeEnds(); b.pickup = endPlace(e[0]); b.dropoff = endPlace(e[1]);
+    } else {
+      b.service = p.id;
+      if (p.kind === "pkg") { b.pickup = p.from; b.dropoff = areaVal("surfers"); }
+      else if (p.kind === "park") { b.pickup = areaVal("surfers"); b.dropoff = p.park; }
+      else { b.pickup = areaVal("charter"); b.dropoff = ""; }
+    }
+    b.ends = { pickup: { suburb: b.pickup }, dropoff: b.dropoff ? { suburb: b.dropoff } : null };
+    return b;
+  }
+  function prodQuote(){
+    clearTimeout(prod.timer);
+    prod.timer = setTimeout(function(){
+      var seq = ++prod.seq, grid = $("pf-veh");
+      prod.vehicle = null; prodBookState();
+      grid.innerHTML = '<div class="muted">Pricing…</div>'; $("pf-noquote").hidden = true;
+      api("/agent/quote", { method: "POST", body: prodBody() }).then(function(d){
+        if (seq !== prod.seq) return;
+        if (!d.quotable) { grid.innerHTML = ""; show($("pf-noquote"), d.message); prod.last = null; return; }
+        prod.last = d; drawVehicles(d);
+      }).catch(function(err){ if (seq === prod.seq) { grid.innerHTML = ""; show($("pf-noquote"), err.message); } });
+    }, 150);
+  }
+  function drawVehicles(d){
+    var grid = $("pf-veh"); if (!d) return;
+    grid.innerHTML = "";
+    var pax = parseInt($("pf-pax").value, 10) || 1;
+    var unit = d.kind === "park" || d.kind === "return" ? "both trips" : d.kind === "pkg" ? "incl. " + d.hours + " hours" : d.kind === "charter" ? d.hours + " hours" : "one way";
+    d.vehicles.forEach(function(v){
+      var cap = CAP[v.vehicle] || 0, small = cap && pax > cap;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "veh" + (small ? " small" : "") + (prod.vehicle === v.vehicle && !small ? " on" : "");
+      b.innerHTML = '<span class="n"></span><span class="cap"></span><span class="f"></span><span class="t"></span>';
+      b.querySelector(".n").textContent = v.vehicle;
+      b.querySelector(".cap").textContent = cap ? "up to " + cap + " passengers" : "";
+      b.querySelector(".f").textContent = money(v.total);
+      b.querySelector(".t").textContent = unit + (v.surcharge && v.surcharge.length ? " · incl. " + v.surcharge.join(", ") : "");
+      if (small) { b.disabled = true; b.title = "Too small for " + pax + " passengers"; }
+      else b.addEventListener("click", function(){
+        prod.vehicle = v.vehicle; prod.total = v.total;
+        [].forEach.call(grid.children, function(x){ x.classList.remove("on"); }); b.classList.add("on");
+        prodBookState();
+      });
+      grid.appendChild(b);
+    });
+    if (prod.vehicle && !d.vehicles.some(function(v){ return v.vehicle === prod.vehicle && !(CAP[v.vehicle] && pax > CAP[v.vehicle]); })) prod.vehicle = null;
+    prodBookState();
+  }
+  function prodBookState(){
+    var btn = $("pf-book");
+    btn.disabled = !prod.vehicle;
+    btn.textContent = prod.vehicle ? "Book " + prod.vehicle + " · " + money(prod.total) + " · rate card" : "Choose a vehicle";
+  }
+  $("pf-book").addEventListener("click", function(){
+    var p = prod.p, b = prodBody(), ret = b.returnTrip;
+    var need = { "Date": b.date, "Time": b.time, "Hotel name and address": $("pf-addr").value, "Passenger name": $("pf-name").value, "Passenger phone": $("pf-phone").value };
+    if (p.kind === "charter") { delete need["Hotel name and address"]; need["Start address"] = $("pf-addr").value; }
+    if (ret) { need[p.kind === "park" ? "Date to collect them" : "Return date"] = b.returnDate; need[p.kind === "park" ? "Time to collect them" : "Return pick-up time"] = b.returnTime; }
+    for (var k in need) if (!String(need[k] || "").trim()) { show($("pf-msg"), "Please fill in: " + k); $("pf-msg").scrollIntoView({ block: "center" }); return; }
+    var btn = $("pf-book"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "Booking…"; show($("pf-msg"), "");
+    var payload = Object.assign({}, b, {
+      vehicle: prod.vehicle, name: $("pf-name").value.trim(), phone: $("pf-phone").value.trim(), email: $("pf-email").value.trim(),
+      clientRef: $("pf-cref").value.trim(), pax: $("pf-pax").value, flight: $("pf-flights").hidden ? "" : $("pf-flight").value.trim(),
+      returnFlight: $("pf-rflight-wrap").hidden ? "" : $("pf-rflight").value.trim(),
+      address: $("pf-addr").value.trim(), childSeats: $("pf-seats").value, trailer: $("pf-trailer").value, notes: $("pf-notes").value.trim()
+    });
+    api("/agent/book", { method: "POST", body: payload }).then(function(d){
+      show($("pf-msg"), "Booked — reference " + d.ref + ", " + p.label.replace("↔", "⇄") + ", " + prod.vehicle + " at your rate card price. Dispatch has it.", true);
+      ["pf-name", "pf-phone", "pf-email", "pf-cref", "pf-flight", "pf-rflight", "pf-addr", "pf-notes"].forEach(function(id){ $(id).value = ""; });
+      $("pf-seats").value = "0"; $("pf-trailer").value = "false";
+      prod.vehicle = null; drawVehicles(prod.last);
+      refresh();
+    }).catch(function(err){ show($("pf-msg"), err.message); btn.disabled = false; btn.textContent = label; });
+  });
 
   /* ---- one-way / return / by the hour ---- */
   function setTrip(kind, quiet){
@@ -803,7 +1075,7 @@
     var csv = state.card && b.rateCard ? svcById(b.rateCard) : null;
     if (b.hours && !csv) $("hours").value = String(b.hours);
     state.fixedPu = state.fixedDro = false;
-    if (csv) { $("card-svc").value = csv.id; setTrip("card", true); state.pu = b.pickup; state.puEnd = ends.pickup || { suburb: b.pickup }; state.dro = csv.kind === "charter" ? null : b.dropoff; state.droEnd = csv.kind === "charter" ? null : (ends.dropoff || { suburb: b.dropoff }); }
+    if (csv) { showCardTrip(true); $("card-svc").value = csv.id; setTrip("card", true); state.pu = b.pickup; state.puEnd = ends.pickup || { suburb: b.pickup }; state.dro = csv.kind === "charter" ? null : b.dropoff; state.droEnd = csv.kind === "charter" ? null : (ends.dropoff || { suburb: b.dropoff }); }
     else setTrip(b.hours ? "hourly" : b.returnDate ? "return" : "one", true);
     setStops(b.hours ? [] : b.stops);
     $("rdate").value = b.returnDate || ""; $("rtime").value = b.returnTime || ""; $("rflight").value = b.returnFlight || "";
@@ -830,6 +1102,7 @@
     state.pu = state.dro = state.puEnd = state.droEnd = null;
     setStops([]);
     setTrip("one", true);
+    showCardTrip(false);
     $("quote").hidden = true; $("noquote").hidden = true;
     state.vehicle = null;
     setBookState();
