@@ -1426,9 +1426,13 @@ function blogPage(a, dateIso, dateText) {
   if (dateIso) { ld.datePublished = dateIso; ld.dateModified = dateIso; }
   if (a.image_url) ld.image = a.image_url;
   /* head() declares every page a website; an article should say so. */
-  const h = head(title, desc, url, ld)
+  /* Share previews use the article's own photo when the feed gives a plain
+     https URL; anything else keeps the logo. */
+  const img = /^https:\/\/[^\s"'<>]+$/.test(String(a.image_url || '')) ? esc(a.image_url) : '';
+  let h = head(title, desc, url, ld)
     .replace('<meta property="og:type" content="website">',
              '<meta property="og:type" content="article">');
+  if (img) h = h.split(`content="${SITE}/logo.png">`).join(`content="${img}">`);
   return `${h}
 <body>
 ${NAV}
