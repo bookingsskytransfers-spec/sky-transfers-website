@@ -340,7 +340,7 @@
         <div class="row3">
           <div><label for="a-email">Guest email (optional)</label><input id="a-email" type="email" autocomplete="off"></div>
           <div><label for="a-address">Exact address / hotel</label><input id="a-address" autocomplete="off"></div>
-          <div><label for="a-notes">Notes for the driver</label><input id="a-notes" autocomplete="off"></div>
+          <div><label for="a-notes">Notes (driver sees them, and so does the guest's confirmation)</label><input id="a-notes" autocomplete="off"></div>
         </div>
         <div style="margin-bottom:10px"><label for="a-stops">Stops on the way (optional - one address per line, up to 3)</label>
           <textarea id="a-stops" rows="2" placeholder="e.g. 12 Example St, Robina"></textarea></div>
@@ -353,7 +353,7 @@
       <!-- One confirmation email for all of a guest's trips (25 Oct 2026) -->
       <div class="card" id="c-card" hidden>
         <h3>Email the guest a confirmation</h3>
-        <p class="muted" style="margin:0 0 12px">One email and one PDF covering every trip you tick - trip details only, never a price, the account's name or the driver notes.
+        <p class="muted" style="margin:0 0 12px">One email and one PDF covering every trip you tick - trip details and the job's notes, never a price or the account's name.
           These are this guest's upcoming account trips (same phone, email or name). Nothing is sent until you press Send.</p>
         <div id="c-msg" class="msg" hidden></div>
         <div class="scroll"><table class="tight">
