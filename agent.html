@@ -164,6 +164,11 @@
   .chk{display:flex;gap:8px;align-items:center;font-weight:600;color:var(--ink);cursor:pointer}
   .chk input{width:auto;margin:0}
   @media (max-width:600px){ .prod-list{grid-template-columns:1fr} }
+  /* interstate (26 Oct 2026) */
+  #ix-cities{grid-template-columns:repeat(3,1fr)}
+  .veh .bags{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .ix-notes{margin:14px 0 0;padding-left:18px;font-size:13px;color:var(--muted)}
+  .ix-notes li{margin:2px 0}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -266,6 +271,66 @@
         </div>
         <button class="cta" id="pf-book" type="button" disabled>Choose a vehicle</button>
         <p style="margin:10px 0 0"><button class="linkbtn" id="pf-close" type="button">Choose a different product</button></p>
+      </div>
+    </section>
+
+    <section class="card" id="ix-card" hidden>
+      <h2>Book interstate &mdash; Sydney, Melbourne, Cairns</h2>
+      <p class="muted" style="margin:0 0 12px">Fixed prices for transfers and tours, run by our partners in each city &mdash; your net rate, no commission, GST included.
+        Book at least 24 hours ahead. Changes close 24 hours before pick-up, and a cancellation inside 24 hours is charged in full.
+        Night and public-holiday surcharges are added to the price automatically.</p>
+      <div class="trip" id="ix-cities" role="radiogroup" aria-label="City"></div>
+      <div id="ix-list"></div>
+      <div class="prod-form" id="ix-form" hidden>
+        <h3 id="ix-title"></h3>
+        <div id="ix-edit" class="editing" hidden></div>
+        <p class="hint" id="ix-hint" style="margin:0 0 14px"></p>
+        <div id="ix-msg" class="msg" hidden></div>
+        <div class="trip" id="ix-dir" role="radiogroup" aria-label="Which way" hidden></div>
+        <div class="row2" id="ix-hours-row" hidden>
+          <div id="ix-hours-wrap"><label for="ix-hours">Hours</label><select id="ix-hours"></select></div>
+          <div id="ix-extra-wrap"><label for="ix-extra">Extra hours <span class="muted">(optional)</span></label>
+            <select id="ix-extra"><option value="0">None</option><option value="1">1 extra hour</option><option value="2">2 extra hours</option><option value="3">3 extra hours</option><option value="4">4 extra hours</option></select></div>
+        </div>
+        <div class="field" id="ix-ret-wrap" hidden>
+          <label class="chk" for="ix-ret"><input type="checkbox" id="ix-ret"> Book the return trip too <span class="muted">(two trips, each at the fixed price)</span></label>
+        </div>
+        <div class="row2">
+          <div><label for="ix-date">Date</label><input id="ix-date" type="date"></div>
+          <div><label for="ix-time" id="ix-time-lbl">Pick-up time</label><input id="ix-time" type="time"></div>
+        </div>
+        <div class="row2" id="ix-r" hidden>
+          <div><label for="ix-rdate">Return date</label><input id="ix-rdate" type="date"></div>
+          <div><label for="ix-rtime">Return pick-up time</label><input id="ix-rtime" type="time"></div>
+        </div>
+        <div class="row2" id="ix-flights" hidden>
+          <div><label for="ix-flight">Flight number</label><input id="ix-flight" placeholder="e.g. QF1"></div>
+          <div id="ix-rflight-wrap"><label for="ix-rflight">Return flight <span class="muted">(optional)</span></label><input id="ix-rflight" placeholder="e.g. VA820"></div>
+        </div>
+        <div class="row2">
+          <div><label for="ix-addr" id="ix-addr-lbl">Hotel name and address</label><input id="ix-addr" placeholder="hotel name and street"></div>
+          <div id="ix-addr2-wrap" hidden><label for="ix-addr2">Drop-off address</label><input id="ix-addr2" placeholder="restaurant, venue or street"></div>
+        </div>
+        <div class="row2">
+          <div><label for="ix-pax">Passengers</label><input id="ix-pax" type="number" min="1" max="21" value="2"></div>
+          <div id="ix-seats-wrap"><label for="ix-seats">Child seats <span class="muted" id="ix-seat-price"></span></label>
+            <select id="ix-seats"><option value="0">None</option><option>1</option><option>2</option><option>3</option></select></div>
+        </div>
+        <label>Vehicle</label>
+        <div class="veh-grid" id="ix-veh"></div>
+        <div id="ix-noquote" class="msg" hidden></div>
+        <div class="row2">
+          <div><label for="ix-name">Passenger name</label><input id="ix-name"></div>
+          <div><label for="ix-phone">Passenger phone</label><input id="ix-phone" type="tel"></div>
+        </div>
+        <div class="row2">
+          <div><label for="ix-email">Passenger email <span class="muted">(optional)</span></label><input id="ix-email" type="email" autocomplete="off"></div>
+          <div><label for="ix-cref">Your booking reference <span class="muted">(optional)</span></label><input id="ix-cref" autocomplete="off"></div>
+        </div>
+        <div class="field"><label for="ix-notes">Notes <span class="muted">(optional - luggage, a tour plan, anything the driver should know)</span></label><input id="ix-notes"></div>
+        <button class="cta" id="ix-book" type="button" disabled>Choose a vehicle</button>
+        <p style="margin:10px 0 0"><button class="linkbtn" id="ix-close" type="button">Choose a different trip</button></p>
+        <ul class="ix-notes" id="ix-rules"></ul>
       </div>
     </section>
 
@@ -526,7 +591,7 @@
   function enter(){
     $("signin").hidden = true;
     $("portal").hidden = false;
-    api("/agent/places").then(function(d){ state.places = d.places || []; state.card = d.rateCard || null; applyCard(); }).catch(function(){});
+    api("/agent/places").then(function(d){ state.places = d.places || []; state.card = d.rateCard || null; applyCard(); applyInterstate(d.interstate || null); }).catch(function(){});
     loadTour();
     refresh().then(function(){
       if (canMoney()) loadInvoices();
@@ -599,7 +664,7 @@
         cell(tr, b.passenger, b.email || "");
         tr.appendChild(tripCell(b));
         cell(tr, money(b.total), b.cardPaid ? "paid by card" : b.payUrl ? "card link made" : "", "num");
-        if (m) cell(tr, b.rateCard ? "net" : money(b.commission), b.rateCard ? "rate card" : "", "num");
+        if (m) cell(tr, b.rateCard ? "net" : money(b.commission), b.rateCardKind === "interstate" ? "interstate" : b.rateCard ? "rate card" : "", "num");
         var st = document.createElement("td");
         var pill = document.createElement("span");
         if (b.status === "late_cancel") { pill.className = "pill void"; pill.textContent = "cancelled · " + (b.cancelFeePct || "") + "% charged"; }
@@ -1014,6 +1079,219 @@
     }).catch(function(err){ show($("pf-msg"), err.message); btn.disabled = false; btn.textContent = label; });
   });
 
+  /* ---- interstate (Aman, 26 Oct 2026) ------------------------------------
+     Sydney, Melbourne and Cairns: pick the city, the trip and the vehicle,
+     and the price is fixed - our partners' rates + 10%, net. The server
+     prices it (/agent/quote with {interstate}) and books it (/agent/book);
+     the page only shows what it is told. */
+  var IX = { data: null, city: null, p: null, dir: 0, vehicle: null, total: 0, seq: 0, timer: null, last: null, editRef: null };
+  function ixAirport(label){ return /Airport/.test(label || ""); }
+  function applyInterstate(d){
+    IX.data = d; $("ix-card").hidden = !d;
+    if (!d) return;
+    var box = $("ix-cities"); box.innerHTML = "";
+    d.cities.forEach(function(c, i){
+      var l = document.createElement("label"), r = document.createElement("input"), sp = document.createElement("span");
+      r.type = "radio"; r.name = "ix-city"; r.value = c.id; r.checked = i === 0;
+      sp.innerHTML = "<b></b><small></small>"; sp.querySelector("b").textContent = c.name; sp.querySelector("small").textContent = c.products.length + " trips and tours";
+      r.addEventListener("change", function(){ if (r.checked) ixCity(c.id); });
+      l.appendChild(r); l.appendChild(sp); box.appendChild(l);
+    });
+    ixCity(d.cities[0].id);
+  }
+  function ixCityOf(id){ return IX.data.cities.filter(function(c){ return c.id === id; })[0]; }
+  function ixCity(id){
+    IX.city = ixCityOf(id);
+    var r = document.querySelector('input[name="ix-city"][value="' + id + '"]'); if (r) r.checked = true;
+    var box = $("ix-list"); box.innerHTML = "";
+    var last = "", grid = null;
+    IX.city.products.forEach(function(p){
+      if (p.group !== last) {
+        var h = document.createElement("div"); h.className = "prod-group"; h.textContent = p.group; box.appendChild(h);
+        grid = document.createElement("div"); grid.className = "prod-list"; box.appendChild(grid); last = p.group;
+      }
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "prod"; b.dataset.id = p.id;
+      b.innerHTML = '<span class="pn"></span><span class="pf">from <b></b></span>';
+      b.querySelector(".pn").textContent = p.label;
+      b.querySelector("b").textContent = "$" + p.from;
+      b.querySelector(".pf").appendChild(document.createTextNode(p.kind === "transfer" ? " one way" : p.kind === "charter" ? " for " + p.hoursFrom + " hours" : ""));
+      b.addEventListener("click", function(){ ixOpen(p); });
+      grid.appendChild(b);
+    });
+    if (!IX.editRef) { $("ix-form").hidden = true; IX.p = null; }
+  }
+  function ixOpen(p, keep){
+    IX.p = p; IX.dir = 0; IX.vehicle = null;
+    if (!keep) { ixEditEnd(); }
+    [].forEach.call(document.querySelectorAll("#ix-list .prod"), function(x){ x.classList.toggle("on", x.dataset.id === p.id); });
+    $("ix-form").hidden = false; show($("ix-msg"), "");
+    $("ix-title").textContent = IX.city.name + " · " + p.label;
+    var E = IX.city.ends, dir = $("ix-dir"); dir.innerHTML = "";
+    dir.hidden = !(p.kind === "transfer" && p.either);
+    if (!dir.hidden) {
+      [[p.a, p.b], [p.b, p.a]].forEach(function(pair, i){
+        var l = document.createElement("label"), r = document.createElement("input"), sp = document.createElement("span");
+        r.type = "radio"; r.name = "ix-dir"; r.value = String(i); r.checked = i === 0;
+        sp.textContent = "From " + E[pair[0]].replace(/ hotel$/, "") + " to " + E[pair[1]].replace(/ hotel$/, "");
+        r.addEventListener("change", function(){ if (r.checked) { IX.dir = i; ixLayout(); ixQuote(); } });
+        l.appendChild(r); l.appendChild(sp); dir.appendChild(l);
+      });
+      dir.style.gridTemplateColumns = "1fr 1fr";
+    }
+    var hs = $("ix-hours"); hs.innerHTML = "";
+    if (p.kind === "charter") for (var h = p.hoursFrom; h <= p.hoursTo; h++) hs.appendChild(new Option(h + " hours", String(h)));
+    $("ix-hours-wrap").hidden = p.kind !== "charter";
+    $("ix-extra-wrap").hidden = !p.extra; $("ix-extra").value = "0";
+    $("ix-hours-row").hidden = p.kind !== "charter" && !p.extra;
+    $("ix-ret-wrap").hidden = p.kind !== "transfer"; $("ix-ret").checked = false;
+    $("ix-seats-wrap").hidden = IX.city.seatPrice == null; $("ix-seats").value = "0";
+    $("ix-seat-price").textContent = IX.city.seatPrice != null ? "(added to the price)" : "";
+    var rules = $("ix-rules"); rules.innerHTML = "";
+    IX.data.rules.concat(IX.city.notes, IX.city.validTo ? ["Prices for " + IX.city.name + " run to " + niceDate(IX.city.validTo) + "."] : []).forEach(function(n){
+      var li = document.createElement("li"); li.textContent = n; rules.appendChild(li);
+    });
+    ixLayout(); ixQuote();
+    if (!keep) $("ix-form").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  /* [from, to] labels as travelled */
+  function ixEnds(){
+    var p = IX.p, E = IX.city.ends;
+    if (p.kind === "transfer") return IX.dir ? [E[p.b], E[p.a]] : [E[p.a], E[p.b]];
+    return null;
+  }
+  function ixLayout(){
+    var p = IX.p, e = ixEnds(), ret = p.kind === "transfer" && $("ix-ret").checked;
+    $("ix-r").hidden = !ret;
+    var air = e && (ixAirport(e[0]) || ixAirport(e[1]));
+    $("ix-flights").hidden = !air; $("ix-rflight-wrap").hidden = !(air && ret);
+    $("ix-time-lbl").textContent = e && ixAirport(e[0]) ? "Flight lands / pick-up time" : p.kind === "hire" || p.kind === "charter" ? "Start time" : "Pick-up time";
+    $("ix-addr2-wrap").hidden = p.kind !== "inner" && p.kind !== "roundtrip";
+    $("ix-addr-lbl").textContent = p.kind === "inner" || p.kind === "roundtrip" ? "Pick-up address" : e && ixAirport(e[0]) ? "Drop-off hotel and address" : e && !ixAirport(e[0]) && !/hotel/.test(e[0]) ? "Pick-up address" : "Hotel name and address";
+    $("ix-addr2-wrap").querySelector("label").textContent = p.kind === "roundtrip" ? "Restaurant or venue" : "Drop-off address";
+    $("ix-hint").textContent = p.kind === "transfer" ? (ret ? "There and back - each trip at the fixed price." : "One way. Tick the box to add the return trip.")
+      : p.kind === "inner" ? "A single transfer within " + IX.city.name + "."
+      : p.kind === "roundtrip" ? "To dinner or a venue and back, up to 2 hours in all."
+      : p.kind === "charter" ? "The vehicle and driver for the hours you choose, as directed."
+      : p.hours + " hours with the vehicle and driver" + (p.extra ? " - add extra hours if the day runs longer." : ".");
+  }
+  function ixBody(){
+    var p = IX.p, ret = p.kind === "transfer" && $("ix-ret").checked;
+    return { interstate: { product: p.id, dir: IX.dir, hours: p.kind === "charter" ? $("ix-hours").value : null, extra: p.extra ? $("ix-extra").value : 0 },
+             date: $("ix-date").value, time: $("ix-time").value, returnTrip: ret,
+             returnDate: ret ? $("ix-rdate").value : "", returnTime: ret ? $("ix-rtime").value : "", childSeats: IX.city.seatPrice != null ? $("ix-seats").value : 0 };
+  }
+  function ixQuote(){
+    clearTimeout(IX.timer);
+    IX.timer = setTimeout(function(){
+      var seq = ++IX.seq, grid = $("ix-veh");
+      var keepV = IX.vehicle; IX.vehicle = null; ixBookState();
+      grid.innerHTML = '<div class="muted">Pricing…</div>'; $("ix-noquote").hidden = true;
+      api("/agent/quote", { method: "POST", body: ixBody() }).then(function(d){
+        if (seq !== IX.seq) return;
+        if (!d.quotable) { grid.innerHTML = ""; show($("ix-noquote"), d.message); IX.last = null; return; }
+        IX.last = d; IX.vehicle = keepV; ixVehicles(d);
+      }).catch(function(err){ if (seq === IX.seq) { grid.innerHTML = ""; show($("ix-noquote"), err.message); } });
+    }, 150);
+  }
+  function ixVehicles(d){
+    var grid = $("ix-veh"); if (!d) return;
+    grid.innerHTML = "";
+    var pax = parseInt($("ix-pax").value, 10) || 1, p = IX.p;
+    var unit = $("ix-ret").checked && p.kind === "transfer" ? "both trips" : d.hours ? d.hours + " hours" : "one way";
+    d.vehicles.forEach(function(v){
+      var small = v.cap && pax > v.cap;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "veh" + (small ? " small" : "") + (IX.vehicle === v.vehicle && !small ? " on" : "");
+      b.innerHTML = '<span class="n"></span><span class="cap"></span><span class="f"></span><span class="t"></span><span class="bags"></span>';
+      b.querySelector(".n").textContent = v.name;
+      b.querySelector(".cap").textContent = "up to " + v.cap + " passengers";
+      b.querySelector(".f").textContent = money(v.total);
+      b.querySelector(".t").textContent = unit + (v.surcharge && v.surcharge.length ? " · incl. " + v.surcharge.join(", ") : "");
+      b.querySelector(".bags").textContent = v.bags || "";
+      if (small) { b.disabled = true; b.title = "Too small for " + pax + " passengers"; }
+      else b.addEventListener("click", function(){
+        IX.vehicle = v.vehicle; IX.total = v.total;
+        [].forEach.call(grid.children, function(x){ x.classList.remove("on"); }); b.classList.add("on");
+        ixBookState();
+      });
+      if (IX.vehicle === v.vehicle && !small) IX.total = v.total;
+      grid.appendChild(b);
+    });
+    if (IX.vehicle && !d.vehicles.some(function(v){ return v.vehicle === IX.vehicle && !(v.cap && pax > v.cap); })) IX.vehicle = null;
+    ixBookState();
+  }
+  function ixBookState(){
+    var btn = $("ix-book"), name = IX.vehicle ? IX.vehicle.replace(/^[^:]+: /, "") : "";
+    btn.disabled = !IX.vehicle;
+    btn.textContent = !IX.vehicle ? "Choose a vehicle" : (IX.editRef ? "Save the change · " : "Book " + name + " · ") + money(IX.total) + " · net";
+  }
+  $("ix-ret").addEventListener("change", function(){ ixLayout(); ixQuote(); });
+  ["ix-date", "ix-time", "ix-rdate", "ix-rtime", "ix-hours", "ix-extra", "ix-seats"].forEach(function(id){ $(id).addEventListener("change", ixQuote); });
+  $("ix-pax").addEventListener("input", function(){ ixVehicles(IX.last); });
+  $("ix-close").addEventListener("click", function(){
+    ixEditEnd(); $("ix-form").hidden = true; IX.p = null;
+    [].forEach.call(document.querySelectorAll("#ix-list .prod"), function(x){ x.classList.remove("on"); });
+    $("ix-card").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  function ixClear(){
+    ["ix-name", "ix-phone", "ix-email", "ix-cref", "ix-flight", "ix-rflight", "ix-addr", "ix-addr2", "ix-notes", "ix-date", "ix-time", "ix-rdate", "ix-rtime"].forEach(function(id){ $(id).value = ""; });
+    $("ix-seats").value = "0"; $("ix-pax").value = "2"; $("ix-ret").checked = false;
+  }
+  function ixEditEnd(){ if (IX.editRef) { IX.editRef = null; $("ix-edit").hidden = true; ixClear(); } }
+  $("ix-book").addEventListener("click", function(){
+    var p = IX.p, b = ixBody(), ret = b.returnTrip, two = !$("ix-addr2-wrap").hidden;
+    var need = { "Date": b.date, "Time": b.time, "Passenger name": $("ix-name").value, "Passenger phone": $("ix-phone").value };
+    need[$("ix-addr-lbl").textContent] = $("ix-addr").value;
+    if (two) need[$("ix-addr2-wrap").querySelector("label").textContent] = $("ix-addr2").value;
+    if (ret) { need["Return date"] = b.returnDate; need["Return pick-up time"] = b.returnTime; }
+    for (var k in need) if (!String(need[k] || "").trim()) { show($("ix-msg"), "Please fill in: " + k); $("ix-msg").scrollIntoView({ block: "center" }); return; }
+    var btn = $("ix-book"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = IX.editRef ? "Saving…" : "Booking…"; show($("ix-msg"), "");
+    var addr = two ? "Pick-up: " + $("ix-addr").value.trim() + " | Drop-off: " + $("ix-addr2").value.trim() : $("ix-addr").value.trim();
+    var payload = Object.assign({}, b, {
+      vehicle: IX.vehicle, name: $("ix-name").value.trim(), phone: $("ix-phone").value.trim(), email: $("ix-email").value.trim(),
+      clientRef: $("ix-cref").value.trim(), pax: $("ix-pax").value, flight: $("ix-flights").hidden ? "" : $("ix-flight").value.trim(),
+      returnFlight: $("ix-rflight-wrap").hidden ? "" : $("ix-rflight").value.trim(), address: addr, notes: $("ix-notes").value.trim()
+    });
+    var editing = IX.editRef;
+    if (editing) payload.ref = editing;
+    api(editing ? "/agent/booking/update" : "/agent/book", { method: "POST", body: payload }).then(function(d){
+      var what = IX.city.name + " · " + p.label + ", " + IX.vehicle.replace(/^[^:]+: /, "") + " · " + money(d.total);
+      ixEditEnd(); ixClear();
+      show($("ix-msg"), (editing ? "Changed " + d.ref + " — " : "Booked — reference " + d.ref + ", ") + what + " (net). We'll confirm the driver.", true);
+      IX.vehicle = null; ixQuote();
+      refresh();
+    }).catch(function(err){ show($("ix-msg"), err.message); btn.disabled = false; btn.textContent = label; });
+  });
+  /* Change on an interstate booking: back into this form, as it was booked */
+  function ixEdit(bk){
+    if (!IX.data) { show($("book-msg"), "Interstate prices are still loading - try again in a moment."); return; }
+    var ixp = (bk.ends && bk.ends.ix) || { product: String(bk.rateCard || "").slice(3) };
+    var cityId = String(ixp.product || "").split("-")[0], c = ixCityOf(cityId);
+    if (!c) { show($("book-msg"), "That interstate trip isn't on our list any more - call +61 481 437 772 to change it."); return; }
+    var p = c.products.filter(function(x){ return x.id === ixp.product; })[0];
+    if (!p) { show($("book-msg"), "That interstate trip isn't on our list any more - call +61 481 437 772 to change it."); return; }
+    IX.editRef = bk.ref;
+    ixCity(cityId); ixOpen(p, true);
+    if (!$("ix-dir").hidden && ixp.dir) { IX.dir = 1; document.querySelector('input[name="ix-dir"][value="1"]').checked = true; }
+    if (p.kind === "charter" && ixp.hours) $("ix-hours").value = String(ixp.hours);
+    if (p.extra) $("ix-extra").value = String(ixp.extra || 0);
+    $("ix-ret").checked = !!bk.returnDate;
+    $("ix-date").value = bk.date; $("ix-time").value = bk.time;
+    $("ix-rdate").value = bk.returnDate || ""; $("ix-rtime").value = bk.returnTime || "";
+    $("ix-flight").value = bk.flight || ""; $("ix-rflight").value = bk.returnFlight || "";
+    var a = String(bk.address || ""), m = /^Pick-up: (.*) | Drop-off: (.*)$/.exec(a);
+    $("ix-addr").value = m ? m[1] : a; $("ix-addr2").value = m ? m[2] : "";
+    $("ix-pax").value = bk.pax || 1; $("ix-seats").value = String(bk.childSeats || 0);
+    $("ix-name").value = bk.passenger || ""; $("ix-phone").value = bk.phone || ""; $("ix-email").value = bk.email || "";
+    $("ix-cref").value = bk.clientRef || ""; $("ix-notes").value = bk.notes || "";
+    $("ix-edit").hidden = false; $("ix-edit").textContent = "Changing " + bk.ref + " — " + bk.route + ". Save to send the change to dispatch.";
+    IX.vehicle = bk.vehicle;
+    ixLayout(); ixQuote();
+    $("ix-card").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   /* ---- one-way / return / by the hour ---- */
   function setTrip(kind, quiet){
     /* leaving a card service: an end it filled in for the agent goes too */
@@ -1062,6 +1340,7 @@
 
   /* ---- edit mode ---- */
   function startEdit(b){
+    if (b.rateCardKind === "interstate") { ixEdit(b); return; }
     state.editing = b.ref;
     $("form-title").textContent = "Change booking";
     $("edit-banner").hidden = false;
