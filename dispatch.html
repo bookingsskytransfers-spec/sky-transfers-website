@@ -337,7 +337,8 @@
           <div><label for="a-seats">Child seats</label>
             <select id="a-seats"><option value="0">None</option><option>1</option><option>2</option><option>3</option></select></div>
         </div>
-        <div class="row2">
+        <div class="row3">
+          <div><label for="a-email">Guest email (optional)</label><input id="a-email" type="email" autocomplete="off"></div>
           <div><label for="a-address">Exact address / hotel</label><input id="a-address" autocomplete="off"></div>
           <div><label for="a-notes">Notes for the driver</label><input id="a-notes" autocomplete="off"></div>
         </div>
@@ -347,6 +348,30 @@
         <button class="cta" id="a-save">Put it on the board</button>
         <button class="act" id="a-clear" style="margin-left:6px">Clear</button>
         <span id="a-cancel-wrap"></span>
+      </div>
+
+      <!-- One confirmation email for all of a guest's trips (25 Oct 2026) -->
+      <div class="card" id="c-card" hidden>
+        <h3>Email the guest a confirmation</h3>
+        <p class="muted" style="margin:0 0 12px">One email and one PDF covering every trip you tick - trip details only, never a price, the account's name or the driver notes.
+          These are this guest's upcoming account trips (same phone, email or name). Nothing is sent until you press Send.</p>
+        <div id="c-msg" class="msg" hidden></div>
+        <div class="scroll"><table class="tight">
+          <thead><tr><th><input type="checkbox" id="c-all" checked style="width:auto" aria-label="Tick every trip"></th><th>Date</th><th>Ref</th><th>Trip</th><th>Vehicle</th><th>Confirmation</th></tr></thead>
+          <tbody id="c-rows"></tbody>
+        </table></div>
+        <div class="row3" style="margin-top:12px">
+          <div><label for="c-to">Send to (email)</label><input id="c-to" type="email" autocomplete="off"></div>
+          <div><label for="c-pay">Payment line</label>
+            <select id="c-pay">
+              <option value="invoice">Your tax invoice is sent separately</option>
+              <option value="paid">Paid in full</option>
+              <option value="agent">Arranged through your travel company</option>
+              <option value="none">Don't mention payment</option>
+            </select></div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap"><button class="act" id="c-pdf">Look at the PDF</button><span id="c-send-wrap"></span></div>
+        </div>
+        <p class="muted" style="margin:6px 0 0">A copy goes to info@. Trips with no guest email get this address, so the driver updates reach the guest too.</p>
       </div>
     </section>
 
@@ -1102,6 +1127,7 @@
     A("hours").value = j && j.hire_hours || ""; A("rdate").value = j && j.rd || ""; A("rtime").value = j && j.rt || "";
     A("rflight").value = j && j.rf || ""; A("name").value = j ? j.passenger_name : ""; A("phone").value = j ? j.passenger_phone : "";
     A("pax").value = j ? j.pax : 1; A("seats").value = j ? String(j.child_seats || 0) : "0";
+    A("email").value = j && j.passenger_email || "";
     A("address").value = j && j.address || ""; A("notes").value = j && j.notes || ""; A("trailer").checked = !!(j && j.trailer);
     var st = []; try { st = j && j.stops ? JSON.parse(j.stops) : []; } catch (e) { st = []; }
     A("stops").value = Array.isArray(st) ? st.join("\n") : "";
@@ -1113,7 +1139,71 @@
       }).catch(function(err){ show($("a-msg"), err.message); });
     }));
     show($("a-msg"), "");
+    confirmCard(j);
   }
+
+  /* ---- one confirmation for a guest's trips ---- */
+  var CONF = null;
+  function confirmCard(j){
+    var card = $("c-card"); CONF = null; card.hidden = !j; show($("c-msg"), "");
+    if (!j) return;
+    var tb = $("c-rows"); tb.innerHTML = "";
+    $("c-to").value = j.passenger_email || "";
+    api("/ops/confirm/trips?ref=" + encodeURIComponent(j.ref)).then(function(d){
+      CONF = d;
+      if (!$("c-to").value) { var withMail = d.trips.filter(function(t){ return t.email; })[0]; if (withMail) $("c-to").value = withMail.email; }
+      d.trips.forEach(function(t){
+        var tr = tb.insertRow();
+        var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = true; cb.style.width = "auto"; cb.dataset.ref = t.ref;
+        cb.setAttribute("aria-label", "Include " + t.ref);
+        tr.insertCell().appendChild(cb);
+        tr.insertCell().textContent = niceDate(t.date) + " " + t.time + (t.returnDate ? " · back " + niceDate(t.returnDate) + " " + t.returnTime : "");
+        tr.insertCell().textContent = t.ref + (t.self ? " (this job)" : "");
+        var td = tr.insertCell(); td.textContent = t.pickup + " to " + (t.hours ? t.hours + " h, as directed" : t.dropoff) + (t.name && !t.self ? " · " + t.name : ""); td.style.whiteSpace = "normal";
+        tr.insertCell().textContent = t.vehicle || "—";
+        tr.insertCell().textContent = t.sentAt ? "Sent " + niceDate(new Date(Date.parse(t.sentAt) + 10 * 36e5).toISOString().slice(0, 10)) + " to " + t.sentTo : "Not sent";
+      });
+      $("c-all").checked = true;
+    }).catch(function(err){ show($("c-msg"), err.message); });
+    var w = $("c-send-wrap"); w.innerHTML = "";
+    w.appendChild(armBtn("Send confirmation", "Send it?", "", function(){
+      var refs = confirmRefs(); if (!refs) return;
+      return api("/ops/confirm/send", { method: "POST", body: { refs: refs, to: $("c-to").value.trim(), payment: $("c-pay").value } })
+        .then(function(r){
+          show($("c-msg"), "Sent to " + r.to + " - " + r.refs.length + " trip" + (r.refs.length === 1 ? "" : "s") + " in one email" +
+            (r.emailFilled ? "; that address is now on " + r.emailFilled + " trip" + (r.emailFilled === 1 ? "" : "s") + " that had none" : "") + ".", true);
+          if (!A("email").value) A("email").value = r.to;
+          var keep = $("c-msg").textContent;
+          return api("/ops/job?ref=" + encodeURIComponent(j.ref)).then(function(d){ confirmCard(d.job); show($("c-msg"), keep, true); });
+        }).catch(function(err){ show($("c-msg"), err.message); });
+    }));
+  }
+  function confirmRefs(){
+    var refs = Array.prototype.map.call(document.querySelectorAll("#c-rows input:checked"), function(c){ return c.dataset.ref; });
+    if (!refs.length) { show($("c-msg"), "Tick at least one trip."); return null; }
+    return refs;
+  }
+  $("c-all").addEventListener("change", function(){
+    Array.prototype.forEach.call(document.querySelectorAll("#c-rows input[type=checkbox]"), function(c){ c.checked = $("c-all").checked; });
+  });
+  $("c-pdf").addEventListener("click", function(){
+    var refs = confirmRefs(); if (!refs) return;
+    /* about:blank first, inside the click, or a popup blocker eats it */
+    var win = window.open("about:blank");
+    fetch(API + "/ops/confirm/pdf", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ refs: refs, to: $("c-to").value.trim(), payment: $("c-pay").value }) })
+      .then(function(r){
+        if (r.status === 401) { signOut(); throw new Error("Please sign in again."); }
+        if (!r.ok) return r.json().catch(function(){ return {}; }).then(function(d){ throw new Error(d.error || "Could not make that PDF."); });
+        return r.blob();
+      })
+      .then(function(blob){
+        var u = URL.createObjectURL(blob);
+        if (win) win.location = u; else { var a = document.createElement("a"); a.href = u; a.download = "SkyTransfers-Confirmation.pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+        setTimeout(function(){ URL.revokeObjectURL(u); }, 60000);
+      })
+      .catch(function(err){ if (win) win.close(); show($("c-msg"), err.message); });
+  });
   function editAccountJob(ref){
     api("/ops/job?ref=" + encodeURIComponent(ref)).then(function(d){ accountForm(d.job); openTab("account"); window.scrollTo({ top: 0 }); })
       .catch(function(err){ show($("j-msg"), err.message); });
@@ -1125,7 +1215,7 @@
       price: A("price").value, pickup: A("pickup").value, dropoff: A("dropoff").value, vehicle: A("vehicle").value,
       date: A("date").value, time: A("time").value, flight: A("flight").value, hours: A("hours").value,
       returnDate: A("rdate").value, returnTime: A("rtime").value, returnFlight: A("rflight").value,
-      name: A("name").value, phone: A("phone").value, pax: A("pax").value, childSeats: A("seats").value,
+      name: A("name").value, phone: A("phone").value, email: A("email").value, pax: A("pax").value, childSeats: A("seats").value,
       address: A("address").value, notes: A("notes").value, trailer: A("trailer").checked, stops: A("stops").value } })
       .then(function(d){
         var said = (A("ref").value ? "Saved " : "On the board as ") + d.ref + " for " + niceDate(A("date").value) + " — assign a driver below.";
@@ -1166,6 +1256,7 @@
     ["flight", /^(flight|flight no|flight number|flight #|arrival flight|departure flight)$/],
     ["name", /^(name|passenger|passenger name|guest|guest name|lead|lead passenger|lead name|client name|pax name)$/],
     ["phone", /^(phone|mobile|contact|contact number|phone number|mobile number|tel|cell)$/],
+    ["email", /^(email|e-mail|email address|guest email|passenger email)$/],
     ["price", /^(price|rate|cost|amount|fare|total|charge|quote)$/],
     ["notes", /^(notes|note|remarks|comments|special requests|instructions)$/],
     ["address", /^(address|hotel|accommodation)$/],
@@ -1216,7 +1307,8 @@
     put("pax", got.pax ? (String(got.pax).match(/\d+/) || [""])[0] : "");
     put("vehicle", got.vehicle ? parseVehicle(got.vehicle) : "");
     put("pickup", got.pickup); put("dropoff", got.dropoff); put("flight", got.flight ? got.flight.toUpperCase().replace(/\s+/g, "") : "");
-    put("name", got.name); put("phone", got.phone); put("address", got.address); put("notes", got.notes);
+    put("name", got.name); put("phone", got.phone); put("email", got.email ? (String(got.email).match(/[^\s<>()]+@[^\s<>()]+/) || [""])[0] : "");
+    put("address", got.address); put("notes", got.notes);
     put("price", got.price ? (String(got.price).replace(/,/g, "").match(/\d+(\.\d+)?/) || [""])[0] : "");
     put("hours", got.hours ? (String(got.hours).match(/\d+/) || [""])[0] : "");
     $("a-fill-msg").textContent = filled.length
