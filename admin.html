@@ -116,6 +116,22 @@
   .attn li.bad{border-left-color:var(--err)}
   .attn li.ok{border-left-color:var(--ok)}
   .attn b{color:var(--ink)}
+  /* ---- sections as tabs ---- */
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 18px;padding:5px;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;box-shadow:var(--shadow)}
+  /* sticky only where it is one row; wrapped on a phone it would eat the screen */
+  @media (min-width:760px){ .tabs{position:sticky;top:0;z-index:5} }
+  .tabs button{flex:1 1 auto;border:0;background:none;padding:9px 14px;border-radius:7px;font:inherit;font-size:14.5px;
+    font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tabs button:hover{color:var(--ink);background:var(--gold-soft)}
+  .tabs button[aria-selected="true"]{background:var(--navy);color:var(--navy-text)}
+  .tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  .tabs .badge{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--gold);
+    color:#141D30;font-size:12px;line-height:20px;text-align:center}
+  @media (max-width:560px){ .tabs button{flex:1 1 30%;padding:8px 6px;font-size:13.5px} }
+  .pane-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+  .pane-head h2{margin:0}
+  .cta.small{display:inline-block;width:auto;padding:9px 16px;font-size:14.5px}
   [hidden]{display:none!important}
 </style>
 </head>
@@ -144,12 +160,16 @@
 
   <div id="admin" hidden>
 
-    <div id="new-pin" class="pinbox" hidden>
-      <div class="lbl">PIN for <span id="pin-for"></span></div>
-      <div class="val" id="pin-val"></div>
-      <p>Write this down and give it to the agent now — it is not shown again. You can always issue a new one.</p>
-    </div>
+    <nav class="tabs" role="tablist" aria-label="Admin sections">
+      <button type="button" role="tab" data-tab="dash">Dashboard</button>
+      <button type="button" role="tab" data-tab="web">Website bookings<span class="badge" id="tab-web-n" hidden title="Awaiting an answer"></span></button>
+      <button type="button" role="tab" data-tab="new">New booking</button>
+      <button type="button" role="tab" data-tab="agents">Agents</button>
+      <button type="button" role="tab" data-tab="gallery">Photo gallery</button>
+      <button type="button" role="tab" data-tab="records">Old records</button>
+    </nav>
 
+    <div class="pane" data-pane="dash" role="tabpanel">
     <section class="card" id="dash-card">
       <h2>Dashboard</h2>
       <div id="dash-msg" class="msg" hidden></div>
@@ -183,8 +203,12 @@
       <p class="muted" style="margin:14px 0 0">Revenue is the value of trips by travel date, GST included, as on the dispatch board (a return counts each leg). It isn't cash received. Margin is revenue less driver pay, before fuel, tolls and other running costs. Own fleet means an employee in one of our cars; subcontracted means a subcontractor, or any driver in a subcontractor's car.</p>
     </section>
 
+    </div>
+
+    <div class="pane" data-pane="web" role="tabpanel" hidden>
     <section class="card" id="web-card">
-      <h2>Website bookings</h2>
+      <div class="pane-head"><h2>Website bookings</h2>
+        <button type="button" class="cta small" data-goto="new">+ New booking for a guest</button></div>
       <div id="web-msg" class="msg" hidden></div>
       <p class="muted" id="web-summary" style="margin:0 0 14px">Loading&hellip;</p>
       <div class="row3" style="margin-bottom:12px">
@@ -216,8 +240,18 @@
       </p>
     </section>
 
+    </div>
+
+    <div class="pane" data-pane="agents" role="tabpanel" hidden>
+    <div id="new-pin" class="pinbox" hidden>
+      <div class="lbl">PIN for <span id="pin-for"></span></div>
+      <div class="val" id="pin-val"></div>
+      <p>Write this down and give it to the agent now — it is not shown again. You can always issue a new one.</p>
+    </div>
+
     <section class="card">
-      <h2>Agents</h2>
+      <div class="pane-head"><h2>Agents</h2>
+        <button type="button" class="cta small" id="agents-add">+ Add an agent</button></div>
       <div id="list-msg" class="msg" hidden></div>
       <div class="scroll">
         <table>
@@ -296,6 +330,9 @@
       <p style="margin:14px 0 0"><button class="linkbtn" id="close-staff">Close</button></p>
     </section>
 
+    </div>
+
+    <div class="pane" data-pane="new" role="tabpanel" hidden>
     <section class="card" id="nb-card">
       <h2>New booking for a guest</h2>
       <div id="nb-msg" class="msg" hidden></div>
@@ -380,6 +417,9 @@
       <p style="margin:0"><button class="cta" id="nb-submit">Book it and send the confirmation</button></p>
     </section>
 
+    </div>
+
+    <div class="pane" data-pane="gallery" role="tabpanel" hidden>
     <section class="card" id="gallery-card">
       <h2>Vehicle photo gallery</h2>
       <div id="gal-msg" class="msg" hidden></div>
@@ -407,6 +447,9 @@
       <p style="margin:12px 0 0"><button class="linkbtn" id="gal-refresh">Refresh the list</button></p>
     </section>
 
+    </div>
+
+    <div class="pane" data-pane="records" role="tabpanel" hidden>
     <section class="card" id="ret-card">
       <h2>Old enquiry records</h2>
       <div id="ret-msg" class="msg" hidden></div>
@@ -430,6 +473,8 @@
       <p id="ret-actions" style="margin:14px 0 0"></p>
     </section>
 
+    </div>
+
     <p><button class="linkbtn" id="signout">Sign out</button></p>
   </div>
 </div>
@@ -438,6 +483,50 @@
 (function(){
   "use strict";
   var API = "https://sky-transfers-booking-server.onrender.com";
+
+  /* ---- sections as tabs (25 Oct 2026) ----
+     One section at a time instead of one long page. The tab is in the
+     address (#web, #agents...) and remembered in this browser. Anything that
+     jumps to a card - Amend, Edit, Bookings, Staff, a new PIN - calls
+     reveal() first, so the card is never on a hidden tab. */
+  var TABS = ["dash", "web", "new", "agents", "gallery", "records"];
+  function showTab(name, keepScroll){
+    if (TABS.indexOf(name) === -1) name = "dash";
+    Array.prototype.forEach.call(document.querySelectorAll(".pane"), function(p){ p.hidden = p.getAttribute("data-pane") !== name; });
+    Array.prototype.forEach.call(document.querySelectorAll(".tabs [data-tab]"), function(b){
+      var on = b.getAttribute("data-tab") === name;
+      b.setAttribute("aria-selected", on ? "true" : "false"); b.tabIndex = on ? 0 : -1;
+    });
+    try { localStorage.setItem("sky_admin_tab", name); } catch (e) {}
+    try { if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name); } catch (e) {}
+    if (!keepScroll) window.scrollTo({ top: 0 });
+  }
+  function reveal(el){
+    var p = el && el.closest ? el.closest(".pane") : null;
+    if (p && p.hidden) showTab(p.getAttribute("data-pane"), true);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".tabs [data-tab]"), function(b){
+    b.addEventListener("click", function(){ showTab(b.getAttribute("data-tab")); });
+    b.addEventListener("keydown", function(e){
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var i = TABS.indexOf(b.getAttribute("data-tab")) + (e.key === "ArrowRight" ? 1 : -1);
+      var next = TABS[(i + TABS.length) % TABS.length]; showTab(next, true);
+      document.querySelector('.tabs [data-tab="' + next + '"]').focus();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-goto]"), function(b){
+    b.addEventListener("click", function(){ showTab(b.getAttribute("data-goto")); });
+  });
+  document.getElementById("agents-add").addEventListener("click", function(){
+    var f = document.getElementById("f-code");
+    f.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(function(){ f.focus(); }, 350);
+  });
+  (function(){
+    var start = String(location.hash || "").slice(1), saved = null;
+    try { saved = localStorage.getItem("sky_admin_tab"); } catch (e) {}
+    showTab(TABS.indexOf(start) !== -1 ? start : saved, true);
+  })();
+  window.addEventListener("hashchange", function(){ var h = String(location.hash || "").slice(1); if (TABS.indexOf(h) !== -1) showTab(h, true); });
   var $ = function(id){ return document.getElementById(id); };
   var money = function(n){ return "$" + Number(n || 0).toFixed(2); };
 
@@ -806,7 +895,7 @@
       var st = b.stops || [];
       $("nb-stop1").value = st[0] || ""; $("nb-stop2").value = st[1] || ""; $("nb-stop3").value = st[2] || "";
       setAmend(b.ref, b);
-      card.scrollIntoView({ behavior: "smooth", block: "start" });
+      reveal(card); card.scrollIntoView({ behavior: "smooth", block: "start" });
     };
     $("nb-submit").addEventListener("click", function(){
       var btn = this;
@@ -864,6 +953,8 @@
           if (sum[k]) parts.push(sum[k].count + " " + webLabel(k).toLowerCase() +
                                  " ($" + Number(sum[k].total).toFixed(0) + ")");
         });
+        var waiting = sum.requested ? sum.requested.count : 0, badge = $("tab-web-n");
+        if (!st || st === "requested") { badge.hidden = !waiting; badge.textContent = waiting || ""; }
         $("web-summary").textContent = parts.length ? parts.join("  \u00b7  ")
           : "No website bookings recorded yet.";
         var tb = $("web-rows"); tb.innerHTML = "";
@@ -1265,7 +1356,7 @@
     $("save-btn").textContent = "Save changes";
     $("clear-wrap").hidden = false;
     show($("form-msg"), "");
-    $("f-name").scrollIntoView({ behavior: "smooth", block: "center" });
+    reveal($("f-name")); $("f-name").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function clearForm(){
@@ -1284,7 +1375,7 @@
     $("pin-for").textContent = code;
     $("pin-val").textContent = pin;
     $("new-pin").hidden = false;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    reveal($("new-pin")); $("new-pin").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   $("save-btn").addEventListener("click", function(){
@@ -1359,7 +1450,7 @@
         });
       }
       $("bookings-card").hidden = false;
-      $("bookings-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      reveal($("bookings-card")); $("bookings-card").scrollIntoView({ behavior: "smooth", block: "start" });
     }).catch(function(err){ show($("list-msg"), err.message); });
   }
   $("web-refresh").addEventListener("click", loadWeb);
@@ -1372,7 +1463,7 @@
     $("staff-pin-for").textContent = name + " (" + staffAgent.code + ")";
     $("staff-pin-val").textContent = pin;
     $("staff-pin").hidden = false;
-    $("staff-pin").scrollIntoView({ behavior: "smooth", block: "center" });
+    reveal($("staff-pin")); $("staff-pin").scrollIntoView({ behavior: "smooth", block: "center" });
   }
   function staffCall(path, body, done){
     show($("staff-msg"), "");
@@ -1388,7 +1479,7 @@
     show($("staff-msg"), "");
     loadStaff().then(function(){
       $("staff-card").hidden = false;
-      $("staff-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      reveal($("staff-card")); $("staff-card").scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
   function shortWhen(v){ return v ? String(v).slice(8, 10) + "/" + String(v).slice(5, 7) + "/" + String(v).slice(0, 4) : "never"; }
