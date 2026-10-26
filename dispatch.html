@@ -642,7 +642,10 @@
 
   /* Same session as admin.html - signing in on one signs in on both. */
   var token = null;
-  try { token = sessionStorage.getItem("sky_admin_token"); } catch (e) {}
+  /* kept in localStorage so every tab shares one sign-in, for the week the
+     server allows (Aman, 26 Oct 2026); sessionStorage is still read once so a
+     tab signed in before this change stays in */
+  try { token = localStorage.getItem("sky_admin_token") || sessionStorage.getItem("sky_admin_token"); } catch (e) {}
   function api(path, opts){
     opts = opts || {};
     var headers = { "Content-Type": "application/json" };
@@ -661,13 +664,13 @@
     var btn = $("login-btn"); btn.disabled = true; btn.textContent = "Signing in…";
     show($("login-msg"), "");
     api("/admin/login", { method: "POST", body: { pin: $("pin").value } }).then(function(d){
-      token = d.token; try { sessionStorage.setItem("sky_admin_token", token); } catch (e) {}
+      token = d.token; try { localStorage.setItem("sky_admin_token", token); } catch (e) {}
       $("pin").value = ""; enter();
     }).catch(function(err){ show($("login-msg"), err.message); })
       .then(function(){ btn.disabled = false; btn.textContent = "Sign in"; });
   });
   function signOut(){
-    token = null; try { sessionStorage.removeItem("sky_admin_token"); } catch (e) {}
+    token = null; try { localStorage.removeItem("sky_admin_token"); sessionStorage.removeItem("sky_admin_token"); } catch (e) {}
     $("app").hidden = true; $("signin").hidden = false; $("who").hidden = true;
   }
 
