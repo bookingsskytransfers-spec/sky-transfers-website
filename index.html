@@ -45,8 +45,9 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "TaxiService",
+  "@type": "LocalBusiness",
   "@id": "https://www.skytransfers.com.au/#business",
+  "description": "Private chauffeur and fixed-price airport transfer service for the Gold Coast and Brisbane - Gold Coast and Brisbane airports, the cruise terminal, charters and tours.",
   "name": "Sky Transfers",
   "alternateName": "Australia Wide Car Services Pty Ltd trading as Sky Transfers",
   "url": "https://www.skytransfers.com.au/",
@@ -1117,7 +1118,11 @@ var VEH_FINE_DEFAULT = ($("veh-fine") || {}).textContent || "";
    Ads account 788-206-5168 — if an action is recreated there, its label
    changes and must be updated here. */
 var ADS_CONVERSIONS = {
-  booking_request: "AW-18399667511/EeMQCNyDv-QcELfK0sVE"   /* submit_lead_form */
+  booking_request: "AW-18399667511/EeMQCNyDv-QcELfK0sVE",   /* submit_lead_form */
+  /* the account's "Phone click (website)" and "WhatsApp click (website)"
+     conversions existed but nothing sent them (Aman, 26 Oct 2026) */
+  contact_phone: "AW-18399667511/iNX7CNuTsagdELfK0sVE",
+  contact_whatsapp: "AW-18399667511/oZaJCN6TsagdELfK0sVE"
 };
 function track(event, params){
   try {
