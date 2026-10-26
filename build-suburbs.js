@@ -1408,7 +1408,81 @@ const longDate = (iso) => {
   return `${Number(m[3])} ${months[Number(m[2]) - 1]} ${m[1]}`;
 };
 
-function blogPage(a, dateIso, dateText) {
+/* ---- fixes to fed articles (26 Oct 2026, after an audit of all of them) ----
+   Applied here, at build time, so an article the content service sends again
+   cannot undo them, and every future article gets the same treatment.
+   1. Its "Book" buttons all pointed at the bare homepage. They now open the
+      booking form with the article's own route filled in (index.html reads
+      ?pu= and ?do= and accepts only names on its own place list).
+   2. Links the service aimed at the wrong page are re-pointed, by the
+      article and the link's words; one wrong fare is corrected.
+   3. Each article ends with links to suburb pages for its area and to three
+      other articles, so no article is left with nothing pointing at it. */
+const BOOK_END = { bne: 'Brisbane Airport (BNE)', ool: 'Gold Coast Airport (OOL)', cruise: 'Brisbane Cruise Terminal (Pinkenba)',
+                   cbd: 'Brisbane CBD', surfers: 'Surfers Paradise' };
+function bookLinkFor(a) {
+  const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
+  const link = (pu, dro) => '/?' + [pu ? 'pu=' + encodeURIComponent(BOOK_END[pu]) : '', dro ? 'do=' + encodeURIComponent(BOOK_END[dro]) : '']
+    .filter(Boolean).join('&') + '#book';
+  if (/cruise/.test(t)) return link('bne', 'cruise');
+  if (/gold.coast.to.brisbane/.test(t)) return link(null, 'bne');
+  if (/brisbane/.test(t) && /\bcity\b|cbd/.test(t)) return link('bne', 'cbd');
+  if (/brisbane/.test(t) && !/gold.coast/.test(t)) return link('bne', null);
+  if (/gold.coast|surfers|coolangatta|ool\b/.test(t)) return link('ool', /surfers|hotel/.test(t) ? 'surfers' : null);
+  return '/#book';
+}
+/* [article slug, the link's words, where it should go] */
+const ARTICLE_LINK_FIX = [
+  ['gold-coast-airport-chauffeur-with-meet-and-greet', 'Brisbane or the Cruise Terminal', '/cruise-transfers.html'],
+  ['real-time-flight-tracking-airport-transfers', 'airport transfers', '/airport-transfers/'],
+  ['guaranteed-on-time-airport-chauffeur-service-guide', 'Gold Coast and Brisbane suburbs', '/airport-transfers/'],
+  ['avoid-surge-pricing-airport-rides', 'airport ride', '/gold-coast-airport-transfers.html'],
+  ['fixed-price-airport-transfers-brisbane-benefits', 'Brisbane Airport', '/brisbane-airport-transfers.html'],
+  ['seamless-airport-transfers-for-cruise-passengers', 'Brisbane airport to cruise terminal transfer', '/blog/brisbane-airport-to-cruise-terminal.html'],
+  ['gold-coast-airport-transfer-car-seats', 'gold coast airport transfer car', '/child-seats.html'],
+  ['how-to-book-reliable-airport-transfers', 'airport transfers', '/airport-transfers/'],
+];
+/* [article slug, exact words, the words that replace them] */
+const ARTICLE_TEXT_FIX = [
+  ['brisbane-airport-chauffeur-to-city', 'with indicative sedan fares of $90-$140 one way', 'with a fixed sedan fare of $95 one way'],
+  ['brisbane-airport-chauffeur-to-city', '>$90-$140</td>', '>$95 (fixed)</td>'],
+];
+function fixArticle(a) {
+  let h = String(a.content_html || '');
+  const strip = (x) => x.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+  h = h.replace(/(<a\b[^>]*?href=)(["'])\s*https?:\/\/(?:www\.)?skytransfers\.com\.au\/?\s*\2/gi, (m, pre, q) => pre + q + esc(bookLinkFor(a)) + q);
+  for (const [slug, words, to] of ARTICLE_LINK_FIX) {
+    if (slug !== a.slug) continue;
+    h = h.replace(/<a\b([^>]*?)href=(["'])[^"']*\2([^>]*)>([\s\S]*?)<\/a>/gi,
+      (m, pre, q, post, inner) => (strip(inner) === words.toLowerCase() ? '<a' + pre + 'href=' + q + to + q + post + '>' + inner + '</a>' : m));
+  }
+  for (const [slug, find, rep] of ARTICLE_TEXT_FIX) if (slug === a.slug) h = h.split(find).join(rep);
+  return h;
+}
+const AREA_PLACES = {
+  'Gold Coast': ['Surfers Paradise', 'Broadbeach', 'Main Beach', 'Burleigh Heads', 'Coolangatta', 'Southport'],
+  'Brisbane': ['Brisbane CBD', 'Fortitude Valley', 'South Brisbane', 'Hamilton', 'Chermside', 'Springfield'],
+};
+function relatedBlock(a, all) {
+  const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
+  const areas = /cruise|brisbane/.test(t) && !/gold.coast/.test(t) ? ['Brisbane'] : /gold.coast|surfers|coolangatta/.test(t) && !/brisbane/.test(t) ? ['Gold Coast'] : ['Gold Coast', 'Brisbane'];
+  const per = areas.length === 1 ? 6 : 3;
+  const sub = areas.flatMap((ar) => AREA_PLACES[ar].map((n) => places.find((p) => p.name === n)).filter(Boolean).slice(0, per));
+  const links = sub.map((p) => `<a href="${esc(p.url)}">${esc(p.name)} airport transfers<span>Fixed fares, both airports</span></a>`);
+  if (/seat|famil|child|kid/.test(t)) links.unshift('<a href="/child-seats.html">Child and baby seats<span>Fitted for you, booked online</span></a>');
+  const i = all.findIndex((x) => x.slug === a.slug);
+  const more = all.length > 1 ? [1, 2, 3].map((k) => all[(i + k) % all.length]).filter((x, j, arr) => x.slug !== a.slug && arr.findIndex((y) => y.slug === x.slug) === j) : [];
+  return `
+  <h2>Keep reading</h2>
+  <div class="related">
+    ${links.join('\n    ')}
+  </div>
+  ${more.length ? `<div class="related">
+    ${more.map((x) => `<a href="/blog/${esc(x.slug)}.html">${esc(x.title || x.slug)}<span>Travel guide</span></a>`).join('\n    ')}
+  </div>` : ''}`;
+}
+
+function blogPage(a, dateIso, dateText, all) {
   const url = `/blog/${a.slug}.html`;
   const title = a.meta_title || a.title || 'Article';
   const desc = a.meta_description || a.subtitle || '';
@@ -1449,7 +1523,8 @@ ${NAV}
 <div class="lp lp-narrow">
   <p class="fine"><a href="/blog/">&larr; All articles</a>${dateText ? ` &middot; Published ${dateText}` : ''}${a.read_time ? ` &middot; ${esc(a.read_time)}` : ''}</p>
 
-${safeHtml(a.content_html)}
+${safeHtml(fixArticle(a))}
+${relatedBlock(a, all || [])}
 
   <h2>Booking a transfer</h2>
   <div class="related">
@@ -1486,6 +1561,9 @@ async function writeBlog() {
   const committed = new Set(fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith('.html')));
   const cards = [], written = [];
   let skipped = 0;
+  /* every feed article, for the "Keep reading" links at the foot of each */
+  const related = list.map((x) => ({ slug: blogSlug(x.slug), title: x.title || '' }))
+    .filter((x) => x.slug && !committed.has(x.slug + '.html'));
 
   for (const a of list) {
     const slug = blogSlug(a.slug);
@@ -1494,7 +1572,7 @@ async function writeBlog() {
     if (committed.has(file)) { skipped++; console.warn(`build-suburbs: /blog/${file} is hand-written, feed copy skipped`); continue; }
     const dateIso = /^\d{4}-\d{2}-\d{2}$/.test(String(a.published_on || '')) ? a.published_on : null;
     const dateText = longDate(dateIso);
-    fs.writeFileSync(path.join(BLOG_DIR, file), blogPage({ ...a, slug }, dateIso, dateText));
+    fs.writeFileSync(path.join(BLOG_DIR, file), blogPage({ ...a, slug }, dateIso, dateText, related));
     written.push({ slug, lastmod: dateIso || LASTMOD });
     cards.push(`  <article class="post-card">
     ${dateText ? `<p class="post-date"><time datetime="${esc(dateIso)}">${esc(dateText)}</time></p>` : ''}
