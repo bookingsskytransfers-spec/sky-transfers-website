@@ -520,6 +520,9 @@
     try {
       var data = params || {};
       if (typeof window.gtag === "function") window.gtag("event", event, data);
+      /* a phone or WhatsApp tap is also a Google Ads conversion (26 Oct 2026) */
+      var ads = { contact_phone: "AW-18399667511/iNX7CNuTsagdELfK0sVE", contact_whatsapp: "AW-18399667511/oZaJCN6TsagdELfK0sVE" }[event];
+      if (ads && typeof window.gtag === "function") window.gtag("event", "conversion", { send_to: ads, value: 1.0, currency: "AUD" });
       if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
     } catch (e) {}
   }

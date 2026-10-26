@@ -479,6 +479,9 @@ const FOOTER = `<footer class="site">
     try {
       var data = params || {};
       if (typeof window.gtag === "function") window.gtag("event", event, data);
+      /* a phone or WhatsApp tap is also a Google Ads conversion (26 Oct 2026) */
+      var ads = { contact_phone: "AW-18399667511/iNX7CNuTsagdELfK0sVE", contact_whatsapp: "AW-18399667511/oZaJCN6TsagdELfK0sVE" }[event];
+      if (ads && typeof window.gtag === "function") window.gtag("event", "conversion", { send_to: ads, value: 1.0, currency: "AUD" });
       if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
     } catch (e) {}
   }
@@ -1420,10 +1423,26 @@ const longDate = (iso) => {
       other articles, so no article is left with nothing pointing at it. */
 const BOOK_END = { bne: 'Brisbane Airport (BNE)', ool: 'Gold Coast Airport (OOL)', cruise: 'Brisbane Cruise Terminal (Pinkenba)',
                    cbd: 'Brisbane CBD', surfers: 'Surfers Paradise' };
+/* The audit's own choice of route per article (26 Oct 2026); any article not
+   listed falls back to the keyword guess below. */
+const BOOK_ROUTE = {
+  'avoid-surge-pricing-airport-rides': [null, 'bne'], 'book-private-airport-transfer-gold-coast': ['ool', 'surfers'],
+  'booking-private-transport-brisbane-cruise-terminal': ['bne', 'cruise'], 'brisbane-airport-chauffeur-to-city': ['bne', 'cbd'],
+  'early-morning-brisbane-airport-transfer': [null, 'bne'], 'fixed-price-airport-transfers-brisbane-benefits': [null, 'bne'],
+  'gold-coast-airport-chauffeur-with-meet-and-greet': ['ool', null], 'gold-coast-airport-transfer-car-seats': ['ool', 'surfers'],
+  'gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel': ['ool', 'surfers'],
+  'gold-coast-airport-transport-options-with-luggage': ['ool', null], 'guaranteed-on-time-airport-chauffeur-service-guide': [null, 'bne'],
+  'how-to-book-reliable-airport-transfers': [null, null], 'real-time-flight-tracking-airport-transfers': ['bne', null],
+  'reliable-airport-pickup-brisbane-flight-tracking': ['bne', null], 'safe-airport-transport-for-families': ['ool', null],
+  'seamless-airport-transfers-for-cruise-passengers': ['bne', 'cruise'], 'what-happens-if-flight-delayed': ['bne', null],
+  'wheelchair-airport-transfers-chauffeur-service': [null, null],
+};
 function bookLinkFor(a) {
   const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
   const link = (pu, dro) => '/?' + [pu ? 'pu=' + encodeURIComponent(BOOK_END[pu]) : '', dro ? 'do=' + encodeURIComponent(BOOK_END[dro]) : '']
     .filter(Boolean).join('&') + '#book';
+  const r = BOOK_ROUTE[a.slug];
+  if (r) return r[0] || r[1] ? link(r[0], r[1]) : '/#book';
   if (/cruise/.test(t)) return link('bne', 'cruise');
   if (/gold.coast.to.brisbane/.test(t)) return link(null, 'bne');
   if (/brisbane/.test(t) && /\bcity\b|cbd/.test(t)) return link('bne', 'cbd');
@@ -1431,31 +1450,55 @@ function bookLinkFor(a) {
   if (/gold.coast|surfers|coolangatta|ool\b/.test(t)) return link('ool', /surfers|hotel/.test(t) ? 'surfers' : null);
   return '/#book';
 }
-/* [article slug, the link's words, where it should go] */
+/* [article slug, the link's words, where it should go, and - when the same
+   words appear more than once - the page it wrongly points at now]. From the
+   26 Oct 2026 audit (Downloads/Sky-Website-Audit-for-Claude.txt). */
 const ARTICLE_LINK_FIX = [
   ['gold-coast-airport-chauffeur-with-meet-and-greet', 'Brisbane or the Cruise Terminal', '/cruise-transfers.html'],
-  ['real-time-flight-tracking-airport-transfers', 'airport transfers', '/airport-transfers/'],
+  ['real-time-flight-tracking-airport-transfers', 'airport transfers', '/brisbane-airport-transfers.html'],
   ['guaranteed-on-time-airport-chauffeur-service-guide', 'Gold Coast and Brisbane suburbs', '/airport-transfers/'],
-  ['avoid-surge-pricing-airport-rides', 'airport ride', '/gold-coast-airport-transfers.html'],
-  ['fixed-price-airport-transfers-brisbane-benefits', 'Brisbane Airport', '/brisbane-airport-transfers.html'],
+  ['guaranteed-on-time-airport-chauffeur-service-guide', 'private transfer', '/chauffeur-service.html'],
+  ['avoid-surge-pricing-airport-rides', 'airport ride', '/brisbane-airport-transfers.html'],
+  ['avoid-surge-pricing-airport-rides', 'fixed-price airport', '/blog/fixed-price-airport-transfers-brisbane-benefits.html'],
+  ['fixed-price-airport-transfers-brisbane-benefits', 'Brisbane Airport', '/brisbane-airport-transfers.html', '/blog/early-morning-brisbane-airport-transfer'],
+  ['fixed-price-airport-transfers-brisbane-benefits', 'corporate function', '/corporate-transfers.html'],
   ['seamless-airport-transfers-for-cruise-passengers', 'Brisbane airport to cruise terminal transfer', '/blog/brisbane-airport-to-cruise-terminal.html'],
-  ['gold-coast-airport-transfer-car-seats', 'gold coast airport transfer car', '/child-seats.html'],
-  ['how-to-book-reliable-airport-transfers', 'airport transfers', '/airport-transfers/'],
+  ['how-to-book-reliable-airport-transfers', 'airport transfers', '/brisbane-airport-transfers.html'],
+  ['how-to-book-reliable-airport-transfers', 'airport transfer', '/gold-coast-airport-transfers.html'],
+  ['book-private-airport-transfer-gold-coast', 'Gold Coast Airport', '/gold-coast-airport-transfers.html', '/blog/gold-coast-airport-transfer-car-seats'],
+  ['brisbane-airport-chauffeur-to-city', 'Brisbane Airport', '/brisbane-airport-transfers.html', '/blog/brisbane-airport-to-cruise-terminal'],
+  ['early-morning-brisbane-airport-transfer', 'Brisbane Airport', '/brisbane-airport-transfers.html', '/blog/brisbane-airport-domestic-or-international-pickup'],
+  ['reliable-airport-pickup-brisbane-flight-tracking', 'airport transfers', '/brisbane-airport-transfers.html'],
+];
+/* outbound links that went somewhere unhelpful, in any article */
+const ARTICLE_HREF_FIX = [
+  ['https://www.airservicesaustralia.com/careers/air-traffic-control-careers/', 'https://www.airservicesaustralia.com/tag/delays/'],
+  ['https://streetsmarts.initiatives.qld.gov.au/road-rules/child-restraints', 'https://www.qld.gov.au/transport/safety/rules/children'],
 ];
 /* [article slug, exact words, the words that replace them] */
 const ARTICLE_TEXT_FIX = [
   ['brisbane-airport-chauffeur-to-city', 'with indicative sedan fares of $90-$140 one way', 'with a fixed sedan fare of $95 one way'],
   ['brisbane-airport-chauffeur-to-city', '>$90-$140</td>', '>$95 (fixed)</td>'],
+  ['brisbane-airport-chauffeur-to-city', '>$140-$220</td>', '>$110 people mover (fixed)</td>'],
 ];
 function fixArticle(a) {
   let h = String(a.content_html || '');
   const strip = (x) => x.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
   h = h.replace(/(<a\b[^>]*?href=)(["'])\s*https?:\/\/(?:www\.)?skytransfers\.com\.au\/?\s*\2/gi, (m, pre, q) => pre + q + esc(bookLinkFor(a)) + q);
-  for (const [slug, words, to] of ARTICLE_LINK_FIX) {
+  const bare = (u) => String(u || '').replace(/^https?:\/\/(www\.)?skytransfers\.com\.au/i, '').replace(/\.html$/, '');
+  for (const [slug, words, to, was] of ARTICLE_LINK_FIX) {
     if (slug !== a.slug) continue;
-    h = h.replace(/<a\b([^>]*?)href=(["'])[^"']*\2([^>]*)>([\s\S]*?)<\/a>/gi,
-      (m, pre, q, post, inner) => (strip(inner) === words.toLowerCase() ? '<a' + pre + 'href=' + q + to + q + post + '>' + inner + '</a>' : m));
+    h = h.replace(/<a\b([^>]*?)href=(["'])([^"']*)\2([^>]*)>([\s\S]*?)<\/a>/gi,
+      (m, pre, q, href, post, inner) => (strip(inner) === words.toLowerCase() && (!was || bare(href) === was)
+        ? '<a' + pre + 'href=' + q + to + q + post + '>' + inner + '</a>' : m));
   }
+  for (const [from, to] of ARTICLE_HREF_FIX) h = h.split('href="' + from + '"').join('href="' + to + '"');
+  /* /blog/<slug> without .html is a duplicate of the real page */
+  h = h.replace(/href=(["'])(?:https?:\/\/(?:www\.)?skytransfers\.com\.au)?\/blog\/([a-z0-9-]+)\1/gi, 'href=$1/blog/$2.html$1');
+  /* "Add skytransfers.com.au as a preferred source on Google": an outbound
+     link sitting above the booking button - out */
+  h = h.replace(/<p\b[^>]*>\s*<a\b[^>]*google\.com\/preferences\/source[^>]*>[\s\S]*?<\/a>\s*<\/p>/gi, '')
+       .replace(/<a\b[^>]*google\.com\/preferences\/source[^>]*>[\s\S]*?<\/a>/gi, '');
   for (const [slug, find, rep] of ARTICLE_TEXT_FIX) if (slug === a.slug) h = h.split(find).join(rep);
   return h;
 }
