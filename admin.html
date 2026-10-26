@@ -531,7 +531,10 @@
   var money = function(n){ return "$" + Number(n || 0).toFixed(2); };
 
   var token = null;
-  try { token = sessionStorage.getItem("sky_admin_token"); } catch (e) {}
+  /* kept in localStorage so every tab shares one sign-in, for the week the
+     server allows (Aman, 26 Oct 2026); sessionStorage is still read once so a
+     tab signed in before this change stays in */
+  try { token = localStorage.getItem("sky_admin_token") || sessionStorage.getItem("sky_admin_token"); } catch (e) {}
   var editingCode = null;
 
   function show(el, msg, ok){
@@ -566,7 +569,7 @@
     api("/admin/login", { method: "POST", body: { pin: $("pin").value } })
       .then(function(d){
         token = d.token;
-        try { sessionStorage.setItem("sky_admin_token", token); } catch (e) {}
+        try { localStorage.setItem("sky_admin_token", token); } catch (e) {}
         $("pin").value = "";
         enter();
       })
@@ -576,7 +579,7 @@
 
   function signOut(){
     token = null;
-    try { sessionStorage.removeItem("sky_admin_token"); } catch (e) {}
+    try { localStorage.removeItem("sky_admin_token"); sessionStorage.removeItem("sky_admin_token"); } catch (e) {}
     $("admin").hidden = true;
     $("signin").hidden = false;
     $("who").hidden = true;
