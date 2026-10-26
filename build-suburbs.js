@@ -753,6 +753,7 @@ ${faqs.map(([q, a]) => `  <details>\n    <summary>${q}</summary>\n    <p>${a}</p
   <div class="related">
 ${neighbours.map(q => `    <a href="${q.url}">${esc(q.name)}<span>From $${q.from}</span></a>`).join('\n')}
   </div>` : ''}
+  <!--guides:auto--><!--/guides:auto-->
   <p class="fare-note">
     ${z.region === 'Gold Coast' ? `<a href="/gold-coast-airport-transfers.html">Gold Coast Airport transfers</a> &middot; ` : ''}${p.fares.bne ? `<a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a> &middot; ` : ''}<a href="/${DIR}/">All suburbs</a> &middot; <a href="/prices.html">Full price list</a>
   </p>
@@ -1678,6 +1679,61 @@ const withFacts = places.filter(p => p.facts && (p.facts.bne || p.facts.ool)).le
 console.log(`build-suburbs: ${written} suburb pages + hub written to ${DIR}/, ${REGIONS.length} region pages at the root, ${withFacts} with measured drive times; sitemap now has ${(sm.match(/<loc>/g) || []).length} URLs`);
 if (written !== places.length) { console.error('build-suburbs: page count mismatch'); process.exit(1); }
 
+/* ---- links from the main pages to the articles (26 Oct 2026, audit "Fix D") ----
+   Each page below carries a <!--guides:auto--> marker (the suburb pages too);
+   after the articles are written it is filled with links to the ones listed
+   for that page that actually exist in /blog/ right now - so an article the
+   content service removes can never leave a broken link behind, and a page
+   whose articles are all missing simply shows nothing. */
+const GUIDES = {
+  'gold-coast-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'gold-coast-airport-transfer-car-seats', 'gold-coast-airport-transport-options-with-luggage'],
+  'brisbane-airport-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'early-morning-brisbane-airport-transfer', 'reliable-airport-pickup-brisbane-flight-tracking', 'what-happens-if-flight-delayed'],
+  'brisbane-airport-to-gold-coast.html': ['gold-coast-to-brisbane-airport-what-time-to-leave', 'fixed-price-airport-transfers-brisbane-benefits'],
+  'cheapest-gold-coast-to-brisbane-airport.html': ['gold-coast-to-brisbane-airport-what-time-to-leave', 'fixed-price-airport-transfers-brisbane-benefits'],
+  'cruise-transfers.html': ['booking-private-transport-brisbane-cruise-terminal', 'seamless-airport-transfers-for-cruise-passengers'],
+  'gold-coast-airport-to-surfers-paradise.html': ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-airport-transport-options-with-luggage', 'book-private-airport-transfer-gold-coast'],
+  [DIR + '/surfers-paradise.html']: ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-airport-arrivals-guide'],
+  'child-seats.html': ['gold-coast-airport-transfer-car-seats', 'safe-airport-transport-for-families'],
+  'chauffeur-service.html': ['guaranteed-on-time-airport-chauffeur-service-guide', 'wheelchair-airport-transfers-chauffeur-service', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'real-time-flight-tracking-airport-transfers'],
+  'rideshare-or-transfer.html': ['avoid-surge-pricing-airport-rides', 'fixed-price-airport-transfers-brisbane-benefits'],
+  'brisbane-cbd-airport-transfers.html': ['brisbane-airport-chauffeur-to-city'],
+  [DIR + '/brisbane-cbd.html']: ['brisbane-airport-chauffeur-to-city', 'brisbane-airport-domestic-or-international-pickup'],
+  'faq.html': ['what-happens-if-flight-delayed', 'how-to-book-reliable-airport-transfers'],
+};
+function articleTitle(slug) {
+  const f = path.join(BLOG_DIR, slug + '.html');
+  if (!fs.existsSync(f)) return null;
+  const m = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(fs.readFileSync(f, 'utf8'));
+  const t = m ? m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() : '';
+  return t || null;
+}
+function fillGuides() {
+  const open = '<!--guides:auto-->', close = '<!--/guides:auto-->';
+  let pages = 0, links = 0;
+  for (const [page, slugs] of Object.entries(GUIDES)) {
+    const f = path.join(ROOT, page);
+    if (!fs.existsSync(f)) { console.warn('build-suburbs: guides - no page ' + page); continue; }
+    let s = fs.readFileSync(f, 'utf8');
+    const i = s.indexOf(open), j = s.indexOf(close);
+    if (i === -1 || j < i) { console.warn('build-suburbs: guides - no marker on ' + page); continue; }
+    /* titles come back from the page already escaped; pass them through as-is */
+    const items = slugs.map((sl) => [sl, articleTitle(sl)]).filter((x) => x[1]);
+    const block = items.length ? `
+  <h2>Travel guides</h2>
+  <div class="related">
+${items.map(([sl, t]) => `    <a href="/blog/${sl}.html">${t}<span>Travel guide</span></a>`).join('\n')}
+  </div>
+  ` : '';
+    s = s.slice(0, i + open.length) + block + s.slice(j);
+    fs.writeFileSync(f, s);
+    pages++; links += items.length;
+  }
+  console.log(`build-suburbs: travel-guide links, ${links} on ${pages} page(s)`);
+}
+
 /* Last, because it appends to the sitemap the block above has just written,
-   and awaits a network call. Never allowed to fail the build. */
-writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'));
+   and awaits a network call. Never allowed to fail the build. The guide
+   links run after it either way, so committed articles are still linked when
+   the feed is down. */
+writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'))
+  .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } });
