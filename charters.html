@@ -904,10 +904,16 @@ function postJSON(path, body){
 /* The page's own track() lives inside the contact-click IIFE at the foot and is
    not in scope here, so this is its own small copy rather than a refactor of
    working code. */
+/* A charter enquiry the server has confirmed is also a Google Ads conversion
+   ("Charter quote form", REQUEST_QUOTE) - until 26 Oct 2026 only the booking
+   form counted, so every charter or Christmas-party lead from an ad was
+   invisible to the account. */
+var CH_ADS_CONVERSIONS = { charter_enquiry: "AW-18399667511/kI-mCOGTsagdELfK0sVE" };
 function chTrack(event, params){
   try {
     var data = params || {};
     if (typeof window.gtag === "function") window.gtag("event", event, data);
+    if (typeof window.gtag === "function" && CH_ADS_CONVERSIONS[event]) window.gtag("event", "conversion", { send_to: CH_ADS_CONVERSIONS[event], value: 1.0, currency: "AUD" });
     if (Array.isArray(window.dataLayer)) window.dataLayer.push(Object.assign({event: event}, data));
   } catch (e) {}
 }
