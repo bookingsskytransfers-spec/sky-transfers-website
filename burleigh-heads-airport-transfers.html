@@ -42,90 +42,106 @@
 </style>
 <script type="application/ld+json">
 {
-   "@context" : "https://schema.org",
-   "@graph" : [
-      {
-         "@id" : "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html#service",
-         "@type" : "Service",
-         "areaServed" : {
-            "@type" : "Place",
-            "name" : "Burleigh Heads"
-         },
-         "name" : "Burleigh Heads airport transfers",
-         "offers" : {
-            "@type" : "Offer",
-            "availability" : "https://schema.org/InStock",
-            "price" : "95",
-            "priceCurrency" : "AUD",
-            "priceSpecification" : {
-               "@type" : "PriceSpecification",
-               "minPrice" : "95",
-               "priceCurrency" : "AUD",
-               "valueAddedTaxIncluded" : true
-            },
-            "url" : "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html"
-         },
-         "provider" : {
-            "@id" : "https://www.skytransfers.com.au/#business"
-         },
-         "serviceType" : "Airport transfer",
-         "url" : "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html"
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@id": "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html#service",
+      "@type": "Service",
+      "areaServed": {
+        "@type": "Place",
+        "name": "Burleigh Heads"
       },
-      {
-         "@type" : "BreadcrumbList",
-         "itemListElement" : [
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/",
-               "name" : "Home",
-               "position" : 1
-            },
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html",
-               "name" : "Burleigh Heads airport transfers",
-               "position" : 2
-            }
-         ]
+      "name": "Burleigh Heads airport transfers",
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        "price": "95",
+        "priceCurrency": "AUD",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": "95",
+          "priceCurrency": "AUD",
+          "valueAddedTaxIncluded": true
+        },
+        "url": "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html"
       },
-      {
-         "@type" : "FAQPage",
-         "mainEntity" : [
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes — every Gold Coast suburb from Coolangatta to Ormeau is published, and the booking form returns the exact fare for the suburb you enter. All 74 are on the price list."
-               },
-               "name" : "Do you go to Burleigh Waters and Miami too?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "No. The same fare applies at any hour, every day of the year. No surge, no night loading, no public-holiday rate."
-               },
-               "name" : "Is there a charge for an early or late pick-up?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "A luxury minivan takes up to six passengers and six bags — $130 from Gold Coast Airport. With prams or boards on top of that, add the trailer for $30 rather than splitting into two cars."
-               },
-               "name" : "Can you fit a family of six with luggage?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes. Springbrook and Tamborine Mountain are published fares, and private day tours to both run from anywhere on the coast — see charters and day tours."
-               },
-               "name" : "Do you do hinterland runs from here?"
-            }
-         ]
-      }
-   ]
+      "provider": {
+        "@id": "https://www.skytransfers.com.au/#business"
+      },
+      "serviceType": "Airport transfer",
+      "url": "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/",
+          "name": "Home",
+          "position": 1
+        },
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/burleigh-heads-airport-transfers.html",
+          "name": "Burleigh Heads airport transfers",
+          "position": 2
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — every Gold Coast suburb from Coolangatta to Ormeau is published, and the booking form returns the exact fare for the suburb you enter. All 74 are on the price list."
+          },
+          "name": "Do you go to Burleigh Waters and Miami too?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The same fare applies at any hour, every day of the year. No surge, no night loading, no public-holiday rate."
+          },
+          "name": "Is there a charge for an early or late pick-up?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A luxury minivan takes up to six passengers and six bags — $130 from Gold Coast Airport. With prams or boards on top of that, add the trailer for $30 rather than splitting into two cars."
+          },
+          "name": "Can you fit a family of six with luggage?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Springbrook and Tamborine Mountain are published fares, and private day tours to both run from anywhere on the coast — see charters and day tours."
+          },
+          "name": "Do you do hinterland runs from here?"
+        },
+        {
+          "@type": "Question",
+          "name": "How much waiting time is included?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "At Gold Coast Airport, 30 minutes after your flight lands. At Brisbane Airport, 60 minutes for international arrivals and 30 for domestic. The flight is tracked, so a delay does not use it up."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a return trip cheaper?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Book both legs together as a return on this website and both are 10% off, whichever airport you use."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 <link rel="stylesheet" href="/site.css?v=20261023">
@@ -138,7 +154,7 @@
     <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
-      <a href="/#fleet">Fleet</a>
+      <a href="/fleet.html">Fleet</a>
       <a href="/prices.html">Prices</a>
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
@@ -219,6 +235,32 @@
     kerb rather than a driveway.
   </p>
 
+  <h2>Landing: how the pick-up works</h2>
+  <p>
+    Your chauffeur waits inside the arrivals hall with a name board, and you have their name and
+    mobile number before pick-up. At Gold Coast Airport the flight is tracked and 30 minutes of
+    waiting after touchdown is included, which covers the walk out and the bags. From there it is
+    about fifteen minutes up the coast to Burleigh.
+  </p>
+  <p>
+    If you land in Brisbane instead, the drive is 70 to 85 minutes and the fare is $255 in a sedan,
+    with the Gateway toll already inside it. International arrivals get 60 minutes of free waiting,
+    because immigration and baggage on a long-haul flight regularly run past the hour.
+  </p>
+
+  <h2>Leaving: the run back to the airport</h2>
+  <p>
+    For a departure, the pick-up time is worked back from your airline's check-in cut-off and the
+    drive, with room for the M1 if you are flying out of Brisbane. Tell us where you are staying
+    &mdash; the Esplanade, a house in Burleigh Waters or a building up on the headland &mdash; and we
+    will tell you the time to be ready.
+  </p>
+  <p>
+    Book both legs together as a return on this website and both are 10% off. The fare is the same
+    for a 5 am departure as for one at lunchtime: no night loading, no public-holiday rate and no
+    surge, which matters most on the weekends when everyone else is trying to leave at once.
+  </p>
+
   <div class="box">
     <p>
       <strong>James Street on a Saturday night</strong> is one of the few places on the coast where
@@ -254,6 +296,15 @@
     <summary>Do you do hinterland runs from here?</summary>
     <p>Yes. Springbrook and Tamborine Mountain are published fares, and private day tours to both
       run from anywhere on the coast &mdash; see <a href="/charters.html">charters and day tours</a>.</p>
+  </details>
+
+  <details>
+    <summary>How much waiting time is included?</summary>
+    <p>At Gold Coast Airport, 30 minutes after your flight lands. At Brisbane Airport, 60 minutes for international arrivals and 30 for domestic. The flight is tracked, so a delay does not use it up.</p>
+  </details>
+  <details>
+    <summary>Is a return trip cheaper?</summary>
+    <p>Yes. Book both legs together as a return on this website and both are 10% off, whichever airport you use.</p>
   </details>
 
   <h2>Nearby suburbs</h2>
@@ -318,6 +369,7 @@
       <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>

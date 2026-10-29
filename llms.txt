@@ -1,9 +1,13 @@
 # Sky Transfers
 
-> Fixed-price chauffeur airport transfers and private charters on the Gold Coast
-> and in Brisbane, Australia. Every suburb is priced up front, per vehicle, with
-> GST and tolls included. Operated by Australia Wide Car Services Pty Ltd,
-> ABN 22 680 932 003.
+> Sky Transfers is a private ground transport operator on the Gold Coast,
+> Australia, trading as Australia Wide Car Services Pty Ltd (ABN 22 680 932 003).
+> We run our own fleet, from sedans to Mercedes V-Class, Mercedes Sprinters and a
+> 53-seat coach, for airport transfers, chauffeur hire, minibus and coach
+> charters, cruise transfers and group transport across the Gold Coast, Brisbane,
+> Tweed and Byron Bay. Prices are fixed per vehicle and include GST and tolls.
+> Every trip is pre-booked with a confirmed vehicle and driver, with no metered or
+> surge pricing.
 
 ## What we do
 
@@ -15,6 +19,43 @@
 - Private day tours — Byron Bay, Springbrook, Tamborine Mountain
 - Sprinter, V-Class and 53-seat coach charters for weddings, corporate groups and events
 - Travel agent, DMC, hotel concierge and corporate accounts with monthly invoicing
+
+## Fleet (own vehicles)
+
+- Sedan (1–3), SUV (1–4), people mover (1–7), luxury sedan (1–3)
+- Mercedes V-Class luxury minivan (1–7)
+- Mercedes Sprinter 10-seater and 14-seater
+- Mercedes Sprinter 18-seater (quoted per job)
+- King Long 53-seat coach
+- Groups larger than 53: multiple vehicles timed together
+- Fleet page: https://www.skytransfers.com.au/fleet.html
+
+## Charter rates (per vehicle, GST included; half day up to 4 h, full day up to 8 h)
+
+- Mercedes V-Class: airport from AUD 115, half day AUD 530, full day AUD 970
+- Sprinter 10-seater: airport from AUD 165, half day AUD 640, full day AUD 1,160
+- Sprinter 14-seater: airport from AUD 240, half day AUD 730, full day AUD 1,320
+- Sprinter 18-seater: quoted
+- 53-seat coach: transfers from AUD 700, half day AUD 1,550, full day AUD 2,300
+- No after-hours or late-night surcharge on any transfer or charter
+- Multi-day tours: quoted individually
+
+## Travel agents, DMCs and inbound tour operators
+
+- Partner portal with agent code and PIN; staff logins
+- Book single transfers or a whole tour's movements in one go
+- Nothing to pay at booking, one monthly invoice
+- Commission or net trade rates, agreed per account; trade rates on request
+- Branded PDF vouchers with no pricing
+- Online bookings close 6 hours before pick-up; free changes or cancellation up to 24 hours before as standard
+- Apply: https://www.skytransfers.com.au/partners.html
+
+## Christmas and end-of-year groups
+
+- Staff Christmas parties, work functions and end-of-year events on the Gold Coast and in Brisbane
+- V-Class, Sprinters and the 53-seat coach; fixed written quote; one company invoice
+- Peak season (late November to December) books out early
+- https://www.skytransfers.com.au/christmas-party-transport-gold-coast.html
 
 ## Machine-readable price list
 
@@ -214,6 +255,7 @@ carried free of charge where they fit.
 - Email: info@skytransfers.com.au
 - Website: https://www.skytransfers.com.au/
 - Google Business Profile: https://www.google.com/maps?cid=9657905201752242057
+- Tourism listing: https://experiencegoldcoast.com/places-to-go/northern-gold-coast/transport/sky-transfers-au2478797
 
 ## Key pages
 
@@ -236,6 +278,11 @@ carried free of charge where they fit.
 - Corporate transfers: https://www.skytransfers.com.au/corporate-transfers.html
 - Wedding transfers: https://www.skytransfers.com.au/wedding-transfers.html
 - Sprinter and coach charters: https://www.skytransfers.com.au/charters.html
+- Fleet: https://www.skytransfers.com.au/fleet.html
+- About us: https://www.skytransfers.com.au/about.html
+- Christmas party transport: https://www.skytransfers.com.au/christmas-party-transport-gold-coast.html
+- Chauffeur service: https://www.skytransfers.com.au/chauffeur-service.html
+- Questions and answers: https://www.skytransfers.com.au/faq.html
 - Travel agent and corporate accounts: https://www.skytransfers.com.au/partners.html
 - Blog and travel guides: https://www.skytransfers.com.au/blog/
 - Privacy policy: https://www.skytransfers.com.au/privacy.html
@@ -247,4 +294,4 @@ Australia Wide Car Services Pty Ltd, trading as Sky Transfers. ABN 22 680 932 00
 Carries the insurances required to operate as a booked hire service in Queensland,
 Australia.
 
-Last updated: 2026-10-13
+Last updated: 2026-10-27

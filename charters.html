@@ -52,50 +52,302 @@
       "name": "Sprinter and coach charters",
       "serviceType": "Private group charter",
       "url": "https://www.skytransfers.com.au/charters.html",
-      "provider": {"@id": "https://www.skytransfers.com.au/#business"},
+      "provider": {
+        "@id": "https://www.skytransfers.com.au/#business"
+      },
       "areaServed": [
-        {"@type": "City", "name": "Gold Coast"},
-        {"@type": "City", "name": "Brisbane"},
-        {"@type": "City", "name": "Byron Bay"}
+        {
+          "@type": "Place",
+          "name": "Gold Coast"
+        },
+        {
+          "@type": "Place",
+          "name": "Brisbane"
+        },
+        {
+          "@type": "Airport",
+          "name": "Gold Coast Airport (OOL)"
+        },
+        {
+          "@type": "Airport",
+          "name": "Brisbane Airport (BNE)"
+        },
+        {
+          "@type": "Place",
+          "name": "Tweed Heads"
+        },
+        {
+          "@type": "Place",
+          "name": "Byron Bay"
+        },
+        {
+          "@type": "Place",
+          "name": "Sunshine Coast"
+        },
+        {
+          "@type": "Place",
+          "name": "Logan"
+        },
+        {
+          "@type": "Place",
+          "name": "Ipswich"
+        },
+        {
+          "@type": "Place",
+          "name": "Redlands"
+        },
+        {
+          "@type": "Place",
+          "name": "Toowoomba"
+        }
       ],
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "Charter vehicles",
         "itemListElement": [
-          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Mercedes V-Class charter"}},
-          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Mercedes Sprinter 14-seater charter"}},
-          {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "53-seat coach charter"}}
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes V-Class charter"
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": [
+              {
+                "@type": "PriceSpecification",
+                "name": "Transfer, one way",
+                "minPrice": 115,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Half day (up to 4 h)",
+                "price": 530,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Full day (up to 8 h)",
+                "price": 970,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              }
+            ]
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes Sprinter 10-seater charter"
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": [
+              {
+                "@type": "PriceSpecification",
+                "name": "Transfer, one way",
+                "minPrice": 165,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Half day (up to 4 h)",
+                "price": 640,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Full day (up to 8 h)",
+                "price": 1160,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              }
+            ]
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes Sprinter 14-seater charter"
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": [
+              {
+                "@type": "PriceSpecification",
+                "name": "Transfer, one way",
+                "minPrice": 240,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Half day (up to 4 h)",
+                "price": 730,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Full day (up to 8 h)",
+                "price": 1320,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              }
+            ]
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes Sprinter 18-seater charter (up to 18 passengers)"
+            },
+            "description": "Price on request"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "53-seat King Long coach charter"
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": [
+              {
+                "@type": "PriceSpecification",
+                "name": "Transfer, one way",
+                "minPrice": 700,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Half day (up to 4 h)",
+                "price": 1550,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              },
+              {
+                "@type": "PriceSpecification",
+                "name": "Full day (up to 8 h)",
+                "price": 2300,
+                "priceCurrency": "AUD",
+                "valueAddedTaxIncluded": true
+              }
+            ]
+          }
         ]
       }
     },
     {
       "@type": "FAQPage",
       "mainEntity": [
-        {"@type": "Question", "name": "How much is minibus hire in Brisbane?",
-         "acceptedAnswer": {"@type": "Answer", "text": "A Sprinter mini bus charters from $640 for a half day and $1,160 for a full day, driver included. If what you need is one airport run rather than a day's hire, book it as a transfer instead and it costs less: Brisbane Airport to the CBD is $180 in the Sprinter 10 and $255 in the Sprinter 14, fixed, which is about $18 a head with ten on board."}},
-        {"@type": "Question", "name": "Do you hire out minibuses for self-drive?",
-         "acceptedAnswer": {"@type": "Answer", "text": "No. Every minibus and coach we run comes with a professional chauffeur — we are not a self-drive rental company. If you want to drive the vehicle yourself a rental firm is what you need, and we would rather say so now than waste your time. What we do instead is put the driver, fuel, tolls and GST into one fixed price."}},
-        {"@type": "Question", "name": "How much does bus hire cost on the Gold Coast in 2026?",
-         "acceptedAnswer": {"@type": "Answer", "text": "Our Sprinter mini buses charter from $640 for a half day and $1,160 for a full day; the 53-seat luxury coach from $1,550 half day and $2,300 full day. One-way airport group transfers start at $165 (Sprinter 10) and $700 (coach). Every quote is all-inclusive — driver, fuel, tolls and GST."}},
-        {"@type": "Question", "name": "Is the price per person or per vehicle?",
-         "acceptedAnswer": {"@type": "Answer", "text": "Per vehicle — one fixed price covers the whole group. A full 14-seat Sprinter often works out cheaper per person than rideshares, with everyone travelling together."}},
-        {"@type": "Question", "name": "Do you use subcontractors or brokers?",
-         "acceptedAnswer": {"@type": "Answer", "text": "No. Every charter runs on a vehicle Sky Transfers owns, driven by our own professional chauffeurs. The vehicle in your quote is the vehicle that arrives."}},
-        {"@type": "Question", "name": "Which bus size should I book for a wedding?",
-         "acceptedAnswer": {"@type": "Answer", "text": "For up to 14 guests per trip, the Sprinter 14-Seater is our most-booked wedding vehicle; for 40+ guests moving at once, the 53-seat coach shuttles everyone in one run. Tell us your guest count and venues and we'll recommend the cheapest combination."}},
-        {"@type": "Question", "name": "Do you run Gold Coast to Brisbane and Byron Bay charters?",
-         "acceptedAnswer": {"@type": "Answer", "text": "Yes — Brisbane Airport, the Brisbane International Cruise Terminal, Byron Bay and Tamborine Mountain are all regular runs. Cross-border and hinterland itineraries are quoted individually, usually within the hour."}},
-        {"@type": "Question", "name": "Can we bring drinks on board?",
-         "acceptedAnswer": {"@type": "Answer", "text": "Water and soft drinks, absolutely. For alcohol, Queensland rules apply and it depends on the vehicle and occasion — ask when booking and we'll confirm what's possible for your charter."}},
-        {"@type": "Question", "name": "How far ahead should we book a charter?",
-         "acceptedAnswer": {"@type": "Answer", "text": "Weddings and school-holiday dates are best locked in 2–4 weeks ahead; corporate transfers and airport groups often just need a few days. Quotes are free and hold no obligation — call +61 481 437 772 for urgent dates."}}
+        {
+          "@type": "Question",
+          "name": "How much is minibus hire in Brisbane?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A Sprinter mini bus charters from $640 for a half day and $1,160 for a full day, driver included. If what you need is one airport run rather than a day's hire, book it as a transfer instead and it costs less: Brisbane Airport to the CBD is $180 in the Sprinter 10 and $255 in the Sprinter 14, fixed, which is about $18 a head with ten on board."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you hire out minibuses for self-drive?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Every minibus and coach we run comes with a professional chauffeur — we are not a self-drive rental company. If you want to drive the vehicle yourself a rental firm is what you need, and we would rather say so now than waste your time. What we do instead is put the driver, fuel, tolls and GST into one fixed price."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does bus hire cost on the Gold Coast in 2026?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Our Sprinter mini buses charter from $640 for a half day and $1,160 for a full day; the 53-seat luxury coach from $1,550 half day and $2,300 full day. One-way airport group transfers start at $165 (Sprinter 10) and $700 (coach). Every quote is all-inclusive — driver, fuel, tolls and GST."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the price per person or per vehicle?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Per vehicle — one fixed price covers the whole group. A full 14-seat Sprinter often works out cheaper per person than rideshares, with everyone travelling together."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you use subcontractors or brokers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Every charter runs on a vehicle Sky Transfers owns, driven by our own professional chauffeurs. The vehicle in your quote is the vehicle that arrives."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which bus size should I book for a wedding?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For up to 14 guests per trip, the Sprinter 14-Seater is our most-booked wedding vehicle; for 40+ guests moving at once, the 53-seat coach shuttles everyone in one run. Tell us your guest count and venues and we'll recommend the cheapest combination."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you run Gold Coast to Brisbane and Byron Bay charters?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — Brisbane Airport, the Brisbane International Cruise Terminal, Byron Bay and Tamborine Mountain are all regular runs. Cross-border and hinterland itineraries are quoted individually, usually within the hour."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can we bring drinks on board?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Water and soft drinks, absolutely. For alcohol, Queensland rules apply and it depends on the vehicle and occasion — ask when booking and we'll confirm what's possible for your charter."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How far ahead should we book a charter?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Weddings and school-holiday dates are best locked in 2–4 weeks ahead; corporate transfers and airport groups often just need a few days. Quotes are free and hold no obligation — call +61 481 437 772 for urgent dates."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is your largest vehicle?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A King Long 53-seat coach: half day (up to 4 hours) $1,550, full day (up to 8 hours) $2,300."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the largest Sprinter?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "An 18-seat Mercedes Sprinter, quoted per job."
+          }
+        }
       ]
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.skytransfers.com.au/"},
-        {"@type": "ListItem", "position": 2, "name": "Charters", "item": "https://www.skytransfers.com.au/charters.html"}
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.skytransfers.com.au/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Charters",
+          "item": "https://www.skytransfers.com.au/charters.html"
+        }
       ]
     }
   ]
@@ -585,7 +837,7 @@
     <p class="citylinks">By city: <a href="/minibus-hire-brisbane.html">minibus hire in Brisbane</a> · <a href="/minibus-hire-gold-coast.html">minibus and bus hire on the Gold Coast</a>, both with fixed fares by suburb.</p>
     <div class="chips">
       <span class="chip"><b>✓</b> Our own vehicles — not a broker</span>
-      <span class="chip"><b>✓</b> ★ 4.8 on Google (29 reviews)</span>
+      <span class="chip"><b>✓</b> ★ 4.8 on Google</span>
       <span class="chip"><b>✓</b> 6–53 seats</span>
       <span class="chip"><b>✓</b> 24/7</span>
     </div>
@@ -607,6 +859,18 @@
     <div class="stat"><b>~1 h</b><span>Typical quote time</span></div>
   </div>
 </div>
+
+<section class="block" id="quick-facts" aria-label="Quick facts">
+  <style>.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0 0 30px}.fact{background:var(--card);padding:15px 16px 13px}.fact .k{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}.fact .v{font-size:22px;font-weight:700;color:var(--ink);line-height:1.15;display:block;font-variant-numeric:tabular-nums}.fact .s{font-size:13px;color:var(--muted);display:block;margin-top:4px;line-height:1.4}#quick-facts{padding-bottom:0}</style>
+  <div class="facts" aria-label="Quick facts">
+    <div class="fact"><span class="k">From</span><span class="v">$530</span><span class="s">V-Class half day, per vehicle</span></div>
+    <div class="fact"><span class="k">Vehicles</span><span class="v">6 to 53 seats</span><span class="s">V-Class, Sprinters, coach</span></div>
+    <div class="fact"><span class="k">Half / full day</span><span class="v">4 h / 8 h</span><span class="s">Driver, fuel, tolls, GST included</span></div>
+    <div class="fact"><span class="k">Surcharge</span><span class="v">None</span><span class="s">No after-hours or late-night charge</span></div>
+    <div class="fact"><span class="k">Quote</span><span class="v">Usually ~1 h</span><span class="s">Fixed and in writing</span></div>
+    <div class="fact"><span class="k">Contact</span><span class="v">24/7</span><span class="s">Phone or WhatsApp 0481 437 772</span></div>
+  </div>
+</section>
 
 <section class="block" id="fleet-rates">
   <p class="kick">Fleet &amp; charter rates</p>
@@ -660,7 +924,7 @@
       <a class="btn-quote" href="#quote" data-veh="53-Seat Coach">Quote this vehicle</a>
     </div>
   </div>
-  <p class="muted-note">Groups over 53? We run multiple vehicles timed together. No after-hours or late-night surcharge. Longer itineraries and multi-day tours quoted individually — usually within the hour.</p>
+  <p class="muted-note"><a href="/fleet.html">See the whole fleet</a>. Groups over 53? We run multiple vehicles timed together. No after-hours or late-night surcharge. Longer itineraries and multi-day tours quoted individually — usually within the hour.</p>
 </section>
 
 <section class="block" id="occasions">
@@ -669,7 +933,7 @@
   <div class="occ-grid">
     <a class="occ" href="/wedding-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-wedding-400.webp 400w, /img/occ-wedding-640.webp 640w, /img/occ-wedding-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-wedding.jpg" width="800" height="533" alt="A bride and groom walking to a black wedding car in a vineyard" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Weddings</h3><p>Guest shuttles between ceremony, photos and reception, timed to the minute — from $120 per hour with a dedicated coordinator on the day.</p><span class="occ-go">Wedding transfers →</span></div></a>
     <a class="occ" href="#quote"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-conference-400.webp 400w, /img/occ-conference-640.webp 640w, /img/occ-conference-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-conference.jpg" width="800" height="533" alt="Business delegates boarding a black coach outside a convention centre" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Corporate &amp; conferences</h3><p>Delegate transfers, team offsites and roadshows with GST tax invoices, monthly billing for approved accounts, and NDAs on request.</p><span class="occ-go">Get a quote →</span></div></a>
-    <a class="occ" href="/cruise-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-cruise-400.webp 400w, /img/occ-cruise-640.webp 640w, /img/occ-cruise-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-cruise.jpg" width="800" height="533" alt="A black people mover on the quay beside a docked cruise ship at sunrise" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Cruise groups</h3><p>Whole-group transfers to the Brisbane International Cruise Terminal — one coach instead of ten taxis, luggage trailer available.</p><span class="occ-go">Cruise transfers →</span></div></a>
+    <a class="occ" href="/cruise-transfers.html"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-cruise-400.webp 400w, /img/occ-cruise-640.webp 640w, /img/occ-cruise-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-cruise.jpg" width="800" height="533" alt="A black people mover on the quay beside a docked cruise ship at sunrise" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Cruise groups</h3><p>Whole-group transfers to the Brisbane International Cruise Terminal — one coach instead of a string of cars, luggage trailer available.</p><span class="occ-go">Cruise transfers →</span></div></a>
     <a class="occ" href="#quote"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-airport-400.webp 400w, /img/occ-airport-640.webp 640w, /img/occ-airport-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-airport.jpg" width="800" height="533" alt="A chauffeur waiting in an airport arrivals hall" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Airport groups</h3><p>Sports teams, school trips and tour groups met inside arrivals with name boards, flights tracked, fixed prices per vehicle.</p><span class="occ-go">Get a quote →</span></div></a>
     <a class="occ" href="#quote"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-winery-400.webp 400w, /img/occ-winery-640.webp 640w, /img/occ-winery-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-winery.jpg" width="800" height="533" alt="Friends raising glasses of white wine at a vineyard table at sunset" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Winery &amp; brewery tours</h3><p>Private Tamborine Mountain wine tours and brewery runs — build your own itinerary, we handle the driving.</p><span class="occ-go">Get a quote →</span></div></a>
     <a class="occ" href="#quote"><div class="occ-pic"><picture><source type="image/webp" srcset="/img/occ-party-400.webp 400w, /img/occ-party-640.webp 640w, /img/occ-party-800.webp 800w" sizes="(max-width:700px) calc(100vw - 36px), 330px"><img src="/img/occ-party.jpg" width="800" height="533" alt="Friends in party clothes beside a black minibus at night under string lights" loading="lazy" decoding="async"></picture></div><div class="occ-body"><h3>Events &amp; parties</h3><p>Concerts, race days, theme parks, hens and bucks — door-to-door both ways so nobody drives home.</p><span class="occ-go">Get a quote →</span></div></a>
@@ -682,10 +946,10 @@
   <p>The staff Christmas party is the one night of the year nobody should be driving to. One vehicle takes the team to the venue and home again, door to door, at a price agreed before you book &mdash; per vehicle rather than per head, so it does not climb every time somebody else says yes.</p>
   <div class="why-grid">
     <div class="why"><h3>The whole team fits</h3><p>Six in the V-Class, ten, fourteen or eighteen in a Sprinter, fifty-three in the King Long. Groups over 53 travel in multiple vehicles timed together.</p></div>
-    <div class="why"><h3>No designated driver</h3><p>Nobody draws the short straw, and nobody stands in a taxi queue outside a venue at midnight in December.</p></div>
+    <div class="why"><h3>No designated driver</h3><p>Nobody draws the short straw, and nobody waits on a rideshare outside a venue at midnight in December.</p></div>
     <div class="why"><h3>One invoice for the company</h3><p>A written all-inclusive price &mdash; driver, fuel, tolls and GST &mdash; usually within the hour, with a GST tax invoice for the books.</p></div>
   </div>
-  <p>Half a day covers most parties: a Sprinter 10-Seater from $640, the 53-seat coach from $1,550, both in the table above. Late finishes are fine: the price we quote covers the whole night, with no extra charge after hours. <a href="#quote">Send us the date and the headcount</a> and we will price it.</p>
+  <p>Half a day covers most parties: a Sprinter 10-Seater from $640, the 53-seat coach from $1,550, both in the table above. Late finishes are fine: the price we quote covers the whole night, with no extra charge after hours. <a href="#quote">Send us the date and the headcount</a> and we will price it, or read more about <a href="/christmas-party-transport-gold-coast.html">Christmas party transport</a>.</p>
 </section>
 
 
@@ -772,6 +1036,14 @@
     <details><summary>Do you run Gold Coast to Brisbane and Byron Bay charters?</summary><p>Yes — Brisbane Airport, the Brisbane International Cruise Terminal, Byron Bay and Tamborine Mountain are all regular runs. Cross-border and hinterland itineraries are quoted individually, usually within the hour.</p></details>
     <details><summary>Can we bring drinks on board?</summary><p>Water and soft drinks, absolutely. For alcohol, Queensland rules apply and it depends on the vehicle and occasion — ask when booking and we'll confirm what's possible for your charter.</p></details>
     <details><summary>How far ahead should we book a charter?</summary><p>Weddings and school-holiday dates are best locked in 2–4 weeks ahead; corporate transfers and airport groups often just need a few days. Quotes are free and hold no obligation — call <a href="tel:+61481437772">+61 481 437 772</a> for urgent dates.</p></details>
+    <details>
+      <summary>What is your largest vehicle?</summary>
+      <p>A King Long 53-seat coach: half day (up to 4 hours) $1,550, full day (up to 8 hours) $2,300.</p>
+    </details>
+    <details>
+      <summary>What is the largest Sprinter?</summary>
+      <p>An 18-seat Mercedes Sprinter, quoted per job.</p>
+    </details>
   </div>
 </section>
 
@@ -805,6 +1077,7 @@
       <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>

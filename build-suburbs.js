@@ -410,7 +410,7 @@ const NAV = `<nav class="sitenav">
     <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
-      <a href="/#fleet">Fleet</a>
+      <a href="/fleet.html">Fleet</a>
       <a href="/prices.html">Prices</a>
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
@@ -465,6 +465,7 @@ const FOOTER = `<footer class="site">
       <p><a href="/${DIR}/">Airport transfers by suburb</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>
@@ -1438,7 +1439,12 @@ const BOOK_ROUTE = {
   'seamless-airport-transfers-for-cruise-passengers': ['bne', 'cruise'], 'what-happens-if-flight-delayed': ['bne', null],
   'wheelchair-airport-transfers-chauffeur-service': [null, null],
 };
+/* group days out, not airport runs: quoted, not priced by the booking form */
+const isGroupDay = (a) => { const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
+  return /christmas|winer|charter|party|hens|bucks|day.tour/.test(t) && !/airport/.test(t); };
+const GROUP_QUOTE = '/charters.html#quote';
 function bookLinkFor(a) {
+  if (isGroupDay(a)) return GROUP_QUOTE;
   const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
   const link = (pu, dro) => '/?' + [pu ? 'pu=' + encodeURIComponent(BOOK_END[pu]) : '', dro ? 'do=' + encodeURIComponent(BOOK_END[dro]) : '']
     .filter(Boolean).join('&') + '#book';
@@ -1481,6 +1487,141 @@ const ARTICLE_TEXT_FIX = [
   ['brisbane-airport-chauffeur-to-city', 'with indicative sedan fares of $90-$140 one way', 'with a fixed sedan fare of $95 one way'],
   ['brisbane-airport-chauffeur-to-city', '>$90-$140</td>', '>$95 (fixed)</td>'],
   ['brisbane-airport-chauffeur-to-city', '>$140-$220</td>', '>$110 people mover (fixed)</td>'],
+  /* meet-and-greet article: the site's own fares, booking and waiting (28 Oct 2026) */
+  ['gold-coast-airport-chauffeur-with-meet-and-greet',
+    'We quote each job on distance, vehicle class, passenger numbers and any extras such as a child seat. Pricing depends on those factors, so the honest answer is to request a quote for your specific trip rather than trust a generic figure. What we can promise is the structure: no surge fees, no hidden charges, and free cancellation up to 24 hours before pickup.',
+    'Every suburb has a published fixed fare for every vehicle, from $80 in a sedan, and the booking form shows the same price instantly. <a href="/prices.html">See every fare</a>. There are no surge fees, no hidden charges, and free cancellation up to 24 hours before pickup.'],
+  ['gold-coast-airport-chauffeur-with-meet-and-greet',
+    'We take bookings by phone, email or WhatsApp,',
+    'Book online for an instant fixed price, or by phone, email or WhatsApp,'],
+  ['gold-coast-airport-chauffeur-with-meet-and-greet',
+    'Confirm before booking whether the service includes the first 60 minutes of waiting free,',
+    'Confirm before booking how long waiting is free after landing (we include 30 minutes at Gold Coast Airport, and 60 for international arrivals at Brisbane),'],
+  ['gold-coast-airport-chauffeur-with-meet-and-greet',
+    'The same applies to accessibility requirements: state them upfront so the right vehicle and driver are assigned.',
+    'The same applies to accessibility requirements: state them upfront. Foldable wheelchairs travel free; if you need to stay seated in your wheelchair, call before booking.'],
+  ['real-time-flight-tracking-airport-transfers',
+    'The sequence below is the one we follow, with the decision rules',
+    'The sequence below is the one we recommend, with the decision rules'],
+  ['real-time-flight-tracking-airport-transfers',
+    '<li>Is the wait different for domestic and international flights?</li>\n</ul>\n',
+    '<li>Is the wait different for domestic and international flights?</li>\n</ul>\n<p>With us, waiting is free for 30 minutes after actual landing, or 60 minutes for international arrivals at Brisbane Airport.</p>\n'],
+  ['guaranteed-on-time-airport-chauffeur-service-guide',
+    'Ask what yours includes, and what happens if you run over.',
+    'Ask what yours includes, and what happens if you run over. With us, waiting is free for 30 minutes after actual landing, or 60 minutes for international arrivals at Brisbane Airport.'],
+  ['guaranteed-on-time-airport-chauffeur-service-guide',
+    'Book with Sky Transfers and lock in a pickup you can count on.',
+    'Book with Sky Transfers and lock in a pickup you can count on. Our <a href="/terms.html">terms</a> set out exactly what happens if something goes wrong: if we cannot supply your booked vehicle, we send a suitable alternative or refund the fare in full.'],
+  ['early-morning-brisbane-airport-transfer',
+    'Sky Transfers builds pricing this way: upfront, with no surge fees, so the quote you receive is the price you pay.',
+    'Sky Transfers builds pricing this way: upfront, with no surge fees, so the quote you receive is the price you pay. There is no night or early-morning loading either: a 4am pickup costs the same as one at midday.'],
+  ['early-morning-brisbane-airport-transfer',
+    'Sky Transfers handles bookings by phone, email, or WhatsApp, with free cancellation up to 24 hours before pickup.',
+    'Sky Transfers takes bookings online with an instant fixed price, or by phone, email or WhatsApp, with free cancellation up to 24 hours before pickup. Online bookings close 6 hours before pickup, so for anything sooner, call <a href="tel:+61481437772">+61 481 437 772</a>.'],
+  ['how-to-book-reliable-airport-transfers',
+    'Extras like child seats, meet and greet, or additional stops may incur a fee, so clarify upfront.',
+    'Meet and greet is always included, child seats are $15 each, and any extras are added to the fixed price before you pay, never on the day.'],
+  ['reliable-airport-pickup-brisbane-flight-tracking',
+    'Sky Transfers provides free cancellation when flights are cancelled by the airline. When you rebook your flight, you can rebook your transfer at the same time.',
+    'If your flight is cancelled, call us straight away. Changes and cancellation are free up to 24 hours before pickup, and inside 24 hours we will do our best to move your booking to your new flight.'],
+  ['reliable-airport-pickup-brisbane-flight-tracking',
+    '<p>Brisbane Airport has designated pickup zones for each terminal. Domestic arrivals use the Level 2 pickup zone on the eastern side of the terminal building. International arrivals use the Level 2 zone on the western side.</p>\n<p>Your driver will not park in the pickup zone. Instead, they\'ll circle or wait in the holding area until you\'re ready.</p>\n',
+    ''],
+  ['reliable-airport-pickup-brisbane-flight-tracking',
+    'Sky Transfers includes complimentary waiting time with every booking.',
+    'Sky Transfers includes free waiting with every airport pickup: 60 minutes after landing for international arrivals at Brisbane Airport, and 30 minutes for domestic.'],
+  ['reliable-airport-pickup-brisbane-flight-tracking',
+    'You can book via phone, email, or WhatsApp, whichever suits you best.',
+    'You can book online for an instant fixed price, or by phone, email or WhatsApp, whichever suits you best.'],
+  ['reliable-airport-pickup-brisbane-flight-tracking',
+    'A few hours before your flight, you\'ll get a reminder. This is the time to confirm your arrival time or notify us of any changes.',
+    'Before you land, you\'ll have your chauffeur\'s name and mobile number. If your plans change, tell us as soon as you can.'],
+  ['reliable-airport-pickup-brisbane-flight-tracking',
+    'As you approach landing, you\'ll receive an update confirming your driver is en route or already positioned at the terminal. ',
+    ''],
+  ['seamless-airport-transfers-for-cruise-passengers',
+    'The Overseas Passenger Terminal sits at Circular Quay, on the western edge of the central business district. It handles the largest ships and puts you within walking distance of the Rocks and the ferry wharves.',
+    'The Brisbane International Cruise Terminal is at Pinkenba, on the airport side of the river, about 10 minutes by road from Brisbane Airport. Our fixed fare from the airport is $95 in a sedan, with no cruise surcharge on this run.'],
+  ['seamless-airport-transfers-for-cruise-passengers',
+    'From the international terminal to the cruise terminal, allow 30 to 45 minutes in normal traffic and 60 to 75 minutes in the morning peak.',
+    'From Brisbane Airport to the cruise terminal is about 10 minutes by road. From the Gold Coast, allow 50 to 85 minutes, and 90 minutes or more on embarkation morning.'],
+  ['seamless-airport-transfers-for-cruise-passengers',
+    'At the international terminal, the meeting point is usually just outside the customs exit; at the domestic terminals, it is the kerbside pick-up zone outside baggage reclaim.',
+    'With Sky Transfers, your chauffeur waits inside the arrivals hall with a name board, at both the international and domestic terminals.'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Peak demand windows',
+    'Nothing, with us'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Early morning and turnaround days carry premiums',
+    'No early-morning, weekend or public-holiday loading'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Whether a return leg is held',
+    'Book both legs together'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Return transfers are usually quoted separately',
+    'Both legs 10% off when booked as a return on our website'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'For current rates, request a quote with your address and group details rather than relying on any published estimate.',
+    'Our fares are published: Brisbane Airport to the terminal is $95 in a sedan, the Brisbane CBD $120 and Surfers Paradise $270, and <a href="/prices.html">every suburb is on the price list</a>.'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'usually a small per-seat charge, and worth confirming the seat type.</li>\n</ul>\n',
+    'usually a small per-seat charge, and worth confirming the seat type.</li>\n</ul>\n<p>With Sky Transfers there is no out-of-hours or public-holiday loading, and child seats are $15 each.</p>\n'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Send your travel details through the enquiry form, by phone or via WhatsApp.',
+    'Book online for an instant fixed price, or send your details by phone, email or WhatsApp.'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Pricing depends on pickup suburb, vehicle size, passenger numbers and time of day, so there is no single flat rate.',
+    'Pricing depends on your pickup suburb and vehicle, not the time of day: from Brisbane Airport it is $95 in a sedan, and every suburb has a published fare.'],
+  ['booking-private-transport-brisbane-cruise-terminal',
+    'Request a quote for current rates.',
+    'See every fare on the <a href="/prices.html">price list</a>.'],
+  ['book-private-airport-transfer-gold-coast',
+    'include a waiting window at no extra cost.',
+    'include a waiting window at no extra cost: 30 minutes after landing at Gold Coast Airport, and 60 for international arrivals at Brisbane.'],
+  ['book-private-airport-transfer-gold-coast',
+    'Not every operator runs accessible vehicles, so confirm availability before you pay rather than assuming it can be arranged.',
+    'Not every operator runs accessible vehicles, so confirm availability before you pay rather than assuming it can be arranged. We don\'t: foldable wheelchairs and walkers travel free, but if you need to stay seated in your wheelchair, call before booking.'],
+  ['brisbane-airport-chauffeur-to-city',
+    'A quote that excludes these is not dishonest, but you want to know before you travel, not at the kerb.',
+    'A quote that excludes these is not dishonest, but you want to know before you travel, not at the kerb. With Sky Transfers, tolls and GST are always included in the fare.'],
+  ['brisbane-airport-chauffeur-to-city',
+    'A city hotel is a standard zone; a suburban address, the ',
+    'A city hotel is a standard zone; with some operators a suburban address, the '],
+  ['brisbane-airport-chauffeur-to-city',
+    ' or a regional destination sits outside it and is quoted separately.',
+    ' or a regional destination is quoted separately. With us, every suburb and the cruise terminal has a published fixed fare.'],
+  ['brisbane-airport-chauffeur-to-city',
+    'ask how much free waiting time is included after landing.',
+    'ask how much free waiting time is included after landing. With us, waiting is free for 60 minutes after landing on international arrivals and 30 on domestic.'],
+  ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel',
+    'We do not publish a rate card here because every quote depends on your route and group. Request a quote and you get one fixed figure, GST and tolls included.',
+    'Our fares are published. From Gold Coast Airport in a sedan: Surfers Paradise $125, Broadbeach $110, Burleigh Heads $95 and Coolangatta $80, with GST and tolls included, and <a href="/prices.html">every suburb is on the price list</a>.'],
+  ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel',
+    'Gold Coast Airport transfer prices depend on distance, vehicle size, time of day and whether you choose meet and greet.',
+    'Gold Coast Airport transfer prices depend on distance and vehicle size, and with metered services on the time of day too. With us, the fare is the same at any hour and meet and greet is always included.'],
+  ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel',
+    'Child seats, meet and greet and extra stops all affect the total.',
+    'Child seats ($15 each with us) and extra stops add to the total; meet and greet does not.'],
+  ['gold-coast-airport-transport-options-with-luggage',
+    'see meet-and-greet details up front.</p>\n',
+    'see meet-and-greet details up front.</p>\n<p>Too many bags for the car? Our luggage trailer takes golf bags, surfboards, prams and oversized cases for $30, and prams, foldable wheelchairs and walkers travel free wherever they fit.</p>\n'],
+  ['fixed-price-airport-transfers-brisbane-benefits',
+    'and no extra charge if your group is larger than a standard sedan can hold.',
+    'and no per-passenger pricing: the fare is per vehicle, so a bigger group simply books a bigger vehicle, priced upfront.'],
+  ['fixed-price-airport-transfers-brisbane-benefits',
+    'beyond that window, terms vary, so check before you book.',
+    'inside 24 hours a cancellation fee of up to the full fare may apply, as set out in our <a href="/terms.html">terms</a>.'],
+  ['fixed-price-airport-transfers-brisbane-benefits',
+    'Waiting time is usually built around a grace period after landing, giving you time to clear baggage and customs.',
+    'Waiting time is usually built around a grace period after landing, giving you time to clear baggage and customs. With us, waiting is free for 60 minutes after landing on international arrivals at Brisbane and 30 on domestic.'],
+  ['safe-airport-transport-for-families',
+    'Ask whether there is an extra charge per seat</li>\n</ul>\n',
+    'Ask whether there is an extra charge per seat</li>\n</ul>\n<p>With us, child seats, capsules and boosters are $15 each, fitted before we arrive. <a href="/child-seats.html">How child seats work</a>.</p>\n'],
+  /* no ramp or lift vehicle in the fleet (28 Oct 2026) */
+  ['wheelchair-airport-transfers-chauffeur-service', 'Here is the sequence we use, and the one we recommend with any provider.',
+    'Here is the sequence we recommend with any provider.'],
+  ['wheelchair-airport-transfers-chauffeur-service', 'Tell us your wheelchair type and dimensions when you book so we assign the right vehicle.',
+    'Foldable wheelchairs and walkers travel free where they fit. We do not run ramp or lift vehicles, so if you need to stay seated in your wheelchair, call us on <a href="tel:+61481437772">+61 481 437 772</a> before booking and we will tell you honestly what we can arrange.'],
 ];
 function fixArticle(a) {
   let h = String(a.content_html || '');
@@ -1494,13 +1635,33 @@ function fixArticle(a) {
         ? '<a' + pre + 'href=' + q + to + q + post + '>' + inner + '</a>' : m));
   }
   for (const [from, to] of ARTICLE_HREF_FIX) h = h.split('href="' + from + '"').join('href="' + to + '"');
+  if (isGroupDay(a)) h = h.replace(/href=(["'])\/?#book\1/g, 'href=$1' + GROUP_QUOTE + '$1');
   /* /blog/<slug> without .html is a duplicate of the real page */
   h = h.replace(/href=(["'])(?:https?:\/\/(?:www\.)?skytransfers\.com\.au)?\/blog\/([a-z0-9-]+)\1/gi, 'href=$1/blog/$2.html$1');
   /* "Add skytransfers.com.au as a preferred source on Google": an outbound
      link sitting above the booking button - out */
   h = h.replace(/<p\b[^>]*>\s*<a\b[^>]*google\.com\/preferences\/source[^>]*>[\s\S]*?<\/a>\s*<\/p>/gi, '')
        .replace(/<a\b[^>]*google\.com\/preferences\/source[^>]*>[\s\S]*?<\/a>/gi, '');
-  for (const [slug, find, rep] of ARTICLE_TEXT_FIX) if (slug === a.slug) h = h.split(find).join(rep);
+  for (const [slug, find, rep] of ARTICLE_TEXT_FIX) if (slug === a.slug) {
+    if (h.indexOf(find) < 0) console.warn(`build-suburbs: text fix for ${slug} no longer matches - check the article: ${find.slice(0, 60)}`);
+    h = h.split(find).join(rep);
+  }
+  /* Sky is never described as a taxi: the service's "airport taxi with car
+     seat" keyword becomes "airport transfer with car seat", in the text and
+     in the heading ids and #links built from it. */
+  h = h.replace(/\b(airport)(\s+)(taxi)(\s+with\s+(?:an?\s+)?(?:child\s+|baby\s+)?(?:car\s+)?seats?)\b/gi,
+      (m, ap, sp, tx, rest) => ap + sp + (tx[0] === 'T' ? 'Transfer' : 'transfer') + rest)
+    .replace(/airport-taxi-with-/g, 'airport-transfer-with-');
+  /* embedded videos: the player is stripped by safeHtml, so the empty box
+     goes too and the video becomes a link out to YouTube */
+  h = h.replace(/<div class="video-embed-container[^"]*">\s*<div class="video-embed-wrapper"[^>]*>[\s\S]*?<\/div>\s*<div class="video-info[^"]*">\s*<h4[^>]*>\s*<a href="(https:\/\/(?:www\.)?youtube\.com\/[^"]+)"[^>]*>([\s\S]*?)<\/a>\s*<\/h4>\s*(?:<p[^>]*>([\s\S]*?)<\/p>\s*)?<\/div>\s*<\/div>/g,
+      (m, href, title, src) => '<p class="video-link"><a href="' + href + '" target="_blank" rel="noopener">Watch on YouTube: '
+        + title.replace(/\s*#\w+/g, '').replace(/\s*\|[^|]*$/, '').trim() + '</a>' + (src ? ' &mdash; ' + src.trim() : '') + '</p>')
+    /* any other shape: just drop the empty player box */
+    .replace(/<div class="video-embed-wrapper"[^>]*>\s*(?:<iframe[\s\S]*?<\/iframe>)?\s*<\/div>/g, '');
+  /* a review count written into an article goes stale the day it is
+     published: "4.8 on Google (29 reviews)" keeps the rating, drops the count */
+  h = h.replace(/(on Google)\s*(?:\(\d[\d,]*\s+reviews?\)|(?:across|from|over|with)\s+\d[\d,]*\s+reviews?)/gi, '$1');
   return h;
 }
 const AREA_PLACES = {
@@ -1508,11 +1669,19 @@ const AREA_PLACES = {
   'Brisbane': ['Brisbane CBD', 'Fortitude Valley', 'South Brisbane', 'Hamilton', 'Chermside', 'Springfield'],
 };
 function relatedBlock(a, all) {
+  const group = isGroupDay(a);
   const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
   const areas = /cruise|brisbane/.test(t) && !/gold.coast/.test(t) ? ['Brisbane'] : /gold.coast|surfers|coolangatta/.test(t) && !/brisbane/.test(t) ? ['Gold Coast'] : ['Gold Coast', 'Brisbane'];
   const per = areas.length === 1 ? 6 : 3;
   const sub = areas.flatMap((ar) => AREA_PLACES[ar].map((n) => places.find((p) => p.name === n)).filter(Boolean).slice(0, per));
-  const links = sub.map((p) => `<a href="${esc(p.url)}">${esc(p.name)} airport transfers<span>Fixed fares, both airports</span></a>`);
+  const links = group ? [
+    '<a href="/christmas-party-transport-gold-coast.html">Christmas party transport<span>V-Class, Sprinters and the coach</span></a>',
+    '<a href="/charters.html">Minibus &amp; coach charters<span>Half and full day rates</span></a>',
+    '<a href="/minibus-hire-gold-coast.html">Minibus hire, Gold Coast<span>Fixed fares by suburb</span></a>',
+    '<a href="/minibus-hire-brisbane.html">Minibus hire, Brisbane<span>Fixed fares by suburb</span></a>',
+    '<a href="/fleet.html">Our fleet<span>Sedan to 53-seat coach</span></a>',
+    '<a href="/event-transfers.html">Event transfers<span>Concerts, race days, conferences</span></a>',
+  ] : sub.map((p) => `<a href="${esc(p.url)}">${esc(p.name)} airport transfers<span>Fixed fares, both airports</span></a>`);
   if (/seat|famil|child|kid/.test(t)) links.unshift('<a href="/child-seats.html">Child and baby seats<span>Fitted for you, booked online</span></a>');
   const i = all.findIndex((x) => x.slug === a.slug);
   const more = all.length > 1 ? [1, 2, 3].map((k) => all[(i + k) % all.length]).filter((x, j, arr) => x.slug !== a.slug && arr.findIndex((y) => y.slug === x.slug) === j) : [];
@@ -1560,7 +1729,7 @@ ${NAV}
   <div class="hero-in">
   <h1>${esc(a.title || title)}</h1>
   ${a.subtitle ? `<p>${esc(a.subtitle)}</p>` : (desc ? `<p>${esc(desc)}</p>` : '')}
-  <a class="cta-gold" href="/#book">Get an instant price</a>
+  ${isGroupDay(a) ? `<a class="cta-gold" href="${GROUP_QUOTE}">Get a group quote</a>` : '<a class="cta-gold" href="/#book">Get an instant price</a>'}
   </div>
 </header>
 
@@ -1570,12 +1739,17 @@ ${NAV}
 ${safeHtml(fixArticle(a))}
 ${relatedBlock(a, all || [])}
 
-  <h2>Booking a transfer</h2>
+${isGroupDay(a) ? `  <h2>Booking a group day out</h2>
+  <div class="related">
+    <a href="${GROUP_QUOTE}">Get a group quote<span>Fixed written price, usually within the hour</span></a>
+    <a href="/charters.html">Charter rates<span>Half and full day, per vehicle</span></a>
+    <a href="/christmas-party-transport-gold-coast.html">Christmas party transport<span>Book early for December</span></a>
+  </div>` : `  <h2>Booking a transfer</h2>
   <div class="related">
     <a href="/#book">Get an instant price<span>Every suburb, fixed fares</span></a>
     <a href="/prices.html">Every published fare<span>All suburbs, all vehicles</span></a>
     <a href="/blog/">More articles<span>Guides to both airports</span></a>
-  </div>
+  </div>`}
 </div>
 ${FOOTER}
 </body>

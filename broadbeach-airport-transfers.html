@@ -42,90 +42,106 @@
 </style>
 <script type="application/ld+json">
 {
-   "@context" : "https://schema.org",
-   "@graph" : [
-      {
-         "@id" : "https://www.skytransfers.com.au/broadbeach-airport-transfers.html#service",
-         "@type" : "Service",
-         "areaServed" : {
-            "@type" : "Place",
-            "name" : "Broadbeach"
-         },
-         "name" : "Broadbeach airport transfers",
-         "offers" : {
-            "@type" : "Offer",
-            "availability" : "https://schema.org/InStock",
-            "price" : "110",
-            "priceCurrency" : "AUD",
-            "priceSpecification" : {
-               "@type" : "PriceSpecification",
-               "minPrice" : "110",
-               "priceCurrency" : "AUD",
-               "valueAddedTaxIncluded" : true
-            },
-            "url" : "https://www.skytransfers.com.au/broadbeach-airport-transfers.html"
-         },
-         "provider" : {
-            "@id" : "https://www.skytransfers.com.au/#business"
-         },
-         "serviceType" : "Airport transfer",
-         "url" : "https://www.skytransfers.com.au/broadbeach-airport-transfers.html"
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@id": "https://www.skytransfers.com.au/broadbeach-airport-transfers.html#service",
+      "@type": "Service",
+      "areaServed": {
+        "@type": "Place",
+        "name": "Broadbeach"
       },
-      {
-         "@type" : "BreadcrumbList",
-         "itemListElement" : [
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/",
-               "name" : "Home",
-               "position" : 1
-            },
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/broadbeach-airport-transfers.html",
-               "name" : "Broadbeach airport transfers",
-               "position" : 2
-            }
-         ]
+      "name": "Broadbeach airport transfers",
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        "price": "110",
+        "priceCurrency": "AUD",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": "110",
+          "priceCurrency": "AUD",
+          "valueAddedTaxIncluded": true
+        },
+        "url": "https://www.skytransfers.com.au/broadbeach-airport-transfers.html"
       },
-      {
-         "@type" : "FAQPage",
-         "mainEntity" : [
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes. Pacific Fair, the convention centre, The Star and the beachfront towers are all within the Broadbeach zone, so the fare is the same $110 from Gold Coast Airport wherever in Broadbeach you are going."
-               },
-               "name" : "Is Pacific Fair the same fare?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "About 20 minutes in normal traffic. Allow longer on a Friday evening or a school-holiday Saturday morning, when the Gold Coast Highway through Mermaid and Nobby slows noticeably."
-               },
-               "name" : "How long from Gold Coast Airport?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes, 24 hours, at the same fare. There is no night rate and no surge at any hour, which on a casino run at 2am is a meaningful difference from the alternatives."
-               },
-               "name" : "Can you collect from The Star after midnight?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Book each arrival separately and we will track each flight. If you want everyone moved together after the last landing, tell us and dispatch will schedule it that way instead."
-               },
-               "name" : "We are a conference group arriving on different flights."
-            }
-         ]
-      }
-   ]
+      "provider": {
+        "@id": "https://www.skytransfers.com.au/#business"
+      },
+      "serviceType": "Airport transfer",
+      "url": "https://www.skytransfers.com.au/broadbeach-airport-transfers.html"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/",
+          "name": "Home",
+          "position": 1
+        },
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/broadbeach-airport-transfers.html",
+          "name": "Broadbeach airport transfers",
+          "position": 2
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Pacific Fair, the convention centre, The Star and the beachfront towers are all within the Broadbeach zone, so the fare is the same $110 from Gold Coast Airport wherever in Broadbeach you are going."
+          },
+          "name": "Is Pacific Fair the same fare?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "About 20 minutes in normal traffic. Allow longer on a Friday evening or a school-holiday Saturday morning, when the Gold Coast Highway through Mermaid and Nobby slows noticeably."
+          },
+          "name": "How long from Gold Coast Airport?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, 24 hours, at the same fare. There is no night rate and no surge at any hour, which on a casino run at 2am is a meaningful difference from the alternatives."
+          },
+          "name": "Can you collect from The Star after midnight?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Book each arrival separately and we will track each flight. If you want everyone moved together after the last landing, tell us and dispatch will schedule it that way instead."
+          },
+          "name": "We are a conference group arriving on different flights."
+        },
+        {
+          "@type": "Question",
+          "name": "How much waiting time is included?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "At Gold Coast Airport, 30 minutes after your flight lands. At Brisbane Airport, 60 minutes for international arrivals and 30 for domestic. The flight is tracked, so a delay does not use it up."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a return trip cheaper?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Book both legs together as a return on this website and both are 10% off."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 <link rel="stylesheet" href="/site.css?v=20261023">
@@ -138,7 +154,7 @@
     <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
-      <a href="/#fleet">Fleet</a>
+      <a href="/fleet.html">Fleet</a>
       <a href="/prices.html">Prices</a>
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
@@ -224,6 +240,32 @@
     arrange in advance and awkward to improvise.
   </p>
 
+  <h2>Landing: how the pick-up works</h2>
+  <p>
+    Your chauffeur waits inside the arrivals hall with a name board, and you have their name and
+    mobile number before pick-up. At Gold Coast Airport the flight is tracked and 30 minutes of
+    waiting after touchdown is included; the drive north to Broadbeach is about 20 minutes.
+  </p>
+  <p>
+    From Brisbane Airport it is $245 in a sedan and 60 to 75 minutes down the M1, with the Gateway
+    toll inside the fare. Many convention delegates fly in that way, and international arrivals get
+    60 minutes of free waiting rather than 30, because immigration and baggage on a long-haul flight
+    regularly run past the hour.
+  </p>
+
+  <h2>Leaving: the run back to the airport</h2>
+  <p>
+    The last day of a conference is when everyone wants a car at the same time. If your group is
+    leaving together after the closing session, book one Sprinter for the whole party rather than
+    hoping for a run of cars outside the convention centre; up to fourteen people and fifteen bags
+    is $275 to Gold Coast Airport on one fare.
+  </p>
+  <p>
+    For everyone else, the pick-up time is worked back from your airline's check-in cut-off, with
+    room for the Highway on a Friday. Book both legs together as a return on this website and both
+    are 10% off, and the fare is the same at any hour, with no night loading and no surge.
+  </p>
+
   <div class="box">
     <p>
       <strong>Why not the tram?</strong> Broadbeach South is the southern terminus of the G:link,
@@ -258,6 +300,15 @@
     <summary>We are a conference group arriving on different flights.</summary>
     <p>Book each arrival separately and we will track each flight. If you want everyone moved
       together after the last landing, tell us and dispatch will schedule it that way instead.</p>
+  </details>
+
+  <details>
+    <summary>How much waiting time is included?</summary>
+    <p>At Gold Coast Airport, 30 minutes after your flight lands. At Brisbane Airport, 60 minutes for international arrivals and 30 for domestic. The flight is tracked, so a delay does not use it up.</p>
+  </details>
+  <details>
+    <summary>Is a return trip cheaper?</summary>
+    <p>Yes. Book both legs together as a return on this website and both are 10% off.</p>
   </details>
 
   <h2>Nearby suburbs</h2>
@@ -322,6 +373,7 @@
       <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>

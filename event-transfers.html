@@ -42,93 +42,105 @@
 </style>
 <script type="application/ld+json">
 {
-   "@context" : "https://schema.org",
-   "@graph" : [
-      {
-         "@id" : "https://www.skytransfers.com.au/event-transfers.html#service",
-         "@type" : "Service",
-         "areaServed" : {
-            "@type" : "Place",
-            "name" : "Gold Coast, Brisbane and Byron Bay"
-         },
-         "name" : "Event transfers",
-         "provider" : {
-            "@id" : "https://www.skytransfers.com.au/#business"
-         },
-         "serviceType" : "Event and group transfer",
-         "url" : "https://www.skytransfers.com.au/event-transfers.html"
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@id": "https://www.skytransfers.com.au/event-transfers.html#service",
+      "@type": "Service",
+      "areaServed": {
+        "@type": "Place",
+        "name": "Gold Coast, Brisbane and Byron Bay"
       },
-      {
-         "@type" : "BreadcrumbList",
-         "itemListElement" : [
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/",
-               "name" : "Home",
-               "position" : 1
-            },
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/event-transfers.html",
-               "name" : "Event transfers",
-               "position" : 2
-            }
-         ]
+      "name": "Event transfers",
+      "provider": {
+        "@id": "https://www.skytransfers.com.au/#business"
       },
-      {
-         "@type" : "FAQPage",
-         "mainEntity" : [
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Event transport is an hourly charter rather than a published fare. The vehicle and chauffeur stay with your group for a block of hours, so you are not paying per trip and the return leg is already covered. A half day is up to four hours and a full day up to eight, with driver, fuel, tolls and GST included."
-               },
-               "name" : "Why is an event transfer priced differently to an airport transfer?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "No. The price we quote covers the whole night, with no extra charge after hours, and published airport fares carry no loading at any hour either."
-               },
-               "name" : "Is there a late-night charge for the run home?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Up to 14 in a Sprinter, 18 in the 18-seater and 53 in the luxury coach. Larger groups run as multiple vehicles timed to arrive together, which is how we handle corporate boxes, sporting clubs and whole wedding parties heading on to a concert."
-               },
-               "name" : "How many people can travel in one vehicle?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Water and soft drinks are fine. For alcohol, Queensland rules apply and it depends on the vehicle and the occasion, so ask when you book and we will confirm what is possible for your charter rather than guess."
-               },
-               "name" : "Can we drink on board on the way to the event?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "The chauffeur waits. That is the point of chartering rather than booking two separate trips — encores run long, sport goes to extra time, and a vehicle already paid for through that block is not going to leave without you."
-               },
-               "name" : "What happens if the event finishes later than scheduled?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes, and those legs are published fares rather than charter rates. Flying in for an event means the airport run is priced by suburb before you book — the Gold Coast Convention Centre at Broadbeach is $110 from Gold Coast Airport, and Brisbane Entertainment Centre at Boondall is $85 from Brisbane Airport."
-               },
-               "name" : "Can you collect interstate guests from the airport as well?"
-            }
-         ]
+      "serviceType": "Event and group transfer",
+      "url": "https://www.skytransfers.com.au/event-transfers.html",
+      "offers": {
+        "@type": "Offer",
+        "url": "https://www.skytransfers.com.au/charters.html#fleet-rates",
+        "priceCurrency": "AUD",
+        "description": "Charter rates per vehicle: Mercedes V-Class half day $530 / full day $970; Sprinter 10 $640 / $1,160; Sprinter 14 $730 / $1,320; 53-seat coach $1,550 / $2,300. No after-hours surcharge.",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": 530,
+          "priceCurrency": "AUD",
+          "valueAddedTaxIncluded": true
+        }
       }
-   ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/",
+          "name": "Home",
+          "position": 1
+        },
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/event-transfers.html",
+          "name": "Event transfers",
+          "position": 2
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Event transport is an hourly charter rather than a published fare. The vehicle and chauffeur stay with your group for a block of hours, so you are not paying per trip and the return leg is already covered. A half day is up to four hours and a full day up to eight, with driver, fuel, tolls and GST included."
+          },
+          "name": "Why is an event transfer priced differently to an airport transfer?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The price we quote covers the whole night, with no extra charge after hours, and published airport fares carry no loading at any hour either."
+          },
+          "name": "Is there a late-night charge for the run home?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Up to 14 in a Sprinter, 18 in the 18-seater and 53 in the luxury coach. Larger groups run as multiple vehicles timed to arrive together, which is how we handle corporate boxes, sporting clubs and whole wedding parties heading on to a concert."
+          },
+          "name": "How many people can travel in one vehicle?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Water and soft drinks are fine. For alcohol, Queensland rules apply and it depends on the vehicle and the occasion, so ask when you book and we will confirm what is possible for your charter rather than guess."
+          },
+          "name": "Can we drink on board on the way to the event?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The chauffeur waits. That is the point of chartering rather than booking two separate trips — encores run long, sport goes to extra time, and a vehicle already paid for through that block is not going to leave without you."
+          },
+          "name": "What happens if the event finishes later than scheduled?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, and those legs are published fares rather than charter rates. Flying in for an event means the airport run is priced by suburb before you book — the Gold Coast Convention Centre at Broadbeach is $110 from Gold Coast Airport, and Brisbane Entertainment Centre at Boondall is $85 from Brisbane Airport."
+          },
+          "name": "Can you collect interstate guests from the airport as well?"
+        }
+      ]
+    }
+  ]
 }
 </script>
 <link rel="stylesheet" href="/site.css?v=20261023">
@@ -141,7 +153,7 @@
     <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
-      <a href="/#fleet">Fleet</a>
+      <a href="/fleet.html">Fleet</a>
       <a href="/prices.html">Prices</a>
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
@@ -326,6 +338,7 @@
 
   <h2>Also worth a look</h2>
   <div class="related">
+    <a href="/christmas-party-transport-gold-coast.html">Christmas party transport<span>Sprinters and the 53-seat coach</span></a>
     <a href="/charters.html">Charters &amp; the fleet<span>Vehicles, capacities, quote form</span></a>
     <a href="/corporate-transfers.html">Corporate transfers<span>Client boxes, conferences, accounts</span></a>
     <a href="/wedding-transfers.html">Wedding transfers<span>Guest shuttles from $120/hr</span></a>
@@ -378,6 +391,7 @@
       <p><a href="/event-transfers.html">Event transfers</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>

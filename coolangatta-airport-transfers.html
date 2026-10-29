@@ -42,90 +42,106 @@
 </style>
 <script type="application/ld+json">
 {
-   "@context" : "https://schema.org",
-   "@graph" : [
-      {
-         "@id" : "https://www.skytransfers.com.au/coolangatta-airport-transfers.html#service",
-         "@type" : "Service",
-         "areaServed" : {
-            "@type" : "Place",
-            "name" : "Coolangatta"
-         },
-         "name" : "Coolangatta airport transfers",
-         "offers" : {
-            "@type" : "Offer",
-            "availability" : "https://schema.org/InStock",
-            "price" : "80",
-            "priceCurrency" : "AUD",
-            "priceSpecification" : {
-               "@type" : "PriceSpecification",
-               "minPrice" : "80",
-               "priceCurrency" : "AUD",
-               "valueAddedTaxIncluded" : true
-            },
-            "url" : "https://www.skytransfers.com.au/coolangatta-airport-transfers.html"
-         },
-         "provider" : {
-            "@id" : "https://www.skytransfers.com.au/#business"
-         },
-         "serviceType" : "Airport transfer",
-         "url" : "https://www.skytransfers.com.au/coolangatta-airport-transfers.html"
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@id": "https://www.skytransfers.com.au/coolangatta-airport-transfers.html#service",
+      "@type": "Service",
+      "areaServed": {
+        "@type": "Place",
+        "name": "Coolangatta"
       },
-      {
-         "@type" : "BreadcrumbList",
-         "itemListElement" : [
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/",
-               "name" : "Home",
-               "position" : 1
-            },
-            {
-               "@type" : "ListItem",
-               "item" : "https://www.skytransfers.com.au/coolangatta-airport-transfers.html",
-               "name" : "Coolangatta airport transfers",
-               "position" : 2
-            }
-         ]
+      "name": "Coolangatta airport transfers",
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        "price": "80",
+        "priceCurrency": "AUD",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "minPrice": "80",
+          "priceCurrency": "AUD",
+          "valueAddedTaxIncluded": true
+        },
+        "url": "https://www.skytransfers.com.au/coolangatta-airport-transfers.html"
       },
-      {
-         "@type" : "FAQPage",
-         "mainEntity" : [
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "For the vehicle, one way, GST included, one to three passengers in a sedan. There is no surge, no night rate and no minimum-fare top-up on short runs."
-               },
-               "name" : "Is $80 really the whole fare?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes, both are published fares. Byron Bay and its district are too — $220 from Gold Coast Airport. See Byron Bay transfers."
-               },
-               "name" : "Do you cross into Tweed Heads and Kingscliff?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Closer than anywhere else on the coast, but we will still recommend a time built back from your check-in cut-off rather than from the drive. Being five minutes from the terminal does not shorten the bag drop queue."
-               },
-               "name" : "How early should I be picked up for a morning flight?"
-            },
-            {
-               "@type" : "Question",
-               "acceptedAnswer" : {
-                  "@type" : "Answer",
-                  "text" : "Yes. Tweed Heads and the NSW side are published fares in both directions, and the summer timezone difference is worth confirming when you book."
-               },
-               "name" : "Can you do a one-way drop at the airport from a Tweed hotel?"
-            }
-         ]
-      }
-   ]
+      "provider": {
+        "@id": "https://www.skytransfers.com.au/#business"
+      },
+      "serviceType": "Airport transfer",
+      "url": "https://www.skytransfers.com.au/coolangatta-airport-transfers.html"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/",
+          "name": "Home",
+          "position": 1
+        },
+        {
+          "@type": "ListItem",
+          "item": "https://www.skytransfers.com.au/coolangatta-airport-transfers.html",
+          "name": "Coolangatta airport transfers",
+          "position": 2
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For the vehicle, one way, GST included, one to three passengers in a sedan. There is no surge, no night rate and no minimum-fare top-up on short runs."
+          },
+          "name": "Is $80 really the whole fare?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, both are published fares. Byron Bay and its district are too — $220 from Gold Coast Airport. See Byron Bay transfers."
+          },
+          "name": "Do you cross into Tweed Heads and Kingscliff?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Closer than anywhere else on the coast, but we will still recommend a time built back from your check-in cut-off rather than from the drive. Being five minutes from the terminal does not shorten the bag drop queue."
+          },
+          "name": "How early should I be picked up for a morning flight?"
+        },
+        {
+          "@type": "Question",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Tweed Heads and the NSW side are published fares in both directions, and the summer timezone difference is worth confirming when you book."
+          },
+          "name": "Can you do a one-way drop at the airport from a Tweed hotel?"
+        },
+        {
+          "@type": "Question",
+          "name": "How much waiting time is included?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "At Gold Coast Airport, 30 minutes after your flight lands. At Brisbane Airport, 60 minutes for international arrivals and 30 for domestic. The flight is tracked, so a delay does not use it up."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a return trip cheaper?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Book both legs together as a return on this website and both are 10% off."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 <link rel="stylesheet" href="/site.css?v=20261023">
@@ -138,7 +154,7 @@
     <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
-      <a href="/#fleet">Fleet</a>
+      <a href="/fleet.html">Fleet</a>
       <a href="/prices.html">Prices</a>
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
@@ -237,6 +253,32 @@
     vehicle turns up rather than a car with a problem.
   </p>
 
+  <h2>Landing: how the pick-up works</h2>
+  <p>
+    Gold Coast Airport has a single terminal, and your chauffeur waits in the arrivals hall with a
+    name board. You have their name and mobile number before pick-up, the flight is tracked, and 30
+    minutes of waiting after touchdown is included. From the kerb to a Coolangatta, Kirra or
+    Greenmount address is about ten minutes, which makes this the quickest door-to-door run we do.
+  </p>
+  <p>
+    From Brisbane Airport it is a two-hour drive at $280 in a sedan, with the Gateway toll inside the
+    fare and 60 minutes of free waiting on international arrivals. If you are landing late in
+    Brisbane, that is a long day; it is still the same fixed fare at midnight.
+  </p>
+
+  <h2>Leaving: the run back to the airport</h2>
+  <p>
+    The short drive tempts people to leave it late. We do not: the pick-up time is worked back from
+    your airline's check-in cut-off, with a margin for the bag drop queue rather than the road. If you
+    are staying on the Tweed side in summer, give us your flight time and we will set the pick-up in
+    the airport's clock, so the daylight-saving hour cannot catch you out.
+  </p>
+  <p>
+    Book both legs together as a return on this website and both are 10% off. The fare is the same
+    for a 5am flight as for one at lunchtime &mdash; no night loading, no public-holiday rate and no
+    surge.
+  </p>
+
   <h2>Questions</h2>
 
   <details>
@@ -262,6 +304,15 @@
     <summary>Can you do a one-way drop at the airport from a Tweed hotel?</summary>
     <p>Yes. Tweed Heads and the NSW side are published fares in both directions, and the summer
       timezone difference is worth confirming when you book.</p>
+  </details>
+
+  <details>
+    <summary>How much waiting time is included?</summary>
+    <p>At Gold Coast Airport, 30 minutes after your flight lands. At Brisbane Airport, 60 minutes for international arrivals and 30 for domestic. The flight is tracked, so a delay does not use it up.</p>
+  </details>
+  <details>
+    <summary>Is a return trip cheaper?</summary>
+    <p>Yes. Book both legs together as a return on this website and both are 10% off.</p>
   </details>
 
   <h2>Nearby suburbs</h2>
@@ -326,6 +377,7 @@
       <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>
