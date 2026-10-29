@@ -89,6 +89,7 @@
 <main>
   <div id="msg" class="msg" hidden></div>
   <div id="list"><p class="empty">Loading your jobs&hellip;</p></div>
+  <p class="date" style="margin:18px 4px 0">When you press &ldquo;I'm on location&rdquo;, your phone may ask to share your location. Please allow it: the office keeps it as proof you were there if a guest doesn't show. It's taken only at that moment, never tracked.</p>
   <div id="pay" hidden></div>
 </main>
 <script>
@@ -210,9 +211,32 @@
     return c;
   }
 
+  /* Proof of arrival for the office: where this phone is when the driver
+     presses "I'm on location". Asked once per press, given up after 8
+     seconds; a "no" or a phone that can't tell is sent as such and never
+     holds the step up. */
+  function whereAmI(){
+    return new Promise(function(done){
+      if (!navigator.geolocation) return done({ geoNote: "unsupported" });
+      var over = false, timer = setTimeout(function(){ over = true; done({ geoNote: "timeout" }); }, 9000);
+      navigator.geolocation.getCurrentPosition(function(p){
+        if (over) return; clearTimeout(timer);
+        done({ geo: { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy } });
+      }, function(e){
+        if (over) return; clearTimeout(timer);
+        done({ geoNote: e && e.code === 1 ? "denied" : e && e.code === 3 ? "timeout" : "unavailable" });
+      }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 });
+    });
+  }
+
   function step(j, status, btn){
-    btn.disabled = true; var was = btn.textContent; btn.textContent = "Saving…";
-    post("/driver/status", { t: t, ref: j.ref, leg: j.leg, status: status }).then(function(){
+    btn.disabled = true; var was = btn.textContent; btn.textContent = status === "on_location" ? "Saving your location…" : "Saving…";
+    var extra = status === "on_location" ? whereAmI() : Promise.resolve({});
+    extra.then(function(x){
+      var body = { t: t, ref: j.ref, leg: j.leg, status: status };
+      if (x.geo) body.geo = x.geo; if (x.geoNote) body.geoNote = x.geoNote;
+      return post("/driver/status", body);
+    }).then(function(){
       /* After the refresh, which clears the message box. */
       return load().then(function(){
         if (status === "declined") msg("Thanks — the office has been told you can't do " + j.ref + ".", true);
