@@ -44,7 +44,7 @@ Indicative starting fares by vehicle:
 - SUV, 1–4 passengers, 4 bags — from AUD 90
 - People mover, 1–7 passengers, 6 bags — from AUD 100
 - Luxury sedan, 1–3 passengers, 2 large bags — from AUD 105
-- Luxury minivan, 1–7 passengers, 6 bags — from AUD 115
+- Luxury minivan, 1–6 passengers, 6 bags — from AUD 115
 - Mercedes Sprinter 10-seater, up to 10 passengers, 11 bags — from AUD 165
 - Mercedes Sprinter 14-seater, up to 14 passengers, 15 bags — from AUD 240
 - Mercedes Sprinter 18-seater, up to 18 passengers, 18 bags — quoted per job, not priced by suburb

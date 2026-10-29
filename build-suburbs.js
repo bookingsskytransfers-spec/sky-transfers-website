@@ -75,7 +75,7 @@ const VEH = [
   ['SUV',            '1–4 passengers · 4 bags'],
   ['People Mover',   '1–7 passengers · 6 bags'],
   ['Luxury Sedan',   '1–3 passengers · 2 bags'],
-  ['Luxury Minivan', '1–7 passengers · 6 bags'],
+  ['Luxury Minivan', '1–6 passengers · 6 bags'],
   ['Sprinter 10',    'up to 10 passengers · 11 bags'],
   ['Sprinter 14',    'up to 14 passengers · 15 bags'],
 ];
@@ -1050,7 +1050,7 @@ ${rows}
     </table>
   </div>
   <p class="fare-note">
-    Sedan and Luxury Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; People Mover and Luxury Minivan 1&ndash;7 &middot; Sprinter 10 and 14 seats.
+    Sedan and Luxury Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; People Mover 1&ndash;7 &middot; Luxury Minivan 1&ndash;6 &middot; Sprinter 10 and 14 seats.
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals). Child seats $15 each, luggage trailer $30. The Brisbane Cruise Terminal is the
     airport fare plus $25. Need more than 14 seats? The 18-seat Sprinter and our
