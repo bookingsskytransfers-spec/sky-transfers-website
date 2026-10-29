@@ -377,6 +377,12 @@
 
     <!-- ===================== INVOICES ===================== -->
     <section id="tab-invoices" hidden>
+      <div id="i-link" class="linkbox" hidden>
+        <div class="lbl">Job view for <span id="i-link-for"></span> &mdash; read-only: their jobs, and the driver and progress once a job is sent. No prices.</div>
+        <code id="i-link-url"></code>
+        <button class="act" id="i-link-copy">Copy link</button>
+        <a class="act" id="i-link-mail" target="_blank" rel="noopener">Email it</a>
+      </div>
       <div id="i-bank" class="msg" hidden>Invoices show card payment only. To add your bank transfer details to every invoice, set <b>INVOICE_BANK_DETAILS</b> on the booking server in Render (e.g. "Account name, BSB 000-000, Account 00000000").</div>
       <div class="card">
         <h2>Accounts</h2>
@@ -827,6 +833,8 @@
         j.payState === "paid" ? (j.balance ? "Paid · $" + j.balance + " owing" : "Paid") : j.payState === "confirmed" ? "Confirmed · unpaid" : "Request — not confirmed"));
     } else {
       top.appendChild(el("span", "chip " + j.source, (j.source === "agent" ? "Agent: " : "") + (j.account || "Account") + (j.accountRef ? " · " + j.accountRef : "")));
+      /* Not a Check - it can be driven - but it can't be invoiced at $0. */
+      if (j.source === "account" && !j.price) top.appendChild(el("span", "chip unpaid", "Price to add"));
     }
     if (j.auto && j.driverId) top.appendChild(el("span", "chip auto", "Picked by Autopilot"));
     var sn = j.sourceNote || "";
@@ -988,6 +996,21 @@
       if (t[p[0]]) steps.push(p[1] + " " + new Date(t[p[0]]).toLocaleTimeString("en-AU", { timeZone: "Australia/Brisbane", hour: "2-digit", minute: "2-digit" }));
     });
     if (steps.length) c.appendChild(el("div", "progress", "Driver: " + steps.join(" · ")));
+    /* Proof of arrival: where the driver's phone said it was when they
+       pressed "I'm on location". */
+    var ar = j.arrival;
+    if (ar) {
+      var at = el("div", "progress");
+      if (ar.geo === "ok" && ar.lat != null) {
+        at.appendChild(document.createTextNode("Arrival location: "));
+        var mapA = el("a", "", "open on the map"); mapA.href = "https://www.google.com/maps?q=" + ar.lat + "," + ar.lng; mapA.target = "_blank"; mapA.rel = "noopener";
+        at.appendChild(mapA);
+        at.appendChild(document.createTextNode(" (" + ar.lat.toFixed(5) + ", " + ar.lng.toFixed(5) + (ar.acc != null ? ", within about " + ar.acc + " m" : "") + ")"));
+      } else {
+        at.textContent = "Arrival location: not recorded — " + (ar.geo === "denied" ? "the driver's phone said no" : ar.geo === "timeout" ? "the phone took too long" : "the phone couldn't tell");
+      }
+      c.appendChild(at);
+    }
     return c;
   }
 
@@ -1359,6 +1382,17 @@
             });
             act.appendChild(iv);
             if (p.type === "account") { act.appendChild(document.createTextNode(" ")); var ed = el("button", "act", "Edit"); ed.addEventListener("click", function(){ accountFormFill(p); }); act.appendChild(ed); }
+            if (p.type === "account" && p.active !== false) {
+              act.appendChild(document.createTextNode(" "));
+              var vl = el("button", "act", "Job view link"); vl.addEventListener("click", function(){
+                api("/ops/account/view-link", { method: "POST", body: { id: p.id } }).then(function(r){ showAccLink(p, r.url); })
+                  .catch(function(err){ show($("i-acc-msg"), err.message); });
+              });
+              act.appendChild(vl); act.appendChild(document.createTextNode(" "));
+              act.appendChild(armBtn("Reset link", "Old link stops — sure?", "danger", function(){
+                return api("/ops/account/view-link", { method: "POST", body: { id: p.id, reset: true } }).then(function(r){ showAccLink(p, r.url); });
+              }));
+            }
           }
         });
       var sel = $("in-party"), keep = sel.value; sel.innerHTML = "";
@@ -1369,6 +1403,22 @@
     }).catch(function(err){ show($("i-acc-msg"), err.message); });
   }
   window.__loadBilling = loadBilling;
+
+  /* An account's read-only job view (account.html). The link never changes
+     unless "Reset link" is pressed. */
+  function showAccLink(p, url){
+    $("i-link").hidden = false; $("i-link-for").textContent = p.name; $("i-link-url").textContent = url;
+    $("i-link-mail").href = "mailto:" + encodeURIComponent(p.email || "") + "?subject=" + encodeURIComponent("Your Sky Transfers job view") +
+      "&body=" + encodeURIComponent("Hi" + (p.contact ? " " + p.contact.split(" ")[0] : "") + ",\n\nThis link shows every job we have for " + p.name +
+      " from last week to two months ahead, with the driver's name, mobile and car once a job is sent to them, and how each trip is going. " +
+      "It's read-only, it doesn't change, and you can bookmark it or share it with your team:\n\n" + url +
+      "\n\nFor changes or new bookings, call or WhatsApp +61 481 437 772 or email info@skytransfers.com.au.\n\nThanks,\nAman\nSky Transfers");
+    $("i-link").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  $("i-link-copy").addEventListener("click", function(){
+    var t = $("i-link-url").textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ $("i-link-copy").textContent = "Copied ✓"; setTimeout(function(){ $("i-link-copy").textContent = "Copy link"; }, 2000); });
+  });
 
   function accountFormFill(p){
     $("i-acc-h").textContent = p && p.id ? "Edit " + p.name : "Add an account";

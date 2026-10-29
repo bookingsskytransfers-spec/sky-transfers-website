@@ -9,6 +9,7 @@ Disallow: /admin.html
 Disallow: /dispatch.html
 Disallow: /driver.html
 Disallow: /track.html
+Disallow: /account.html
 Disallow: /wp-admin/
 
 # DELIBERATELY NOT BLOCKED: /author/, /category/, /tag/, /*/feed/
@@ -44,6 +45,7 @@ Disallow: /admin.html
 Disallow: /dispatch.html
 Disallow: /driver.html
 Disallow: /track.html
+Disallow: /account.html
 Disallow: /wp-admin/
 
 Sitemap: https://www.skytransfers.com.au/sitemap.xml

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your jobs — Sky Transfers</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#101828">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+  :root{
+    --ground:#F7F4ED; --card:#FFFFFF; --ink:#141D30; --text:#333B4C; --muted:#68707F;
+    --line:#E5E0D2; --gold:#C9A227; --gold-deep:#6F5510; --gold-soft:#F6EED9;
+    --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --ok-soft:#E3F2EA; --err:#B0392F; --err-soft:#FBE9E7;
+    --blue:#1F5FA8; --blue-soft:#E6EFFA;
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+      --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+      --navy:#1B2A47; --ok:#4CC08A; --ok-soft:#173326; --err:#E28078; --err-soft:#3A1F1E;
+      --blue:#7FB1EE; --blue-soft:#1A2C45;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
+    --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
+    --navy:#1B2A47; --ok:#4CC08A; --ok-soft:#173326; --err:#E28078; --err-soft:#3A1F1E;
+    --blue:#7FB1EE; --blue-soft:#1A2C45;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--text);
+    font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.45}
+  header{background:var(--navy);color:var(--navy-text);padding:16px 16px 14px;position:sticky;top:0;z-index:5}
+  header .row{display:flex;justify-content:space-between;align-items:center;gap:10px;max-width:760px;margin:0 auto}
+  header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.02em}
+  header small{display:block;font-size:13px;opacity:.75;font-weight:400}
+  header button{background:none;border:1px solid rgba(255,255,255,.35);color:var(--navy-text);border-radius:8px;
+    padding:8px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  main{max-width:760px;margin:0 auto;padding:12px 12px 60px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 4px}
+  .bar input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:var(--card);color:var(--ink)}
+  .bar .seen{font-size:13px;color:var(--muted)}
+  h2{font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 4px 8px;font-weight:700}
+  .job{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;padding:14px;margin-bottom:12px}
+  .job.s-driver_assigned{border-left-color:var(--navy)}
+  .job.s-on_way,.job.s-on_location,.job.s-pob{border-left-color:var(--blue)}
+  .job.s-done{border-left-color:var(--ok);opacity:.8}
+  .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .time{font-size:24px;font-weight:800;color:var(--ink);line-height:1}
+  .date,.ref{font-size:14px;color:var(--muted)}
+  .ref{margin-left:auto}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--gold-soft);color:var(--gold-deep)}
+  .pill.live{background:var(--blue-soft);color:var(--blue)} .pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.navy{background:var(--navy);color:var(--navy-text)}
+  .route{margin:6px 0;font-weight:700;color:var(--ink);overflow-wrap:anywhere}
+  .route .arrow{color:var(--muted);font-weight:400;margin:0 6px}
+  .facts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:15px;margin:6px 0}
+  .facts b{color:var(--ink)}
+  .driver{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0 2px;font-size:15px}
+  .driver b{color:var(--ink)}
+  .driver a{color:var(--blue);font-weight:700;text-decoration:none}
+  .steps{display:flex;gap:4px;margin:10px 0 2px}
+  .steps span{flex:1;height:6px;border-radius:3px;background:var(--line)}
+  .steps span.on{background:var(--blue)}
+  .job.s-done .steps span.on{background:var(--ok)}
+  .stepnames{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .stepnames b{color:var(--ink);font-weight:700}
+  .msg{background:var(--err-soft);color:var(--ink);border-radius:10px;padding:12px;margin:12px 0;font-size:15px}
+  .empty{text-align:center;color:var(--muted);padding:40px 12px}
+  .foot{font-size:13px;color:var(--muted);margin:24px 4px 0}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <h1>Sky Transfers <small id="hello">Your jobs with us</small></h1>
+    <button id="refresh" type="button">Refresh</button>
+  </div>
+</header>
+<main>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Find a guest, your reference or a place" aria-label="Search your jobs">
+    <span class="seen" id="seen"></span>
+  </div>
+  <div id="msg" class="msg" hidden></div>
+  <div id="list"><p class="empty">Loading your jobs&hellip;</p></div>
+  <p class="foot">This page is read-only and updates by itself every minute. For a change or a new booking, call or WhatsApp
+    +61 481 437 772 or email info@skytransfers.com.au. The driver's details appear once the job has been sent to them.</p>
+</main>
+<script>
+(function(){
+  var API = "https://sky-transfers-booking-server.onrender.com";
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  /* The link lives in the URL fragment (#t=...), which the browser never sends
+     to any server. Kept on this device so a bookmark without it still works;
+     a newer link from Sky Transfers replaces it. */
+  var t = "";
+  var m = /[#&]t=([^&]+)/.exec(location.hash || "");
+  if (m) { t = decodeURIComponent(m[1]); try { localStorage.setItem("sky_account_t", t); } catch (e) {} }
+  else { try { t = localStorage.getItem("sky_account_t") || ""; } catch (e) {} }
+
+  function post(path, body){
+    return fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ if (!r.ok) throw new Error(d.error || "Something went wrong."); return d; }); });
+  }
+  function msg(text){ var b = $("msg"); b.hidden = !text; b.textContent = text || ""; }
+
+  var DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function niceDate(d){ var x = new Date(d + "T00:00:00Z"); return DAYS[x.getUTCDay()] + " " + x.getUTCDate() + " " + MONTHS[x.getUTCMonth()]; }
+  function addDays(d, n){ return new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10); }
+  function clock(iso){ return iso ? new Date(iso).toLocaleTimeString("en-AU", { timeZone: "Australia/Brisbane", hour: "2-digit", minute: "2-digit" }) : ""; }
+
+  var LABEL = { booked: "Booked", driver_assigned: "Driver assigned", on_way: "Driver on the way", on_location: "Driver at pick-up", pob: "Passenger on board", done: "Completed" };
+  var PILL = { booked: "", driver_assigned: "navy", on_way: "live", on_location: "live", pob: "live", done: "ok" };
+  var STEPS = [["accepted", "Accepted"], ["onWay", "On the way"], ["onLocation", "At pick-up"], ["pob", "On board"], ["done", "Done"]];
+
+  var JOBS = [], TODAY = null;
+  function load(){
+    if (!t) { $("list").innerHTML = ""; msg("Open this page from the link Sky Transfers sent you."); return Promise.resolve(); }
+    return post("/account/jobs", { t: t }).then(function(d){
+      msg(""); TODAY = d.today; JOBS = d.jobs || [];
+      $("hello").textContent = d.account.name + " — your jobs with us";
+      document.title = d.account.name + " — Sky Transfers";
+      $("seen").textContent = "Updated " + new Date().toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" });
+      render();
+    }).catch(function(err){ $("list").innerHTML = ""; msg(err.message); });
+  }
+
+  function render(){
+    var list = $("list"); list.innerHTML = "";
+    var q = $("q").value.trim().toLowerCase();
+    var jobs = JOBS.filter(function(j){
+      if (!q) return true;
+      return [j.guest, j.theirRef, j.ref, j.from, j.to, j.flight, j.driver && j.driver.name].join(" ").toLowerCase().indexOf(q) !== -1;
+    });
+    if (!JOBS.length) { list.appendChild(el("p", "empty", "No jobs with us from last week to two months ahead.")); return; }
+    if (!jobs.length) { list.appendChild(el("p", "empty", "Nothing matches that search.")); return; }
+    var groups = [["Today", function(j){ return j.date === TODAY; }], ["Tomorrow", function(j){ return j.date === addDays(TODAY, 1); }],
+                  ["Coming up", function(j){ return j.date > addDays(TODAY, 1); }], ["Last 7 days", function(j){ return j.date < TODAY; }]];
+    groups.forEach(function(g){
+      var these = jobs.filter(g[1]);
+      if (g[0] === "Last 7 days") these = these.slice().reverse();
+      if (!these.length) return;
+      list.appendChild(el("h2", "", g[0] + " · " + these.length));
+      these.forEach(function(j){ list.appendChild(card(j)); });
+    });
+  }
+
+  function card(j){
+    var c = el("div", "job s-" + j.status);
+    var top = el("div", "top");
+    top.appendChild(el("span", "time", j.time || "--:--"));
+    top.appendChild(el("span", "date", niceDate(j.date)));
+    top.appendChild(el("span", "pill " + (PILL[j.status] || ""), LABEL[j.status] || j.status));
+    if (j.isReturn) top.appendChild(el("span", "pill", j.leg === "ret" ? "Return leg" : "Outbound leg"));
+    top.appendChild(el("span", "ref", (j.theirRef ? j.theirRef + " · " : "") + j.ref));
+    c.appendChild(top);
+
+    var r = el("div", "route");
+    var asDirected = j.hours && (!j.to || j.to === "As directed");
+    r.appendChild(document.createTextNode(j.from));
+    (j.stops || []).forEach(function(s){ r.appendChild(el("span", "arrow", "→")); r.appendChild(document.createTextNode(s)); });
+    r.appendChild(el("span", "arrow", "→"));
+    r.appendChild(document.createTextNode(asDirected ? j.hours + " hours as directed" : j.to));
+    c.appendChild(r);
+
+    var f = el("div", "facts");
+    function fact(label, val){ if (!val) return; var s = el("span"); if (label) s.appendChild(el("b", "", label + " ")); s.appendChild(document.createTextNode(String(val))); f.appendChild(s); }
+    fact("Guest", j.guest); fact("Pax", j.pax); fact("", j.vehicleClass); fact("Flight", j.flight);
+    if (j.childSeats) fact("Child seats", j.childSeats); if (j.trailer) fact("", "Luggage trailer");
+    if (j.hours && !asDirected) fact("", j.hours + " h");
+    c.appendChild(f);
+
+    if (j.driver) {
+      var d = el("div", "driver");
+      var who = el("span"); who.appendChild(el("b", "", "Driver ")); who.appendChild(document.createTextNode(j.driver.name)); d.appendChild(who);
+      if (j.driver.phone) { var call = el("a", "", j.driver.phone); call.href = "tel:" + j.driver.phone.replace(/[^\d+]/g, ""); d.appendChild(call); }
+      if (j.driver.car) { var car = el("span"); car.appendChild(el("b", "", "Car ")); car.appendChild(document.createTextNode(j.driver.car)); d.appendChild(car); }
+      c.appendChild(d);
+    }
+    var s = j.steps || {};
+    if (j.driver || j.status === "done") {
+      var bar = el("div", "steps"), names = el("div", "stepnames");
+      STEPS.forEach(function(p){
+        bar.appendChild(el("span", s[p[0]] ? "on" : ""));
+        var n = el("span"); if (s[p[0]]) { n.appendChild(el("b", "", p[1])); n.appendChild(document.createTextNode(" " + clock(s[p[0]]))); } else n.textContent = p[1];
+        names.appendChild(n);
+      });
+      c.appendChild(bar); c.appendChild(names);
+    }
+    return c;
+  }
+
+  $("q").addEventListener("input", render);
+  $("refresh").addEventListener("click", load);
+  /* Trips move on while the page sits open in an office. */
+  setInterval(function(){ if (document.visibilityState === "visible") load(); }, 60000);
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") load(); });
+  load();
+})();
+</script>
+</body>
+</html>
