@@ -51,8 +51,148 @@
       "name": "Airport transfer prices for every suburb",
       "description": "Published one-way fares from 421<!--c:total--> destinations to Gold Coast (OOL) and Brisbane (BNE) airports, across seven vehicle classes. GST and tolls included.",
       "inLanguage": "en-AU",
-      "isPartOf": {"@id": "https://www.skytransfers.com.au/#website"},
-      "about": {"@id": "https://www.skytransfers.com.au/#business"}
+      "isPartOf": {
+        "@id": "https://www.skytransfers.com.au/#website"
+      },
+      "about": {
+        "@id": "https://www.skytransfers.com.au/#business"
+      },
+      "mainEntity": {
+        "@type": "OfferCatalog",
+        "name": "Vehicle from-prices, one way, per vehicle",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Sedan transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 80,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "SUV transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 90,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "People Mover transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 100,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Luxury Sedan transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 105,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes V-Class (Luxury Minivan) transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 115,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes Sprinter 10-Seater transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 165,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes Sprinter 14-Seater transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "priceCurrency": "AUD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": 240,
+              "priceCurrency": "AUD",
+              "valueAddedTaxIncluded": true
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mercedes Sprinter 18-Seater transfer",
+              "provider": {
+                "@id": "https://www.skytransfers.com.au/#business"
+              }
+            },
+            "description": "Quoted per job"
+          }
+        ]
+      }
     },
     {
       "@type": "WebSite",
@@ -60,13 +200,86 @@
       "url": "https://www.skytransfers.com.au/",
       "name": "Sky Transfers",
       "inLanguage": "en-AU",
-      "publisher": {"@id": "https://www.skytransfers.com.au/#organization"}
+      "publisher": {
+        "@id": "https://www.skytransfers.com.au/#organization"
+      }
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.skytransfers.com.au/"},
-        {"@type": "ListItem", "position": 2, "name": "Prices", "item": "https://www.skytransfers.com.au/prices.html"}
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.skytransfers.com.au/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Prices",
+          "item": "https://www.skytransfers.com.au/prices.html"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Are your prices per person or per vehicle?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Per vehicle. The fare covers everyone in the vehicle and includes GST and tolls."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do prices go up at night or in busy periods?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. There is no surge pricing and no after-hours or late-night surcharge on any transfer or charter."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much is a Gold Coast Airport transfer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sedan fares from Gold Coast Airport start at $80 to Coolangatta, $95 to Burleigh Heads, $110 to Broadbeach and $125 to Surfers Paradise or Main Beach."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much is Brisbane Airport to the Gold Coast?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "From $195 in a sedan, and $245 to Surfers Paradise. Brisbane Airport to the Brisbane CBD is $95."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you offer return discounts?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Booking a return on the website takes 10% off both legs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much are child seats?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "$15 each, fitted before we arrive. The luggage trailer is $30."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I cancel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Changes and cancellation are free, with a full refund, up to 24 hours before pick-up."
+          }
+        }
       ]
     }
   ]
@@ -421,7 +634,7 @@
     <a class="logo" href="/#top" aria-label="Sky Transfers home"><img src="/logo.png" alt="Sky Transfers" width="318" height="160" style="height:42px;width:auto;display:block"></a>
     <div class="navlinks">
       <a href="/#book">Book</a>
-      <a href="/#fleet">Fleet</a>
+      <a href="/fleet.html">Fleet</a>
       <a href="/prices.html" aria-current="page">Prices</a>
       <a href="/#faq">FAQ</a>
       <a href="/partners.html">Partners</a>
@@ -444,6 +657,17 @@
   <a class="cta-gold" href="/#book">Get an instant price &amp; book</a>
   </div>
 </header>
+<section class="block" id="quick-facts" aria-label="Quick facts">
+  <style>.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0 0 30px}.fact{background:var(--card);padding:15px 16px 13px}.fact .k{font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}.fact .v{font-size:22px;font-weight:700;color:var(--ink);line-height:1.15;display:block;font-variant-numeric:tabular-nums}.fact .s{font-size:13px;color:var(--muted);display:block;margin-top:4px;line-height:1.4}#quick-facts{padding-bottom:0}</style>
+  <div class="facts" aria-label="Quick facts">
+    <div class="fact"><span class="k">From</span><span class="v">$80</span><span class="s">Sedan, Gold Coast Airport</span></div>
+    <div class="fact"><span class="k">Basis</span><span class="v">Per vehicle</span><span class="s">GST &amp; tolls included</span></div>
+    <div class="fact"><span class="k">Surge</span><span class="v">Never</span><span class="s">No after-hours or late-night charge</span></div>
+    <div class="fact"><span class="k">Returns</span><span class="v">10% off</span><span class="s">Book both legs online</span></div>
+    <div class="fact"><span class="k">Booking</span><span class="v">Online to 6 h</span><span class="s">Free cancellation to 24 h</span></div>
+    <div class="fact"><span class="k">Contact</span><span class="v">24/7</span><span class="s">Phone or WhatsApp 0481 437 772</span></div>
+  </div>
+</section>
 <!-- generated by make-prices-page.pl from the booking engine's rate tables -->
 <section class="block">
   <p class="kick">Popular routes</p>
@@ -1100,6 +1324,42 @@
     than six hours is a <a href="/charters.html">charter</a> &mdash; half day from $530, full day from $970.
   </p>
 </section>
+<section class="block" id="faq">
+  <p class="kick">Price questions</p>
+  <h2>Frequently asked questions</h2>
+  <div class="faq">
+    <details>
+      <summary>Are your prices per person or per vehicle?</summary>
+      <p>Per vehicle. The fare covers everyone in the vehicle and includes GST and tolls.</p>
+    </details>
+    <details>
+      <summary>Do prices go up at night or in busy periods?</summary>
+      <p>No. There is no surge pricing and no after-hours or late-night surcharge on any transfer or charter.</p>
+    </details>
+    <details>
+      <summary>How much is a Gold Coast Airport transfer?</summary>
+      <p>Sedan fares from Gold Coast Airport start at $80 to Coolangatta, $95 to Burleigh Heads, $110 to Broadbeach and $125 to Surfers Paradise or Main Beach.</p>
+    </details>
+    <details>
+      <summary>How much is Brisbane Airport to the Gold Coast?</summary>
+      <p>From $195 in a sedan, and $245 to Surfers Paradise. Brisbane Airport to the Brisbane CBD is $95.</p>
+    </details>
+    <details>
+      <summary>Do you offer return discounts?</summary>
+      <p>Yes. Booking a return on the website takes 10% off both legs.</p>
+    </details>
+    <details>
+      <summary>How much are child seats?</summary>
+      <p>$15 each, fitted before we arrive. The luggage trailer is $30.</p>
+    </details>
+    <details>
+      <summary>Can I cancel?</summary>
+      <p>Yes. Changes and cancellation are free, with a full refund, up to 24 hours before pick-up.</p>
+    </details>
+  </div>
+  <p class="fine" style="margin-top:14px"><a href="/fleet.html">See the fleet</a> &middot; <a href="/faq.html">All questions &amp; answers</a></p>
+</section>
+
 <footer class="site">
   <div class="foot-in">
     <div>
@@ -1135,6 +1395,7 @@
       <p><a href="/airport-transfers/">Airport transfers by suburb</a></p>
     </div>
     <div class="foot-legal">
+      <p><a href="/about.html">About us</a></p>
       <p><a href="/privacy.html">Privacy policy</a></p>
       <p><a href="/terms.html">Terms &amp; conditions</a></p>
       <p class="foot-entity">Australia Wide Car Services Pty Ltd trading as Sky Transfers</p>
