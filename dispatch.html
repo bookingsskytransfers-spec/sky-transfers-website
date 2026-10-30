@@ -609,6 +609,17 @@
           </div>
         </div>
         <div class="ap-row">
+          <h3>Google review request</h3>
+          <div>
+            <p class="muted">One email after the trip asking the passenger for a Google review, with a button that opens the review box. It goes the chosen number of hours after the driver presses <b>Done</b>, between 8 am and 8 pm. <b>Direct passengers only</b> (website bookings and office jobs with no account) - never agent or account passengers. Each email address is asked once, and only trips finished after you switch this on are asked.</p>
+            <div class="ap-ctl">
+              <div><label for="ap-review">Review request</label><select id="ap-review"><option value="false">Off</option><option value="true">On</option></select></div>
+              <div><label for="ap-review-h">Hours after the trip</label><input id="ap-review-h" type="number" min="1" max="24" step="1" style="width:6em"></div>
+              <span><button class="act" id="ap-review-sample">Email me a sample</button></span>
+            </div>
+          </div>
+        </div>
+        <div class="ap-row">
           <h3>Emails go to</h3>
           <div>
             <div class="ap-ctl">
@@ -1793,6 +1804,7 @@
       $("ap-cal-state").textContent = d.calendar && d.calendar.ok ? (s.calOn ? "Reading the calendar." : "Ready - switch it on and save.") : "Can't read the calendar yet: " + ((d.calendar && d.calendar.why) || "not set up") + ".";
       $("ap-guest").value = String(!!s.guestOn); $("ap-guest-at").value = s.guestNoticeAt || "19:00";
       $("ap-guest-aa").value = String(!!s.guestAgentAccount); $("ap-guest-wa").value = String(!!s.guestWhatsApp);
+      $("ap-review").value = String(!!s.reviewOn); $("ap-review-h").value = s.reviewDelayH || 2;
       api("/guest/state").then(function(g){
         var w = g.whatsapp || {};
         $("ap-wa-state").textContent = w.connected
@@ -1913,11 +1925,12 @@
       digestOn: $("ap-digest").value === "true", digestAt: $("ap-digest-at").value,
       intakeOn: $("ap-intake").value === "true", calOn: $("ap-cal").value === "true", aiOn: $("ap-ai").value === "true", alertTo: $("ap-alert").value,
       guestOn: $("ap-guest").value === "true", guestNoticeAt: $("ap-guest-at").value,
-      guestAgentAccount: $("ap-guest-aa").value === "true", guestWhatsApp: $("ap-guest-wa").value === "true" } })
+      guestAgentAccount: $("ap-guest-aa").value === "true", guestWhatsApp: $("ap-guest-wa").value === "true",
+      reviewOn: $("ap-review").value === "true", reviewDelayH: $("ap-review-h").value } })
       .then(function(d){
         var s = d.settings, on = [];
         if (s.dispatchOn) on.push("dispatch at " + s.dispatchAt); if (s.closeOn) on.push("closing");
-        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.calOn) on.push("Google Calendar"); if (s.aiOn) on.push("AI inbox reader"); if (s.guestOn) on.push("guest updates");
+        if (s.invoicesOn) on.push("invoices at " + s.invoiceAt); if (s.digestOn) on.push("digest at " + s.digestAt); if (s.intakeOn) on.push("booking emails"); if (s.calOn) on.push("Google Calendar"); if (s.aiOn) on.push("AI inbox reader"); if (s.guestOn) on.push("guest updates"); if (s.reviewOn) on.push("review requests " + s.reviewDelayH + " h after the trip");
         return loadAuto().then(function(){ show($("ap-msg"), "Saved. " + (on.length ? "On: " + on.join(", ") + "." : "Everything is off."), true); });
       })
       .catch(function(err){ show($("ap-msg"), err.message); })
@@ -1950,7 +1963,7 @@
       tb.appendChild(tr);
     });
   }
-  var EV_LABEL = { assigned: "Dispatch", "no-driver": "No driver", evening: "Evening run", closed: "Closed", unclosed: "Chased", invoice: "Invoice",
+  var EV_LABEL = { review: "Review", assigned: "Dispatch", "no-driver": "No driver", evening: "Evening run", closed: "Closed", unclosed: "Chased", invoice: "Invoice",
     digest: "Digest", intake: "Email", calendar: "Calendar", import: "Import", error: "Problem", settings: "Settings", run: "Run now" };
   function renderEvents(){
     var box = $("ap-events"); box.innerHTML = "";
@@ -1964,6 +1977,13 @@
     });
   }
   $("ap-refresh").addEventListener("click", loadAuto);
+  $("ap-review-sample").addEventListener("click", function(){
+    var b = $("ap-review-sample"); b.disabled = true; show($("ap-msg"), "");
+    api("/review/sample", { method: "POST", body: {} })
+      .then(function(d){ show($("ap-msg"), "A sample review request was sent to " + d.to + " - marked [SAMPLE].", true); })
+      .catch(function(err){ show($("ap-msg"), err.message); })
+      .then(function(){ b.disabled = false; $("ap-msg").scrollIntoView({ behavior: "smooth", block: "center" }); });
+  });
   $("ap-guest-sample").addEventListener("click", function(){
     var b = $("ap-guest-sample"); b.disabled = true; show($("ap-msg"), "");
     api("/guest/sample", { method: "POST", body: {} })
