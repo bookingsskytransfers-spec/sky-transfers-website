@@ -40,7 +40,7 @@ const SITE    = 'https://www.skytransfers.com.au';
 const RETURN_DISCOUNT = 0.10;
 const returnFare = (f) => Math.round(f * 2 * (1 - RETURN_DISCOUNT));
 const DIR     = 'airport-transfers';
-const LASTMOD = '2026-10-23';               // bump when the template or the copy changes
+const LASTMOD = '2026-10-31';               // bump when the template or the copy changes
 const OUT     = path.join(ROOT, DIR);
 
 // ---------------------------------------------------------------------------
@@ -599,17 +599,28 @@ function suburbPage(p) {
   /* A few destinations are airports themselves, where "X Airport Airport
      Transfers" reads like a stutter. */
   const isAirport = /\bAirport\b/.test(p.name);
+  /* Titles follow how people actually search: "coomera to brisbane airport",
+     not "coomera airport transfers" (Search Console, Aug-Oct 2026: "X to
+     Brisbane Airport" drew 20x the impressions of "X to Gold Coast Airport").
+     So Brisbane Airport is named first, except around Byron Bay, where the
+     Gold Coast is the airport people mean. */
+  const named = (p.region === 'Byron Bay' || air.length < 2) ? air : air.slice().sort((a, b) => (a.key === 'bne' ? -1 : 1) - (b.key === 'bne' ? -1 : 1));
+  const shortAir = named.length > 1 ? named.map(a => a.name.replace(/ Airport$/, '')).join(' & ') + ' Airport' : named[0].name;
+  const fullAir = named.map(a => a.name).join(' & ');
   const title = fitTitle(isAirport ? [
     `Transfers to ${p.name} | Fixed Price from $${p.from}`,
     `Transfers to ${p.name} | From $${p.from}`,
     `Transfers to ${p.name}`,
   ] : [
-    `${p.name} Airport Transfers | Fixed Price from $${p.from}`,
-    `${p.name} Airport Transfers | From $${p.from}`,
+    named.length > 1 ? `${p.name} to ${fullAir} | From $${p.from}` : `${p.name} to ${fullAir} Transfers | From $${p.from}`,
+    `${p.name} to ${fullAir} | From $${p.from}`,
+    `${p.name} to ${shortAir} | From $${p.from}`,
+    `${p.name} to ${shortAir}`,
     `${p.name} Airport Transfers`,
   ]);
   const desc = metaDesc([
-    `${p.name} to ${primary.name} (${primary.code}) from $${p.from} per vehicle.`,
+    isAirport ? `${p.name} to ${primary.name} (${primary.code}) from $${p.from} per vehicle.`
+      : `${p.name} to ` + named.map(a => `${a.name} $${a.fares[0]}`).join(', ') + (named.length > 1 ? ',' : '') + ' per vehicle.',
     'Fixed price, GST and tolls included.',
     'Flight tracked, meet and greet.',
     air.length > 1 ? `${air[1].name} (${air[1].code}) priced too.` : '',
@@ -684,7 +695,7 @@ function suburbPage(p) {
 <header class="fares-hero photo" id="top">
   ${heroBg(heroImg(p.region, p.zoneKey))}
   <div class="hero-in">
-  <h1>${isAirport ? `Transfers to ${esc(p.name)}` : `${esc(p.name)} airport transfers`}, fixed price</h1>
+  <h1>${isAirport ? `Transfers to ${esc(p.name)}` : `${esc(p.name)} to ${named.map(a => esc(a.name)).join(' and ')}`}, fixed price</h1>
   <p>
     Private chauffeur transfers between ${esc(p.name)} and ${air.map(a => esc(a.name)).join(' or ')},
     priced per vehicle and published below. From $${p.from} one way, GST and tolls included, at any hour.
