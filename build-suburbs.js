@@ -761,7 +761,11 @@ ${rows}
   <h2>Questions from ${esc(p.name)}</h2>
 ${faqs.map(([q, a]) => `  <details>\n    <summary>${q}</summary>\n    <p>${a}</p>\n  </details>`).join('\n')}
 
-  ${neighbours.length ? `<h2>Nearby, same fare band</h2>
+  ${(() => { const here = ATTRACTIONS.filter(x => x.suburb === p.name); return here.length ? `<h2>Visiting ${here.map(x => esc(x.visit || x.name)).join(' or ')}?</h2>
+  <div class="related">
+${here.map(x => `    <a href="/${x.slug}.html">${esc(x.name)} transfers<span>From the airports and the hotel strip</span></a>`).join('\n')}
+  </div>
+  ` : ''; })()}${neighbours.length ? `<h2>Nearby, same fare band</h2>
   <div class="related">
 ${neighbours.map(q => `    <a href="${q.url}">${esc(q.name)}<span>From $${q.from}</span></a>`).join('\n')}
   </div>` : ''}
@@ -1108,6 +1112,238 @@ ${FOOTER}
 }
 
 // ---------------------------------------------------------------------------
+// attraction pages (2 Nov 2026) - the list, measured distances and copy are in
+// data/attractions.js. Airport fares come from the rate tables through the
+// attraction's suburb; hotel-area fares from the point-to-point ladder below.
+// ---------------------------------------------------------------------------
+/* The point-to-point ladder. Stated once here for fares.json and the
+   attraction pages, and it MUST match LADDERS / CLASS_ADDER / OUTER_LOADING in
+   p2p-fare.js on the booking server, which is what actually quotes the trip. */
+const P2P = {
+  gc:  [[8, 80], [15, 85], [20, 95], [30, 110], [40, 125], [50, 145], [65, 165], [85, 225]],
+  bne: [[15, 85], [20, 105], [30, 125], [40, 140], [50, 155], [65, 185], [85, 225]],
+  adders: [0, 15, 25, 35, 45, 135, 195],
+  loading: 25,
+  outer: ['H', 'BW4', 'BW5', 'BN3', 'BN4'],
+  maxKm: 85,
+};
+const placeByName = {};
+for (const p of places) placeByName[p.name] = p;
+/* Same rules as p2p-fare.js quote(): Brisbane ladder if either end is in the
+   Brisbane tables, Gold Coast only if both ends are; regional ends, same-place
+   trips and anything past 85 km have no banded fare (null). */
+function p2pFares(a, b, kmRaw) {
+  const pa = placeByName[a], pb = placeByName[b];
+  if (!pa || !pb || a === b) return null;
+  if (pa.region !== 'Gold Coast' && pa.region !== 'Brisbane') return null;
+  if (pb.region !== 'Gold Coast' && pb.region !== 'Brisbane') return null;
+  const ladder = (pa.region === 'Brisbane' || pb.region === 'Brisbane') ? P2P.bne : P2P.gc;
+  const dist = Math.round(kmRaw * 10) / 10;
+  if (!(dist > 0) || dist > P2P.maxKm) return null;
+  const row = ladder.find(([max]) => dist <= max);
+  if (!row) return null;
+  const load = (P2P.outer.indexOf(pa.zoneKey) !== -1 || P2P.outer.indexOf(pb.zoneKey) !== -1) ? P2P.loading : 0;
+  return P2P.adders.map(x => row[1] + x + load);
+}
+
+let ATTRACTIONS = [];
+try { ATTRACTIONS = require(path.join(ROOT, 'data', 'attractions.js')); }
+catch (e) { console.warn('build-suburbs: no data/attractions.js, skipping attraction pages (' + e.message + ')'); }
+const ATTR_LASTMOD = '2026-11-02';
+
+function attractionPage(a) {
+  const p = placeByName[a.suburb];
+  if (!p) throw new Error('attraction ' + a.slug + ': suburb not priced: ' + a.suburb);
+  if (!p.fares.ool || !p.fares.bne) throw new Error('attraction ' + a.slug + ': needs both airport fares');
+  const v0 = a.venues[0];
+  const url = '/' + a.slug + '.html';
+  const short = a.short || a.name;
+
+  /* Hotel-area rows: the fares at the venue's own address and at the suburb.
+     If they land in different bands, print the range - a single figure would
+     be wrong for one of the two ways a customer can enter the trip. */
+  const hotel = a.from.map(r => {
+    const lo = p2pFares(r.from, a.suburb, r.km), hi = p2pFares(r.from, a.suburb, r.kmAlt);
+    if (!lo || !hi) return Object.assign({ fares: null }, r);
+    return Object.assign({ fares: lo.map((f, i) => [Math.min(f, hi[i]), Math.max(f, hi[i])]) }, r);
+  });
+  const priced = hotel.filter(r => r.fares);
+  if (!priced.length) throw new Error('attraction ' + a.slug + ': no hotel row has a fare');
+  const hotelBy = {}; for (const r of hotel) hotelBy[r.from] = r;
+  const span = ([lo, hi]) => lo === hi ? money(lo) : money(lo) + '&ndash;' + hi;
+  const from = Math.min.apply(null, priced.map(r => r.fares[0][0]));
+
+  const pairs = (a.pairs || []).map(q => Object.assign({ fares: p2pFares(a.suburb, q.suburb, q.km) }, q));
+  const pairBy = {}; for (const q of pairs) pairBy[q.to] = q;
+
+  const ret = (r) => { const [lo, hi] = r.fares[0]; return lo === hi ? money(returnFare(lo)) : money(returnFare(lo)) + '&ndash;' + returnFare(hi); };
+  const need = (map, k, what) => { if (!map[k] || !map[k].fares) throw new Error('attraction ' + a.slug + ': copy needs ' + what + ' for ' + k); return map[k]; };
+  const fillA = t => t
+    .replace(/\{OOL_KM\}/g, km(v0.ool.m)).replace(/\{OOL_MIN\}/g, mins(v0.ool.s))
+    .replace(/\{BNE_KM\}/g, km(v0.bne.m)).replace(/\{BNE_MIN\}/g, mins(v0.bne.s))
+    .replace(/\{F_OOL\}/g, money(p.fares.ool[0])).replace(/\{F_BNE\}/g, money(p.fares.bne[0]))
+    .replace(/\{P2P:([^}]+)\}/g, (m, k) => span(need(hotelBy, k, 'a fare').fares[0]))
+    .replace(/\{P2P3:([^}]+)\}/g, (m, k) => span(need(hotelBy, k, 'a fare').fares[2]))
+    .replace(/\{RET:([^}]+)\}/g, (m, k) => ret(need(hotelBy, k, 'a fare')))
+    .replace(/\{PAIR:([^}]+)\}/g, (m, k) => money(need(pairBy, k, 'a park pair').fares[0]))
+    .replace(/\{PAIR_KM:([^}]+)\}/g, (m, k) => need(pairBy, k, 'a park pair').km + ' km')
+    .replace(/\{PAIR_MIN:([^}]+)\}/g, (m, k) => need(pairBy, k, 'a park pair').min + ' minutes');
+  const notes = a.notes.map(fillA);
+  const faqs = a.faq.map(([q, x]) => [fillA(q), fillA(x)]);
+  const left = (notes.join(' ') + faqs.join(' ')).match(/\{[A-Z_0-9]+(:[^}]*)?\}/);
+  if (left) throw new Error('attraction ' + a.slug + ': unfilled placeholder ' + left[0]);
+
+  const air = [
+    { code: 'OOL', name: 'Gold Coast Airport', place: OOL, fares: p.fares.ool, d: v0.ool },
+    { code: 'BNE', name: 'Brisbane Airport', place: BNE, fares: p.fares.bne, d: v0.bne },
+  ].sort((x, y) => x.d.s - y.d.s);                 // nearer airport first
+  const title = fitTitle(a.title.map(t => t.replace('${FROM}', '$' + from)));
+  const desc = metaDesc([
+    `${a.name}: ${priced[0].from} from ${money(priced[0].fares[0][0])}, ` + air.map(x => `${x.name} ${money(x.fares[0])}`).join(', ') + ', per vehicle.',
+    'Fixed price, GST and tolls included.',
+    a.themePark ? 'Child seats fitted.' : 'Tax invoice on every trip.',
+    '24/7.',
+  ]);
+  const ctaHref = '/?pu=' + encodeURIComponent(air[0].place) + '&do=' + encodeURIComponent(a.suburb) + '#book';
+  const brief = v => mins(v).replace(' minutes', ' min').replace(/ h /, 'h ');
+
+  const airRows = VEH.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${air.map(x => `<td>${money(x.fares[i])}</td>`).join('')}</tr>`).join('\n');
+  const hotelRows = priced.map(r => `        <tr><th scope="row">${esc(r.from)}<span class="s"> ${r.km} km &middot; about ${r.min} min</span></th>${r.fares.map(f => `<td>${span(f)}</td>`).join('')}</tr>`).join('\n');
+  const unpriced = hotel.filter(r => !r.fares).map(r => esc(r.from));
+  const venueList = a.venues.length > 1 ? `<ul>\n    ${a.venues.map(v => `<li><strong>${esc(v.name)}</strong> &mdash; ${esc(v.street)}, ${esc(a.suburb)}: ${km(v.ool.m)} (about ${mins(v.ool.s)}) from Gold Coast Airport, ${km(v.bne.m)} (about ${mins(v.bne.s)}) from Brisbane Airport.</li>`).join('\n    ')}\n  </ul>` : '';
+  const others = ATTRACTIONS.filter(x => x !== a);
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@id': SITE + url + '#service', '@type': 'Service', name: `${a.name} transfers`, serviceType: 'Private transfer', url: SITE + url,
+        areaServed: a.venues.map(v => ({ '@type': a.themePark ? 'TouristAttraction' : 'Place', name: v.name,
+          address: { '@type': 'PostalAddress', streetAddress: v.street, addressLocality: a.suburb, addressRegion: 'QLD', postalCode: v.postcode, addressCountry: 'AU' } })),
+        provider: { '@id': SITE + '/#business' },
+        offers: air.map(x => ({ '@type': 'Offer', name: `${x.name} (${x.code}) to ${v0.name}, sedan, one way`, price: String(x.fares[0]), priceCurrency: 'AUD',
+          availability: 'https://schema.org/InStock', url: SITE + url,
+          priceSpecification: { '@type': 'PriceSpecification', price: String(x.fares[0]), minPrice: String(x.fares[0]), priceCurrency: 'AUD', valueAddedTaxIncluded: true } })),
+      },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+      ].concat(a.themePark ? [{ '@type': 'ListItem', position: 2, name: 'Theme park transfers', item: SITE + '/theme-park-transfers.html' }] : [])
+       .concat([{ '@type': 'ListItem', position: a.themePark ? 3 : 2, name: `${a.name} transfers`, item: SITE + url }]) },
+      { '@type': 'FAQPage', mainEntity: faqs.map(([q, x]) => ({ '@type': 'Question', name: q.replace(/&ndash;/g, '-'), acceptedAnswer: { '@type': 'Answer', text: x.replace(/<[^>]+>/g, '').replace(/&ndash;/g, '-') } })) },
+    ],
+  };
+
+  const body = `${NAV}
+
+<header class="fares-hero photo" id="top">
+  ${heroBg(a.hero)}
+  <div class="hero-in">
+  <h1>${esc(a.h1)}</h1>
+  <p>
+    ${esc(a.lead)}
+  </p>
+  <a class="cta-gold" href="${ctaHref}">Get your fixed price</a>
+  </div>
+</header>
+
+<div class="lp">
+
+  <div class="facts">
+    <div class="fact"><span class="k">From</span><span class="v">$${from}</span><span class="s">Sedan, one way, from a hotel</span></div>
+    <div class="fact"><span class="k">From ${air[0].code}</span><span class="v">${money(air[0].fares[0])}</span><span class="s">${km(air[0].d.m)}, about ${brief(air[0].d.s)}</span></div>
+    <div class="fact"><span class="k">From ${air[1].code}</span><span class="v">${money(air[1].fares[0])}</span><span class="s">${km(air[1].d.m)}, about ${brief(air[1].d.s)}</span></div>
+    <div class="fact"><span class="k">Child seats</span><span class="v">$15</span><span class="s">Fitted before we arrive</span></div>
+  </div>
+
+  <h2>Getting to ${esc(short)}</h2>
+  ${venueList}
+  ${notes.map(n => `<p>${n}</p>`).join('\n  ')}
+
+  <h2>From the airports</h2>
+  <p>
+    The fares the booking form quotes for ${esc(a.suburb)}, where ${esc(short)} ${a.venues.length > 1 ? 'are' : 'is'}. One way, per vehicle,
+    in Australian dollars, GST and tolls included, the same at any hour. Book the return in the same booking and the pair is 10% cheaper.
+  </p>
+  <div class="faretable-wrap">
+    <table class="lpfare">
+      <caption>${air.map(x => esc(x.name) + ' (' + x.code + ')').join(' / ')} &rarr; ${esc(short)} &mdash; one way, AUD</caption>
+      <thead>
+        <tr><th scope="col">Vehicle</th>${air.map(x => `<th scope="col">From ${esc(x.name)}</th>`).join('')}</tr>
+      </thead>
+      <tbody>
+${airRows}
+      </tbody>
+    </table>
+  </div>
+  <p class="fare-note">
+    Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
+    (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30, prams free where they fit.
+    More than 14 seats? The 18-seat Sprinter and our 53-seat coach are quoted per job &mdash; see <a href="/charters.html">charters</a>.
+  </p>
+
+  <h2>From your hotel</h2>
+  <p>
+    Point-to-point fares from the main places people stay, priced on the measured road distance &mdash; a fixed
+    band, not a meter, so traffic and the time of day never change them. Where a range is shown, the exact figure
+    depends on your hotel&rsquo;s address and the booking form quotes it to the dollar before you pay.
+  </p>
+  <div class="faretable-wrap">
+    <table class="lpfare">
+      <caption>To ${esc(short)} &mdash; one way, AUD</caption>
+      <thead>
+        <tr><th scope="col">From</th>${VEH.map(v => `<th scope="col">${esc(v[0])}</th>`).join('')}</tr>
+      </thead>
+      <tbody>
+${hotelRows}
+      </tbody>
+    </table>
+  </div>
+  <p class="fare-note">
+    ${unpriced.length ? `${unpriced.join(' and ')} ${unpriced.length > 1 ? 'are' : 'is'} further than we price online &mdash; call or WhatsApp us and we fix the price before you book. ` : ''}Staying somewhere else? Type the address into the
+    <a href="${ctaHref}">booking form</a> and it prices the trip straight away.
+    Want the car to stay with you? <a href="/point-to-point-transfers.html">Book by the hour</a>, three to six hours, from $90 an hour.
+  </p>
+${pairs.length ? `
+  <h2>Between the parks</h2>
+  <div class="related">
+${pairs.filter(q => q.fares).map(q => `    <a href="${q.href}">${esc(a.name.split(' and ')[0])} to ${esc(q.to)}<span>${q.km} km &middot; about ${q.min} min &middot; sedan ${money(q.fares[0])}</span></a>`).join('\n')}
+  </div>` : ''}
+
+  <div class="box">
+    <p>
+      <strong>Booking.</strong> Choose ${esc(a.suburb)} or type the ${a.venues.length > 1 ? 'park&rsquo;s' : 'venue&rsquo;s'} address as the drop-off, and your hotel
+      or flight as the pick-up. Online bookings close six hours before pick-up; changes are free up to 24 hours before.
+      Inside six hours, call <a href="tel:+61481437772">+61 481 437 772</a> and we will take the job if a car is free.
+    </p>
+  </div>
+
+  <h2>Questions about ${esc(short)} transfers</h2>
+${faqs.map(([q, x]) => `  <details>\n    <summary>${q}</summary>\n    <p>${x}</p>\n  </details>`).join('\n')}
+
+  <h2>Other attractions we price</h2>
+  <div class="related">
+${others.map(o => `    <a href="/${o.slug}.html">${esc(o.name)}<span>${esc(o.suburb)}</span></a>`).join('\n')}
+  </div>
+  <p class="fare-note">
+    ${a.themePark ? `<a href="/theme-park-transfers.html">Theme park transfers</a> &middot; ` : ''}<a href="${p.url}">${esc(a.suburb)} airport transfers</a> &middot; <a href="/point-to-point-transfers.html">Point-to-point fares</a> &middot; <a href="/prices.html">Full price list</a>
+  </p>
+
+</div>
+
+<section class="cta-band">
+  <h2>Price your ${esc(short)} transfer in about a minute</h2>
+  <p>Pick-up, drop-off, date, vehicle. The fare comes back straight away and it does not change afterwards.</p>
+  <a class="cta-gold" href="${ctaHref}">Book your transfer</a>
+  <span class="alt">Or call <a href="tel:+61481437772">+61 481 437 772</a> &mdash; 24 hours, 7 days.</span>
+</section>
+${FOOTER}
+</body>
+</html>
+`;
+  return head(title, desc, url, ld) + body;
+}
+
+// ---------------------------------------------------------------------------
 // prices.html is committed, but every fare row in it is a pure function of the
 // rate tables above - 752 rows across six tables, all of them derived. Nothing
 // regenerated it, which is how it went stale twice: a suburb count, a cruise
@@ -1324,12 +1560,12 @@ function writeFaresJson() {
       quote_request_example: { pickup: { suburb: 'Surfers Paradise', address: 'Surfers Paradise QLD, Australia' },
                                dropoff: { suburb: 'Broadbeach', address: 'Broadbeach QLD, Australia' } },
       sedan_by_road_km: {
-        gold_coast: [[8, 80], [15, 85], [20, 95], [30, 110], [40, 125], [50, 145], [65, 165], [85, 225]],
-        brisbane:   [[15, 85], [20, 105], [30, 125], [40, 140], [50, 155], [65, 185], [85, 225]],
+        gold_coast: P2P.gc,
+        brisbane:   P2P.bne,
         note: 'Each pair is [up to km, sedan fare]. A trip with one end in each city uses the Brisbane ladder. Beyond 85 km is quoted by hand.',
       },
-      class_adders_in_fares_array_order: [0, 15, 25, 35, 45, 135, 195, null],
-      outer_zone_loading: 25,
+      class_adders_in_fares_array_order: P2P.adders.concat([null]),
+      outer_zone_loading: P2P.loading,
       minimum_fare: 80,
       returns: 'Same 10% formula as airport transfers.',
       page: SITE + '/point-to-point-transfers.html',
@@ -1845,6 +2081,7 @@ for (const p of places) {
 }
 fs.writeFileSync(path.join(OUT, 'index.html'), hubPage());
 for (const r of REGIONS) fs.writeFileSync(path.join(ROOT, r.slug + '.html'), regionPage(r));
+for (const a of ATTRACTIONS) fs.writeFileSync(path.join(ROOT, a.slug + '.html'), attractionPage(a));
 refreshPrices();
 refreshCounts();
 writeFaresJson();
@@ -1853,15 +2090,16 @@ writeFaresJson();
 const smPath = path.join(ROOT, 'sitemap.xml');
 let sm = fs.readFileSync(smPath, 'utf8');
 sm = sm.replace(/\s*<url>\s*<loc>[^<]*\/airport-transfers\/[^<]*<\/loc>[\s\S]*?<\/url>/g, '');
-for (const r of REGIONS) sm = sm.replace(new RegExp('\\s*<url>\\s*<loc>[^<]*/' + r.slug + '\\.html</loc>[\\s\\S]*?</url>', 'g'), '');
+for (const r of REGIONS.concat(ATTRACTIONS)) sm = sm.replace(new RegExp('\\s*<url>\\s*<loc>[^<]*/' + r.slug + '\\.html</loc>[\\s\\S]*?</url>', 'g'), '');
 const entries = REGIONS.map(r => `  <url>\n    <loc>${SITE}/${r.slug}.html</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`)
+  .concat(ATTRACTIONS.map(a => `  <url>\n    <loc>${SITE}/${a.slug}.html</loc>\n    <lastmod>${ATTR_LASTMOD}</lastmod>\n  </url>`))
   .concat([`  <url>\n    <loc>${SITE}/${DIR}/</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`])
   .concat(places.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`));
 sm = sm.replace(/\s*<\/urlset>\s*$/, '\n' + entries.join('\n') + '\n</urlset>\n');
 fs.writeFileSync(smPath, sm);
 
 const withFacts = places.filter(p => p.facts && (p.facts.bne || p.facts.ool)).length;
-console.log(`build-suburbs: ${written} suburb pages + hub written to ${DIR}/, ${REGIONS.length} region pages at the root, ${withFacts} with measured drive times; sitemap now has ${(sm.match(/<loc>/g) || []).length} URLs`);
+console.log(`build-suburbs: ${written} suburb pages + hub written to ${DIR}/, ${REGIONS.length} region pages and ${ATTRACTIONS.length} attraction pages at the root, ${withFacts} with measured drive times; sitemap now has ${(sm.match(/<loc>/g) || []).length} URLs`);
 if (written !== places.length) { console.error('build-suburbs: page count mismatch'); process.exit(1); }
 
 /* ---- links from the main pages to the articles (26 Oct 2026, audit "Fix D") ----
