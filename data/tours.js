@@ -26,7 +26,7 @@ module.exports = [
       lookout: { name: 'Glass House Mountains Lookout', where: 'Beerburrum', text: 'The view across the volcanic peaks of the Glass House Mountains, a short stop on the way in.' },
       zoo: { name: 'Australia Zoo', where: 'Beerwah', text: 'The main event. Your chauffeur waits while you spend the middle of the day at the zoo.', ticket: true },
       mc: { name: 'Mary Cairncross Scenic Reserve', where: 'Maleny', text: 'Subtropical rainforest walks and the classic view back across the Glass House Mountains.' },
-      gardens: { name: 'Maleny Botanic Gardens & Bird World', where: 'Maleny', text: 'Landscaped gardens and walk-through aviaries on the edge of the range.', ticket: true },
+      gardens: { name: 'Maleny Botanic Gardens & Bird World', where: 'Maleny', text: 'Landscaped gardens and aviaries on the edge of the range.', ticket: true },
       town: { name: 'Maleny town', where: 'Maleny', text: 'Coffee, cafes and the main street before the drive home.' },
     },
     starts: [
