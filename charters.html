@@ -543,8 +543,10 @@
   .navlinks a{color:var(--navy-text);opacity:.85;text-decoration:none;font-size:14px;font-weight:600}
   .navlinks a:hover{opacity:1;color:#D9B44A}
   .navcall{background:var(--gold);color:#141D30!important;opacity:1!important;padding:8px 14px;border-radius:7px}
+  .navwa{border:1px solid rgba(217,180,74,.75);opacity:1!important;padding:7px 12px;border-radius:7px}
   @media (max-width:620px){
-    .navlinks a:not(.navcall){display:none}
+    .navlinks a:not(.navcall):not(.navwa){display:none}
+    .navwa .wa-l{display:none}
     .sitenav-in{padding:10px 14px}
   }
   section.block,.booklift,.agents-band{scroll-margin-top:76px}
@@ -823,6 +825,7 @@
       <a href="/">Airport transfers</a>
       <a href="/prices.html">Prices</a>
       <a href="/blog/">Blog</a>
+      <a class="navwa" href="https://wa.me/61481437772?text=Hi%2C%20can%20I%20get%20a%20quote%20please%3F" target="_blank" rel="noopener" aria-label="Get a quote on WhatsApp"><span class="wa-l">Get a quote on </span>WhatsApp</a>
       <a class="navcall" href="tel:+61481437772">+61 481 437 772</a>
     </div>
   </div>
@@ -1045,6 +1048,13 @@
       <p>An 18-seat Mercedes Sprinter, quoted per job.</p>
     </details>
   </div>
+  <p class="fine" style="margin-top:18px">
+    Booking for clients? See the <a href="/partners.html">agent and trade partner programme</a>.
+    Moving a team? <a href="/corporate-transfers.html">Corporate group charters</a> run on account.
+    Planning a winery day: <a href="/blog/party-bus-vs-minibus-winery-tour-transport.html">party bus or minibus for a winery tour</a>
+    and <a href="/blog/planning-winery-tour-stops-for-a-group.html">planning winery tour stops</a>.
+    <a href="/about.html">About Sky Transfers</a>.
+  </p>
 </section>
 
 <footer class="site">
