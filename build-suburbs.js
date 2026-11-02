@@ -286,6 +286,12 @@ const Z = {
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak. Toll included.'],
           ['How early should we be collected for an international flight?', 'Work back from check-in cut-off and add a highway margin; we confirm a recommended time with the booking.'],
           ['Can you carry surfboards and golf bags?', 'Yes. A Luxury Minivan or Sprinter takes them without a trailer; a trailer is available for $30 if needed.']] },
+  AZ: { region: 'Sunshine Coast', label: 'Beerwah and Australia Zoo',
+    notes: ['{S} is in the Sunshine Coast hinterland under the Glass House Mountains, and it is where Australia Zoo is. Brisbane Airport is {BNE_KM} away, about {BNE_MIN}: the Bruce Highway north and the Steve Irwin Way, with the Gateway toll inside the fare. Gold Coast Airport is the long way round, {OOL_KM} and about {OOL_MIN}, through Brisbane on the motorways.',
+            'Most trips here are to or from the zoo. From a Brisbane hotel the fare is the same as from Brisbane Airport, from anywhere on the Gold Coast it is the same as from Gold Coast Airport, and the Sunshine Coast beaches are short point-to-point runs \u2014 all of them priced in the booking form.'],
+    faq: [['How long from Brisbane Airport to {S}?', 'About {BNE_MIN} for {BNE_KM} outside peak, toll included in the fare.'],
+          ['Can you take us to Australia Zoo and back on the same day?', 'Yes. Book the drop-off and the pick-up as one return booking and the pair is 10% cheaper. If you would rather keep the car all day, see the Glass House Mountains, Australia Zoo and Maleny day tour.'],
+          ['Do you include zoo tickets?', 'No \u2014 we are the transport only. Buy entry from Australia Zoo.']] },
   TWB: { region: 'Toowoomba', label: 'Toowoomba',
     notes: ['{S} is in Toowoomba, at the top of the Great Dividing Range. Brisbane Airport is the Warrego Highway down the range and across the Lockyer Valley to Ipswich, then the motorways to the Gateway or Airport Link \u2014 tolls included \u2014 in roughly two hours outside peak. The Toowoomba Bypass takes the trucks off the range road, but we still allow for fog on the range on winter mornings.',
             'It is a long enough trip that the vehicle matters: the sedan is the published entry fare, and the Luxury Minivan is the comfortable choice for a family with luggage.'],
@@ -1126,6 +1132,11 @@ const P2P = {
   loading: 25,
   outer: ['H', 'BW4', 'BW5', 'BN3', 'BN4'],
   maxKm: 85,
+  /* Day-trip destinations (DAY_TRIP_ZONES in p2p-fare.js): Brisbane suburbs on
+     the Brisbane ladder to 65 km, then the zone's Brisbane Airport fare to
+     95 km; the whole Gold Coast at the zone's Gold Coast Airport fare; the
+     Sunshine Coast zones on the Gold Coast ladder to 85 km. */
+  dayTrip: ['AZ'], sunshine: ['SC1', 'SC2', 'SC3', 'SC4'], bneLadderKm: 65, bneFlatKm: 95,
 };
 const placeByName = {};
 for (const p of places) placeByName[p.name] = p;
@@ -1135,6 +1146,16 @@ for (const p of places) placeByName[p.name] = p;
 function p2pFares(a, b, kmRaw) {
   const pa = placeByName[a], pb = placeByName[b];
   if (!pa || !pb || a === b) return null;
+  const da = P2P.dayTrip.indexOf(pa.zoneKey) !== -1, db = P2P.dayTrip.indexOf(pb.zoneKey) !== -1;
+  if (da !== db) {
+    const zone = da ? pa : pb, other = da ? pb : pa;
+    const dist = Math.round(kmRaw * 10) / 10;
+    const lad = (ladder) => { const row = ladder.find(([max]) => dist <= max); return row ? P2P.adders.map(x => row[1] + x) : null; };
+    if (other.region === 'Gold Coast') return zone.fares.ool.slice();
+    if (other.region === 'Brisbane') return dist > P2P.bneFlatKm ? null : dist > P2P.bneLadderKm ? zone.fares.bne.slice() : lad(P2P.bne);
+    if (P2P.sunshine.indexOf(other.zoneKey) !== -1) return dist > P2P.maxKm ? null : lad(P2P.gc);
+    return null;
+  }
   if (pa.region !== 'Gold Coast' && pa.region !== 'Brisbane') return null;
   if (pb.region !== 'Gold Coast' && pb.region !== 'Brisbane') return null;
   const ladder = (pa.region === 'Brisbane' || pb.region === 'Brisbane') ? P2P.bne : P2P.gc;
@@ -1197,11 +1218,11 @@ function attractionPage(a) {
     { code: 'OOL', name: 'Gold Coast Airport', place: OOL, fares: p.fares.ool, d: v0.ool },
     { code: 'BNE', name: 'Brisbane Airport', place: BNE, fares: p.fares.bne, d: v0.bne },
   ].sort((x, y) => x.d.s - y.d.s);                 // nearer airport first
-  const title = fitTitle(a.title.map(t => t.replace('${FROM}', '$' + from)));
+  const title = fitTitle(a.title.map(t => t.replace('${FROM}', '$' + from).replace('${BNE}', '$' + p.fares.bne[0]).replace('${OOL}', '$' + p.fares.ool[0])));
   const desc = metaDesc([
     `${a.name}: ${priced[0].from} from ${money(priced[0].fares[0][0])}, ` + air.map(x => `${x.name} ${money(x.fares[0])}`).join(', ') + ', per vehicle.',
     'Fixed price, GST and tolls included.',
-    a.themePark ? 'Child seats fitted.' : 'Tax invoice on every trip.',
+    a.descTail || (a.themePark ? 'Child seats fitted.' : 'Tax invoice on every trip.'),
     '24/7.',
   ]);
   const ctaHref = '/?pu=' + encodeURIComponent(air[0].place) + '&do=' + encodeURIComponent(a.suburb) + '#book';
@@ -1301,7 +1322,7 @@ ${hotelRows}
   <p class="fare-note">
     ${unpriced.length ? `${unpriced.join(' and ')} ${unpriced.length > 1 ? 'are' : 'is'} further than we price online &mdash; call or WhatsApp us and we fix the price before you book. ` : ''}Staying somewhere else? Type the address into the
     <a href="${ctaHref}">booking form</a> and it prices the trip straight away.
-    Want the car to stay with you? <a href="/point-to-point-transfers.html">Book by the hour</a>, three to six hours, from $90 an hour.
+    ${a.stayHtml || 'Want the car to stay with you? <a href="/point-to-point-transfers.html">Book by the hour</a>, three to six hours, from $90 an hour.'}
   </p>
 ${pairs.length ? `
   <h2>Between the parks</h2>
@@ -1341,6 +1362,250 @@ ${FOOTER}
 </html>
 `;
   return head(title, desc, url, ld) + body;
+}
+
+// ---------------------------------------------------------------------------
+// private day tours (2 Nov 2026) - data/tours.js. The car and chauffeur for
+// the day, priced as the hourly-hire rate x hours less 10%, and booked by
+// enquiry: the form posts to the server's /charter-enquiry, so it lands in the
+// same inbox and Zapier flow as a charter.
+// ---------------------------------------------------------------------------
+/* Hourly hire, per vehicle class in VEH order. MUST match HOURLY_RATES in
+   index.html and stripe-server.js; fares.json publishes this same array. */
+const HOURLY = [90, 100, 115, 125, 135, 160, 185];
+const TOUR_DISCOUNT = 0.9;          // what the full-day charters carry
+const tourFares = (hours) => HOURLY.map(r => Math.round(r * hours * TOUR_DISCOUNT / 5) * 5);
+const SERVER = 'https://sky-transfers-booking-server.onrender.com';
+const dollars = n => '$' + n.toLocaleString('en-AU');
+
+let TOURS = [];
+try { TOURS = require(path.join(ROOT, 'data', 'tours.js')); }
+catch (e) { console.warn('build-suburbs: no data/tours.js, skipping tour pages (' + e.message + ')'); }
+
+function clock(min) {
+  const m = Math.round(min / 5) * 5, h = Math.floor(m / 60) % 24, mm = m % 60;
+  return (h % 12 || 12) + ':' + String(mm).padStart(2, '0') + (h < 12 ? ' am' : ' pm');
+}
+
+function tourPage(t) {
+  const url = '/' + t.slug + '.html';
+  /* Each start: its timetable from the measured legs and planned stays, and
+     its fares. A day that overruns the hours it is priced at stops the build. */
+  const starts = t.starts.map(s => {
+    const [hh, mi] = s.start.split(':').map(Number);
+    let now = hh * 60 + mi, drive = 0;
+    const rows = [{ time: clock(now), what: 'Pick-up from ' + s.place, how: '' }];
+    for (const [key, km, min, stay] of s.legs) {
+      const st = t.stops[key];
+      if (!st) throw new Error('tour ' + t.slug + ': no stop ' + key);
+      now += min; drive += min;
+      rows.push({ time: clock(now), stop: st, km, min, stay });
+      now += stay;
+    }
+    now += s.home[2]; drive += s.home[2];
+    rows.push({ time: clock(now), what: 'Back ' + s.home[0], how: s.home[1] + ' km, about ' + mins(s.home[2] * 60) });
+    const total = now - (hh * 60 + mi);
+    if (total > s.hours * 60) throw new Error('tour ' + t.slug + ' ' + s.key + ': the day is ' + total + ' min, priced at ' + s.hours + ' h');
+    return Object.assign({ rows, total, drive, fares: tourFares(s.hours) }, s);
+  });
+  const from = Math.min.apply(null, starts.map(s => s.fares[0]));
+  const desc = metaDesc([
+    `Private day tour: Glass House Mountains, Australia Zoo and Maleny. ` + starts.map((s, i) => `${i ? s.label.replace('From ', 'from ') : s.label} ${dollars(s.fares[0])}`).join(', ') + ' per vehicle.',
+    'Car and chauffeur all day, tolls and GST included.',
+    'Entry tickets extra.',
+  ]);
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@id': SITE + url + '#tour', '@type': 'TouristTrip', name: t.name + ' private day tour', url: SITE + url,
+        description: t.lead, provider: { '@id': SITE + '/#business' },
+        itinerary: { '@type': 'ItemList', itemListElement: Object.keys(t.stops).map((k, i) => ({ '@type': 'ListItem', position: i + 1,
+          item: { '@type': 'TouristAttraction', name: t.stops[k].name, address: { '@type': 'PostalAddress', addressLocality: t.stops[k].where, addressRegion: 'QLD', addressCountry: 'AU' } } })) },
+        offers: starts.map(s => ({ '@type': 'Offer', name: `${s.label}, ${s.hours} hours, sedan, per vehicle`, price: String(s.fares[0]), priceCurrency: 'AUD',
+          availability: 'https://schema.org/InStock', url: SITE + url,
+          priceSpecification: { '@type': 'PriceSpecification', price: String(s.fares[0]), minPrice: String(s.fares[0]), priceCurrency: 'AUD', valueAddedTaxIncluded: true } })),
+      },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Charters & day tours', item: SITE + '/charters.html' },
+        { '@type': 'ListItem', position: 3, name: t.name + ' day tour', item: SITE + url } ] },
+      { '@type': 'FAQPage', mainEntity: t.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+    ],
+  };
+
+  const timetable = (s) => `  <div class="faretable-wrap">
+    <table class="lpfare tourplan">
+      <caption>${esc(s.label)} &mdash; about ${Math.round(s.total / 60 * 2) / 2} hours door to door, ${mins(s.drive * 60)} of it driving</caption>
+      <thead><tr><th scope="col">Time</th><th scope="col">Stop</th><th scope="col">Getting there</th><th scope="col">Time there</th></tr></thead>
+      <tbody>
+${s.rows.map(r => r.stop
+    ? `        <tr><td>${r.time}</td><th scope="row">${esc(r.stop.name)}<span class="s"> ${esc(r.stop.text)}${r.stop.ticket ? ' <em>Entry ticket extra.</em>' : ''}</span></th><td>${r.km} km, ${r.min} min</td><td>${mins(r.stay * 60).replace(' minutes', ' min')}</td></tr>`
+    : `        <tr><td>${r.time}</td><th scope="row">${esc(r.what)}</th><td>${r.how}</td><td></td></tr>`).join('\n')}
+      </tbody>
+    </table>
+  </div>${s.note ? `\n  <p class="fare-note">${esc(s.note)}</p>` : ''}`;
+
+  const vehOptions = VEH.map((v, i) => `<option value="${esc(v[0])}">${esc(v[0])} (${esc(v[1].split(' · ')[0])})</option>`).join('');
+  const priceJson = JSON.stringify(Object.fromEntries(starts.map(s => [s.key, { label: s.label, hours: s.hours, fares: s.fares }])));
+
+  const body = `${NAV}
+
+<header class="fares-hero photo" id="top">
+  ${heroBg('ch-hero-dusk')}
+  <div class="hero-in">
+  <h1>${esc(t.h1)}</h1>
+  <p>
+    ${esc(t.lead)}
+  </p>
+  <a class="cta-gold" href="#enquire">Check a date</a>
+  </div>
+</header>
+
+<div class="lp">
+
+  <div class="facts">
+${starts.map(s => `    <div class="fact"><span class="k">${esc(s.label)}</span><span class="v">${dollars(s.fares[0])}</span><span class="s">Sedan, ${s.hours} hours, per vehicle</span></div>`).join('\n')}
+    <div class="fact"><span class="k">Group of 10</span><span class="v">${dollars(starts[0].fares[5])}</span><span class="s">Sprinter 10, from Brisbane</span></div>
+    <div class="fact"><span class="k">Entry tickets</span><span class="v">Extra</span><span class="s">Bought direct</span></div>
+  </div>
+
+  <h2>The day</h2>
+  <p>
+    The car and the chauffeur are yours from pick-up to drop-off. These are the measured drive times outside peak and
+    the time we plan at each stop &mdash; it is a private tour, so stay longer at the zoo, skip a stop or change the
+    order on the day, within the hours you book.
+  </p>
+${starts.map(timetable).join('\n')}
+
+  <h2>What it costs</h2>
+  <p>
+    One price per vehicle for the whole day, not per person, with fuel, tolls and GST included. Entry tickets are extra.
+  </p>
+  <div class="faretable-wrap">
+    <table class="lpfare">
+      <caption>${esc(t.name)} day tour &mdash; per vehicle, AUD</caption>
+      <thead>
+        <tr><th scope="col">Vehicle</th>${starts.map(s => `<th scope="col">${esc(s.label)} (${s.hours} h)</th>`).join('')}</tr>
+      </thead>
+      <tbody>
+${VEH.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${starts.map(s => `<td>${dollars(s.fares[i])}</td>`).join('')}</tr>`).join('\n')}
+      </tbody>
+    </table>
+  </div>
+  <p class="fare-note">
+    That is ${starts.map(s => `$${Math.round(s.fares[5] / 10)} a head for ten in a Sprinter ${s.label.replace('From', 'from')}`).join(' and ')}.
+    More than 14? The 18-seat Sprinter and the 53-seat coach are quoted per job &mdash; say so in the enquiry.
+  </p>
+
+  <div class="box">
+    <p><strong>Included.</strong></p>
+    <ul>
+${t.included.map(x => `      <li>${esc(x)}</li>`).join('\n')}
+    </ul>
+    <p><strong>Not included.</strong></p>
+    <ul>
+${t.extra.map(x => `      <li>${esc(x)}</li>`).join('\n')}
+    </ul>
+  </div>
+
+  <h2 id="enquire">Check a date</h2>
+  <p>
+    Tours are booked by enquiry: tell us the date and the group, we check a vehicle and a chauffeur are free, and we
+    confirm with a written price, usually within the hour. Nothing is charged until then.
+  </p>
+  <form id="tour-form" class="tour-form" novalidate>
+    <div class="tf-grid">
+      <label>Starting from<select id="tf-start" required>${starts.map(s => `<option value="${s.key}">${esc(s.label.replace('From ', ''))}</option>`).join('')}</select></label>
+      <label>Date<input id="tf-date" type="date" required></label>
+      <label>People<input id="tf-pax" type="number" min="1" max="53" value="2" required></label>
+      <label>Vehicle<select id="tf-veh">${vehOptions}</select></label>
+      <label class="wide">Pick-up address or hotel<input id="tf-pickup" type="text" autocomplete="street-address" required></label>
+      <label>Name<input id="tf-name" type="text" autocomplete="name" required></label>
+      <label>Mobile<input id="tf-phone" type="tel" autocomplete="tel" required></label>
+      <label class="wide">Email<input id="tf-email" type="email" autocomplete="email" required></label>
+      <label class="wide">Anything we should know (children's ages, a stop to add or skip)<textarea id="tf-notes" rows="3"></textarea></label>
+    </div>
+    <p class="tf-price" id="tf-price" aria-live="polite"></p>
+    <button class="cta-gold" type="submit" id="tf-send">Send enquiry</button>
+    <p class="tf-msg" id="tf-msg" role="status" hidden></p>
+  </form>
+
+  <h2>Questions about the tour</h2>
+${t.faq.map(([q, a]) => `  <details>\n    <summary>${esc(q)}</summary>\n    <p>${esc(a)}${/return transfer is cheaper/.test(a) ? ' See <a href="/australia-zoo-transfers.html">Australia Zoo transfers</a>.' : ''}</p>\n  </details>`).join('\n')}
+
+  <p class="fare-note">
+    <a href="/australia-zoo-transfers.html">Australia Zoo transfers</a> &middot; <a href="/charters.html">Charters</a> &middot; <a href="/point-to-point-transfers.html">Hourly hire</a> &middot; <a href="/prices.html">Full price list</a>
+  </p>
+
+</div>
+
+<section class="cta-band">
+  <h2>Ask about a date</h2>
+  <p>Tell us the day and the group; we confirm the vehicle and the price, usually within the hour.</p>
+  <a class="cta-gold" href="#enquire">Check a date</a>
+  <span class="alt">Or call <a href="tel:+61481437772">+61 481 437 772</a> &mdash; 24 hours, 7 days.</span>
+</section>
+<style>
+  .tourplan td:first-child{white-space:nowrap;font-weight:600}
+  .tour-form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+  .tf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .tf-grid label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:14px;color:var(--ink)}
+  .tf-grid .wide{grid-column:1/-1}
+  .tf-price{margin:14px 0 10px;font-weight:600;color:var(--ink)}
+  .tf-msg{margin-top:12px;padding:12px;border-radius:10px;background:var(--gold-soft);color:var(--ink)}
+  .tf-msg.err{background:transparent;border:1px solid var(--err)}
+</style>
+<script>
+(function(){
+  var PRICES = ${priceJson};
+  var VEHS = ${JSON.stringify(VEH.map(v => v[0]))};
+  var $ = function(id){ return document.getElementById(id); };
+  function price(){
+    var s = PRICES[$("tf-start").value], i = VEHS.indexOf($("tf-veh").value);
+    return { label: s.label, hours: s.hours, fare: s.fares[i] };
+  }
+  function show(){
+    var p = price();
+    $("tf-price").textContent = p.label + ", " + p.hours + " hours, " + $("tf-veh").value + ": $" + p.fare.toLocaleString("en-AU") + " per vehicle, entry tickets extra.";
+  }
+  $("tf-start").addEventListener("change", show); $("tf-veh").addEventListener("change", show); show();
+  var t = new Date(); t.setDate(t.getDate() + 1); $("tf-date").min = t.toISOString().slice(0, 10);
+  function msg(text, err){ var m = $("tf-msg"); m.hidden = false; m.className = "tf-msg" + (err ? " err" : ""); m.innerHTML = text; m.scrollIntoView({ behavior: "smooth", block: "center" }); }
+  $("tour-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var f = this, need = ["tf-date", "tf-pax", "tf-pickup", "tf-name", "tf-phone", "tf-email"];
+    for (var k = 0; k < need.length; k++) { var el = $(need[k]); if (!el.value.trim() || !el.checkValidity()) { el.focus(); msg("Please fill in " + el.parentNode.firstChild.textContent.trim().toLowerCase() + ".", true); return; } }
+    var p = price(), b = $("tf-send"); b.disabled = true; b.textContent = "Sending…";
+    var body = {
+      occasion: "Day tour: Glass House, Australia Zoo & Maleny (" + p.label.replace("From", "from") + ")",
+      vehicle: $("tf-veh").value, date: $("tf-date").value, hours: p.hours, pax: $("tf-pax").value,
+      name: $("tf-name").value.trim(), phone: $("tf-phone").value.trim(), email: $("tf-email").value.trim(),
+      itinerary: "Tour: ${esc(t.name)} (${url})\\nStarting from: " + p.label.replace("From ", "") + "\\nPick-up: " + $("tf-pickup").value.trim() +
+        "\\nPublished tour price: $" + p.fare + " per vehicle, " + p.hours + " hours, entry tickets extra" +
+        ($("tf-notes").value.trim() ? "\\nNotes: " + $("tf-notes").value.trim() : "")
+    };
+    var ctl = window.AbortController ? new AbortController() : null, timer = ctl ? setTimeout(function(){ ctl.abort(); }, 15000) : null;
+    fetch("${SERVER}/charter-enquiry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
+      .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || "failed"); return d; }); })
+      .then(function(d){
+        if (window.gtag) gtag("event", "tour_enquiry", { tour: "${t.slug}", start: $("tf-start").value, vehicle: body.vehicle });
+        f.reset(); show();
+        msg("Thank you — we have your enquiry (reference <strong>" + d.ref + "</strong>). A copy is on its way to your email, and we will confirm the date and the price, usually within the hour.");
+      })
+      .catch(function(){
+        msg('We could not send that just now. Please call or WhatsApp <a href="tel:+61481437772">+61 481 437 772</a> or email info@skytransfers.com.au with the date, the group size and your pick-up.', true);
+      })
+      .then(function(){ if (timer) clearTimeout(timer); b.disabled = false; b.textContent = "Send enquiry"; });
+  });
+})();
+</script>
+${FOOTER}
+</body>
+</html>
+`;
+  return head(t.title, desc, url, ld) + body;
 }
 
 // ---------------------------------------------------------------------------
@@ -1574,7 +1839,7 @@ function writeFaresJson() {
       available: true,
       how: 'Chauffeur and vehicle as directed, booked from the form by choosing "By the hour". Rate per hour by vehicle class, no evening loading.',
       min_hours: 3, max_hours_online: 6,
-      rate_per_hour_in_fares_array_order: [90, 100, 115, 125, 135, 160, 185, null],
+      rate_per_hour_in_fares_array_order: HOURLY.concat([null]),
       prefill_url: SITE + '/?hours={hours}&pu={pickup}#book',
       longer: 'Half and full days are charters: ' + SITE + '/charters.html',
     },
@@ -2082,6 +2347,7 @@ for (const p of places) {
 fs.writeFileSync(path.join(OUT, 'index.html'), hubPage());
 for (const r of REGIONS) fs.writeFileSync(path.join(ROOT, r.slug + '.html'), regionPage(r));
 for (const a of ATTRACTIONS) fs.writeFileSync(path.join(ROOT, a.slug + '.html'), attractionPage(a));
+for (const t of TOURS) fs.writeFileSync(path.join(ROOT, t.slug + '.html'), tourPage(t));
 refreshPrices();
 refreshCounts();
 writeFaresJson();
@@ -2090,16 +2356,17 @@ writeFaresJson();
 const smPath = path.join(ROOT, 'sitemap.xml');
 let sm = fs.readFileSync(smPath, 'utf8');
 sm = sm.replace(/\s*<url>\s*<loc>[^<]*\/airport-transfers\/[^<]*<\/loc>[\s\S]*?<\/url>/g, '');
-for (const r of REGIONS.concat(ATTRACTIONS)) sm = sm.replace(new RegExp('\\s*<url>\\s*<loc>[^<]*/' + r.slug + '\\.html</loc>[\\s\\S]*?</url>', 'g'), '');
+for (const r of REGIONS.concat(ATTRACTIONS, TOURS)) sm = sm.replace(new RegExp('\\s*<url>\\s*<loc>[^<]*/' + r.slug + '\\.html</loc>[\\s\\S]*?</url>', 'g'), '');
 const entries = REGIONS.map(r => `  <url>\n    <loc>${SITE}/${r.slug}.html</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`)
-  .concat(ATTRACTIONS.map(a => `  <url>\n    <loc>${SITE}/${a.slug}.html</loc>\n    <lastmod>${ATTR_LASTMOD}</lastmod>\n  </url>`))
+  .concat(ATTRACTIONS.map(a => `  <url>\n    <loc>${SITE}/${a.slug}.html</loc>\n    <lastmod>${a.lastmod || ATTR_LASTMOD}</lastmod>\n  </url>`))
+  .concat(TOURS.map(t => `  <url>\n    <loc>${SITE}/${t.slug}.html</loc>\n    <lastmod>${t.lastmod}</lastmod>\n  </url>`))
   .concat([`  <url>\n    <loc>${SITE}/${DIR}/</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`])
   .concat(places.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`));
 sm = sm.replace(/\s*<\/urlset>\s*$/, '\n' + entries.join('\n') + '\n</urlset>\n');
 fs.writeFileSync(smPath, sm);
 
 const withFacts = places.filter(p => p.facts && (p.facts.bne || p.facts.ool)).length;
-console.log(`build-suburbs: ${written} suburb pages + hub written to ${DIR}/, ${REGIONS.length} region pages and ${ATTRACTIONS.length} attraction pages at the root, ${withFacts} with measured drive times; sitemap now has ${(sm.match(/<loc>/g) || []).length} URLs`);
+console.log(`build-suburbs: ${written} suburb pages + hub written to ${DIR}/, ${REGIONS.length} region pages, ${ATTRACTIONS.length} attraction pages and ${TOURS.length} tour page(s) at the root, ${withFacts} with measured drive times; sitemap now has ${(sm.match(/<loc>/g) || []).length} URLs`);
 if (written !== places.length) { console.error('build-suburbs: page count mismatch'); process.exit(1); }
 
 /* ---- links from the main pages to the articles (26 Oct 2026, audit "Fix D") ----
