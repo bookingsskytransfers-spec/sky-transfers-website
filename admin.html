@@ -165,6 +165,7 @@
       <button type="button" role="tab" data-tab="web">Website bookings<span class="badge" id="tab-web-n" hidden title="Awaiting an answer"></span></button>
       <button type="button" role="tab" data-tab="new">New booking</button>
       <button type="button" role="tab" data-tab="agents">Agents</button>
+      <button type="button" role="tab" data-tab="affiliates">Affiliates</button>
       <button type="button" role="tab" data-tab="gallery">Photo gallery</button>
       <button type="button" role="tab" data-tab="records">Old records</button>
     </nav>
@@ -419,6 +420,76 @@
 
     </div>
 
+    <div class="pane" data-pane="affiliates" role="tabpanel" hidden>
+    <div id="aff-pin" class="pinbox" hidden>
+      <div class="lbl">PIN for <span id="aff-pin-for"></span></div>
+      <div class="val" id="aff-pin-val"></div>
+      <p>Give this to them now with their link - it is not shown again and is never emailed. They sign in at skytransfers.com.au/affiliate.html with their code and this PIN.</p>
+    </div>
+
+    <section class="card">
+      <div class="pane-head"><h2>Affiliates</h2>
+        <button type="button" class="cta small" id="aff-add">+ Add an affiliate</button></div>
+      <p class="muted" style="margin:0 0 12px">The referral programme: hosts, hotels, planners and bloggers share a link (?ref=code); the guest books and pays on the website. Commission is the rate x the fare paid, excluding GST, child seats and the trailer. <b>Pending</b> once paid, <b>owed</b> once every leg is Done on the dispatch board, reversed if cancelled. Applications from the referral page land here inactive.</p>
+      <div id="aff-list-msg" class="msg" hidden></div>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Code</th><th>Affiliate</th><th>Rate</th><th>Status</th>
+            <th style="text-align:right">Bookings</th><th style="text-align:right">Pending</th>
+            <th style="text-align:right">Owed</th><th style="text-align:right">Paid</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="aff-rows"><tr><td colspan="9" class="muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Statement - owed now</h2>
+      <p class="muted" style="margin:0 0 12px">Every completed trip not yet paid out, and any booking flagged because the guest's email or phone is the affiliate's own. Pay by bank transfer, then press <b>Mark paid</b> on the affiliate above - it covers everything owed to them, and the amounts are fixed from then on.</p>
+      <div class="scroll">
+        <table>
+          <thead><tr>
+            <th>Affiliate</th><th>Pay to</th><th>Ref</th><th>Date</th><th>Guest</th><th>Route</th>
+            <th style="text-align:right">Fare</th><th style="text-align:right">Commission</th><th></th>
+          </tr></thead>
+          <tbody id="aff-st-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="af-title">Add an affiliate</h2>
+      <div id="af-msg" class="msg" hidden></div>
+      <p class="muted" id="af-promote" hidden style="margin:0 0 12px"></p>
+      <div class="row3">
+        <div><label for="af-code">Referral code</label><input id="af-code" placeholder="palmbeachhost" autocapitalize="none" spellcheck="false"></div>
+        <div><label for="af-name">Name</label><input id="af-name" placeholder="Sam Smith"></div>
+        <div><label for="af-business">Business</label><input id="af-business" placeholder="Palm Beach Stays"></div>
+      </div>
+      <div class="row3">
+        <div><label for="af-email">Email</label><input id="af-email" type="email"></div>
+        <div><label for="af-phone">Phone</label><input id="af-phone" type="tel"></div>
+        <div><label for="af-website">Website or listing</label><input id="af-website" type="url"></div>
+      </div>
+      <div class="row3">
+        <div><label for="af-pct">Commission %</label><input id="af-pct" type="number" min="0.5" max="50" step="0.5" placeholder="required to go live"></div>
+        <div><label for="af-active">Status</label>
+          <select id="af-active"><option value="false">Inactive</option><option value="true">Active</option></select></div>
+        <div><label for="af-reset"><input id="af-reset" type="checkbox" style="width:auto;margin-right:6px">Issue a new PIN</label></div>
+      </div>
+      <div class="row3">
+        <div><label for="af-acname">Account name</label><input id="af-acname"></div>
+        <div><label for="af-bsb">BSB</label><input id="af-bsb" inputmode="numeric" placeholder="123-456"></div>
+        <div><label for="af-acno">Account number</label><input id="af-acno" inputmode="numeric"></div>
+      </div>
+      <div><label for="af-notes">Notes (office only)</label><input id="af-notes"></div>
+      <p class="muted" id="af-link" style="margin:10px 0"></p>
+      <button class="cta" id="af-save">Create affiliate</button>
+      <p class="muted" style="margin:12px 0 0">There is no default rate: an account can't go Active until one is entered. Changing a rate only affects bookings made from then on. A code can be changed until the first booking under it.</p>
+    </section>
+    </div>
+
     <div class="pane" data-pane="gallery" role="tabpanel" hidden>
     <section class="card" id="gallery-card">
       <h2>Vehicle photo gallery</h2>
@@ -489,7 +560,7 @@
      address (#web, #agents...) and remembered in this browser. Anything that
      jumps to a card - Amend, Edit, Bookings, Staff, a new PIN - calls
      reveal() first, so the card is never on a hidden tab. */
-  var TABS = ["dash", "web", "new", "agents", "gallery", "records"];
+  var TABS = ["dash", "web", "new", "agents", "affiliates", "gallery", "records"];
   function showTab(name, keepScroll){
     if (TABS.indexOf(name) === -1) name = "dash";
     Array.prototype.forEach.call(document.querySelectorAll(".pane"), function(p){ p.hidden = p.getAttribute("data-pane") !== name; });
@@ -1267,7 +1338,96 @@
     galLoad();
     retLoad();
     nbLoad();
+    affLoad();
   }
+
+  /* ---- affiliates (the referral programme, 3 Nov 2026) ----------------- */
+  var affEditing = null;
+  function affTd(tr, text, right){ var td = document.createElement("td"); td.textContent = text == null ? "" : text; if (right) td.style.textAlign = "right"; tr.appendChild(td); return td; }
+  function affLoad(){
+    return api("/admin/affiliates").then(function(d){
+      var tb = $("aff-rows"); tb.innerHTML = "";
+      if (!d.affiliates.length) tb.innerHTML = '<tr><td colspan="9" class="muted">No affiliates yet.</td></tr>';
+      d.affiliates.forEach(function(a){
+        var tr = document.createElement("tr");
+        affTd(tr, a.code);
+        affTd(tr, (a.business ? a.business + " · " : "") + a.name);
+        affTd(tr, a.commissionPct != null ? a.commissionPct + "%" : "not set");
+        affTd(tr, a.active ? "Active" : a.source === "applied" ? "Applied - not active" : "Inactive");
+        affTd(tr, a.bookings, true);
+        affTd(tr, money(a.pending), true);
+        affTd(tr, money(a.owed) + (a.review ? " (+" + money(a.review) + " to check)" : ""), true);
+        affTd(tr, money(a.paid), true);
+        var td = affTd(tr, "");
+        td.appendChild(actionBtn("Edit", "", function(){ affFill(a); }));
+        if (a.owed > 0) td.appendChild(armBtn("Mark paid", "Paid " + money(a.owed) + "? Press again", "", function(){
+          return api("/admin/affiliate-paid", { method: "POST", body: { code: a.code } }).then(function(r){
+            show($("aff-list-msg"), "Recorded " + money(r.amount) + " paid to " + a.code + " for " + r.trips + " trip" + (r.trips === 1 ? "" : "s") + ".", true);
+            return affLoad();
+          }).catch(function(e){ show($("aff-list-msg"), e.message); });
+        }));
+        tb.appendChild(tr);
+      });
+      var by = {}; d.affiliates.forEach(function(a){ by[a.code] = a; });
+      var st = $("aff-st-rows"); st.innerHTML = "";
+      if (!d.statement.length) st.innerHTML = '<tr><td colspan="9" class="muted">Nothing owed right now.</td></tr>';
+      d.statement.forEach(function(x){
+        var a = by[x.code] || {}, tr = document.createElement("tr");
+        affTd(tr, x.code);
+        affTd(tr, a.bsb || a.accountNo ? (a.accountName ? a.accountName + " · " : "") + "BSB " + (a.bsb || "?") + " · " + (a.accountNo || "?") : "no bank details yet");
+        affTd(tr, x.ref); affTd(tr, x.date); affTd(tr, x.guest); affTd(tr, x.route);
+        affTd(tr, money(x.fare), true); affTd(tr, money(x.commission) + " (" + x.pct + "%)", true);
+        var td = affTd(tr, x.flag === "self" ? "Self-referral? " : x.state === "earned" ? "Owed" : "");
+        if (x.flag === "self") {
+          td.appendChild(actionBtn("Allow", "", function(){ affFlag(x.ref, "allow"); }));
+          td.appendChild(armBtn("Void", "No commission? Press again", "danger", function(){ return affFlag(x.ref, "void"); }));
+        }
+        st.appendChild(tr);
+      });
+    }).catch(function(e){ show($("aff-list-msg"), e.message); });
+  }
+  function affFlag(ref, action){
+    return api("/admin/affiliate-flag", { method: "POST", body: { ref: ref, action: action } }).then(affLoad)
+      .catch(function(e){ show($("aff-list-msg"), e.message); });
+  }
+  function affFill(a){
+    affEditing = a ? a.code : null;
+    var v = function(id, x){ $(id).value = x == null ? "" : x; };
+    v("af-code", a && a.code); v("af-name", a && a.name); v("af-business", a && a.business);
+    v("af-email", a && a.email); v("af-phone", a && a.phone); v("af-website", a && a.website);
+    v("af-pct", a && a.commissionPct); $("af-active").value = a && a.active ? "true" : "false";
+    v("af-acname", a && a.accountName); v("af-bsb", a && a.bsb); v("af-acno", a && a.accountNo); v("af-notes", a && a.notes);
+    $("af-reset").checked = false;
+    $("af-title").textContent = a ? "Edit " + a.code : "Add an affiliate";
+    $("af-save").textContent = a ? "Save changes" : "Create affiliate";
+    $("af-promote").hidden = !(a && (a.promote || a.website));
+    $("af-promote").textContent = a ? "From their application - " + (a.website ? "website: " + a.website + ". " : "") + (a.promote ? "How they'll promote us: " + a.promote : "") : "";
+    $("af-link").textContent = a ? "Their link: " + a.link : "";
+    show($("af-msg"), "");
+    reveal($("af-title"));
+    $("af-title").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  $("aff-add").addEventListener("click", function(){ affFill(null); setTimeout(function(){ $("af-code").focus(); }, 350); });
+  $("af-save").addEventListener("click", function(){
+    var btn = $("af-save"); btn.disabled = true; show($("af-msg"), "");
+    api("/admin/affiliate", { method: "POST", body: {
+      was: affEditing || undefined, code: $("af-code").value.trim(), name: $("af-name").value.trim(),
+      business: $("af-business").value, email: $("af-email").value, phone: $("af-phone").value, website: $("af-website").value,
+      commissionPct: $("af-pct").value, active: $("af-active").value === "true", resetPin: $("af-reset").checked,
+      accountName: $("af-acname").value, bsb: $("af-bsb").value.trim(), accountNo: $("af-acno").value.replace(/\s/g, ""), notes: $("af-notes").value } })
+      .then(function(r){
+        affEditing = r.code;
+        show($("af-msg"), "Saved. Their link: " + r.link, true);
+        $("af-link").textContent = "Their link: " + r.link; $("af-reset").checked = false;
+        if (r.pin) {
+          $("aff-pin-for").textContent = r.code; $("aff-pin-val").textContent = r.pin; $("aff-pin").hidden = false;
+          reveal($("aff-pin")); $("aff-pin").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return affLoad();
+      })
+      .catch(function(e){ show($("af-msg"), e.message); })
+      .then(function(){ btn.disabled = false; });
+  });
 
   /* Every destructive button on this page used a browser confirm dialog, and
      on Aman's browser that dialog never appeared at all - so Remove, New PIN

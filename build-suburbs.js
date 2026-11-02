@@ -2552,10 +2552,38 @@ function splitCards() {
   console.log(`build-suburbs: ${n} card links now name only their title`);
 }
 
+/* The referral programme (3 Nov 2026): every public page - the ones carrying
+   the Google tag - loads /ref.js, which remembers a ?ref= code, and lists the
+   programme in its footer. Done last, so pages written by every step above
+   (suburbs, regions, the blog feed) get it too. Back-office pages (admin,
+   dispatch, agent, driver, track, account, affiliate) carry no Google tag and
+   are left alone, which matters: track.html takes ?ref= for a booking. */
+function referralPass() {
+  const TAG = "gtag('config', 'G-9LYFELNSBK')";
+  const LINK = '<p><a href="/affiliates.html">Referral programme</a></p>';
+  const CONTACT = '<p><a href="/contact.html">Contact us</a></p>';
+  let js = 0, foot = 0;
+  for (const d of [ROOT, OUT, BLOG_DIR]) {
+    if (!fs.existsSync(d)) continue;
+    for (const name of fs.readdirSync(d)) {
+      if (!name.endsWith('.html')) continue;
+      const f = path.join(d, name);
+      const s = fs.readFileSync(f, 'utf8');
+      if (!s.includes(TAG)) continue;
+      let t = s;
+      if (!t.includes('src="/ref.js"') && t.includes('</head>')) { t = t.replace('</head>', '<script src="/ref.js" defer></script>\n</head>'); js++; }
+      if (!t.includes('href="/affiliates.html">Referral programme') && t.includes(CONTACT)) { t = t.replace(CONTACT, CONTACT + '\n      ' + LINK); foot++; }
+      if (t !== s) fs.writeFileSync(f, t);
+    }
+  }
+  console.log(`build-suburbs: referral script on ${js} pages, footer link on ${foot}`);
+}
+
 /* Last, because it appends to the sitemap the block above has just written,
    and awaits a network call. Never allowed to fail the build. The guide
    links run after it either way, so committed articles are still linked when
    the feed is down. */
 writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'))
   .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } })
-  .then(() => { try { splitCards(); } catch (e) { console.warn('build-suburbs: card step failed (' + e.message + ')'); } });
+  .then(() => { try { splitCards(); } catch (e) { console.warn('build-suburbs: card step failed (' + e.message + ')'); } })
+  .then(() => { try { referralPass(); } catch (e) { console.warn('build-suburbs: referral step failed (' + e.message + ')'); } });

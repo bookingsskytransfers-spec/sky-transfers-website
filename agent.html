@@ -224,7 +224,7 @@
 
     <section class="card" id="prod-card" hidden>
       <h2>Book from your rate card</h2>
-      <p class="muted" style="margin:0 0 6px">Pick what your client needs, pick the vehicle size, and the price is fixed &mdash; your net rate, no commission. Night pick-ups (10 pm to 5 am) and 25&ndash;26 December and 1 January surcharges are added automatically.</p>
+      <p class="muted" style="margin:0 0 6px">Pick what your client needs, pick the vehicle size, and the price is fixed &mdash; your net rate, no commission. Pick-ups on 25&ndash;26 December and 1 January carry a 25% surcharge, added automatically. There is no night surcharge.</p>
       <div id="prod-list"></div>
       <div class="prod-form" id="prod-form" hidden>
         <h3 id="pf-title"></h3>
@@ -278,7 +278,7 @@
       <h2>Book interstate &mdash; Sydney, Melbourne, Cairns</h2>
       <p class="muted" style="margin:0 0 12px">Fixed prices for transfers and tours, run by our partners in each city &mdash; your net rate, no commission, GST included.
         Book at least 24 hours ahead. Changes close 24 hours before pick-up, and a cancellation inside 24 hours is charged in full.
-        Night and public-holiday surcharges are added to the price automatically.</p>
+        Our partners' own night and public-holiday charges in those cities are included in the price shown.</p>
       <div class="trip" id="ix-cities" role="radiogroup" aria-label="City"></div>
       <div id="ix-list"></div>
       <div class="prod-form" id="ix-form" hidden>
@@ -1333,7 +1333,7 @@
     r.addEventListener("change", function(){ if (r.checked) setTrip(r.value); });
   });
   $("hours").addEventListener("change", function(){ if (state.trip === "hourly") quote(); });
-  /* on the rate card the price can move with the time (night, festive days) */
+  /* on the rate card the price can move with the date (25-26 Dec, 1 Jan) */
   ["date", "time", "rdate", "rtime"].forEach(function(id){
     $(id).addEventListener("change", function(){ if (state.card && state.pu) { clearTimeout(quoteTimer); doQuote(state.vehicle); } });
   });
@@ -1578,7 +1578,7 @@
              ends: { pickup: state.puEnd, dropoff: dro ? state.droEnd : null },
              hourly: hourly ? { hours: $("hours").value } : undefined,
              returnTrip: isRet(), stops: pickedStops(),
-             /* the card adds its night and festive surcharges by the times */
+             /* the card adds its festive surcharge by the dates */
              date: $("date").value, time: $("time").value,
              returnDate: isRet() ? $("rdate").value : "", returnTime: isRet() ? $("rtime").value : "" };
     if (state.trip === "card" && state.svc) b.service = state.svc.id;

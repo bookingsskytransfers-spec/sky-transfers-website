@@ -1164,6 +1164,7 @@
         <div id="bf-pu-addr-wrap"><label for="bf-pu-addr">Pick-up address (street &amp; number, or hotel name)</label><input id="bf-pu-addr" autocomplete="street-address"></div>
         <div id="bf-do-addr-wrap"><label for="bf-do-addr">Drop-off address (street &amp; number, or hotel name)</label><input id="bf-do-addr" autocomplete="off"></div>
       </div>
+      <div><label for="bf-ref">Referral code (optional)</label><input id="bf-ref" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="30"></div>
       <div><label for="bf-notes">Notes (optional)</label><textarea id="bf-notes" rows="2" placeholder="Extra luggage, return trip, special requests&hellip;"></textarea></div>
       <button class="cta" type="button" id="pay-btn" hidden style="margin-bottom:10px">Pay securely &amp; confirm now</button>
       <button class="cta" type="submit" id="submit-btn">Request this booking</button>
@@ -2334,6 +2335,11 @@ function bookingPayload(){
     email: $("bf-email").value,
     pickupAddress: addrPair().pu, dropoffAddress: addrPair().dro, address: addrPair().line,
     notes: $("bf-notes").value,
+    /* A referral (the affiliate programme): a code typed here counts ahead of
+       one remembered from a ?ref= link by /ref.js. The server decides whether
+       either is real and ignores it if not - the guest never sees an error. */
+    referral: $("bf-ref") ? $("bf-ref").value.trim() : "",
+    referralStored: typeof window.skyRef === "function" ? window.skyRef() : "",
     /* Which client placed this booking. A customer told us in September that his
        AI assistant made the booking and could not pay by card - which is the
        assistant behaving correctly, since entering someone else's card details

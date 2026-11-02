@@ -840,6 +840,8 @@
     if (j.hours) top.appendChild(el("span", "chip", "By the hour · " + j.hours + " h"));
     if (j.source === "web") {
       top.appendChild(el("span", "chip web", "Website"));
+      /* the affiliate who referred it (the referral programme) */
+      if (j.referral) top.appendChild(el("span", "chip", "Referral: " + j.referral));
       top.appendChild(el("span", "chip " + (j.payState === "paid" ? "ok" : "unpaid"),
         j.payState === "paid" ? (j.balance ? "Paid · $" + j.balance + " owing" : "Paid") : j.payState === "confirmed" ? "Confirmed · unpaid" : "Request — not confirmed"));
     } else {
