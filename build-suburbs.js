@@ -100,7 +100,7 @@ const Z = {
     notes: ['{S} sits in the southern beach strip that Gold Coast Airport belongs to \u2014 the terminal is at Bilinga, so this is the shortest run we do to OOL, often under ten minutes kerb to kerb. Brisbane Airport is the long way: north on the Gold Coast Highway or the M1, then the Gateway Motorway to BNE, with the Gateway toll already inside the fare.',
             'Because the airport is so close, the pick-up time we recommend for a departure is set by check-in cut-off rather than by the drive. For international flights from OOL we still suggest leaving a full margin: the terminal is small and queues move in surges when two flights board together.'],
     faq: [['How early should I be collected in {S} for a flight from Gold Coast Airport?', 'The drive is short \u2014 {OOL_MIN} \u2014 so we work back from your airline\u2019s check-in cut-off and add a margin, and confirm the time with you when we confirm the booking.'],
-          ['Is Brisbane Airport realistic from {S}?', 'Yes, {BNE_KM} and {BNE_MIN} in normal traffic via the M1 and the Gateway. The fare is fixed and includes the Gateway toll, so it is often cheaper than two people on the Airtrain and a taxi at the far end.'],
+          ['Is Brisbane Airport realistic from {S}?', 'Yes, {BNE_KM} and {BNE_MIN} in normal traffic via the M1 and the Gateway. The fare is fixed and includes the Gateway toll, so it is often cheaper than two people on the Airtrain plus a rideshare at the far end.'],
           ['Do you cross into New South Wales?', 'The airport straddles the state border at Coolangatta, so the terminal itself is fine. Tweed Heads and further south are quoted on request.']] },
   S2: { region: 'Gold Coast', label: 'Palm Beach and the Tallebudgera valleys',
     notes: ['From {S} the airport run is a short hop south on the Gold Coast Highway or the M1 to Bilinga. The valley suburbs add a few minutes on the way out to the motorway, which is the only part of this trip that ever varies.',
@@ -256,7 +256,7 @@ const Z = {
           ['Gold Coast Airport from {S}?', '{OOL_KM} via the Logan Motorway and the M1, roughly {OOL_MIN}. {OOL_PRICING}']] },
   BW5: { region: 'Brisbane', label: 'the western Ipswich towns',
     notes: ['{S} is in the band of towns west of Ipswich \u2014 Rosewood, Walloon, Marburg, Amberley \u2014 which is the furthest Brisbane-priced band we publish. The run to Brisbane Airport is the Warrego Highway to Ipswich and then the motorways to the Gateway or Airport Link, tolls included. Allow the full time; there is no fast way around Ipswich in the morning peak.',
-            'Because it is a long trip, the fixed fare is the point: a metered taxi from here would be well past the published price before it reached Brisbane.'],
+            'Because it is a long trip, the fixed fare is the point: you know the whole price before you leave, however long the drive takes.'],
     faq: [['How long from {S} to Brisbane Airport?', 'About {BNE_MIN} for {BNE_KM} outside peak. Tolls included.'],
           ['Do you cover rural addresses?', 'Yes. Type the street address when booking; the driver gets it exactly, and a note about gates or unsealed roads helps.'],
           ['Gold Coast Airport from {S}?', '{OOL_KM}, roughly {OOL_MIN}. It is a long run, so allow extra time. {OOL_PRICING}']] },
@@ -622,12 +622,13 @@ function suburbPage(p) {
     named.length > 1 ? `${p.name} to ${fullAir} | From $${p.from}` : `${p.name} to ${fullAir} Transfers | From $${p.from}`,
     `${p.name} to ${fullAir} | From $${p.from}`,
     `${p.name} to ${shortAir} | From $${p.from}`,
+    named.length > 1 ? `${p.name} to ${named.map(a => a.code).join(' & ')} Airport | From $${p.from}` : `${p.name} to ${named[0].code} | From $${p.from}`,
     `${p.name} to ${shortAir}`,
     `${p.name} Airport Transfers`,
   ]);
   const desc = metaDesc([
     isAirport ? `${p.name} to ${primary.name} (${primary.code}) from $${p.from} per vehicle.`
-      : `${p.name} to ` + named.map(a => `${a.name} $${a.fares[0]}`).join(', ') + (named.length > 1 ? ',' : '') + ' per vehicle.',
+      : `${p.name} to ` + named.map(a => `${a.name} from $${a.fares[0]}`).join(', ') + (named.length > 1 ? ',' : '') + ' per vehicle.',
     'Fixed price, GST and tolls included.',
     'Flight tracked, meet and greet.',
     air.length > 1 ? `${air[1].name} (${air[1].code}) priced too.` : '',
@@ -971,12 +972,12 @@ const REGIONS = [
     lead: 'Pre-booked chauffeur transfers between the Ipswich region and Brisbane Airport (BNE), priced by three fare bands: the Springfield and Goodna corridor, Ipswich city, and the towns west to Rosewood and Marburg. One fixed fare per vehicle, published below.',
     notes: [
       'From Ipswich the airport is the Ipswich Motorway to the Gateway, or the Warrego and Centenary motorways to Legacy Way and the Airport Link, depending on the hour; both are toll roads and the tolls are inside the fare. Springfield and Goodna are well under an hour outside peak, Ipswich city a little over, and Rosewood or Marburg a little more again. The weekday morning peak through the Ipswich Motorway is the one thing that changes the drive, and we allow for it in the pick-up time we recommend.',
-      'We are a pre-booked chauffeur service, not a taxi rank: bookings close online six hours before pick-up, and inside that window we take the job by phone only if a car is free. What you get for booking ahead is a fixed fare with no meter and no surge, a driver who tracks your flight, and a name board inside the terminal on the way home.',
+      'We are a pre-booked chauffeur service, not an on-demand rideshare: bookings close online six hours before pick-up, and inside that window we take the job by phone only if a car is free. What you get for booking ahead is a fixed fare with no meter and no surge, a driver who tracks your flight, and a name board inside the terminal on the way home.',
       'RAAF Base Amberley, the Ipswich hospitals and the Springfield Central offices generate a lot of this work, so tax invoices are issued on every trip and monthly accounts are available for regular travellers. Until recently most of Ipswich was not priced online at all \u2014 the table below is now the answer.',
     ],
     faq: [
       ['How long is Ipswich to Brisbane Airport?', 'About {MIN_LOW} from the Springfield end to about {MIN_HIGH} from the western towns, outside peak. Each suburb page shows its own measured drive time.'],
-      ['Can I book a car right now?', 'Online bookings close six hours before pick-up. Inside that window, call +61 481 437 772 and we will take the job if a car is free \u2014 but we are not a taxi service, so please book ahead when you can.'],
+      ['Can I book a car right now?', 'Online bookings close six hours before pick-up. Inside that window, call +61 481 437 772 and we will take the job if a car is free \u2014 but we are a pre-booked service, so please book ahead when you can.'],
       ['Are the motorway tolls extra?', 'No. Tolls and GST are inside the fixed fare on every route to Brisbane Airport.'],
       ['Which suburbs are in which fare band?', 'The bands are listed below with every suburb in each. Springfield, Goodna, Redbank and Camira are the corridor band; Ipswich city and its suburbs the middle band; Rosewood, Walloon, Marburg, Amberley and Grandchester the western band.'],
     ],
@@ -2137,6 +2138,39 @@ const ARTICLE_TEXT_FIX = [
   ['wheelchair-airport-transfers-chauffeur-service', 'Tell us your wheelchair type and dimensions when you book so we assign the right vehicle.',
     'Foldable wheelchairs and walkers travel free where they fit. We do not run ramp or lift vehicles, so if you need to stay seated in your wheelchair, call us on <a href="tel:+61481437772">+61 481 437 772</a> before booking and we will tell you honestly what we can arrange.'],
 ];
+/* Recheck 7 (2 Nov 2026): per-article rewrites kept as data, not code -
+   [{slug, field, find, replace, all}], field defaulting to content_html.
+   Applied to the raw feed before the rest of the build touches it, so the
+   ARTICLE_TEXT_FIX entries above still see the text they were written for.
+   A find that no longer matches is reported, never fatal: the content
+   service may have edited the article since. */
+let ARTICLE_FIXES = [];
+try { ARTICLE_FIXES = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'article-fixes.json'), 'utf8')); }
+catch (e) { console.warn('build-suburbs: no data/article-fixes.json (' + e.message + ')'); }
+function applyArticleFixes(a) {
+  let missed = 0;
+  for (const f of ARTICLE_FIXES) {
+    if (f.slug !== a.slug) continue;
+    const field = f.field || 'content_html';
+    const v = String(a[field] == null ? '' : a[field]);
+    if (v.indexOf(f.find) < 0) { missed++; continue; }
+    a[field] = f.all ? v.split(f.find).join(f.replace) : v.replace(f.find, () => f.replace);
+  }
+  if (missed) console.warn(`build-suburbs: ${missed} article fix(es) for ${a.slug} no longer match - check the article`);
+  return a;
+}
+/* A bare "Book" anchor tells neither the reader nor a search engine where it
+   goes; name the route the link already carries. */
+function bookAnchor(href) {
+  const q = String(href).replace(/&amp;/g, '&');
+  const pu = (/[?&]pu=([^&#]+)/.exec(q) || [])[1], dro = (/[?&]do=([^&#]+)/.exec(q) || [])[1];
+  const nm = (x) => decodeURIComponent(x).replace(/ \((OOL|BNE)\)$/, '').replace(/ \(Pinkenba\)$/, '');
+  if (pu && dro) return 'Book ' + nm(pu) + ' to ' + nm(dro);
+  if (pu) return 'Book a transfer from ' + nm(pu);
+  if (dro) return 'Book a transfer to ' + nm(dro);
+  if (/charters\.html#quote/.test(q)) return 'Request a group quote';
+  return 'Book an airport transfer';
+}
 function fixArticle(a) {
   let h = String(a.content_html || '');
   const strip = (x) => x.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -2173,6 +2207,13 @@ function fixArticle(a) {
         + title.replace(/\s*#\w+/g, '').replace(/\s*\|[^|]*$/, '').trim() + '</a>' + (src ? ' &mdash; ' + src.trim() : '') + '</p>')
     /* any other shape: just drop the empty player box */
     .replace(/<div class="video-embed-wrapper"[^>]*>\s*(?:<iframe[\s\S]*?<\/iframe>)?\s*<\/div>/g, '');
+  /* Recheck 7: the service writes a bordered box whose contents safeHtml
+     strips, leaving an empty frame on the page */
+  h = h.replace(/<div\s+style="[^"]*border:[^"]*"\s*>\s*<\/div>/gi, '');
+  /* never link a competitor (safety net; the article fixes remove the known ones) */
+  h = h.replace(/<a\b[^>]*href=["']https?:\/\/(?:www\.)?(?:hughes\.com\.au|carsondemand\.com\.au|con-x-ion\.com|researchgate\.net)[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi, '$1');
+  h = h.replace(/(<a\b[^>]*href=(["'])([^"']*(?:#book|charters\.html#quote)[^"']*)\2[^>]*>)\s*(?:Book(?:\s+now)?|Get an instant price)\s*(?:&rarr;|→)?\s*(<\/a>)/gi,
+    (m, open, q, href, close) => open + bookAnchor(href) + close);
   /* a review count written into an article goes stale the day it is
      published: "4.8 on Google (29 reviews)" keeps the rating, drops the count */
   h = h.replace(/(on Google)\s*(?:\(\d[\d,]*\s+reviews?\)|(?:across|from|over|with)\s+\d[\d,]*\s+reviews?)/gi, '$1');
@@ -2243,7 +2284,7 @@ ${NAV}
   <div class="hero-in">
   <h1>${esc(a.title || title)}</h1>
   ${a.subtitle ? `<p>${esc(a.subtitle)}</p>` : (desc ? `<p>${esc(desc)}</p>` : '')}
-  ${isGroupDay(a) ? `<a class="cta-gold" href="${GROUP_QUOTE}">Get a group quote</a>` : '<a class="cta-gold" href="/#book">Get an instant price</a>'}
+  ${isGroupDay(a) ? `<a class="cta-gold" href="${GROUP_QUOTE}">Get a group quote</a>` : `<a class="cta-gold" href="${esc(bookLinkFor(a))}">${esc(bookAnchor(bookLinkFor(a)))}</a>`}
   </div>
 </header>
 
@@ -2260,7 +2301,7 @@ ${isGroupDay(a) ? `  <h2>Booking a group day out</h2>
     <a href="/christmas-party-transport-gold-coast.html">Christmas party transport<span>Book early for December</span></a>
   </div>` : `  <h2>Booking a transfer</h2>
   <div class="related">
-    <a href="/#book">Get an instant price<span>Every suburb, fixed fares</span></a>
+    <a href="${esc(bookLinkFor(a))}">${esc(bookAnchor(bookLinkFor(a)))}<span>Every suburb, fixed fares</span></a>
     <a href="/prices.html">Every published fare<span>All suburbs, all vehicles</span></a>
     <a href="/blog/">More articles<span>Guides to both airports</span></a>
   </div>`}
@@ -2287,6 +2328,7 @@ async function writeBlog() {
   const list = Array.isArray(feed && feed.articles) ? feed.articles : [];
   if (!list.length) { console.log('build-suburbs: blog feed has no articles; /blog/ left as committed'); return; }
 
+  for (const a of list) applyArticleFixes(a);
   fs.mkdirSync(BLOG_DIR, { recursive: true });
   /* Whatever is committed is hand-written and wins. A feed article can add to
      the blog, never quietly rewrite something a person wrote. */
@@ -2310,7 +2352,7 @@ async function writeBlog() {
     ${dateText ? `<p class="post-date"><time datetime="${esc(dateIso)}">${esc(dateText)}</time></p>` : ''}
     <h2><a href="/blog/${esc(slug)}.html">${esc(a.title || slug)}</a></h2>
     <p>${esc(a.meta_description || a.subtitle || '')}</p>
-    <a class="post-more" href="/blog/${esc(slug)}.html">Read the article &rarr;</a>
+    <a class="post-more" href="/blog/${esc(slug)}.html">Read: ${esc(a.title || slug)} &rarr;</a>
   </article>`);
   }
 
