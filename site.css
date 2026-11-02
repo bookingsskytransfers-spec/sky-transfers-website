@@ -196,8 +196,10 @@
   .navlinks a{color:var(--navy-text);opacity:.85;text-decoration:none;font-size:14px;font-weight:600}
   .navlinks a:hover{opacity:1;color:#D9B44A}
   .navcall{background:var(--gold);color:#141D30!important;opacity:1!important;padding:8px 14px;border-radius:7px}
+  .navwa{border:1px solid rgba(217,180,74,.75);opacity:1!important;padding:7px 12px;border-radius:7px}
   @media (max-width:620px){
-    .navlinks a:not(.navcall){display:none}
+    .navlinks a:not(.navcall):not(.navwa){display:none}
+    .navwa .wa-l{display:none}
     .sitenav-in{padding:10px 14px}
   }
   section.block,.booklift,.agents-band{scroll-margin-top:76px}
@@ -333,6 +335,16 @@
     padding:13px 15px;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px}
   .related a:hover{border-color:var(--gold)}
   .related a span{display:block;font-weight:400;font-size:13.5px;color:var(--muted);margin-top:3px}
+  /* Recheck 7: the link names only the card's title; the blurb sits beside it
+     and the link's ::after still makes the whole card the click target. */
+  .related .rc{position:relative;background:var(--card);border:1px solid var(--line);border-radius:9px;
+    padding:13px 15px;color:var(--ink);font-weight:600;font-size:15px}
+  .related .rc:hover,.related .rc:focus-within{border-color:var(--gold)}
+  .related .rc a{display:inline;background:none;border:0;border-radius:0;padding:0;color:inherit;font:inherit;text-decoration:none}
+  .related .rc a::after{content:"";position:absolute;inset:0;border-radius:9px}
+  .related .rc a:focus-visible{outline:none}
+  .related .rc:has(a:focus-visible){outline:2px solid var(--gold);outline-offset:2px}
+  .related .rc > span{display:block;font-weight:400;font-size:13.5px;color:var(--muted);margin-top:3px}
 
   /* FAQ */
   .lp details{border-bottom:1px solid var(--line);padding:13px 0}
@@ -385,7 +397,7 @@
                        box-shadow var(--dur-lux) var(--ease-lux)}
   .wa-float:hover{transform:scale(1.05);box-shadow:0 10px 30px rgba(0,0,0,.34)}
 
-  .navlinks a,.contact-strip a,.foot-in a,.lp a,.related a,.swap,.ac-item,
+  .navlinks a,.contact-strip a,.foot-in a,.lp a,.related a,.related .rc,.swap,.ac-item,
   .chip,.faq summary,.lp summary{
     transition:color var(--dur-lux) var(--ease-lux),
                background-color var(--dur-lux) var(--ease-lux),
@@ -432,7 +444,7 @@
   @supports (animation-timeline: view()){
     @media (prefers-reduced-motion: no-preference){
       section.block,.fleet-card,.why,.area,.agents-band,.cta-band,
-      .fact,.faq details,.related a,.lp .box{
+      .fact,.faq details,.related > a,.related .rc,.lp .box{
         animation:lux-rise linear both;
         animation-timeline:view();
         animation-range:entry 0% entry 40%;
@@ -444,20 +456,20 @@
       }
       /* A stagger inside each grid, so a row of cards arrives as a
          sequence rather than a block. */
-      .fleet-card:nth-child(2),.why:nth-child(2),.area:nth-child(2),.related a:nth-child(2){
+      .fleet-card:nth-child(2),.why:nth-child(2),.area:nth-child(2),.related > :nth-child(2){
         animation-range:entry 5% entry 45%}
-      .fleet-card:nth-child(3),.why:nth-child(3),.area:nth-child(3),.related a:nth-child(3){
+      .fleet-card:nth-child(3),.why:nth-child(3),.area:nth-child(3),.related > :nth-child(3){
         animation-range:entry 10% entry 50%}
-      .fleet-card:nth-child(4),.why:nth-child(4),.area:nth-child(4),.related a:nth-child(4){
+      .fleet-card:nth-child(4),.why:nth-child(4),.area:nth-child(4),.related > :nth-child(4){
         animation-range:entry 15% entry 55%}
-      .fleet-card:nth-child(n+5),.why:nth-child(n+5),.related a:nth-child(n+5){
+      .fleet-card:nth-child(n+5),.why:nth-child(n+5),.related > :nth-child(n+5){
         animation-range:entry 20% entry 60%}
     }
   }
 
   /* --- 5. anyone who asked for less gets less ----------------------- */
   @media (prefers-reduced-motion: reduce){
-    .navlinks a,.contact-strip a,.foot-in a,.lp a,.related a,.swap,.ac-item,
+    .navlinks a,.contact-strip a,.foot-in a,.lp a,.related a,.related .rc,.swap,.ac-item,
     .chip,.faq summary,.lp summary,.cta,.cta-gold,a.cta-gold,.cta.ghost,
     .fleet-card,.why,.area{transition:none}
     .cta:hover,.cta-gold:hover,a.cta-gold:hover,

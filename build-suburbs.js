@@ -40,7 +40,7 @@ const SITE    = 'https://www.skytransfers.com.au';
 const RETURN_DISCOUNT = 0.10;
 const returnFare = (f) => Math.round(f * 2 * (1 - RETURN_DISCOUNT));
 const DIR     = 'airport-transfers';
-const LASTMOD = '2026-10-31';               // bump when the template or the copy changes
+const LASTMOD = '2026-11-02';               // bump when the template or the copy changes
 const OUT     = path.join(ROOT, DIR);
 
 // ---------------------------------------------------------------------------
@@ -422,6 +422,7 @@ const NAV = `<nav class="sitenav">
       <a href="/partners.html">Partners</a>
       <a href="/charters.html">Charters</a>
       <a href="/blog/">Blog</a>
+      <a class="navwa" href="https://wa.me/61481437772?text=Hi%2C%20can%20I%20get%20a%20quote%20please%3F" target="_blank" rel="noopener" aria-label="Get a quote on WhatsApp"><span class="wa-l">Get a quote on </span>WhatsApp</a>
       <a class="navcall" href="tel:+61481437772">+61 481 437 772</a>
     </div>
   </div>
@@ -438,7 +439,7 @@ const FOOTER = `<footer class="site">
       <p><a href="tel:+61481437772">+61 481 437 772</a></p>
       <p><a href="https://wa.me/61481437772?text=Hi%20Sky%20Transfers%2C%20I%27d%20like%20a%20quote%20for%20an%20airport%20transfer." target="_blank" rel="noopener">WhatsApp us</a></p>
       <p><a href="mailto:info@skytransfers.com.au">info@skytransfers.com.au</a></p>
-      <p><a href="https://www.skytransfers.com.au">www.skytransfers.com.au</a></p>
+      <p><a href="https://www.skytransfers.com.au/">Sky Transfers home</a></p>
     </div>
     <div>
       <p><a href="/#book">Book a transfer</a></p>
@@ -576,7 +577,7 @@ function head(title, desc, canonical, ld) {
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
 </script>
-<link rel="stylesheet" href="/site.css?v=20261023">
+<link rel="stylesheet" href="/site.css?v=20261102">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap"></noscript>
 </head>
@@ -594,6 +595,56 @@ function airportsFor(p) {
   if (p.nearest === 'BNE') a.reverse();          // lead with the airport people here actually use
   return a;
 }
+
+/* Recheck 7 (2 Nov 2026): neighbours used to be the first eight of the fare
+   band, so those eight collected every "nearby" link and 59 pages had only
+   the suburb index linking in. Now: the six nearest in the band, measured by
+   road distance to the two airports (close enough to place a suburb inside
+   one band), and any page nobody picked is added to its nearest neighbour's
+   list, so every page in a band of two or more has a neighbour linking in. */
+const NEIGHBOURS = new Map();
+function buildNeighbours() {
+  const at = (p) => [p.facts && p.facts.bne && p.facts.bne.m, p.facts && p.facts.ool && p.facts.ool.m];
+  const dist = (a, b) => {
+    const x = at(a), y = at(b);
+    let d = 0, n = 0;
+    for (let i = 0; i < 2; i++) if (x[i] != null && y[i] != null) { d += (x[i] - y[i]) ** 2; n++; }
+    return n ? Math.sqrt(d / n) : Infinity;
+  };
+  const nearest = (p, list) => list.filter(q => q !== p).map(q => [q, dist(p, q)])
+    .sort((a, b) => (a[1] - b[1]) || a[0].name.localeCompare(b[0].name)).map(x => x[0]);
+  const bands = {};
+  for (const p of places) (bands[p.region + '|' + p.zoneKey] = bands[p.region + '|' + p.zoneKey] || []).push(p);
+  for (const list of Object.values(bands)) {
+    for (const p of list) NEIGHBOURS.set(p, nearest(p, list).slice(0, 6));
+    const linked = new Set(list.flatMap(p => NEIGHBOURS.get(p)));
+    for (const p of list) if (list.length > 1 && !linked.has(p)) NEIGHBOURS.get(nearest(p, list)[0]).push(p);
+  }
+}
+/* the region page a suburb belongs to, if any (Logan, Sunshine Coast, Toowoomba, Ipswich) */
+const hubFor = (p) => REGIONS.find(r => r.zones.includes(p.zoneKey) && (!r.only || r.only.includes(p.name)));
+/* Pages that cover the same place from another angle (Recheck 7 section 7,
+   items 8, 9 and 12): the hand-written guide for the suburb, the CBD route
+   page, and the attractions people from here ask about. Linked from the body
+   so neither page of a pair is only reachable through the footer. */
+const CBD_GUIDE = ['/brisbane-cbd-airport-transfers.html', 'Brisbane CBD airport transfers'];
+const SUBURB_EXTRA = {
+  'Broadbeach': [['/broadbeach-airport-transfers.html', 'Broadbeach airport transfer guide'], ['/gold-coast-convention-centre-transfers.html', 'Gold Coast Convention Centre transfers']],
+  'Main Beach': [['/main-beach-airport-transfers.html', 'Main Beach airport transfer guide']],
+  'Burleigh Heads': [['/burleigh-heads-airport-transfers.html', 'Burleigh Heads airport transfer guide']],
+  'Coolangatta': [['/coolangatta-airport-transfers.html', 'Coolangatta airport transfer guide']],
+  'Surfers Paradise': [
+    ['/gold-coast-airport-to-surfers-paradise.html', 'Gold Coast Airport to Surfers Paradise guide'],
+    ['/theme-park-transfers.html', 'Gold Coast theme park transfers'],
+    ['/sea-world-transfers.html', 'Sea World transfers'],
+    ['/movie-world-transfers.html', 'Movie World transfers'],
+    ['/gold-coast-convention-centre-transfers.html', 'Convention Centre transfers'],
+  ],
+  'Brisbane CBD': [CBD_GUIDE, ['/lone-pine-koala-sanctuary-transfers.html', 'Lone Pine Koala Sanctuary transfers']],
+  'Fortitude Valley': [CBD_GUIDE],
+  'South Brisbane': [CBD_GUIDE],
+  'Spring Hill': [CBD_GUIDE],
+};
 
 function suburbPage(p) {
   const z = Z[p.zoneKey];
@@ -658,7 +709,10 @@ function suburbPage(p) {
   })();
 
   // neighbours: same fare band, excluding self
-  const neighbours = places.filter(q => q.zoneKey === p.zoneKey && q.region === p.region && q !== p).slice(0, 8);
+  if (!NEIGHBOURS.size) buildNeighbours();
+  const neighbours = NEIGHBOURS.get(p) || [];
+  const hub = hubFor(p);
+  const extra = SUBURB_EXTRA[p.name] || [];
 
   const faqs = z.faq.map(([q, a]) => [fill(q, p), fill(a, p)]);
 
@@ -753,7 +807,11 @@ ${rows}
     see <a href="/charters.html">charters</a>.
   </p>
 
-  <h2>The drive from ${esc(p.name)}</h2>
+  ${extra.length ? `<p class="fare-note">
+    More for ${esc(p.name)}: ${extra.map(([h, t]) => `<a href="${h}">${esc(t)}</a>`).join(' &middot; ')}.
+  </p>
+
+  ` : ''}<h2>The drive from ${esc(p.name)}</h2>
   ${drive.length ? `<ul>\n    ${drive.join('\n    ')}\n  </ul>` : ''}
   ${z.notes.map(n => `<p>${fill(n, p)}</p>`).join('\n  ')}
 
@@ -777,6 +835,7 @@ ${here.map(x => `    <a href="/${x.slug}.html">${esc(x.name)} transfers<span>Fro
   <div class="related">
 ${neighbours.map(q => `    <a href="${q.url}">${esc(q.name)}<span>From $${q.from}</span></a>`).join('\n')}
   </div>` : ''}
+  ${hub ? `<p class="fare-note">Part of our <a href="/${hub.slug}.html">${esc(hub.name)} airport transfers</a> area.</p>` : ''}
   <!--guides:auto--><!--/guides:auto-->
   <p class="fare-note">
     ${z.region === 'Gold Coast' ? `<a href="/gold-coast-airport-transfers.html">Gold Coast Airport transfers</a> &middot; ` : ''}${p.fares.bne ? `<a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a> &middot; ` : ''}<a href="/${DIR}/">All suburbs</a> &middot; <a href="/prices.html">Full price list</a>
@@ -1101,7 +1160,7 @@ ${bands.map(b => `  <h3>${esc(b.label.charAt(0).toUpperCase() + b.label.slice(1)
 ${b.list.map(p => `    <a href="${p.url}">${esc(p.name)}<span>${p.facts.bne ? mins(p.facts.bne.s) + ' to BNE' : 'From $' + p.from}</span></a>`).join('\n')}
   </div>`).join('\n')}
   <p class="fare-note">
-    <a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a> &middot; <a href="/${DIR}/">All suburbs</a> &middot; <a href="/prices.html">Full price list</a>
+    <a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a> &middot; <a href="/${DIR}/">All suburbs</a> &middot; <a href="/prices.html">Full price list</a> &middot; <a href="/fleet.html">See the vehicles</a>
   </p>
 
 </div>
@@ -1349,7 +1408,7 @@ ${faqs.map(([q, x]) => `  <details>\n    <summary>${q}</summary>\n    <p>${x}</p
 ${others.map(o => `    <a href="/${o.slug}.html">${esc(o.name)}<span>${esc(o.suburb)}</span></a>`).join('\n')}
   </div>
   <p class="fare-note">
-    ${a.themePark ? `<a href="/theme-park-transfers.html">Theme park transfers</a> &middot; ` : ''}<a href="${p.url}">${esc(a.suburb)} airport transfers</a> &middot; <a href="/point-to-point-transfers.html">Point-to-point fares</a> &middot; <a href="/prices.html">Full price list</a>
+    ${a.themePark ? `<a href="/theme-park-transfers.html">Theme park transfers</a> &middot; ` : ''}<a href="${p.url}">${esc(a.suburb)} airport transfers</a> &middot; ${p.region === 'Gold Coast' ? '<a href="/gold-coast-airport-transfers.html">Gold Coast Airport transfers</a>' : '<a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a>'} &middot; <a href="/fleet.html">See the whole fleet</a>${/child seat/i.test(JSON.stringify(a)) ? ' &middot; <a href="/child-seats.html">Child seats</a>' : ''} &middot; <a href="/point-to-point-transfers.html">Point-to-point fares</a> &middot; <a href="/prices.html">Full price list</a>
   </p>
 
 </div>
@@ -2222,11 +2281,12 @@ function fixArticle(a) {
 const AREA_PLACES = {
   'Gold Coast': ['Surfers Paradise', 'Broadbeach', 'Main Beach', 'Burleigh Heads', 'Coolangatta', 'Southport'],
   'Brisbane': ['Brisbane CBD', 'Fortitude Valley', 'South Brisbane', 'Hamilton', 'Chermside', 'Springfield'],
+  'Brisbane cruise': ['Brisbane CBD', 'Fortitude Valley', 'South Brisbane', 'Hamilton', 'New Farm', 'Ascot'],
 };
 function relatedBlock(a, all) {
   const group = isGroupDay(a);
   const t = (String(a.slug || '') + ' ' + String(a.title || '')).toLowerCase();
-  const areas = /cruise|brisbane/.test(t) && !/gold.coast/.test(t) ? ['Brisbane'] : /gold.coast|surfers|coolangatta/.test(t) && !/brisbane/.test(t) ? ['Gold Coast'] : ['Gold Coast', 'Brisbane'];
+  const areas = /cruise/.test(t) && !/gold.coast/.test(t) ? ['Brisbane cruise'] : /brisbane/.test(t) && !/gold.coast/.test(t) ? ['Brisbane'] : /gold.coast|surfers|coolangatta/.test(t) && !/brisbane/.test(t) ? ['Gold Coast'] : ['Gold Coast', 'Brisbane'];
   const per = areas.length === 1 ? 6 : 3;
   const sub = areas.flatMap((ar) => AREA_PLACES[ar].map((n) => places.find((p) => p.name === n)).filter(Boolean).slice(0, per));
   const links = group ? [
@@ -2420,15 +2480,18 @@ if (written !== places.length) { console.error('build-suburbs: page count mismat
    content service removes can never leave a broken link behind, and a page
    whose articles are all missing simply shows nothing. */
 const GUIDES = {
-  'gold-coast-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'gold-coast-airport-transfer-car-seats', 'gold-coast-airport-transport-options-with-luggage'],
+  'gold-coast-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'gold-coast-airport-transfer-car-seats', 'gold-coast-airport-transport-options-with-luggage', 'getting-to-surfers-paradise-after-midnight', 'gold-coast-airport-surfers-paradise-travel-time'],
   'brisbane-airport-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'early-morning-brisbane-airport-transfer', 'reliable-airport-pickup-brisbane-flight-tracking', 'what-happens-if-flight-delayed'],
   'brisbane-airport-to-gold-coast.html': ['gold-coast-to-brisbane-airport-what-time-to-leave', 'fixed-price-airport-transfers-brisbane-benefits'],
   'cheapest-gold-coast-to-brisbane-airport.html': ['gold-coast-to-brisbane-airport-what-time-to-leave', 'fixed-price-airport-transfers-brisbane-benefits'],
   'cruise-transfers.html': ['booking-private-transport-brisbane-cruise-terminal', 'seamless-airport-transfers-for-cruise-passengers'],
-  'gold-coast-airport-to-surfers-paradise.html': ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-airport-transport-options-with-luggage', 'book-private-airport-transfer-gold-coast'],
-  [DIR + '/surfers-paradise.html']: ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-airport-arrivals-guide'],
+  'gold-coast-airport-to-surfers-paradise.html': ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-airport-transport-options-with-luggage', 'book-private-airport-transfer-gold-coast', 'getting-to-surfers-paradise-after-midnight', 'gold-coast-airport-surfers-paradise-travel-time'],
+  [DIR + '/surfers-paradise.html']: ['gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-airport-arrivals-guide', 'getting-to-surfers-paradise-after-midnight', 'gold-coast-airport-surfers-paradise-travel-time'],
+  'corporate-transfers.html': ['how-to-manage-corporate-travel-expenses-for-airport-transport', 'brisbane-airport-chauffeur-corporate-travel'],
+  'event-transfers.html': ['party-bus-vs-minibus-winery-tour-transport', 'planning-winery-tour-stops-for-a-group'],
+  'minibus-hire-gold-coast.html': ['party-bus-vs-minibus-winery-tour-transport', 'planning-winery-tour-stops-for-a-group'],
   'child-seats.html': ['gold-coast-airport-transfer-car-seats', 'safe-airport-transport-for-families'],
-  'chauffeur-service.html': ['guaranteed-on-time-airport-chauffeur-service-guide', 'wheelchair-airport-transfers-chauffeur-service', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'real-time-flight-tracking-airport-transfers'],
+  'chauffeur-service.html': ['guaranteed-on-time-airport-chauffeur-service-guide', 'brisbane-airport-chauffeur-corporate-travel', 'wheelchair-airport-transfers-chauffeur-service', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'real-time-flight-tracking-airport-transfers'],
   'rideshare-or-transfer.html': ['avoid-surge-pricing-airport-rides', 'fixed-price-airport-transfers-brisbane-benefits'],
   'brisbane-cbd-airport-transfers.html': ['brisbane-airport-chauffeur-to-city'],
   [DIR + '/brisbane-cbd.html']: ['brisbane-airport-chauffeur-to-city', 'brisbane-airport-domestic-or-international-pickup'],
@@ -2465,9 +2528,33 @@ ${items.map(([sl, t]) => `    <a href="/blog/${sl}.html">${t}<span>Travel guide<
   console.log(`build-suburbs: travel-guide links, ${links} on ${pages} page(s)`);
 }
 
+/* Recheck 7 (2 Nov 2026): a card's link text was its title and its blurb run
+   together ("Brisbane Airport transfers274 suburbs priced"). The blurb now sits
+   beside the link inside the card; the link still covers the whole card
+   (.related .rc a::after in site.css). Runs over every page, hand-written ones
+   included, after everything else has written its cards. Idempotent. */
+function splitCards() {
+  const dirs = [ROOT, OUT, BLOG_DIR];
+  let n = 0;
+  for (const d of dirs) {
+    if (!fs.existsSync(d)) continue;
+    for (const name of fs.readdirSync(d)) {
+      if (!name.endsWith('.html')) continue;
+      const f = path.join(d, name);
+      const s = fs.readFileSync(f, 'utf8');
+      const t = s.replace(/<div class="related">[\s\S]*?<\/div>/g, (block) => block.replace(
+        /<a (href="[^"]*"[^>]*)>([^<]+(?:<!--[^>]*-->[^<]*)*)<span>([\s\S]*?)<\/span><\/a>/g,
+        (m, attrs, title, blurb) => { n++; return `<div class="rc"><a ${attrs}>${title.trim()}</a><span>${blurb}</span></div>`; }));
+      if (t !== s) fs.writeFileSync(f, t);
+    }
+  }
+  console.log(`build-suburbs: ${n} card links now name only their title`);
+}
+
 /* Last, because it appends to the sitemap the block above has just written,
    and awaits a network call. Never allowed to fail the build. The guide
    links run after it either way, so committed articles are still linked when
    the feed is down. */
 writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'))
-  .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } });
+  .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } })
+  .then(() => { try { splitCards(); } catch (e) { console.warn('build-suburbs: card step failed (' + e.message + ')'); } });

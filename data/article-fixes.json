@@ -1263,5 +1263,25 @@
   "slug": "gold-coast-airport-transfer-car-seats",
   "find": " is a legal requirement in Queensland, child restraints reduce serious injury risk by up to 70% in crashes.",
   "replace": " is a legal requirement in Queensland."
+ },
+ {
+  "slug": "seamless-airport-transfers-for-cruise-passengers",
+  "find": "works by matching your flight arrival to a pre-booked vehicle that takes you straight to the ship.</p>",
+  "replace": "works by matching your flight arrival to a pre-booked vehicle that takes you straight to the ship. Flying out of Brisbane after you disembark? See <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a>.</p>"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "We serve all Gold Coast and Brisbane suburbs and can coordinate larger groups.",
+  "replace": "We serve all Gold Coast and Brisbane suburbs, with fixed fares for <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> and <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a>, and can coordinate larger groups."
+ },
+ {
+  "slug": "party-bus-vs-minibus-winery-tour-transport",
+  "find": "we also run <a href=\"/airport-transfers/tamborine-mountain.html\">Tamborine Mountain airport transfers</a>.</p>",
+  "replace": "we also run <a href=\"/airport-transfers/tamborine-mountain.html\">Tamborine Mountain airport transfers</a> and <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a>.</p>"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "For a Logan-area benchmark, see <a href=\"/logan-airport-transfers.html\">Logan airport transfers at a fixed price per vehicle</a>.",
+  "replace": "For a Logan or Ipswich benchmark, see <a href=\"/logan-airport-transfers.html\">Logan airport transfers at a fixed price per vehicle</a> and <a href=\"/ipswich-airport-transfers.html\">Ipswich airport transfers</a>."
  }
 ]
