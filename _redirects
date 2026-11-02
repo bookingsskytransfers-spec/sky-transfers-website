@@ -61,14 +61,14 @@
 /services/brisbane-bus-charters-2026/         /charters.html    301
 /services/mini-bus-hire-brisbane/             /minibus-hire-brisbane.html     301
 /services/mini-bus-hire-gold-coast/           /minibus-hire-gold-coast.html   301
-/services/mercedes-benz-sprinter-van-hire/    /charters.html    301
-/services/toyota-hiace-commuter-hire/         /charters.html    301
+/services/mercedes-benz-sprinter-van-hire/    /fleet.html       301
+/services/toyota-hiace-commuter-hire/         /fleet.html       301
 /services/stretch-hummer-hire/                                                  /chauffeur-service.html     301
 /services/day-tours/                          /charters.html    301
 /services/wedding-transfer/                   /wedding-transfers.html    301
 /services/wedding-transfers/                  /wedding-transfers.html    301
-/services/event-transfer/                     /charters.html    301
-/services/event-transfers/                    /charters.html    301
+/services/event-transfer/                     /event-transfers.html 301
+/services/event-transfers/                    /event-transfers.html 301
 /services/cruise-transfer/                    /cruise-transfers.html    301
 /services/cruise-transfers/                   /cruise-transfers.html    301
 /services/theme-parks-transfer/               /theme-park-transfers.html    301
@@ -84,26 +84,25 @@
 /services/vip-transfers/                      /corporate-transfers.html    301
 
 # Navigation and conversion pages
-/our-fleet/                                   /#fleet           301
-/fleet-cheap-car-rental/                      /#fleet           301
-/about-us/                                    /                 301
-/about-car-hire/                              /                 301
-/contact-us/                                  /                 301
-/contact-for-chauffeur/                       /                 301
+/our-fleet/                                   /fleet.html       301
+/fleet-cheap-car-rental/                      /fleet.html       301
+/about-us/                                    /about.html       301
+/about-car-hire/                              /about.html       301
+/contact-us/                                  /contact.html     301
+/contact-for-chauffeur/                       /contact.html     301
 /book-your-chauffeur-now/                     /#book            301
 /book-airport-transfers-online-brisbane-goldcoast/  /#book      301
-/blog/                                        /                 301
 /thank-you/                                   /                 301
 /home-copy/                                   /                 301
 
 # ---------------------------------------------------------------------------
 # Variants without a trailing slash (the old site served both)
 # ---------------------------------------------------------------------------
-/about-us                                     /                 301
-/contact-us                                   /                 301
-/our-fleet                                    /#fleet           301
+/about-us                                     /about.html       301
+/contact-us                                   /contact.html     301
+/our-fleet                                    /fleet.html       301
 /book-airport-transfers-online-brisbane-goldcoast  /#book       301
-/blog                                         /                 301
+/blog                                         /blog/            301
 /privacy-policy                               /privacy.html     301
 /terms-and-conditions                         /terms.html       301
 
@@ -223,3 +222,17 @@
 # (rideshare-or-transfer, cheapest-gold-coast-to-brisbane-airport,
 # brisbane-or-gold-coast-airport) stay at their root URLs and are listed on the blog
 # index rather than moved, so they keep their rankings.
+
+# 3 Nov 2026 - Recheck 7 batch C. Old fleet/about/contact/event URLs now land on
+# /fleet.html, /about.html, the new /contact.html and /event-transfers.html (above).
+# The dead /fleet.html -> /#fleet and /blog/ -> / rules were deleted (a real file
+# always wins, so they never fired). Added in Render:
+#   /fleet /about /contact  -> the .html page (Render DOES apply a rule to an
+#                              extensionless path; it also catches the trailing slash)
+#   /airport-transfers.html -> /airport-transfers/
+#   /christmas-party-transport.html -> /christmas-party-transport-gold-coast.html
+#   /tag/stretch-hummer-hire-brisbane/, /tag/stretch-hummer-limo-hire-brisbane/
+#                           -> /chauffeur-service.html
+#   /blog/<slug> -> /blog/<slug>.html, ONE RULE PER ARTICLE (30). Never use the
+#   wildcard /blog/:slug -> /blog/:slug.html: a missing article loops forever
+#   (/x.html.html.html...). A new article needs its own rule, or just its canonical.

@@ -987,7 +987,7 @@
     <form id="ch-form">
       <div class="row">
         <div><label for="cf-occasion">Occasion</label>
-          <select id="cf-occasion"><option>Wedding</option><option>Corporate / conference</option><option>Cruise terminal group</option><option>Airport group transfer</option><option>Winery / brewery tour</option><option>Event / party</option><option>School formal</option><option>School / sports group</option><option>Other</option></select></div>
+          <select id="cf-occasion"><option>Wedding</option><option>Corporate / conference</option><option>Cruise terminal group</option><option>Airport group transfer</option><option>Winery / brewery tour</option><option>Event / party</option><option>Christmas party</option><option>School formal</option><option>School / sports group</option><option>Other</option></select></div>
         <div><label for="cf-veh">Preferred vehicle</label>
           <select id="cf-veh"><option>Not sure — recommend one</option><option>Mercedes V-Class (6)</option><option>Sprinter 10-Seater</option><option>Sprinter 14-Seater</option><option>Sprinter 18-Seater</option><option>53-Seat Coach</option><option>Multiple vehicles</option></select></div>
       </div>
@@ -1161,6 +1161,9 @@ document.querySelectorAll(".btn-quote").forEach(function(a){
 });
 // enquiry form -> email / whatsapp / copy
 function $(id){ return document.getElementById(id); }
+/* Arriving from the Christmas page (?occasion=christmas) picks the Christmas
+   occasion, so the enquiry says what it is and is counted as one. */
+if (/[?&]occasion=christmas(&|$)/.test(location.search)) $("cf-occasion").value = "Christmas party";
 /* The charter enquiry now goes to the booking server as well as to the
    visitor's own mail or WhatsApp app. Fifteen seconds, for the same reason the
    booking form has one: a hung request that never rejects would leave the
@@ -1257,6 +1260,14 @@ $("ch-form").addEventListener("submit", function(e){
     var fb = $("cf-fallback"); if (fb) fb.hidden = true;
     chTrack("charter_enquiry", {
       occasion: $("cf-occasion").value,
+      vehicle:  $("cf-veh").value,
+      hours:    $("cf-hours").value,
+      pax:      $("cf-pax").value
+    });
+    /* A Christmas enquiry is also its own GA4 event (Recheck 7 H3). Not a second
+       Ads conversion: charter_enquiry above already counts it once, and counting
+       the same lead twice would teach bidding that Christmas leads are worth double. */
+    if ($("cf-occasion").value === "Christmas party") chTrack("xmas_quote_submit", {
       vehicle:  $("cf-veh").value,
       hours:    $("cf-hours").value,
       pax:      $("cf-pax").value
