@@ -1,0 +1,1267 @@
+[
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "Compare bus, taxi and transfer costs.",
+  "replace": "Compare bus, rideshare and fixed-price transfer options.",
+  "field": "meta_description"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "around 30 minutes by car or taxi in good traffic",
+  "replace": "around 30 minutes by car in good traffic"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<li><a href=\"#gold-coast-airport-to-surfers-paradise-taxi-fares-and-availability\">Gold Coast Airport to Surfers Paradise Taxi: Fares and Availability</a><ul><li><a href=\"#how-the-meter-actually-works\">How the meter actually works</a></li><li><a href=\"#availability-at-the-rank\">Availability at the rank</a></li><li><a href=\"#rideshare-same-road-different-pricing-logic\">Rideshare: same road, different pricing logic</a></li></ul></li>",
+  "replace": "<li><a href=\"#gold-coast-airport-to-surfers-paradise-taxi-fares-and-availability\">Gold Coast Airport to Surfers Paradise by Rideshare: Price and Pickup</a><ul><li><a href=\"#rideshare-same-road-different-pricing-logic\">Weighing up rideshare</a></li></ul></li>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<p>The Gold Coast Airport to Surfers Paradise travel time depends on how you travel. By car or taxi, it takes around 30 minutes in good traffic.</p>",
+  "replace": "<p>The Gold Coast Airport to Surfers Paradise travel time depends on how you travel. By car, it takes around 30 minutes in good traffic.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": " Private transfer operators often quote a wider 30 to 60-minute window, as noted in <a rel=\"noopener noreferrer\" target=\"_blank\" href=\"https://www.hughes.com.au/locations/gold-coast/airport-transfers/\">Hughes' transfer guide to Surfers Paradise</a>.</p>",
+  "replace": " Allow more at peak hour, in heavy rain and during events, when the same drive can take closer to an hour.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "compares buses, shuttles, taxis and private transfers in one place",
+  "replace": "compares buses, shuttles, rideshare and private transfers in one place"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<p>The <a rel=\"noopener noreferrer\" target=\"_blank\" href=\"https://www.researchgate.net/publication/380260395_Subjective_vs_objective_assessment_of_the_economic_impacts_of_light_rail_transit_The_case_of_GLink_in_Gold_Coast_Australia\">G:Link case study on the Gold Coast light rail</a> shows how the tram network reshaped travel along the coast. It is fast, frequent and clean.</p>",
+  "replace": "<p>The second leg is the G:Link light rail, which runs along the coast from Broadbeach South through Surfers Paradise. It is frequent and easy to use.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<h2 id=\"gold-coast-airport-to-surfers-paradise-taxi-fares-and-availability\">Gold Coast Airport to Surfers Paradise Taxi: Fares and Availability</h2>\n<p>A Gold Coast Airport to Surfers Paradise taxi is the simplest door-to-door choice. You walk out of arrivals, join the rank, and ride straight to your hotel. No connections. No tram changes.</p>\n<p>The trade-off is the fare. Taxis run on a meter, so the price moves with traffic. A slow run up the highway costs more than a clear one. You will not know the final amount until you arrive.</p>\n<h3 id=\"how-the-meter-actually-works\">How the meter actually works</h3>\n<p>A Queensland taxi fare is built from a few components, and understanding them tells you why two identical trips can cost different amounts:</p>\n<ul>\n<li><strong>Flagfall:</strong> a fixed charge the moment you get in, before the car moves.</li>\n<li><strong>Distance rate:</strong> a per-kilometre charge that applies for most of the trip.</li>\n<li><strong>Time rate:</strong> when traffic is heavy and the car is moving slowly or stopped, the meter switches to a time-based charge instead of distance. This is why a 30-minute crawl can cost more than a 30-minute clear run.</li>\n<li><strong>Booking fee:</strong> applies if you phone for a taxi rather than hailing from the rank.</li>\n<li><strong>Tolls:</strong> any toll road used on the route is added to the fare.</li>\n<li><strong>Airport rank levy:</strong> some airport ranks apply a small surcharge to cover the operator's access costs.</li>\n</ul>\n<p>Because the time rate and distance rate interact, the only honest answer to \"what will a taxi cost?\" is a range: a clear off-peak run sits at the low end, a Friday afternoon in summer at the high end.</p>\n<h3 id=\"availability-at-the-rank\">Availability at the rank</h3>\n<p>Availability is usually strong during the day. Late at night, the rank thins out. Peak arrival periods can mean a queue, especially when several flights land close together.</p>\n<p>A pattern worth knowing: the rank is busiest in the 30 to 60 minutes after a wave of arrivals, then empties. Land in that wave and you queue; land between waves and you may walk straight into a car.</p>\n<p>Weigh these points before you choose a taxi:</p>\n<ul>\n<li><strong>Pros:</strong> direct route, no booking needed, door-to-door</li>\n<li><strong>Cons:</strong> metered fare, surge at busy times, queue at the rank</li>\n<li><strong>Best for:</strong> solo travellers with light bags and no time pressure</li>\n</ul>\n<h3 id=\"rideshare-same-road-different-pricing-logic\">Rideshare: same road, different pricing logic</h3>\n<p>Rideshare apps work the same way on the road but differently on price. They are easy to book, but prices spike when demand is high, and a flight delay at midnight is exactly when a metered fare hurts most, with a surge multiplier on top.</p>\n<p>Rideshare also has a pickup-location quirk at the airport: apps typically direct you to a designated rideshare zone rather than the taxi rank, which means a short walk with your bags before you even request the car. Factor that into your door-to-door time.</p>\n<div style=\"margin:1.5rem 0; padding:16px 20px; background-color:#f0f9ff; border-left:4px solid #bae6fd; border-radius:0 8px 8px 0;\">\n<strong style=\"display:block; margin-bottom:4px; color:#111827; font-size:14px;\"> Pro Tip</strong>\n<span style=\"color:#374151; font-size:15px; line-height:1.6;\">If you are arriving late and want a taxi rather than a pre-booked transfer, check the rank before you request a rideshare. A waiting taxi at the rank is often cheaper than a surged app fare, and you skip the walk to the rideshare zone.</span>\n</div>\n<p>If certainty matters more than the chance of a cheap fare, compare the metered options against a fixed-price transfer before you fly. Our guide on how to get from the airport to your hotel lays out every mode side by side.</p>",
+  "replace": "<h2 id=\"gold-coast-airport-to-surfers-paradise-taxi-fares-and-availability\">Gold Coast Airport to Surfers Paradise by Rideshare: Price and Pickup</h2>\n<p>Rideshare is the on-demand, door-to-door choice. You request a car in the app once you have your bags, meet it at the airport's rideshare pickup zone and ride straight to your hotel. No connections. No tram changes.</p>\n<p>The trade-off is price certainty. The app sets the price when you request the car, and it rises when demand is high, such as when several flights land close together or late at night. You will not know the amount until you have landed and opened the app.</p>\n<h3 id=\"rideshare-same-road-different-pricing-logic\">Weighing up rideshare</h3>\n<p>Rideshare apps are easy to use, but prices spike when demand is high, and a flight delay at midnight is exactly when a surge price hurts most.</p>\n<p>Rideshare also has a pickup-location quirk at the airport: apps typically direct you to a designated rideshare zone rather than the kerb outside arrivals, which means a short walk with your bags before you get in the car. Factor that into your door-to-door time.</p>\n<p>Weigh these points before you choose rideshare:</p>\n<ul>\n<li><strong>Pros:</strong> direct route, booked from your phone, door-to-door</li>\n<li><strong>Cons:</strong> price set at the time you request, surge at busy times, walk to the pickup zone</li>\n<li><strong>Best for:</strong> solo travellers with light bags and no time pressure</li>\n</ul>\n<div style=\"margin:1.5rem 0; padding:16px 20px; background-color:#f0f9ff; border-left:4px solid #bae6fd; border-radius:0 8px 8px 0;\">\n<strong style=\"display:block; margin-bottom:4px; color:#111827; font-size:14px;\"> Pro Tip</strong>\n<span style=\"color:#374151; font-size:15px; line-height:1.6;\">If you are arriving late, compare the app price you are likely to face with a fixed-price transfer booked before you fly. A pre-booked driver meets you inside the terminal, so you skip both the surge and the walk to the rideshare zone.</span>\n</div>\n<p>If certainty matters more than the chance of a cheap fare, compare app-priced options against a fixed-price transfer before you fly. Our guide on how to get from the airport to your hotel lays out every mode side by side.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<p>This is where Sky Transfers fits. We quote one upfront price with no surge fees. Your driver tracks your flight in real time.</p>",
+  "replace": "<p>This is where Sky Transfers fits. We quote one upfront price per vehicle with no surge fees: a sedan from Gold Coast Airport to Surfers Paradise is $125, GST and tolls included. Your driver tracks your flight in real time. Our <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> page lists every suburb and vehicle.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)&amp;do=Surfers%20Paradise#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book Gold Coast Airport to Surfers Paradise</a>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "the bus wins on fare, while the taxi and private transfer win on certainty.",
+  "replace": "the bus wins on fare, while a fixed-price private transfer wins on certainty."
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": " Taxi and rideshare prices move with traffic and demand.</p>",
+  "replace": " Rideshare prices move with demand.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Metered, moves with traffic and time</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-45 min</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Quick solo trips</td>\n</tr>\n",
+  "replace": ""
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">App price, can surge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-45 min</td>",
+  "replace": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">App price, can surge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">About 30 min by road, plus the wait for a car</td>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Fixed upfront price per vehicle</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-45 min</td>",
+  "replace": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Fixed upfront price per vehicle</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">About 30 min by road</td>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<li><strong>Shorter taxi queues, but fewer cars:</strong> wait times can grow</li>",
+  "replace": "<li><strong>Fewer drivers on the road:</strong> rideshare waits can grow</li>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<p>Watch out: booking a metered ride for a late arrival is the most common way travellers overspend. The fare at midnight is rarely the fare you expected.</p>",
+  "replace": "<p>Watch out: relying on an app price for a late arrival is an easy way to overspend. The price at midnight is rarely the price you expected.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": ">How much is a taxi or rideshare from Gold Coast Airport to Surfers Paradise?</h3>",
+  "replace": ">How much is a rideshare or transfer from Gold Coast Airport to Surfers Paradise?</h3>"
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "Taxi and rideshare fares vary with distance, time of day and demand. Taxis meter the journey. For a fixed amount you know before you book, a pre-arranged transfer is the more predictable choice, particularly for late arrivals.",
+  "replace": "Rideshare prices vary with time of day and demand, and you only see the price when you request the car. A pre-booked transfer is fixed before you travel: with Sky Transfers a sedan is $125, GST and tolls included, at any hour. That makes it the more predictable choice, particularly for late arrivals."
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "Published estimates range from about 30 minutes by car to a 30 to 60 minute range, and the difference is largely traffic.",
+  "replace": "Gold Coast Airport's own guidance is about 30 minutes by road, but peak-hour traffic, rain and events can push the same drive closer to an hour."
+ },
+ {
+  "slug": "gold-coast-airport-surfers-paradise-travel-time",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)&amp;do=Surfers%20Paradise#book\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book Gold Coast Airport to Surfers Paradise</a>"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "a pre-booked fixed-price transfer, taxi or rideshare is the practical fallback.",
+  "replace": "a pre-booked fixed-price transfer or a rideshare is the practical fallback."
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<li><a href=\"#late-night-costs-journey-times-and-taxi-or-rideshare-options\">Late-Night Costs, Journey Times and Taxi or Rideshare Options</a><ul><li><a href=\"#taxi-ranks-versus-rideshare-pickup-zones\">Taxi ranks versus rideshare pickup zones</a></li>",
+  "replace": "<li><a href=\"#late-night-costs-journey-times-and-taxi-or-rideshare-options\">Late-Night Costs, Journey Times and Transport Options</a><ul>"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<p>!A traveller with a suitcase being greeted by a professional chauffeur holding a name sign in a quiet airport arrivals hall at night</p>\n",
+  "replace": ""
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<h2 id=\"late-night-costs-journey-times-and-taxi-or-rideshare-options\">Late-Night Costs, Journey Times and Taxi or Rideshare Options</h2>\n<p>After midnight, cost and certainty matter more than they do during the day. The table below gives indicative door-to-door ranges so you can budget before you land. Treat every figure as a planning estimate only, fares and schedules change, and late-night demand can move prices quickly.</p>\n<table style=\"width:100%; border-collapse:collapse; margin:2rem 0; font-size:14px; line-height:1.6;\">\n<thead style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">\n<tr>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Option</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Indicative cost (AUD)</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Typical door-to-door time</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Best for</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi from Gold Coast Airport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$55-$80</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-40 min</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Solo travellers or pairs with light bags</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rideshare from Gold Coast Airport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$45-$75 (surge-dependent)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-45 min incl. wait</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Flexible arrivals, app-comfortable travellers</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi from Brisbane Airport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$280-$340</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">75-90 min</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Groups splitting the fare</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rideshare from Brisbane Airport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$240-$320 (surge-dependent)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">80-100 min incl. wait</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Off-peak landings</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Pre-booked fixed-price transfer</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Quoted at booking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-40 min (OOL), 75-90 min (BNE)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Anyone who wants the price locked before landing</td>\n</tr>\n</tbody>\n</table>\n<p>Fares vary with the pickup point, the number of passengers, luggage, tolls and time of night. Always confirm the fare in the app or at the rank before you set off.</p>\n<p class=\"cta-inline\" style=\"background-color: #12192b08; border-left: 4px solid #12192b; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;\">\n     <a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>\n</p>\n\n<h3 id=\"taxi-ranks-versus-rideshare-pickup-zones\">Taxi ranks versus rideshare pickup zones</h3>\n<p>Taxis and rideshares use different pickup points at most airports, so follow the app's directions and check the signage before you exit the terminal.</p>\n<p>Late at night, rideshare waits can be longer than the app's initial estimate because fewer drivers are active, so allow extra time.</p>",
+  "replace": "<h2 id=\"late-night-costs-journey-times-and-taxi-or-rideshare-options\">Late-Night Costs, Journey Times and Transport Options</h2>\n<p>After midnight, cost and certainty matter more than they do during the day. The table below compares how each option is priced and what to expect, so you can plan before you land. App prices and timetables change, and late-night demand can move rideshare prices quickly.</p>\n<table style=\"width:100%; border-collapse:collapse; margin:2rem 0; font-size:14px; line-height:1.6;\">\n<thead style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">\n<tr>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Option</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">How it is priced</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">What to expect</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Best for</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Late-running public transport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Standard Translink fare</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Only if a service is still running for your date and time; check the journey planner</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Light luggage and a landing well before the last service</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rideshare from Gold Coast Airport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">App price set when you request, can surge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">The drive plus the wait for a driver match, which can be longer late at night</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Flexible arrivals, app-comfortable travellers</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rideshare from Brisbane Airport</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">App price set when you request, can surge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">A long drive plus the wait for a driver match</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Off-peak landings</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Pre-booked fixed-price transfer</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Fixed when you book (Gold Coast Airport to Surfers Paradise by sedan with us: $125, GST and tolls included)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">30-40 min (OOL), 75-90 min (BNE)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Anyone who wants the price locked before landing</td>\n</tr>\n</tbody>\n</table>\n<p>Rideshare prices vary with the pickup point, the vehicle size, tolls and demand at the moment you request, so confirm the price in the app before you set off.</p>\n<p class=\"cta-inline\" style=\"background-color: #12192b08; border-left: 4px solid #12192b; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;\">\n     <a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)&amp;do=Surfers%20Paradise#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book Gold Coast Airport to Surfers Paradise</a>\n</p>\n"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<li><strong>Surge and night tariffs.</strong> Rideshare apps apply surge multipliers when demand outruns supply; taxis may apply night-time fare structures. Both are legal and both are hard to predict.</li>",
+  "replace": "<li><strong>Surge pricing.</strong> Rideshare apps raise prices when demand outruns supply, and that is hard to predict late at night. Whoever you book, ask for a written total that includes GST, tolls, parking and waiting time; a fixed price should not change with the hour.</li>"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "Some quoted fares include tolls and some do not, ask before you confirm.</li>",
+  "replace": "Some quoted fares include tolls and some do not, so ask before you confirm. Ours include them.</li>"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<li><strong>Waiting time.</strong> If your flight lands early and your driver has to wait, or if you keep a taxi idling while you find your accommodation's after-hours entry, the meter keeps running.</li>",
+  "replace": "<li><strong>Waiting time.</strong> If your flight is late, or you keep a driver waiting while you find your accommodation's after-hours entry, some providers charge for the wait. We include 30 minutes of free waiting after landing (60 minutes for international arrivals at Brisbane).</li>"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "If you are weighing up a taxi or rideshare against a pre-booked transfer,",
+  "replace": "If you are weighing up a rideshare against a pre-booked transfer,"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "waits for a rideshare match, a taxi or terminal exit add minutes.",
+  "replace": "waits for a rideshare match or the walk out of the terminal add minutes."
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<li><strong>Taxi from the rank.</strong> Reliable and immediate at both airports, but the fare is metered and can climb with waiting time and tolls.</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "use a taxi or rideshare from the interchange instead.",
+  "replace": "use a rideshare from the interchange instead."
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<p>Sky Transfers provides fixed-price chauffeur transfers to and from Gold Coast and Brisbane airports, with 24/7 availability, meet and greet options and real-time flight tracking. <a href=\"/airport-transfers/paradise-point.html\">See pricing and booking details for Paradise Point airport transfers</a>. Free cancellation is available up to 24 hours before your booking.</p>",
+  "replace": "<p>Sky Transfers provides fixed-price chauffeur transfers to and from Gold Coast and Brisbane airports, with meet and greet inside the terminal. Available 24/7, flight tracked, fixed price including GST and tolls, with no after-hours or late-night surcharge. A sedan from Gold Coast Airport to Surfers Paradise is $125, and our <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> page lists every other suburb and vehicle. <a href=\"/airport-transfers/paradise-point.html\">See pricing and booking details for Paradise Point airport transfers</a>. Free cancellation is available up to 24 hours before your booking.</p>"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "a pre-booked private transfer, a rideshare or taxi, or a late-running public transport connection",
+  "replace": "a pre-booked private transfer, a rideshare, or a late-running public transport connection"
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "A pre-booked airport transfer, a taxi or a rideshare are the most dependable choices after midnight.",
+  "replace": "A pre-booked airport transfer or a rideshare is the most dependable choice after midnight."
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "If public transport has already stopped, switch to a taxi or rideshare, which remains available at most hours.",
+  "replace": "If public transport has already stopped, switch to a rideshare, which is usually available at most hours, though late-night waits can be longer."
+ },
+ {
+  "slug": "getting-to-surfers-paradise-after-midnight",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)&amp;do=Surfers%20Paradise#book\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book Gold Coast Airport to Surfers Paradise</a>"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "and a cash taxi fare may produce nothing at all.",
+  "replace": "and a cash payment for street-hail transport may produce nothing at all."
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>",
+  "replace": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Street-hail transport</td>"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "<p>When comparing options, look at the total cost of the trip rather than the headline fare. Include:</p>\n<ul>\n<li>The base fare and any surcharges, such as after-hours or group fees</li>\n<li>Tolls and parking</li>\n<li>Waiting time if the flight is delayed</li>\n</ul>",
+  "replace": "<p>When comparing options, look at the total cost of the trip rather than the headline fare. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge. Waiting time matters most when a flight is delayed, so check how much is free after landing.</p>"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/?pu=Brisbane%20Airport%20(BNE)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book a fixed-price transfer from Brisbane Airport</a>"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "<li><strong>Reimburse or pay directly.</strong> Where possible, pay the supplier on account so travellers don't front the cost.</li>",
+  "replace": "<li><strong>Reimburse or pay directly.</strong> Where possible, pay the supplier on account so travellers don't front the cost. We offer <a href=\"/corporate-transfers.html\">corporate accounts with monthly invoicing</a> for this.</li>"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "pre-booked private transfer, rideshare, taxi, public transport, and shared or group vehicle.",
+  "replace": "pre-booked private transfer, rideshare, street-hail transport, public transport, and shared or group vehicle."
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "For Brisbane and Gold Coast travel, Sky Transfers offers fixed-price chauffeur transfers.",
+  "replace": "For Brisbane and Gold Coast travel, Sky Transfers offers a fixed-price <a href=\"/chauffeur-service.html\">chauffeur service</a> and <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a>, with GST and tolls included. Travel agents and booking companies can use our <a href=\"/partners.html\">agent and partner program</a>."
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "For rideshare and taxi trips, a digital receipt",
+  "replace": "For rideshare trips, a digital receipt"
+ },
+ {
+  "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "<a href=\"/?pu=Brisbane%20Airport%20(BNE)#book\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book a Brisbane Airport transfer</a>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<li>The GBTA Business Travel Index projects global business travel spending will reach $1.71 trillion in 2026, an 8.1% year-over-year increase.</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<li>A quote that excludes tolls, waiting time or after-hours surcharges is not a fixed price.</li>",
+  "replace": "<li>Ask for a written total that includes GST, tolls, parking and waiting time before you treat a quote as a fixed price.</li>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<li><a href=\"#what-the-2026-travel-data-says-about-chauffeur-demand\">What the 2026 Travel Data Says About Chauffeur Demand</a></li>",
+  "replace": ""
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<p>Corporate travel budgets across Australia are rising in 2026, with companies applying sharper expectations to every dollar spent on executive car services, according to <a rel=\"noopener noreferrer\" target=\"_blank\" href=\"https://www.carsondemand.com.au/post/car-rental-prices-are-rising-in-2026-2027-what-it-means-for-chauffeur-limo-airport-transfer\">Cars On Demand's 2026 corporate travel trends report</a>. For a business traveller",
+  "replace": "<p>For a business traveller"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<h3 id=\"what-the-2026-travel-data-says-about-chauffeur-demand\">What the 2026 Travel Data Says About Chauffeur Demand</h3>\n<p>The demand signal is hard to ignore. The <a rel=\"noopener noreferrer\" target=\"_blank\" href=\"https://gbta.org/research/\">GBTA Business Travel Index</a> projects global business travel spending will reach $1.71 trillion in 2026, an 8.1% year-over-year increase. Closer to home, employment in Australia's corporate travel services sector grew an average of 10.2% over the five years to 2026, per <a rel=\"noopener noreferrer\" target=\"_blank\" href=\"https://www.ibisworld.com/list-of-industries/\">IBISWorld's sector data</a>.</p>\n",
+  "replace": ""
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<p>Watch out: a quote that excludes tolls, waiting time or after-hours surcharges is not a fixed price. Ask for the all-in figure, GST included, in writing.</p>",
+  "replace": "<p>Watch out: a quote is only a fixed price if nothing is added to it later. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge.</p>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/?pu=Brisbane%20Airport%20(BNE)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book a Brisbane Airport chauffeur transfer</a>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "Is the quote fixed, GST-inclusive and toll-inclusive? Are waiting-time and after-hours charges capped or open-ended?",
+  "replace": "Is the quote a fixed, written total that includes GST, tolls, parking and waiting time?"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "But the value depends on how the account is configured, so confirm the mechanics before you sign up.</p>",
+  "replace": "But the value depends on how the account is configured, so confirm the mechanics before you sign up. If you are setting one up with us, see our <a href=\"/corporate-transfers.html\">corporate accounts with monthly invoicing</a>.</p>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "meet and greet with real-time flight tracking, and free cancellation up to 24 hours.",
+  "replace": "meet and greet with real-time flight tracking, and free cancellation up to 24 hours. Our <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> page lists fares by suburb and vehicle, and travel agents and DMCs booking for clients can join our <a href=\"/partners.html\">agent and partner program</a>."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": ">How does an airport chauffeur transfer differ from a taxi or rideshare?</h3>",
+  "replace": ">How does an airport chauffeur transfer differ from rideshare or on-demand cars?</h3>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "The fare is agreed upfront instead of metered or subject to surge pricing, so the amount you pay does not move with demand.",
+  "replace": "The fare is agreed upfront instead of being set by an app when you request the car and subject to surge pricing, so the amount you pay does not move with demand."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-corporate-travel",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "<a href=\"/?pu=Brisbane%20Airport%20(BNE)#book\" class=\"cta-button\" style=\"display: inline-block; background-color: #12192b; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;\">Book a Brisbane Airport chauffeur transfer</a>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "Compare Gold Coast Airport transport options for luggage, from shuttles and taxis to private transfers and rideshare. Find the best fit for your bags.",
+  "replace": "Compare Gold Coast Airport transport options for luggage, from shuttles and buses to rideshare and private transfers. Find the best fit for your bags.",
+  "field": "meta_description"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "while solo travellers with one bag can consider a shared shuttle or taxi.</p>",
+  "replace": "while solo travellers with one bag can consider a shared shuttle or rideshare.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<li>The taxi rank sits directly outside the terminal, but maxi taxis are not always waiting.</li>",
+  "replace": "<li>For a group, a pre-booked <a href=\"/minibus-hire-gold-coast.html\">people mover (up to 7) or Sprinter (up to 14)</a> keeps everyone and every bag in one vehicle.</li>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<li>Rideshare pickup happens at a designated zone, not at the taxi rank.</li>",
+  "replace": "<li>Rideshare pickup happens at a designated zone, so follow the signs from the terminal.</li>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": ">Gold Coast Airport Taxi: Fares, Rank Location and Luggage Space<",
+  "replace": ">Group Transfers: Vehicle Size and Luggage Space<",
+  "all": true
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<li><strong>Taxi:</strong> quick at the rank, but fares move with traffic and time of day.</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Couples, short trips</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Moderate</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Metered</td>\n</tr>",
+  "replace": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">People mover or Sprinter (pre-booked)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Groups with lots of luggage</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Generous</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Fixed per vehicle</td>\n</tr>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<p>The Gold Coast Airport taxi rank sits directly outside the terminal, making it the fastest no-booking option. Fares are metered, so the final number depends on distance, traffic and the time of day. A late-night arrival or a busy holiday weekend pushes the fare up.</p>\n<p>Luggage space is decent in a standard sedan for two people with a couple of bags. A larger group or bulky gear needs a maxi taxi, and those are not always waiting at the rank. You may queue.</p>\n<p>A common mistake is assuming the meter is a fixed price. It is not. Traffic on the drive north can add to the total.</p>",
+  "replace": "<p>The quickest way to lose time at arrivals is finding out your bags do not fit the car. A standard sedan suits two people with a couple of suitcases; beyond that, the size of the vehicle matters more than the type of service.</p>\n<p>Booking ahead lets you lock that size in before you land. A people mover (up to 7) or Sprinter (up to 14) takes the whole group and its luggage in one vehicle, and with us the price is fixed per vehicle, with GST and tolls included.</p>\n<p>A common mistake is splitting a group across two on-demand cars at the kerb. You pay for two cars, wait for both, and have to divide the bags between them.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "happens at a designated zone, not at the taxi rank, so follow the signs from the terminal.",
+  "replace": "happens at a designated zone, so follow the signs from the terminal."
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<p>A private airport transfer Gold Coast booking is the option we recommend for anyone travelling with more than a single bag.</p>",
+  "replace": "<p>A private airport transfer Gold Coast booking is the option we recommend for anyone travelling with more than a single bag. Our <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> are priced per vehicle, with GST and tolls included and the same fare at any hour.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "A missed connection can mean a 20-30 minute wait on a platform with your bags at your feet.",
+  "replace": "A missed connection can mean a long wait on a platform with your bags at your feet."
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<li><strong>Taxi:</strong> The rank outside the terminal is staffed through the night, but the supply of cars thins after the last arrivals bank. A late landing can mean a 20-40 minute queue, and maxi taxis are rarely waiting at that hour.</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "a metered taxi or rideshare will simply cost more when you finally land.",
+  "replace": "with rideshare, you pay whatever the app shows when you finally land."
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": " A shuttle that holds for other passengers may leave without you, and a taxi rank queue does not care about your missing case.",
+  "replace": " A shuttle that holds for other passengers may leave without you."
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "Taxis and rideshare are fine for light luggage but boot space varies by vehicle, so request a larger class if you are carrying more than two large cases.",
+  "replace": "Rideshare is fine for light luggage but boot space varies by vehicle, so request a larger class if you are carrying more than two large cases, or pre-book a people mover."
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book a transfer from Gold Coast Airport →</a>"
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\"",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" class=\"cta-button\""
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "find": "font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "font-weight: 600; font-size: 16px;\">Book from Gold Coast Airport</a>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Compare buses, shuttles, taxis and private transfers, then book with confidence.",
+  "replace": "Compare buses, shuttles, rideshare and private transfers, then book with confidence.",
+  "field": "meta_description"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Public buses, trains, shuttles, taxis and rideshare are also available,",
+  "replace": "Public buses, trains, shuttles and rideshare are also available,"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "hotel or shared shuttle, taxi or rideshare, and a pre-booked private transfer.",
+  "replace": "hotel or shared shuttle, rideshare, and a pre-booked private transfer."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Most hotels cluster around Surfers Paradise and Broadbeach, roughly 25 to 30 kilometres north. That distance",
+  "replace": "Most hotels cluster around Surfers Paradise and <a href=\"/broadbeach-airport-transfers.html\">Broadbeach</a>, roughly 25 to 30 kilometres north. That distance"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Taxis and Rideshare: Availability, Fares and Late-Night Gaps",
+  "replace": "Rideshare: Availability, Fares and Late-Night Gaps",
+  "all": true
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Short notice, short trips</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Driver assists</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Queue at peak times</td>\n</tr>\n",
+  "replace": ""
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "and book for your specific hotel area.</p>",
+  "replace": "and book for your specific hotel area. Staying near the theme parks instead? The same fixed-price service covers <a href=\"/theme-park-transfers.html\">theme park hotels</a> too.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Surfers Paradise and Broadbeach sit further north than Coolangatta hotels.",
+  "replace": "Surfers Paradise and Broadbeach sit further north than <a href=\"/coolangatta-airport-transfers.html\">Coolangatta</a> hotels."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "<li><strong>Time of day:</strong> Late-night and early-morning runs often carry surcharges with metered services.</li>",
+  "replace": "<li><strong>Time of day:</strong> Some services charge more late at night or early in the morning, so ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge.</li>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "<p>Taxis and rideshare both pick up at the airport, but they behave differently, and the difference matters most when your flight lands at an awkward hour.</p>\n<p><strong>Taxis</strong> queue at a dedicated rank outside the terminal. You join the line, the marshall loads you into the next car, and the fare runs on the meter.</p>\n<p><strong>Rideshare</strong> requires a pickup zone rather than the taxi rank.</p>",
+  "replace": "<p>Rideshare picks up at the airport too, but it behaves differently from a pre-booked transfer, and the difference matters most when your flight lands at an awkward hour.</p>\n<p><strong>Rideshare</strong> uses a designated pickup zone rather than the kerb outside arrivals. You request a car in the app once you land, and the price is set by demand at that moment.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Do not assume a rideshare will be cheaper than a taxi at the airport. Compare the in-app quote with the taxi rank before you commit,",
+  "replace": "Do not assume a rideshare will be the cheapest option at the airport. Compare the in-app quote with a fixed-price transfer before you commit,"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "while the meter and the app quote both move.",
+  "replace": "while the app quote moves."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "Booking ahead removes the queue, the meter and the guesswork.",
+  "replace": "Booking ahead removes the queue, the surge pricing and the guesswork."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "<p>Get started with Sky Transfers and step off the plane knowing your ride is already waiting.</p>",
+  "replace": "<p>See the fixed fare for your hotel on our <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> page, or <a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\">book a transfer from Gold Coast Airport</a> and step off the plane knowing your ride is already waiting.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "so there is no queueing for a taxi or working out bus routes with luggage.",
+  "replace": "so there is no waiting in a rideshare zone or working out bus routes with luggage."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "but it takes longer than a taxi or private transfer and requires walking",
+  "replace": "but it takes longer than rideshare or a private transfer and requires walking"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book a transfer from Gold Coast Airport →</a>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\"",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" class=\"cta-button\""
+ },
+ {
+  "slug": "gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel",
+  "find": "font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "font-weight: 600; font-size: 16px;\">Book from Gold Coast Airport</a>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "from a rebadged taxi.</p>",
+  "replace": "from a basic kerbside pickup.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "Gold Coast Airport Chauffeur vs Taxi: What Changes on the Day",
+  "replace": "Gold Coast Airport Chauffeur vs Rideshare: What Changes on the Day",
+  "all": true
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "A Gold Coast Airport chauffeur vs taxi comparison comes down to certainty. A taxi rank means queuing and a meter that moves with traffic.",
+  "replace": "A Gold Coast Airport chauffeur vs rideshare comparison comes down to certainty. An on-demand rideshare means waiting at the pickup zone and a price that moves with demand."
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "A taxi queue doesn't care.",
+  "replace": "An app request doesn't care."
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<li><strong>Pricing:</strong> fixed and agreed upfront versus metered, traffic-dependent</li>",
+  "replace": "<li><strong>Pricing:</strong> fixed and agreed upfront versus set by demand when you request the car</li>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<li><strong>Waiting:</strong> included waiting time versus the meter running</li>",
+  "replace": "<li><strong>Waiting:</strong> included waiting time after landing versus requesting a car only once you are through the doors</li>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<li><strong>Driver:</strong> assigned and named versus whoever is next in the rank</li>",
+  "replace": "<li><strong>Driver:</strong> assigned and named versus whoever accepts the request</li>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "A well-run service builds in a grace period after landing, commonly 45 to 60 minutes for international arrivals, and the driver waits",
+  "replace": "A well-run service builds in a grace period after landing (ours is 30 minutes at Gold Coast Airport, and 60 for international arrivals at Brisbane), and the driver waits"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<a href=\"/byron-bay-transfers.html\">Brisbane or the Cruise Terminal</a>",
+  "replace": "<a href=\"/brisbane-airport-to-gold-coast.html\">Brisbane</a> or <a href=\"/cruise-transfers.html\">the Cruise Terminal</a>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<li>Late-night or public-holiday surcharges</li>",
+  "replace": "<li>GST and parking, and whether any surcharge applies after hours, late at night or on public holidays (ours has no after-hours or late-night surcharge)</li>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "Is a Gold Coast Airport chauffeur better than a taxi?",
+  "replace": "Is a Gold Coast Airport chauffeur better than rideshare?"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "A taxi is available on demand but the fare varies with traffic and time of day, and you queue at the rank.",
+  "replace": "Rideshare is available on demand, but the price moves with demand and you meet the car at the rideshare pickup zone."
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "a taxi can still work.",
+  "replace": "rideshare can still work."
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "Book with Sky Transfers and know exactly what you'll pay before you travel.",
+  "replace": "See the fixed fares for our <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a>, then <a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\">book a transfer from Gold Coast Airport</a> and know exactly what you'll pay before you travel."
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book a transfer from Gold Coast Airport →</a>"
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\"",
+  "replace": "<a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" class=\"cta-button\""
+ },
+ {
+  "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
+  "find": "font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "font-weight: 600; font-size: 16px;\">Book from Gold Coast Airport</a>"
+ },
+ {
+  "slug": "book-private-airport-transfer-gold-coast",
+  "find": "<li><strong>Airport taxi:</strong> metered or rank-based, availability varies, no advance guarantee</li>",
+  "replace": "<li><strong>Rideshare:</strong> requested in the app after you land, price moves with demand, no advance guarantee</li>"
+ },
+ {
+  "slug": "book-private-airport-transfer-gold-coast",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Public holiday or late-night loading</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Some providers apply a set surcharge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Fixed, not surge-based</td>\n</tr>",
+  "replace": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Time of day</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Some providers charge more after hours or on public holidays</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Not with us: our fare is the same at any hour, with no after-hours or late-night surcharge</td>\n</tr>"
+ },
+ {
+  "slug": "book-private-airport-transfer-gold-coast",
+  "find": "including tolls, airport fees, and any late-night loading, treat the quote as indicative rather than fixed.</p>",
+  "replace": "including GST, tolls, parking and waiting time, treat the quote as indicative rather than fixed. Ours includes all of them, with no after-hours or late-night surcharge.</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": ">Airport Transfer vs Taxi: A Like-for-Like Comparison<",
+  "replace": ">Airport Transfer vs Rideshare: A Like-for-Like Comparison<",
+  "all": true
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": ">A Worked Example: Same Trip, Three Pricing Models<",
+  "replace": ">A Worked Example: Same Trip, Two Pricing Models<",
+  "all": true
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": ">Surge Pricing, Tolls, and Late-Night Surcharges<",
+  "replace": ">Surge Pricing, Tolls, and Time of Day<",
+  "all": true
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<p>Metered fares keep running when traffic doesn't. A delay on the Gateway Motorway, a late-night arrival, or a busy Friday evening all push a taxi fare above the estimate.</p>",
+  "replace": "<p>On-demand fares move when demand does. A delay on the Gateway Motorway, a late-night arrival, or a busy Friday evening can all push a rideshare fare above the estimate.</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "After a long flight, the last thing you want is to watch a meter climb in traffic.",
+  "replace": "After a long flight, the last thing you want is to watch a fare climb with demand."
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "how fixed pricing compares with taxis and rideshare,",
+  "replace": "how fixed pricing compares with rideshare and public transport,"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "no surge multiplier when demand spikes, no late-night surcharge, ",
+  "replace": "no surge multiplier when demand spikes, no after-hours or late-night surcharge, "
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "That's the biggest difference: a meter prices the trip as it happens, a fixed fare prices it before it happens.",
+  "replace": "That's the biggest difference: an on-demand fare is priced by demand at the moment you ride, a fixed fare is priced before you travel."
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<p>An airport transfer and a taxi do the same job, but the pricing model changes everything. The only fair comparison is the total you actually pay.</p>\n<p>A taxi charges by distance and time, so the fare depends on conditions you can't control.</p>",
+  "replace": "<p>An airport transfer and a rideshare do the same job, but the pricing model changes everything. The only fair comparison is the total you actually pay.</p>\n<p>A rideshare fare depends on demand at the moment you request it, which you can't control.</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<table style=\"width:100%; border-collapse:collapse; margin:2rem 0; font-size:14px; line-height:1.6;\">\n<thead style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">\n<tr>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Feature</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Fixed Price Transfer</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Taxi (Metered)</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Rideshare</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Price known before booking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Partly</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Surge pricing</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Tolls included in quote</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Added to fare</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Added to fare</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Airport access fee</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Included</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Passed to passenger</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Passed to passenger</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Meet and greet</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rarely</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Flight tracking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Advance booking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Limited</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Limited</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Group capacity</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Pre-selected</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Varies</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Varies</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Payment</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Prepaid or account</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">At the kerb</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">In-app</td>\n</tr>\n</tbody>\n</table>",
+  "replace": "<table style=\"width:100%; border-collapse:collapse; margin:2rem 0; font-size:14px; line-height:1.6;\">\n<thead style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">\n<tr>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Feature</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Fixed Price Transfer</th>\n<th style=\"background-color:#f8f9fa; color:#111827; padding:12px 16px; text-align:left; font-weight:600; border-bottom:2px solid #e5e7eb;\">Rideshare</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Price known before booking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Partly</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Surge pricing</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Tolls included in quote</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Added to fare</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Airport access fee</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Included</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Passed to passenger</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Meet and greet</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Flight tracking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">No</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Advance booking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Yes</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Limited</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Group capacity</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Pre-selected</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Varies</td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Payment</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Prepaid or account</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">In-app</td>\n</tr>\n</tbody>\n</table>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<p>A metered fare and a rideshare both leave the final cost open until the trip ends. A fixed fare closes that question at booking.</p>",
+  "replace": "<p>A rideshare price is only set when you request the ride, and it moves with demand. A fixed fare closes that question at booking.</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "Take <a href=\"/brisbane-or-gold-coast-airport.html\">Brisbane Airport</a> to the CBD, roughly 15 kilometres via the Airport Link tunnel, two passengers with two checked bags, arriving Friday at 5:30pm.</p>",
+  "replace": "Take Brisbane Airport to the CBD, roughly 15 kilometres via the Airport Link tunnel, two passengers with two checked bags, arriving Friday at 5:30pm. (Still choosing which airport to fly into? See <a href=\"/brisbane-or-gold-coast-airport.html\">Brisbane or Gold Coast Airport?</a>)</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<li><strong>Taxi:</strong> the meter runs on distance and time. The Airport Link toll is added, and the Friday crawl on the Gateway Motorway or Kingsford Smith Drive extends the time component. The final figure is only known on arrival.</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<p>These three charges are where metered and rideshare costs quietly climb.</p>",
+  "replace": "<p>These three are where on-demand costs quietly climb.</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "Rideshare platforms apply a multiplier; taxis generally don't surge but can be scarce at the same moments.",
+  "replace": "Rideshare platforms apply a multiplier, and cars can be scarce at the same moments."
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "and metered or rideshare trips pass them to you on top of the fare.",
+  "replace": "and rideshare trips pass them to you on top of the fare."
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<li><strong>Late-night surcharges</strong> apply after certain hours on taxis, so a midnight arrival costs more than a midday one. Some operators also add a pre-booked or rank surcharge at the airport.</li>",
+  "replace": "<li><strong>Time of day</strong> can change what some operators charge. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge. A midnight arrival costs the same as a midday one.</li>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "When you request a quote, ask the provider to confirm in writing that the fare includes tolls, the airport access fee and any after-hours loading. A quote that excludes any of these",
+  "replace": "When you request a quote, ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge. A quote that excludes any of these"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "The gap is usually tolls, the airport access fee, after-hours loading or waiting time, all of which reappear on the final bill.",
+  "replace": "The gap is usually tolls, the airport access fee or waiting time, all of which reappear on the final bill. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge."
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "<p>This is where fixed pricing and tracking work together. A metered taxi has no idea your flight was delayed, and if one is waiting, the meter may already be running.</p>",
+  "replace": "<p>This is where fixed pricing and tracking work together. An on-demand ride knows nothing about your flight: you only start looking for a car once you are through the terminal, at whatever the fare is at that moment.</p>"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "If you require a wheelchair-accessible vehicle or specific assistance, confirm it at booking. Providers that plan ahead can arrange it; those that don't leave you improvising at the terminal.",
+  "replace": "If you need specific assistance, confirm it at booking. We carry foldable wheelchairs free, but we do not run ramp or lift vehicles, so if you need to travel seated in a wheelchair, call us on <a href=\"tel:+61481437772\">+61 481 437 772</a> before booking."
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "or if you don't want to watch a meter climb in traffic,",
+  "replace": "or if you don't want to watch a fare climb with demand,"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "Is a fixed-price airport transfer cheaper than a taxi or rideshare?",
+  "replace": "Is a fixed-price airport transfer cheaper than rideshare?"
+ },
+ {
+  "slug": "fixed-price-airport-transfers-brisbane-benefits",
+  "find": "For short city runs, a metered taxi can come in lower.",
+  "replace": "For short city runs at a quiet time, a rideshare can come in lower."
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": ">How Safe Airport Transport for Families Compares With Taxis and Rideshare<",
+  "replace": ">How Safe Airport Transport for Families Compares With Rideshare<",
+  "all": true
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "At Sky Transfers, we run fixed-price chauffeur transfers to and from the Gold Coast and Brisbane airports, and the questions we field most often are about child seats and group sizes.",
+  "replace": "At Sky Transfers, we run fixed-price chauffeur transfers to and from the Gold Coast and Brisbane airports, from <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> to family trips to the <a href=\"/theme-park-transfers.html\">theme parks</a>, and the questions we field most often are about child seats and group sizes."
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "where <a href=\"/rideshare-or-transfer.html\">taxis and rideshare</a> fall short.",
+  "replace": "where <a href=\"/rideshare-or-transfer.html\">rideshare and other on-demand options</a> fall short."
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "A forward-facing seat is not the same as a booster, and a booster is not appropriate for a toddler.</p>",
+  "replace": "A forward-facing seat is not the same as a booster, and a booster is not appropriate for a toddler. Our guide to <a href=\"/blog/gold-coast-airport-transfer-car-seats.html\">car seats on the Gold Coast</a> covers what Queensland law requires on airport transfers.</p>"
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "Taxis and rideshare can be cheaper on a quiet day, but neither guarantees a child seat or a vehicle sized for your group.",
+  "replace": "Rideshare and other on-demand options can be cheaper on a quiet day, but none of them guarantees a child seat or a vehicle sized for your group."
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "Taxi ranks vary by city and vehicle, and a maxi taxi may need to be requested in advance. Neither offers a fixed fare that holds through traffic.",
+  "replace": "A larger vehicle is not guaranteed on demand either: for a big family, pre-book a <a href=\"/minibus-hire-gold-coast.html\">people mover (up to 7) or Sprinter (up to 14)</a>. Nor do on-demand options offer a fixed fare agreed before the day."
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Request only</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Limited, maxi on request</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Metered</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Solo short trips</td>\n</tr>\n",
+  "replace": ""
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "Do not assume a standard taxi or rideshare will have one available.",
+  "replace": "Do not assume a rideshare will have one available."
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "Is a private airport transfer safer than a taxi for families?",
+  "replace": "Is a private airport transfer safer than rideshare for families?"
+ },
+ {
+  "slug": "safe-airport-transport-for-families",
+  "find": "That removes the uncertainty of hailing a taxi at the rank or waiting for a rideshare that may not have the right restraints.",
+  "replace": "That removes the uncertainty of waiting for a rideshare or a street-hail car that may not have the right restraints."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">Chauffeur, taxi, rideshare, train or shuttle: how they stack up<",
+  "replace": ">Chauffeur, rideshare, train or shuttle: how they stack up<",
+  "all": true
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "Metered taxis and rideshare surge pricing both shift risk onto you, while a fixed fare moves it onto the operator.",
+  "replace": "Rideshare surge pricing shifts the risk onto you, while a fixed fare moves it onto the operator."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "Five main options connect the terminals to the city centre, and each suits a different traveller. A chauffeur suits anyone who values certainty; the train suits solo light packers; taxis and rideshare sit in the middle. Brisbane Airport's own transport guide lists taxis, trains, rideshare, shuttle buses, council buses and bicycles as the available choices,",
+  "replace": "Several options connect the terminals to the city centre, and each suits a different traveller. A chauffeur suits anyone who values certainty; the train suits solo light packers; rideshare sits in the middle. Brisbane Airport's own transport guide lists trains, rideshare, shuttle buses, council buses and bicycles among the available choices,"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "Figures are indicative ranges for a one-way trip from the terminals to the central business district, and they move with vehicle class, time of day and demand. Treat them as planning benchmarks, not quotes.",
+  "replace": "Chauffeur fares are our own published fixed fares for a one-way trip from the terminals to the central business district. The other options vary with time of day and demand, so check each provider's current figure before you travel."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">Chauffeur (people mover or van)</td>",
+  "replace": ">Chauffeur (people mover)</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">Up to 6-7 passengers, 6+ bags</td>",
+  "replace": ">Up to 7 passengers, 6+ bags</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "<a href=\"/blog/safe-airport-transport-for-families.html\">Families, groups, cruise passengers</a></td>\n</tr>\n",
+  "replace": "<a href=\"/blog/safe-airport-transport-for-families.html\">Families, groups, cruise passengers</a></td>\n</tr>\n<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Chauffeur (Sprinter, up to 14)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$255 (fixed)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">20-40 min</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Up to 14 passengers</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Fixed at booking</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Larger groups</td>\n</tr>\n"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">Indicative one-way fare (AUD)</th>",
+  "replace": ">One-way fare (AUD)</th>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$60-$90 metered</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">20-40 min</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Up to 4 passengers, 2-3 bags</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Metered, traffic-dependent</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Solo travellers in a hurry</td>\n</tr>\n",
+  "replace": ""
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">Rideshare</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">$45-$110 with surge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">20-40 min</td>",
+  "replace": ">Rideshare</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Varies with demand (surge)</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Traffic-dependent</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">Around $20-$22 per adult</td>",
+  "replace": ">Per-adult ticket</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">20-25 min to Central</td>",
+  "replace": ">Timetabled, to Central</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">$15-$30 per seat</td>",
+  "replace": ">Per-seat fare</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": ">40-60 min with stops</td>",
+  "replace": ">Longer, with stops</td>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "<p>The table hides one detail that matters: only the chauffeur and shuttle options let you lock the price before you fly. Everything else can move with demand. A taxi meter climbs in traffic, and rideshare multipliers can double a fare during a storm or a major event.</p>",
+  "replace": "<p>Our own fares for this run are published and fixed per vehicle. Sedan $95. People mover $110, Sprinter $255 (Brisbane CBD to BNE, fixed, GST and tolls included). Every vehicle is on our <a href=\"/brisbane-cbd-airport-transfers.html\">Brisbane CBD airport transfers</a> page.</p>\n<p>The table hides one detail that matters: only the chauffeur and shuttle options let you lock the price before you fly. Everything else can move with demand, and rideshare multipliers can push a fare up sharply during a storm or a major event.</p>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "A $20 train ticket plus a $25 rideshare from the station can cost more and take longer",
+  "replace": "A train ticket plus a rideshare from the station can cost more and take longer"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "It is the single biggest difference between a chauffeur and a taxi rank.",
+  "replace": "It is the single biggest difference between a chauffeur and a rideshare pickup zone."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "<li><strong>Surcharges</strong>, additional stops, out-of-hours pickups, child seats arranged late, or a destination outside the standard city zone.</li>",
+  "replace": "<li><strong>Extras</strong>, such as additional stops, child seats arranged late, or a destination outside the standard city zone. We add no after-hours or late-night surcharge.</li>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "<li><strong>Time of day.</strong> Some operators apply an out-of-hours surcharge for late-night or early-morning pickups, when driver availability is tighter. Ask whether your pickup window attracts one.</li>",
+  "replace": "<li><strong>Time of day.</strong> Some operators charge more for very early or late pickups. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge.</li>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "and that is where pre-booking beats hailing cars at the rank.",
+  "replace": "and that is where pre-booking beats hailing cars on arrival."
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "Taxis and rideshare can be cheaper for a solo traveller with one bag, but fares vary with demand and surge pricing.",
+  "replace": "Rideshare can be cheaper for a solo traveller with one bag, but fares vary with demand and surge pricing."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "Compare shuttle, train, taxi and private options for pre-dawn flights",
+  "replace": "Compare shuttle, train, rideshare and private options for pre-dawn flights",
+  "field": "meta_description"
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<li><strong>Taxis:</strong> available around the clock, though supply thins between 3am and 5am</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<li><strong>Weekday first departures:</strong> most shared services begin collections from around 4am to 4:30am, timed to reach the terminals for flights departing from roughly 6am onward.</li>",
+  "replace": "<li><strong>Weekday first departures:</strong> check the operator's published first collection for your route; it is timed around the main wave of morning flights, not around yours.</li>"
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<li><strong>Weekend and public holiday first departures:</strong> often 30 to 60 minutes later than weekdays,",
+  "replace": "<li><strong>Weekend and public holiday first departures:</strong> often later than weekdays,"
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<li><strong>Pre-4am collections:</strong> rare on shared services.",
+  "replace": "<li><strong>Very early collections:</strong> rare on shared services."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "For a 3:30am collection, a run with three other pickups can easily add 20 to 40 minutes before you are even on the highway.",
+  "replace": "For a 3:30am collection, a run with three other pickups adds time before you are even on the highway."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "A metered taxi or rideshare at 4am can carry a surcharge, and rideshare pricing can spike when few drivers are online.",
+  "replace": "Rideshare pricing can spike at 4am when few drivers are online. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Metered plus possible surcharge</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Partly</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Walk-up availability</td>\n</tr>\n",
+  "replace": ""
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": ">Fixed-Price Versus Metered and Surge Pricing<",
+  "replace": ">Fixed-Price Versus Surge Pricing<",
+  "all": true
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<strong>Metered and surge pricing</strong> means the fare rises with distance, time, and demand, so an early pickup can cost more than expected.",
+  "replace": "<strong>Surge pricing</strong> means the fare rises with demand, so an early pickup can cost more than expected."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "the fastest recovery is usually a taxi or a replacement private transfer arranged by phone.",
+  "replace": "the fastest recovery is usually a rideshare or a replacement private transfer arranged by phone."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "<li>Number of passengers and checked bags</li>",
+  "replace": "<li>Your flight number, and whether you fly from the <a href=\"/blog/brisbane-airport-domestic-or-international-pickup.html\">domestic or international terminal</a></li>\n<li>Number of passengers and checked bags</li>"
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "Confirm the exact pickup window when you book, and check whether your operator charges a different rate for unsociable hours.",
+  "replace": "Confirm the exact pickup window when you book. Ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge."
+ },
+ {
+  "slug": "early-morning-brisbane-airport-transfer",
+  "find": "the total price including any early-hours surcharge,",
+  "replace": "a written total that includes GST, tolls, parking and waiting time (ours does, with no after-hours or late-night surcharge),"
+ },
+ {
+  "slug": "avoid-surge-pricing-airport-rides",
+  "find": ">Airport Ride Fare Comparison: Ride-Hailing vs Taxi vs Fixed-Price<",
+  "replace": ">Airport Ride Fare Comparison: Ride-Hailing vs Public Transport vs Fixed-Price<",
+  "all": true
+ },
+ {
+  "slug": "avoid-surge-pricing-airport-rides",
+  "find": "Terminal kerbs surge first; nearby ranks often do not.",
+  "replace": "Terminal kerbs surge first; a pickup point a short walk away sometimes does not."
+ },
+ {
+  "slug": "avoid-surge-pricing-airport-rides",
+  "find": "<strong>Compare before you commit.</strong> Check a taxi and a fixed-price quote alongside the app.",
+  "replace": "<strong>Compare before you commit.</strong> Check a fixed-price quote alongside the app, so you can <a href=\"/rideshare-or-transfer.html\">compare rideshare or a fixed transfer</a> on the same trip."
+ },
+ {
+  "slug": "avoid-surge-pricing-airport-rides",
+  "find": "<tr>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi rank</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Medium, metered</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Low surge, but queue length varies</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Kerb rank at terminal, usually closest</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Quick kerb pickup, short trips</td>\n</tr>\n",
+  "replace": ""
+ },
+ {
+  "slug": "avoid-surge-pricing-airport-rides",
+  "find": "Taxi ranks sit closer to the terminal but the queue can swallow the saving. A fixed-price transfer with meet and greet removes both the walk and the queue,",
+  "replace": "A fixed-price transfer with meet and greet removes the walk and the wait,"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "field": "title",
+  "find": "Do Wheelchair Users Need a Chauffeur for Airport Transfers?",
+  "replace": "Airport Transfers With a Foldable Wheelchair: A Planning Guide"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "field": "meta_title",
+  "find": "Do Wheelchair Users Need a Chauffeur for Airport Transfers?",
+  "replace": "Airport Transfers With a Foldable Wheelchair: A Planning Guide"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "field": "meta_description",
+  "find": "Book wheelchair airport transfers with ramp access and secure seating, then learn the exact questions to ask and steps to book with confidence.",
+  "replace": "Travelling with a foldable wheelchair? It rides free in the boot, your chauffeur helps you into the seat and your flight is tracked. What to ask first."
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<p style=\"margin:0; color:#1f2937; font-size:16px; line-height:1.6;\">Wheelchair users do not need a chauffeur in the legal sense, but pre-booked wheelchair airport transfers are the reliable option because rank taxis are almost never accessible. Book an accessible vehicle with a ramp or lift, four-point securement and a trained driver, and confirm the vehicle, fare and meeting point in writing.</p>\n<ul style=\"margin:10px 0 0; padding-left:20px; color:#374151; font-size:15px; line-height:1.6;\">\n<li>A ramp suits manual and most powered chairs; a lift handles heavier powered chairs.</li>\n<li>Securement uses four-point floor straps plus a separate lap and shoulder belt around the passenger.</li>\n<li>Airport assistance from terminal to gate is separate and must be requested through your airline.</li>\n<li>Book as early as plans allow, since accessible vehicles are a smaller fleet than standard cars.</li>\n<li>Sky Transfers offers free cancellation up to 24 hours before pickup.</li>\n</ul>\n</div>\n<h2 id=\"table-of-contents\">Table of Contents</h2>\n<ul><li><a href=\"#why-a-pre-booked-chauffeur-beats-a-standard-taxi-for-wheelchair-users\">Why a Pre-Booked Chauffeur Beats a Standard Taxi for Wheelchair Users</a><ul><li><a href=\"#reliability-when-it-matters-most\">Reliability When It Matters Most</a></li><li><a href=\"#fixed-pricing-without-surge-fees\">Fixed Pricing Without Surge Fees</a></li></ul></li><li><a href=\"#what-a-wheelchair-accessible-vehicle-airport-transfer-actually-includes\">What a Wheelchair-Accessible Vehicle Airport Transfer Actually Includes</a><ul><li><a href=\"#ramps-lifts-and-securement-systems\">Ramps, Lifts and Securement Systems</a></li><li><a href=\"#travelling-in-your-own-wheelchair\">Travelling in Your Own Wheelchair</a></li></ul></li><li><a href=\"#how-airport-wheelchair-assistance-works-alongside-your-chauffeur\">How Airport Wheelchair Assistance Works Alongside Your Chauffeur</a></li><li><a href=\"#your-wheelchair-transport-booking-checklist\">Your Wheelchair Transport Booking Checklist</a><ul><li><a href=\"#vehicle-and-securement-verification\">Vehicle and Securement Verification</a></li><li><a href=\"#trip-and-fare-confirmation\">Trip and Fare Confirmation</a></li><li><a href=\"#questions-to-ask-when-confirming-a-vehicle\">Questions to Ask When Confirming a Vehicle</a></li><li><a href=\"#how-far-in-advance-to-book\">How Far in Advance to Book</a></li></ul></li><li><a href=\"#planning-airport-transfer-luggage-and-wheelchair-space\">Planning Airport Transfer Luggage and Wheelchair Space</a></li><li><a href=\"#step-by-step-booking-and-airport-pickup\">Step by Step: Booking and Airport Pickup</a><ul><li><a href=\"#airport-specific-procedures-and-the-airline-handover\">Airport-Specific Procedures and the Airline Handover</a></li><li><a href=\"#if-your-flight-is-delayed-diverted-or-cancelled\">If Your Flight Is Delayed, Diverted or Cancelled</a></li><li><a href=\"#contingency-planning-before-you-travel\">Contingency Planning Before You Travel</a></li></ul></li><li><a href=\"#booking-your-accessible-airport-transfer\">Booking Your Accessible Airport Transfer</a></li><li><a href=\"#frequently-asked-questions\">Frequently Asked Questions</a></li></ul>\n<h2 id=\"why-a-pre-booked-chauffeur-beats-a-standard-taxi-for-wheelchair-users\">Why a Pre-Booked Chauffeur Beats a Standard Taxi for Wheelchair Users</h2>\n<p>If you use a wheelchair, the gap between booked wheelchair airport transfers and a taxi hailed at the rank is not comfort, it is whether you get to the terminal at all.</p>\n<p>An accessible airport transfer is not a taxi with extra space. It is a booking made in advance, in a specific vehicle, with a specific driver, at a fixed price.</p>\n<h3 id=\"reliability-when-it-matters-most\">Reliability When It Matters Most</h3>\n<p>A standard taxi rank works on whoever is next. That model fails wheelchair users because the next cab is almost never accessible, and the driver has no obligation to wait while you transfer.</p>\n",
+  "replace": "<p style=\"margin:0; color:#1f2937; font-size:16px; line-height:1.6;\">Wheelchair users do not need a chauffeur in any legal sense, but a pre-booked airport transfer takes much of the uncertainty out of travelling with a wheelchair. With Sky Transfers, a foldable wheelchair or other mobility aid is carried free in the boot, your chauffeur helps with the transfer from your wheelchair to your seat and with your bags, and your flight is tracked so you are met inside the terminal. We do not run ramp or lift vehicles, so if you need to travel seated in your wheelchair, call <a href=\"tel:+61481437772\">+61 481 437 772</a> before you book.</p>\n<ul style=\"margin:10px 0 0; padding-left:20px; color:#374151; font-size:15px; line-height:1.6;\">\n<li>Foldable wheelchairs, walkers and other mobility aids travel free in the boot.</li>\n<li>Your chauffeur helps you from your wheelchair into your seat, and handles your bags.</li>\n<li>Meet and greet with a name board inside the terminal, with your flight tracked.</li>\n<li>Airport assistance from terminal to gate is separate and must be requested through your airline.</li>\n<li>Sky Transfers offers free cancellation up to 24 hours before pickup.</li>\n</ul>\n</div>\n<h2 id=\"table-of-contents\">Table of Contents</h2>\n<ul><li><a href=\"#why-a-pre-booked-chauffeur-beats-a-standard-taxi-for-wheelchair-users\">Why a Pre-Booked Chauffeur Suits Wheelchair Users</a><ul><li><a href=\"#reliability-when-it-matters-most\">Reliability When It Matters Most</a></li><li><a href=\"#fixed-pricing-without-surge-fees\">Fixed Pricing Without Surge Fees</a></li></ul></li><li><a href=\"#what-a-wheelchair-accessible-vehicle-airport-transfer-actually-includes\">What a Chauffeur Transfer With a Wheelchair Includes</a><ul><li><a href=\"#ramps-lifts-and-securement-systems\">Foldable Wheelchairs and Mobility Aids in the Boot</a></li><li><a href=\"#travelling-in-your-own-wheelchair\">If You Need to Travel Seated in Your Wheelchair</a></li></ul></li><li><a href=\"#how-airport-wheelchair-assistance-works-alongside-your-chauffeur\">How Airport Wheelchair Assistance Works Alongside Your Chauffeur</a></li><li><a href=\"#your-wheelchair-transport-booking-checklist\">Your Wheelchair Transport Booking Checklist</a><ul><li><a href=\"#vehicle-and-securement-verification\">Wheelchair and Mobility Details</a></li><li><a href=\"#trip-and-fare-confirmation\">Trip and Fare Confirmation</a></li><li><a href=\"#questions-to-ask-when-confirming-a-vehicle\">Questions to Ask Before You Book</a></li><li><a href=\"#how-far-in-advance-to-book\">How Far in Advance to Book</a></li></ul></li><li><a href=\"#planning-airport-transfer-luggage-and-wheelchair-space\">Planning Airport Transfer Luggage and Wheelchair Space</a></li><li><a href=\"#step-by-step-booking-and-airport-pickup\">Step by Step: Booking and Airport Pickup</a><ul><li><a href=\"#airport-specific-procedures-and-the-airline-handover\">Airport-Specific Procedures and the Airline Handover</a></li><li><a href=\"#if-your-flight-is-delayed-diverted-or-cancelled\">If Your Flight Is Delayed, Diverted or Cancelled</a></li><li><a href=\"#contingency-planning-before-you-travel\">Contingency Planning Before You Travel</a></li></ul></li><li><a href=\"#booking-your-accessible-airport-transfer\">Booking Your Airport Transfer With a Wheelchair</a></li><li><a href=\"#frequently-asked-questions\">Frequently Asked Questions</a></li></ul>\n<h2 id=\"why-a-pre-booked-chauffeur-beats-a-standard-taxi-for-wheelchair-users\">Why a Pre-Booked Chauffeur Suits Wheelchair Users</h2>\n<p>If you use a wheelchair, the difference between a pre-booked airport transfer and whatever happens to be available when you land is not comfort. It is knowing that someone is expecting you, has room for your chair, and will help you into the car.</p>\n<p>A pre-booked transfer is arranged in advance, with a chauffeur who knows you are travelling with a wheelchair, at a fixed price.</p>\n<h3 id=\"reliability-when-it-matters-most\">Reliability When It Matters Most</h3>\n<p>On-demand options such as rideshare apps send whichever car is nearest. You cannot know in advance whether it will have room for your chair and your luggage, or whether the driver will expect to help you into the seat.</p>\n"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<p>The practical difference: a booked chauffeur is expecting you. A rank taxi is expecting a fare.</p>",
+  "replace": "<p>The practical difference: a booked chauffeur is expecting you, and knows about your wheelchair before you land.</p>"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Surge pricing is the quiet tax on accessible travel. Demand spikes when a flight lands, fares climb, and the traveller with the largest vehicle requirement pays the most.",
+  "replace": "Surge pricing is the quiet tax on airport travel. Demand spikes when a flight lands, fares climb, and the traveller who needs a larger vehicle pays the most."
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<h2 id=\"what-a-wheelchair-accessible-vehicle-airport-transfer-actually-includes\">What a Wheelchair-Accessible Vehicle Airport Transfer Actually Includes</h2>\n<p>Genuine wheelchair airport transfers include four things: a purpose-built vehicle with a ramp or lift, a tested securement system, a trained driver, and door-to-door service.</p>\n<figure class=\"article-content-image my-8\" style=\"margin:2em 0;padding:0;background:transparent;border:0;\"><img src=\"https://cdn.grandranker.com/articles/do-wheelchair-users-need-a-chauffeur-for-airport-transfers-content-1-1792988879.jpg\" alt=\"A chauffeur in a dark suit lowering a folded ramp from a clean white accessible van at an airport kerb, a person in a manual wheelchair waiting beside two suitcases, early morning light\" class=\"w-full rounded-lg shadow-lg\" loading=\"lazy\" style=\"display:block;width:100%;max-width:100%;height:auto;border-radius:8px;margin:0 auto;\"><figcaption class=\"text-sm text-gray-600 mt-2 text-center\" style=\"font-size:0.875em;color:inherit;opacity:0.75;text-align:center;margin-top:0.6em;\">A chauffeur in a dark suit lowering a folded ramp from a clean white accessible van at an airport kerb, a person in a manual wheelchair waiting beside two suitcases, early morning light</figcaption></figure>\n<h3 id=\"ramps-lifts-and-securement-systems\">Ramps, Lifts and Securement Systems</h3>\n<p><strong>A wheelchair-accessible van</strong> is modified with a rear or side-entry ramp, or a mechanical lift where floor height demands it. A ramp suits manual wheelchairs and most powered chairs within weight limits; a lift handles heavier powered chairs.</p>\n<p>Securement matters just as much. A proper system uses four-point straps anchored to the vehicle floor, plus a lap and shoulder belt routed around the passenger rather than the chair alone.</p>\n<h3 id=\"travelling-in-your-own-wheelchair\">Travelling in Your Own Wheelchair</h3>\n<p>Most travellers prefer to stay in their own wheelchair for the journey, standard practice in an accessible vehicle, and it removes the transfer risk.</p>\n<p>If you can transfer independently, a standard chauffeur vehicle may suit you, provided there is space for a folded manual wheelchair in the boot. Tell the provider which option you need at booking. The vehicle specification changes accordingly.</p>\n",
+  "replace": "<h2 id=\"what-a-wheelchair-accessible-vehicle-airport-transfer-actually-includes\">What a Chauffeur Transfer With a Wheelchair Includes</h2>\n<p>With Sky Transfers, an airport transfer with a wheelchair includes four things: room in the boot for your folded wheelchair or mobility aid at no extra charge, a chauffeur who helps you from your wheelchair into your seat and back again, help with your bags, and meet and greet with your flight tracked.</p>\n<h3 id=\"ramps-lifts-and-securement-systems\">Foldable Wheelchairs and Mobility Aids in the Boot</h3>\n<p><strong>A foldable wheelchair</strong>, walker or similar mobility aid travels free in the boot. Your chauffeur folds and loads it, and has it ready beside the car door when you arrive. Tell us at booking what you are bringing, so we send a vehicle with room for it alongside your luggage.</p>\n<p>If you are travelling with family or a lot of luggage, an SUV or a people mover gives more room than a sedan.</p>\n<h3 id=\"travelling-in-your-own-wheelchair\">If You Need to Travel Seated in Your Wheelchair</h3>\n<p>Some travellers cannot move from their wheelchair to a car seat and need to stay in the chair for the journey. Sky Transfers does not run ramp or lift vehicles, so please call us on <a href=\"tel:+61481437772\">+61 481 437 772</a> before you book and we will talk through your trip with you.</p>\n<p>If you can move from your wheelchair to a car seat, on your own or with a hand from your chauffeur, a standard chauffeur vehicle suits you well. Tell us at booking how much help you would like.</p>\n"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<h3 id=\"vehicle-and-securement-verification\">Vehicle and Securement Verification</h3>\n<p>These items separate a genuine accessible provider from one that simply owns a van with a ramp bolted on.</p>\n<ul>\n<li><input disabled type=\"checkbox\"> <strong>Exact vehicle make and model</strong>, not just \"accessible van\", a specific answer shows the provider can match the vehicle to your chair.</li>\n<li><input disabled type=\"checkbox\"> <strong>Ramp or lift, and which entry</strong>, rear-entry uses the cargo area for boarding and leaves more cabin space; side-entry preserves the rear for luggage but needs kerb clearance at pickup.</li>\n<li><input disabled type=\"checkbox\"> <strong>Ramp or lift weight rating</strong> and boarding-area dimensions. Ask for these in writing if you use a powered chair, which is heavier and bulkier than a manual chair.</li>\n</ul>\n<h3 id=\"trip-and-fare-confirmation\">Trip and Fare Confirmation</h3>\n<ul>\n<li><input disabled type=\"checkbox\"> <strong>Flight number</strong> so the provider can track the arrival and adjust the pickup if you are delayed.</li>\n<li><input disabled type=\"checkbox\"> <strong>Pickup time and meeting point</strong>, confirmed against the terminal you are actually arriving at, domestic and international arrivals are often in separate buildings.</li>\n<li><input disabled type=\"checkbox\"> <strong>Total fare and what it includes</strong>: tolls, airport access charges, waiting time and any after-hours surcharge.</li>\n</ul>\n<div style=\"margin:1.5rem 0; padding:16px 20px; background-color:#f0f9ff; border-left:4px solid #bae6fd; border-radius:0 8px 8px 0;\">\n<strong style=\"display:block; margin-bottom:4px; color:#111827; font-size:14px;\"> Pro Tip</strong>\n<span style=\"color:#374151; font-size:15px; line-height:1.6;\">Ask for the answers by email rather than over the phone. A provider who will put the vehicle specification and securement method in writing is far more likely to send the vehicle you agreed to.</span>\n</div>\n<h3 id=\"questions-to-ask-when-confirming-a-vehicle\">Questions to Ask When Confirming a Vehicle</h3>\n<p>Ask directly and listen for specifics. Five questions separate a real accessible provider from a hopeful one:</p>\n<ol>\n<li><strong>What is the exact vehicle make and model, and does it have a ramp or a lift?</strong> A specific answer shows they know their fleet.</li>\n<li><strong>What is the ramp or lift weight rating, and what are the boarding-area dimensions?</strong> This is the question that catches a vehicle too small for a powered chair.</li>\n<li><strong>How is the wheelchair secured, and is there a separate occupant belt?</strong> Look for four-point tie-downs and a belt routed around the passenger, not the chair alone.</li>\n<li><strong>What happens if my flight is delayed or cancelled?</strong> The answer should reference flight tracking and a defined waiting policy, not goodwill.</li>\n<li><strong>What is your cancellation policy and waiting-time charge?</strong> Clear terms beat vague reassurance.</li>\n</ol>\n<p>If any answer is fuzzy, book elsewhere. This is the single most useful habit in accessible travel planning.</p>\n<p class=\"cta-inline\" style=\"background-color: #12192b08; border-left: 4px solid #12192b; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;\">\n     <a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>\n</p>\n\n",
+  "replace": "<h3 id=\"vehicle-and-securement-verification\">Wheelchair and Mobility Details</h3>\n<p>These details let the provider send a vehicle with room for your chair, and a chauffeur who knows what help you need.</p>\n<ul>\n<li><input disabled type=\"checkbox\"> <strong>Wheelchair type and folded size</strong>, and whether it folds at all. A folding manual wheelchair goes in the boot; a chair that does not fold, or a heavy powered chair, needs a phone call before you book.</li>\n<li><input disabled type=\"checkbox\"> <strong>How much help you need</strong> moving from your wheelchair to a car seat, so your chauffeur knows what to expect at the kerb.</li>\n<li><input disabled type=\"checkbox\"> <strong>Any other mobility aids</strong>, such as a walker or crutches, so there is room for them as well as your luggage.</li>\n</ul>\n<h3 id=\"trip-and-fare-confirmation\">Trip and Fare Confirmation</h3>\n<ul>\n<li><input disabled type=\"checkbox\"> <strong>Flight number</strong> so the provider can track the arrival and adjust the pickup if you are delayed.</li>\n<li><input disabled type=\"checkbox\"> <strong>Pickup time and meeting point</strong>, confirmed against the terminal you are actually arriving at, domestic and international arrivals are often in separate buildings.</li>\n<li><input disabled type=\"checkbox\"> <strong>Total fare and what it includes</strong>: ask for a written total that includes GST, tolls, parking and waiting time. Ours does, and there is no after-hours or late-night surcharge.</li>\n</ul>\n<div style=\"margin:1.5rem 0; padding:16px 20px; background-color:#f0f9ff; border-left:4px solid #bae6fd; border-radius:0 8px 8px 0;\">\n<strong style=\"display:block; margin-bottom:4px; color:#111827; font-size:14px;\"> Pro Tip</strong>\n<span style=\"color:#374151; font-size:15px; line-height:1.6;\">Ask for the answers by email rather than over the phone. A provider who will put the vehicle, the fare and what is included in writing is far more likely to send what you agreed to.</span>\n</div>\n<h3 id=\"questions-to-ask-when-confirming-a-vehicle\">Questions to Ask Before You Book</h3>\n<p>Ask directly and listen for specifics. Five questions are worth asking any provider:</p>\n<ol>\n<li><strong>Will my folded wheelchair fit in the boot with our luggage?</strong> Give the folded size and the number of bags, and ask which vehicle they will send.</li>\n<li><strong>Will the chauffeur help me from my wheelchair into the seat?</strong> A clear yes is what you want to hear.</li>\n<li><strong>Is there an extra charge for the wheelchair?</strong> With Sky Transfers there is not: foldable wheelchairs and mobility aids travel free.</li>\n<li><strong>What happens if my flight is delayed or cancelled?</strong> The answer should reference flight tracking and a defined waiting policy, not goodwill.</li>\n<li><strong>What is your cancellation policy and waiting-time charge?</strong> Clear terms beat vague reassurance.</li>\n</ol>\n<p>If any answer is fuzzy, book elsewhere. It is the single most useful habit when planning airport travel with a wheelchair.</p>\n<p class=\"cta-inline\" style=\"background-color: #12192b08; border-left: 4px solid #12192b; padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0;\">\n     <a href=\"/?pu=Brisbane%20Airport%20(BNE)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book a Brisbane Airport pickup</a> or <a href=\"/?pu=Gold%20Coast%20Airport%20(OOL)#book\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">book a Gold Coast Airport pickup</a>\n</p>\n\n"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<h3 id=\"how-far-in-advance-to-book\">How Far in Advance to Book</h3>\n<p>Book as early as your plans allow. Accessible vehicles are a smaller fleet than standard cars, so availability tightens around peak periods and school holidays.</p>\n<p>For a routine airport run, a few days of lead time is sensible. For group bookings, cruise terminal pickups or travel during busy seasons, give more notice. If you need a vehicle at short notice, phone rather than booking online so the provider can check live availability against the specific vehicle your chair needs.</p>\n<h2 id=\"planning-airport-transfer-luggage-and-wheelchair-space\">Planning Airport Transfer Luggage and Wheelchair Space</h2>\n<p>Luggage and wheelchair space compete for the same square metres in any accessible vehicle.</p>\n<p>A side-entry ramp typically preserves more cabin space for passengers, while a rear-entry ramp uses the rear cargo area for boarding.</p>\n<p>Tell the provider how many suitcases and carry-on bags you have and whether you travel with a mobility device such as a walker or hoist.</p>\n",
+  "replace": "<h3 id=\"how-far-in-advance-to-book\">How Far in Advance to Book</h3>\n<p>Book as early as your plans allow, especially around peak periods and school holidays. Online bookings close 6 hours before pickup; inside that, call <a href=\"tel:+61481437772\">+61 481 437 772</a>.</p>\n<p>For a routine airport run, a few days of lead time is sensible. For group bookings, cruise terminal pickups or travel during busy seasons, give more notice. If you need a car at short notice, phone rather than booking online so we can confirm a vehicle with room for your chair and luggage.</p>\n<h2 id=\"planning-airport-transfer-luggage-and-wheelchair-space\">Planning Airport Transfer Luggage and Wheelchair Space</h2>\n<p>Luggage and a folded wheelchair share the same boot.</p>\n<p>A folded manual wheelchair takes roughly the space of a large suitcase, so a sedan that comfortably fits two suitcases can be full once the chair goes in. If you have more than a couple of bags, choose an SUV or a people mover when you book.</p>\n<p>Tell the provider how many suitcases and carry-on bags you have and whether you travel with another mobility aid such as a walker or crutches.</p>\n"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<p><strong>Step 1: Gather your details.</strong> Flight number, arrival time, address, wheelchair type and dimensions, passenger and luggage counts.</p>\n<p><strong>Step 4: On the day, expect contact.</strong> A reliable provider tracks your flight and adjusts the pickup if you are delayed.</p>\n<p><strong>Step 7: Arrive door to door.</strong> You are dropped at your destination, not at the nearest accessible point.</p>\n",
+  "replace": "<p><strong>Step 1: Gather your details.</strong> Flight number, arrival time, address, wheelchair type and folded size, passenger and luggage counts.</p>\n<p><strong>Step 4: On the day, expect contact.</strong> A reliable provider tracks your flight and adjusts the pickup if you are delayed.</p>\n<p><strong>Step 7: Arrive door to door.</strong> You are dropped at your destination, and your chauffeur helps you back into your wheelchair.</p>\n"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<p>At pickup, the driver tracks the flight, positions the vehicle at the agreed accessible bay, deploys the ramp or lift, and waits while you board and are secured. At drop-off the reverse applies, the driver should know which terminal entrance has step-free access and a suitable kerb.</p>",
+  "replace": "<p>At pickup, your chauffeur tracks the flight, meets you inside the terminal with a name board and takes your bags to the car. At the kerb they help you from your wheelchair into your seat, then fold the chair and load it into the boot. At drop-off the reverse applies: the chair comes out first and your chauffeur helps you back into it. Your chauffeur should also know which terminal entrance has step-free access.</p>"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "A few minutes of preparation covers the scenarios that derail accessible airport travel:",
+  "replace": "A few minutes of preparation covers the scenarios that derail airport travel with a wheelchair:"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Have a backup plan: the number of a second accessible provider, or a family member",
+  "replace": "Have a backup plan: the number of a second provider, or a family member"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Here is the booking and pickup sequence the article recommends for accessible airport transfers.",
+  "replace": "Here is the booking and pickup sequence we recommend for airport transfers with a wheelchair."
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Gather flight number, arrival time, address, wheelchair type and dimensions",
+  "replace": "Gather flight number, arrival time, address, wheelchair type and folded size"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Request an accessible vehicle with ramp or lift; state travel-in-chair or transfer",
+  "replace": "Tell the provider about your wheelchair and how much help you need moving to a car seat"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Meet at the agreed point with vehicle positioned for safe boarding",
+  "replace": "Meet your chauffeur at the agreed point inside the terminal"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Driver secures wheelchair with four-point tie-downs and checks occupant belt",
+  "replace": "Chauffeur helps you into your seat, then folds the wheelchair and loads it with your bags"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "Arrive door to door, not at the nearest accessible point",
+  "replace": "Arrive door to door; your chauffeur helps you back into your wheelchair"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": ">Booking Your Accessible Airport Transfer</h2>",
+  "replace": ">Booking Your Airport Transfer With a Wheelchair</h2>"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "The challenge with accessible airport travel is not finding a vehicle. It is finding one that arrives when promised, at the price quoted, with the ramp and securement you were told to expect.",
+  "replace": "The challenge with airport travel in a wheelchair is not finding a car. It is finding one that arrives when promised, at the price quoted, with room for your chair and a chauffeur ready to help."
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<section style=\"margin:3rem 0 2rem 0;\" itemscope itemtype=\"https://schema.org/FAQPage\"><h2 style=\"font-weight:700; margin:0 0 4px 0;\" id=\"frequently-asked-questions\">Frequently Asked Questions</h2><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">Can a wheelchair user travel in their wheelchair during airport transfers?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">Yes, provided the vehicle is fitted with a four-point tie-down system and the operator confirms it at booking. Your wheelchair must be secured to the floor anchors and you should be restrained with a lap and shoulder belt, not just the chair's own belt. Confirm which option applies before you book.</p></div></div><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">How far in advance should I book an accessible airport transfer?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">Book at least seven days ahead for a standard airport run and two to three weeks for peak periods, early morning departures or group bookings. Accessible vehicles are a small share of most fleets, so availability tightens faster than it does for sedans. If your flight lands late at night or you need a specific vehicle type, give more notice. Confirming your booking and rechecking the pickup time 24 hours before travel catches most problems early.</p></div></div><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">How much space is needed for a wheelchair and luggage in an airport transfer?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">A folded manual wheelchair takes roughly the space of a large suitcase, while a powered chair or one that stays occupied needs a dedicated bay with floor anchors. As a guide, allow one checked bag and one carry-on per passenger, plus room for mobility equipment. Tell the operator your chair's dimensions and weight, and how many bags you are bringing. If your group is larger than four, ask for a van with a rear loading area rather than a standard wagon.</p></div></div><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">What should I ask before booking a wheelchair-accessible chauffeur?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">Ask four things: whether the vehicle has a ramp or lift and its weight limit, whether you can stay in your chair during the trip, how many passengers and bags fit alongside the chair, and what the cancellation policy is. Also confirm whether the fare is fixed or metered, and whether flight delays are covered. A written booking confirmation listing these details protects you if plans change or the vehicle that arrives is not what you expected.</p></div></div></section>",
+  "replace": "<section style=\"margin:3rem 0 2rem 0;\" itemscope itemtype=\"https://schema.org/FAQPage\"><h2 style=\"font-weight:700; margin:0 0 4px 0;\" id=\"frequently-asked-questions\">Frequently Asked Questions</h2><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">Can a wheelchair user travel in their wheelchair during airport transfers?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">Not with Sky Transfers. Travelling seated in a wheelchair needs a ramp or lift vehicle, and we do not run those. If you need to stay in your wheelchair, call us on +61 481 437 772 before you book so we can talk through your trip. If you can move to a car seat, your chauffeur will help you in, and your folded wheelchair travels free in the boot.</p></div></div><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">How far in advance should I book an airport transfer with a wheelchair?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">Book as soon as your travel dates are set, and earlier for peak periods, school holidays or group bookings. Online bookings close 6 hours before pickup; inside that, call +61 481 437 772. Tell us about your wheelchair and how much help you need when you book. Confirming your booking and rechecking the pickup time 24 hours before travel catches most problems early.</p></div></div><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">How much space is needed for a wheelchair and luggage in an airport transfer?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">A folded manual wheelchair takes roughly the space of a large suitcase. As a guide, allow one checked bag and one carry-on per passenger, plus room for the chair and any other mobility aids. Tell us your chair's folded size and how many bags you are bringing, and we will suggest a vehicle: a sedan seats up to 3 passengers, an SUV up to 4 and a people mover up to 7.</p></div></div><div style=\"padding:20px 0; border-bottom:1px solid #e5e7eb;\" itemscope itemprop=\"mainEntity\" itemtype=\"https://schema.org/Question\"><h3 style=\"font-weight:600; margin:0 0 8px 0;\" itemprop=\"name\">What should I ask before booking a chauffeur when I use a wheelchair?</h3><div style=\"line-height:1.7;\" itemscope itemprop=\"acceptedAnswer\" itemtype=\"https://schema.org/Answer\"><p itemprop=\"text\" style=\"margin:0;\">Ask four things: whether your folded wheelchair and luggage will fit in the boot, whether the chauffeur will help you move from your wheelchair to your seat, whether there is any charge for the wheelchair, and what the cancellation policy is. Also confirm whether the fare is fixed, and whether flight delays are covered. A written booking confirmation listing these details protects you if plans change or the vehicle that arrives is not what you expected.</p></div></div></section>"
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\"",
+  "replace": "<a href=\"/?pu=Brisbane%20Airport%20(BNE)#book\" class=\"cta-button\""
+ },
+ {
+  "slug": "wheelchair-airport-transfers-chauffeur-service",
+  "find": "font-size: 16px;\">Book</a>",
+  "replace": "font-size: 16px;\">Book a Brisbane Airport pickup</a>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": ">Queensland child-restraint laws and taxi exemptions<",
+  "replace": ">Queensland child-restraint laws and exemptions<",
+  "all": true
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": "<p>Standard taxi drivers are not legally required to provide child restraints. Many families choose private transfers to avoid this gap.</p>",
+  "replace": "<p>Many families choose a pre-booked private transfer so the right seat is fitted before pick-up. Sky Transfers fits <a href=\"/child-seats.html\">child seats</a> for $15 each.</p>"
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": ">Gold Coast airport taxi with car seat booking process<",
+  "replace": ">Gold Coast airport transfer with car seat booking process<",
+  "all": true
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": "so you arrive safely without negotiating taxi availability or installation.",
+  "replace": "so you arrive safely without hunting for a ride or fitting a seat at the kerb."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": "ensures the correct Gold Coast airport taxi with car seat is waiting.",
+  "replace": "ensures the correct Gold Coast airport transfer with car seat is waiting."
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": "Taxi services are exempt from providing child seats by law, but professional airport transfer operators typically offer them as a service.",
+  "replace": "Professional airport transfer operators typically offer child seats as a service; Sky Transfers fits them for $15 each before pick-up."
+ },
+ {
+  "slug": "how-to-book-reliable-airport-transfers",
+  "find": "<a href=\"/blog/reliable-airport-pickup-brisbane-flight-tracking.html\">airport transfer</a> booking",
+  "replace": "<a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfer</a> booking"
+ },
+ {
+  "slug": "how-to-book-reliable-airport-transfers",
+  "find": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Taxi</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Solo, short trips</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Metered</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rank queue</td>",
+  "replace": "<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Rideshare app</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Solo, short trips</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Varies with demand</td>\n<td style=\"padding:12px 16px; border-bottom:1px solid #e5e7eb;\">Depends on drivers nearby</td>"
+ },
+ {
+  "slug": "how-to-book-reliable-airport-transfers",
+  "find": "Fixed-price <a href=\"/brisbane-cbd-airport-transfers.html\">airport transfers</a> beat metered fares",
+  "replace": "Fixed-price <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> beat metered fares"
+ },
+ {
+  "slug": "how-to-book-reliable-airport-transfers",
+  "find": "Read <a href=\"/faq.html\">the</a> two and three-star reviews first to see what goes wrong and how the company responds.",
+  "replace": "Read the two and three-star reviews first to see what goes wrong and how the company responds, then read the provider's terms: our <a href=\"/faq.html\">booking FAQs</a> set out ours."
+ },
+ {
+  "slug": "how-to-book-reliable-airport-transfers",
+  "find": "Most providers accept online booking, phone, email or messaging apps.</p>",
+  "replace": "Most providers accept online booking, phone, email or messaging apps. Travel agents and tour operators booking for clients can use our <a href=\"/partners.html\">agent and partner program</a>.</p>"
+ },
+ {
+  "slug": "how-to-book-reliable-airport-transfers",
+  "find": "Fixed pricing provides budget certainty, unlike metered taxis or ride-hailing apps where costs can fluctuate due to traffic or demand.",
+  "replace": "Fixed pricing provides budget certainty, unlike ride-hailing apps where costs can change with traffic or demand."
+ },
+ {
+  "slug": "reliable-airport-pickup-brisbane-flight-tracking",
+  "find": "This level of service is what separates premium <a href=\"/airport-transfers/\">airport transfers</a> from standard taxis or rideshare options that require you to find the vehicle yourself.",
+  "replace": "This level of service is what separates premium <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> from rideshare and other on-demand options that require you to find the vehicle yourself."
+ },
+ {
+  "slug": "seamless-airport-transfers-for-cruise-passengers",
+  "find": " It is not just a taxi with a nicer car.",
+  "replace": " It is planned around your trip, not dispatched on demand."
+ },
+ {
+  "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
+  "field": "meta_title",
+  "find": "Christmas Parties & Tamborine Winery Tours Transfers",
+  "replace": "Christmas Party & Winery Tour Transfers, Gold Coast & Tamborine | Sky Transfers"
+ },
+ {
+  "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
+  "find": "<p>Ask explicitly what the quote includes: driver, fuel, tolls, parking at venues, waiting time, and any after-hours surcharge. Ask what triggers extra charges, extended waiting, additional stops, or a later finish than booked. Get the total in writing before you commit.</p>",
+  "replace": "<p>Ask for a written total that includes GST, the driver, fuel, tolls, parking at venues and waiting time. Ours does, with no after-hours or late-night surcharge. Ask what triggers extra charges, such as extended waiting, additional stops or a later finish than booked, before you commit.</p>"
+ },
+ {
+  "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Book →</a>",
+  "replace": "<a href=\"/charters.html#quote\" style=\"color: #12192b; font-weight: 600; text-decoration: underline;\">Request a group charter quote for your Christmas party</a>"
+ },
+ {
+  "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
+  "find": "text-decoration: none; font-weight: 600; font-size: 16px;\">Book</a>",
+  "replace": "text-decoration: none; font-weight: 600; font-size: 16px;\">Get a quote for your Christmas party or winery tour</a>"
+ },
+ {
+  "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
+  "find": "<a href=\"https://Www.skytransfers.com.au\" class=\"cta-button\"",
+  "replace": "<a href=\"/charters.html#quote\" class=\"cta-button\""
+ },
+ {
+  "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
+  "find": "a quick headcount prevents leaving team members behind. Professional drivers handle this systematically.</p>",
+  "replace": "a quick headcount prevents leaving team members behind. Professional drivers handle this systematically.</p>\n<p>If some guests are flying in for the party, book their <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> or <a href=\"/airport-transfers/tamborine-mountain.html\">Tamborine Mountain airport transfers</a> separately, so a late flight does not hold up the group pickup.</p>"
+ },
+ {
+  "slug": "party-bus-vs-minibus-winery-tour-transport",
+  "find": "<li>Get a written total that includes GST, tolls, driver waiting time and any after-hours surcharges.</li>",
+  "replace": "<li>Ask for a written total that includes GST, tolls, parking and driver waiting time. Ours does, with no after-hours or late-night surcharge.</li>"
+ },
+ {
+  "slug": "party-bus-vs-minibus-winery-tour-transport",
+  "find": "<li>After-hours surcharges for late pickups</li>",
+  "replace": "<li>Late finishes: ask for a written total that includes GST, tolls, parking and waiting time. Ours does, with no after-hours or late-night surcharge.</li>"
+ },
+ {
+  "slug": "party-bus-vs-minibus-winery-tour-transport",
+  "find": "Get in touch with the Sky Transfers team and we will help you choose the option that fits your winery tour.</p>",
+  "replace": "Get in touch with the Sky Transfers team and we will help you choose the option that fits your winery tour. If any of your group are flying in, we also run <a href=\"/airport-transfers/tamborine-mountain.html\">Tamborine Mountain airport transfers</a>.</p>"
+ },
+ {
+  "slug": "planning-winery-tour-stops-for-a-group",
+  "find": "<p>Transport is the piece that holds the whole day together. ",
+  "replace": "<p>Transport is the piece that holds the whole day together. If some of the group are flying in, we also run <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a> and <a href=\"/airport-transfers/tamborine-mountain.html\">Tamborine Mountain airport transfers</a>, so the airport legs can be booked alongside the tour. "
+ },
+ {
+  "slug": "guaranteed-on-time-airport-chauffeur-service-guide",
+  "find": "is a pre-booked <a href=\"/point-to-point-transfers.html\">private transfer</a> where",
+  "replace": "is a pre-booked private <a href=\"/chauffeur-service.html\">chauffeur service</a> where"
+ },
+ {
+  "slug": "guaranteed-on-time-airport-chauffeur-service-guide",
+  "find": "Ask whether the quote includes tolls, airport access fees, waiting time, and any after-hours surcharge. Get the inclusions in writing so there are no surprises when you arrive.",
+  "replace": "Ask for a written total that includes GST, tolls, parking, airport access fees and waiting time, so there are no surprises when you arrive. Ours does, with no after-hours or late-night surcharge."
+ },
+ {
+  "slug": "guaranteed-on-time-airport-chauffeur-service-guide",
+  "find": "<p>Sky Transfers offers 24/7 availability and free cancellation up to 24 hours before pickup.</p>",
+  "replace": "<p>Sky Transfers runs <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> and Gold Coast Airport transfers 24/7, with free cancellation up to 24 hours before pickup.</p>"
+ },
+ {
+  "slug": "what-happens-if-flight-delayed",
+  "find": "<p>At Sky Transfers, we track every arrival in real time. If your flight is delayed, your chauffeur adjusts, and the price does not change.</p>",
+  "replace": "<p>At Sky Transfers, we track every arrival in real time on our <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> and <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a>. If your flight is delayed, your chauffeur adjusts, and the price does not change. Waiting is free for 30 minutes after you land, or 60 minutes for international arrivals at Brisbane. Our <a href=\"/faq.html\">FAQ</a> answers the other common booking questions.</p>"
+ },
+ {
+  "slug": "booking-private-transport-brisbane-cruise-terminal",
+  "find": "<p>Booking private transport to Brisbane cruise terminal removes the single biggest risk on embarkation day: someone else's schedule.</p>",
+  "replace": "<p>Booking private transport to Brisbane cruise terminal removes the single biggest risk on embarkation day: someone else's schedule. Our <a href=\"/cruise-transfers.html\">Brisbane cruise terminal transfers</a> run door to door in a sedan, SUV or people mover, and larger groups can book <a href=\"/minibus-hire-brisbane.html\">minibus hire</a> instead.</p>"
+ },
+ {
+  "slug": "booking-private-transport-brisbane-cruise-terminal",
+  "find": "<a href=\"#indicative-fare-ranges\">Indicative Fare Ranges</a>",
+  "replace": "<a href=\"#indicative-fare-ranges\">Fares by Pickup Suburb</a>"
+ },
+ {
+  "slug": "booking-private-transport-brisbane-cruise-terminal",
+  "find": "<h3 id=\"indicative-fare-ranges\">Indicative Fare Ranges</h3>\n<p>Because every quote is distance-based, the honest way to budget is to think in bands rather than a single number. As a general guide for a one-way private transfer to the terminal:</p>\n<ul>\n<li><strong>Inner and middle suburbs (roughly 10-20 km):</strong> expect a sedan fare in the low-to-mid AUD 100s, with a people-mover typically AUD 30-60 more.</li>\n<li><strong>Outer suburbs (roughly 25-40 km):</strong> expect a sedan fare in the mid-to-high AUD 100s, rising with vehicle size and luggage.</li>\n<li><strong>Regional and interstate-style runs (50 km plus):</strong> quoted individually, usually AUD 250 and up depending on vehicle and time.</li>\n</ul>\n<p>These are indicative only. A fixed-price provider should confirm an exact figure in writing before you commit, and that figure should not move because of traffic on the day.</p>",
+  "replace": "<h3 id=\"indicative-fare-ranges\">Fares by Pickup Suburb</h3>\n<p>Because every fare is distance-based, budget from the fixed fare for your own pickup suburb rather than a general band. A fixed-price provider should confirm the exact figure in writing before you commit, and that figure should not move because of traffic on the day.</p>"
+ },
+ {
+  "slug": "booking-private-transport-brisbane-cruise-terminal",
+  "find": "<li><strong>Out-of-hours surcharge:</strong> pickups before roughly 6am or after 10pm often carry a premium.</li>",
+  "replace": "<li><strong>Time of day:</strong> ask for a written total that includes GST, tolls, parking and waiting time, whatever the pickup time. Ours does, with no after-hours or late-night surcharge.</li>"
+ },
+ {
+  "slug": "booking-private-transport-brisbane-cruise-terminal",
+  "find": "and free cancellation up to 24 hours, so the plan holds even when the day shifts.</p>",
+  "replace": "and free cancellation up to 24 hours, so the plan holds even when the day shifts. If you are flying in to sail, our <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> can take you straight to the terminal.</p>"
+ },
+ {
+  "slug": "brisbane-airport-chauffeur-to-city",
+  "find": "<p><a href=\"/blog/brisbane-airport-to-cruise-terminal.html\">Brisbane Airport</a> handled a record 25.2 million passengers in FY26, according to Brisbane Airport's passenger statistics, so the transfer decision now matters more than ever. A ",
+  "replace": "<p>Getting from <a href=\"/blog/brisbane-airport-to-cruise-terminal.html\">Brisbane Airport</a> into the city is the first decision of your trip. A "
+ },
+ {
+  "slug": "gold-coast-airport-transfer-car-seats",
+  "find": " is a legal requirement in Queensland, child restraints reduce serious injury risk by up to 70% in crashes.",
+  "replace": " is a legal requirement in Queensland."
+ }
+]
