@@ -464,6 +464,7 @@ const FOOTER = `<footer class="site">
       <p><a href="/byron-bay-transfers.html">Byron Bay transfers</a></p>
       <p><a href="/corporate-transfers.html">Corporate transfers</a></p>
       <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
+      <p><a href="/funeral-transport.html">Funeral transport</a></p>
       <p><a href="/sunshine-coast-airport-transfers.html">Sunshine Coast transfers</a></p>
       <p><a href="/toowoomba-airport-transfers.html">Toowoomba transfers</a></p>
       <p><a href="/ipswich-airport-transfers.html">Ipswich transfers</a></p>
