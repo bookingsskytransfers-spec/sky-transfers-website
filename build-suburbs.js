@@ -1231,7 +1231,7 @@ function attractionPage(a) {
   const airRows = VEH.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${air.map(x => `<td>${money(x.fares[i])}</td>`).join('')}</tr>`).join('\n');
   const hotelRows = priced.map(r => `        <tr><th scope="row">${esc(r.from)}<span class="s"> ${r.km} km &middot; about ${r.min} min</span></th>${r.fares.map(f => `<td>${span(f)}</td>`).join('')}</tr>`).join('\n');
   const unpriced = hotel.filter(r => !r.fares).map(r => esc(r.from));
-  const venueList = a.venues.length > 1 ? `<ul>\n    ${a.venues.map(v => `<li><strong>${esc(v.name)}</strong> &mdash; ${esc(v.street)}, ${esc(a.suburb)}: ${km(v.ool.m)} (about ${mins(v.ool.s)}) from Gold Coast Airport, ${km(v.bne.m)} (about ${mins(v.bne.s)}) from Brisbane Airport.</li>`).join('\n    ')}\n  </ul>` : '';
+  const venueList = a.venues.length > 1 ? `<ul>\n    ${a.venues.map(v => `<li><strong>${esc(v.name)}</strong>, ${esc(a.suburb)}: ${km(v.ool.m)} (about ${mins(v.ool.s)}) from Gold Coast Airport, ${km(v.bne.m)} (about ${mins(v.bne.s)}) from Brisbane Airport.</li>`).join('\n    ')}\n  </ul>` : '';
   const others = ATTRACTIONS.filter(x => x !== a);
 
   const ld = {
@@ -1239,8 +1239,9 @@ function attractionPage(a) {
     '@graph': [
       {
         '@id': SITE + url + '#service', '@type': 'Service', name: `${a.name} transfers`, serviceType: 'Private transfer', url: SITE + url,
-        areaServed: a.venues.map(v => ({ '@type': a.themePark ? 'TouristAttraction' : 'Place', name: v.name,
-          address: { '@type': 'PostalAddress', streetAddress: v.street, addressLocality: a.suburb, addressRegion: 'QLD', postalCode: v.postcode, addressCountry: 'AU' } })),
+        /* Name only: the site carries no street address or PostalAddress, an
+           attraction's included (Recheck 7, 2 Nov 2026). */
+        areaServed: a.venues.map(v => ({ '@type': a.themePark ? 'TouristAttraction' : 'Place', name: v.name })),
         provider: { '@id': SITE + '/#business' },
         offers: air.map(x => ({ '@type': 'Offer', name: `${x.name} (${x.code}) to ${v0.name}, sedan, one way`, price: String(x.fares[0]), priceCurrency: 'AUD',
           availability: 'https://schema.org/InStock', url: SITE + url,
@@ -1422,7 +1423,7 @@ function tourPage(t) {
         '@id': SITE + url + '#tour', '@type': 'TouristTrip', name: t.name + ' private day tour', url: SITE + url,
         description: t.lead, provider: { '@id': SITE + '/#business' },
         itinerary: { '@type': 'ItemList', itemListElement: Object.keys(t.stops).map((k, i) => ({ '@type': 'ListItem', position: i + 1,
-          item: { '@type': 'TouristAttraction', name: t.stops[k].name, address: { '@type': 'PostalAddress', addressLocality: t.stops[k].where, addressRegion: 'QLD', addressCountry: 'AU' } } })) },
+          item: { '@type': 'TouristAttraction', name: t.stops[k].name } })) },
         offers: starts.map(s => ({ '@type': 'Offer', name: `${s.label}, ${s.hours} hours, sedan, per vehicle`, price: String(s.fares[0]), priceCurrency: 'AUD',
           availability: 'https://schema.org/InStock', url: SITE + url,
           priceSpecification: { '@type': 'PriceSpecification', price: String(s.fares[0]), minPrice: String(s.fares[0]), priceCurrency: 'AUD', valueAddedTaxIncluded: true } })),
