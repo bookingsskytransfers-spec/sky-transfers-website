@@ -92,6 +92,18 @@ for (const tname of Object.keys(TABLES)) {
   }
 }
 
+/* A2. the 18-seater column (since 3 Nov 2026): Sprinter 14 x 1.20, rounded up
+   to the next $5, in every zone of every table. */
+for (const tname of Object.keys(TABLES)) {
+  const t = TABLES[tname];
+  for (const zone of Object.keys(t)) {
+    const row = t[zone], want = Math.ceil(row[6] * 1.2 / 5) * 5;
+    if (row.length !== 8 || row[7] !== want) {
+      problems.push(tname + '.' + zone + ' has ' + (row.length === 8 ? '$' + row[7] : 'no') + ' 18-seater fare; the rule gives $' + want);
+    }
+  }
+}
+
 /* B. zone ordering against median drive time ------------------------------- */
 const gcOol = {}, gcBne = {};
 for (const name of Object.keys(SUBURBS)) {

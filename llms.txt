@@ -25,7 +25,7 @@
 - Sedan (1–3), SUV (1–4), people mover (1–7), luxury sedan (1–3)
 - Mercedes V-Class luxury minivan (1–6)
 - Mercedes Sprinter 10-seater and 14-seater
-- Mercedes Sprinter 18-seater (quoted per job)
+- Mercedes Sprinter 18-seater
 - King Long 53-seat coach
 - Groups larger than 53: multiple vehicles timed together
 - Fleet page: https://www.skytransfers.com.au/fleet.html
@@ -35,7 +35,7 @@
 - Mercedes V-Class: airport from AUD 115, half day AUD 530, full day AUD 970
 - Sprinter 10-seater: airport from AUD 165, half day AUD 640, full day AUD 1,160
 - Sprinter 14-seater: airport from AUD 240, half day AUD 730, full day AUD 1,320
-- Sprinter 18-seater: quoted
+- Sprinter 18-seater: airport from AUD 290, half and full day quoted
 - 53-seat coach: transfers from AUD 700, half day AUD 1,550, full day AUD 2,300
 - No after-hours or late-night surcharge on any transfer or charter
 - Multi-day tours: quoted individually
@@ -88,7 +88,7 @@ Indicative starting fares by vehicle:
 - Luxury minivan, 1–6 passengers, 6 bags — from AUD 115
 - Mercedes Sprinter 10-seater, up to 10 passengers, 11 bags — from AUD 165
 - Mercedes Sprinter 14-seater, up to 14 passengers, 15 bags — from AUD 240
-- Mercedes Sprinter 18-seater, up to 18 passengers, 18 bags — quoted per job, not priced by suburb
+- Mercedes Sprinter 18-seater, up to 18 passengers, 18 bags — from AUD 290 (airport and cruise transfers; hourly hire is quoted)
 
 Group size is not capped. Beyond the 18-seater, larger parties travel in
 multiple vehicles timed to arrive together, or on the 53-seat coach, and any
