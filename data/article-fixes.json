@@ -1283,5 +1283,11 @@
   "slug": "how-to-manage-corporate-travel-expenses-for-airport-transport",
   "find": "For a Logan-area benchmark, see <a href=\"/logan-airport-transfers.html\">Logan airport transfers at a fixed price per vehicle</a>.",
   "replace": "For a Logan or Ipswich benchmark, see <a href=\"/logan-airport-transfers.html\">Logan airport transfers at a fixed price per vehicle</a> and <a href=\"/ipswich-airport-transfers.html\">Ipswich airport transfers</a>."
+ },
+ {
+  "slug": "avoid-surge-pricing-airport-rides",
+  "find": "Learn how to avoid surge pricing for airport rides with 7 practical steps.",
+  "replace": "Airport rides surge at peak times. 7 practical ways to avoid it, plus fixed-price Gold Coast and Brisbane Airport transfers with GST and tolls included.",
+  "field": "meta_description"
  }
 ]
