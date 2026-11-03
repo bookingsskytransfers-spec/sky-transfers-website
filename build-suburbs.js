@@ -2579,6 +2579,38 @@ function referralPass() {
   console.log(`build-suburbs: referral script on ${js} pages, footer link on ${foot}`);
 }
 
+/* "Manage my booking" (Recheck 7 item 12, 3 Nov 2026) in the footer of every
+   public page and in the header from 1024 px wide (on a 768 px tablet it pushed the
+   header from two lines to three; phones show only the WhatsApp and call buttons).
+   It goes to the Manage my booking section of contact.html: there is no customer
+   self-service page, and /account.html is the DRIVER page. */
+function manageLinkPass() {
+  const TAG = "gtag('config', 'G-9LYFELNSBK')";
+  const CONTACT = '<p><a href="/contact.html">Contact us</a></p>';
+  const FOOT = '<p><a href="/contact.html#manage">Manage my booking</a></p>';
+  const NAV = '<a class="navmb" href="/contact.html#manage">Manage booking</a>';
+  const CSS = '<style>@media(max-width:1023px){.navlinks a.navmb{display:none}}</style>';
+  let foot = 0, nav = 0;
+  for (const d of [ROOT, OUT, BLOG_DIR]) {
+    if (!fs.existsSync(d)) continue;
+    for (const name of fs.readdirSync(d)) {
+      if (!name.endsWith('.html')) continue;
+      const f = path.join(d, name);
+      const s = fs.readFileSync(f, 'utf8');
+      if (!s.includes(TAG)) continue;
+      let t = s;
+      if (!t.includes(FOOT) && t.includes(CONTACT)) { t = t.replace(CONTACT, CONTACT + '\n      ' + FOOT); foot++; }
+      const wa = t.indexOf('<a class="navwa"');
+      if (!t.includes(NAV) && wa > 0 && t.lastIndexOf('class="navlinks"', wa) > 0) {
+        t = t.slice(0, wa) + NAV + '\n      ' + t.slice(wa); nav++;
+        if (!t.includes(CSS)) t = t.replace('</head>', CSS + '\n</head>');
+      }
+      if (t !== s) fs.writeFileSync(f, t);
+    }
+  }
+  console.log(`build-suburbs: Manage my booking in ${foot} footers and ${nav} headers`);
+}
+
 /* The Meta pixel (dataset 27923899043979480, 3 Nov 2026), on exactly the pages
    that carry the GA4 config - so never admin, dispatch, the driver and agent
    portals, account or tracking links, or the affiliate sign-in.
@@ -2663,4 +2695,5 @@ writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.me
   .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } })
   .then(() => { try { splitCards(); } catch (e) { console.warn('build-suburbs: card step failed (' + e.message + ')'); } })
   .then(() => { try { referralPass(); } catch (e) { console.warn('build-suburbs: referral step failed (' + e.message + ')'); } })
-  .then(() => { try { metaPass(); } catch (e) { console.warn('build-suburbs: Meta pixel step failed (' + e.message + ')'); } });
+  .then(() => { try { metaPass(); } catch (e) { console.warn('build-suburbs: Meta pixel step failed (' + e.message + ')'); } })
+  .then(() => { try { manageLinkPass(); } catch (e) { console.warn('build-suburbs: manage-booking step failed (' + e.message + ')'); } });

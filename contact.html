@@ -172,10 +172,22 @@
       Online bookings close six hours before pick-up; inside that, call <a href="tel:+61481437772">+61 481 437 772</a>.</li>
     <li><strong>A group, a day out or an event.</strong> <a href="/charters.html#quote">Request a group quote</a> and we
       come back with a fixed price in writing.</li>
-    <li><strong>Changing a booking.</strong> Call or WhatsApp us with your booking reference. Changes are free up to
-      24 hours before pick-up.</li>
+    <li><strong>Changing or cancelling a booking.</strong> See <a href="#manage">Manage my booking</a> below.</li>
     <li><strong>Travel agents, DMCs and corporate accounts.</strong> See the <a href="/partners.html">agent and partner program</a>.</li>
   </ul>
+
+  <h2 id="manage">Manage my booking</h2>
+  <p>
+    To change or cancel a booking, call or WhatsApp <a href="tel:+61481437772">+61 481 437 772</a>, or reply to
+    your confirmation email at <a href="mailto:info@skytransfers.com.au">info@skytransfers.com.au</a>. Give the
+    name on the booking and the pick-up date, and the booking reference if you have it.
+  </p>
+  <ul>
+    <li><strong>More than 24 hours before pick-up:</strong> changes and cancellation are free, with a full refund.</li>
+    <li><strong>Within 24 hours of pick-up:</strong> please call. We will do our best to accommodate you, but a
+      cancellation fee of up to the full fare may apply.</li>
+  </ul>
+  <p>The full rules are in our <a href="/terms.html">booking terms</a>, section 4.</p>
 
   <p class="fare-note">
     Sky Transfers is a trading name of Australia Wide Car Services Pty Ltd, ABN 22 680 932 003.
@@ -233,41 +245,6 @@
     </div>
   </div>
 </footer>
-<script>
-/* The quote form posts to the booking server's /charter-enquiry, which emails
-   info@skytransfers.com.au (and the sender, if they gave an email). */
-(function(){
-  var $ = function(id){ return document.getElementById(id); };
-  var t = new Date(); $("ft-date").min = t.toISOString().slice(0, 10);
-  function msg(html, err){ var m = $("ft-msg"); m.hidden = false; m.className = "ft-msg" + (err ? " err" : ""); m.innerHTML = html; }
-  $("ft-form").addEventListener("submit", function(e){
-    e.preventDefault();
-    var need = [["ft-name", "your name"], ["ft-phone", "a phone number"], ["ft-date", "the date"]];
-    for (var i = 0; i < need.length; i++) { if (!$(need[i][0]).value.trim()) { $(need[i][0]).focus(); msg("Please add " + need[i][1] + ".", true); return; } }
-    var b = $("ft-send"); b.disabled = true; b.textContent = "Sending…";
-    var v = function(id){ return $(id).value.trim(); };
-    var body = {
-      occasion: "Funeral / mourner transport",
-      vehicle: v("ft-veh"), date: v("ft-date"), pax: v("ft-pax"),
-      name: v("ft-name"), phone: v("ft-phone"), email: v("ft-email"),
-      itinerary: "Service venue: " + (v("ft-service") || "-") + "\nWake venue: " + (v("ft-wake") || "-") +
-        "\nPick-up address(es): " + (v("ft-pickups") || "-") + (v("ft-notes") ? "\nNotes: " + v("ft-notes") : "")
-    };
-    var ctl = window.AbortController ? new AbortController() : null, timer = ctl ? setTimeout(function(){ ctl.abort(); }, 15000) : null;
-    fetch("https://sky-transfers-booking-server.onrender.com/charter-enquiry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
-      .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || "failed"); return d; }); })
-      .then(function(d){
-        if (window.gtag) gtag("event", "funeral_enquiry", {});
-        $("ft-form").reset();
-        msg("Thank you. We have your details (reference <strong>" + d.ref + "</strong>) and will be in touch shortly. If it is urgent, please call +61 481 437 772.");
-      })
-      .catch(function(){
-        msg('We could not send that just now. Please call <a href="tel:+61481437772">+61 481 437 772</a> or email info@skytransfers.com.au.', true);
-      })
-      .then(function(){ if (timer) clearTimeout(timer); b.disabled = false; b.textContent = "Request a quote"; });
-  });
-})();
-</script>
 <script>
 /* Contact-click tracking, shared by the pages that have no booking widget of
    their own. Inert until a GA4 or Ads tag is installed — see the fuller
