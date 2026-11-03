@@ -2315,8 +2315,7 @@ function blogPage(a, dateIso, dateText, all) {
   const url = `/blog/${a.slug}.html`;
   const title = a.meta_title || a.title || 'Article';
   const desc = a.meta_description || a.subtitle || '';
-  const ld = {
-    '@context': 'https://schema.org',
+  const post = {
     '@type': 'BlogPosting',
     headline: a.title || title,
     description: desc,
@@ -2326,8 +2325,14 @@ function blogPage(a, dateIso, dateText, all) {
     author: { '@type': 'Organization', name: a.author_name || 'Sky Transfers' },
     publisher: { '@id': SITE + '/#business' },
   };
-  if (dateIso) { ld.datePublished = dateIso; ld.dateModified = dateIso; }
-  if (a.image_url) ld.image = a.image_url;
+  if (dateIso) { post.datePublished = dateIso; post.dateModified = dateIso; }
+  if (a.image_url) post.image = a.image_url;
+  /* Breadcrumbs as on every other generated page (linking audit, Oct 2026). */
+  const ld = { '@context': 'https://schema.org', '@graph': [post,
+    { '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Blog & travel guides', item: SITE + '/blog/' },
+      { '@type': 'ListItem', position: 3, name: a.title || title, item: SITE + url } ] }] };
   /* head() declares every page a website; an article should say so. */
   /* Share previews use the article's own photo when the feed gives a plain
      https URL; anything else keeps the logo. */
