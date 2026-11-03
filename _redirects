@@ -236,3 +236,6 @@
 #   /blog/<slug> -> /blog/<slug>.html, ONE RULE PER ARTICLE (30). Never use the
 #   wildcard /blog/:slug -> /blog/:slug.html: a missing article loops forever
 #   (/x.html.html.html...). A new article needs its own rule, or just its canonical.
+
+# 3 Nov 2026 - affiliate programme. Added in Render (rdr-dbkgqds9v7es739t0ib0):
+#   /referral.html -> /affiliates.html
