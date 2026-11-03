@@ -138,7 +138,7 @@
  {
   "slug": "getting-to-surfers-paradise-after-midnight",
   "find": "<li><strong>Waiting time.</strong> If your flight lands early and your driver has to wait, or if you keep a taxi idling while you find your accommodation's after-hours entry, the meter keeps running.</li>",
-  "replace": "<li><strong>Waiting time.</strong> If your flight is late, or you keep a driver waiting while you find your accommodation's after-hours entry, some providers charge for the wait. We include 30 minutes of free waiting after landing (60 minutes for international arrivals at Brisbane).</li>"
+  "replace": "<li><strong>Waiting time.</strong> If your flight is late, or you keep a driver waiting while you find your accommodation's after-hours entry, some providers charge for the wait. We include 30 minutes of free waiting after landing (60 minutes for international arrivals).</li>"
  },
  {
   "slug": "getting-to-surfers-paradise-after-midnight",
@@ -523,7 +523,7 @@
  {
   "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
   "find": "A well-run service builds in a grace period after landing, commonly 45 to 60 minutes for international arrivals, and the driver waits",
-  "replace": "A well-run service builds in a grace period after landing (ours is 30 minutes at Gold Coast Airport, and 60 for international arrivals at Brisbane), and the driver waits"
+  "replace": "A well-run service builds in a grace period after landing (ours is 30 minutes for domestic flights, and 60 for international arrivals), and the driver waits"
  },
  {
   "slug": "gold-coast-airport-chauffeur-with-meet-and-greet",
@@ -1227,7 +1227,7 @@
  {
   "slug": "what-happens-if-flight-delayed",
   "find": "<p>At Sky Transfers, we track every arrival in real time. If your flight is delayed, your chauffeur adjusts, and the price does not change.</p>",
-  "replace": "<p>At Sky Transfers, we track every arrival in real time on our <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> and <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a>. If your flight is delayed, your chauffeur adjusts, and the price does not change. Waiting is free for 30 minutes after you land, or 60 minutes for international arrivals at Brisbane. Our <a href=\"/faq.html\">FAQ</a> answers the other common booking questions.</p>"
+  "replace": "<p>At Sky Transfers, we track every arrival in real time on our <a href=\"/brisbane-airport-transfers.html\">Brisbane Airport transfers</a> and <a href=\"/gold-coast-airport-transfers.html\">Gold Coast Airport transfers</a>. If your flight is delayed, your chauffeur adjusts, and the price does not change. Waiting is free for 30 minutes after you land, or 60 minutes for international arrivals. Our <a href=\"/faq.html\">FAQ</a> answers the other common booking questions.</p>"
  },
  {
   "slug": "booking-private-transport-brisbane-cruise-terminal",
