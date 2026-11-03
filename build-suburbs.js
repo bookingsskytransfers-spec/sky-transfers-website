@@ -2579,6 +2579,82 @@ function referralPass() {
   console.log(`build-suburbs: referral script on ${js} pages, footer link on ${foot}`);
 }
 
+/* The Meta pixel (dataset 27923899043979480, 3 Nov 2026), on exactly the pages
+   that carry the GA4 config - so never admin, dispatch, the driver and agent
+   portals, account or tracking links, or the affiliate sign-in.
+
+   It is placed straight after the Google tag's own block and does not add a
+   single tracking call of its own beyond PageView. Instead it wraps gtag, so
+   the events the site already sends to Google become their Meta equivalents
+   and the two can never disagree about what counts:
+     booking_request, charter_enquiry, funeral_enquiry  -> Lead
+     begin_checkout                                     -> InitiateCheckout
+     purchase (booking-confirmed.html, Stripe's figure) -> Purchase + value
+     contact_phone / _whatsapp / _email, phone_click,
+     whatsapp_click                                     -> Contact
+   Nothing personal is passed: no name, email, phone or address, only the fare
+   on a purchase. autoConfig is off so Meta does not invent events from button
+   clicks on the booking form. A Purchase is sent once per Stripe session even
+   if the confirmation page is reloaded, and never without one (a visit to the
+   page that did not come back from Stripe is not a sale). */
+const META_PIXEL = '27923899043979480';
+const META_SNIPPET = `<script>
+  /* Meta pixel - added at build time by build-suburbs.js (metaPass) */
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('set', 'autoConfig', false, '${META_PIXEL}');
+  fbq('init', '${META_PIXEL}');
+  fbq('track', 'PageView');
+  (function(){
+    var MAP = { booking_request: 'Lead', charter_enquiry: 'Lead', funeral_enquiry: 'Lead',
+                begin_checkout: 'InitiateCheckout', purchase: 'Purchase',
+                contact_phone: 'Contact', contact_whatsapp: 'Contact', contact_email: 'Contact',
+                phone_click: 'Contact', whatsapp_click: 'Contact' };
+    var g = window.gtag, lastContact = 0;
+    if (typeof g !== 'function') return;
+    window.gtag = function(cmd, name, p){
+      try {
+        var ev = cmd === 'event' && MAP[name];
+        if (ev === 'Contact') {
+          var now = Date.now();
+          if (now - lastContact < 1500) ev = null; else lastContact = now;
+        }
+        if (ev === 'Purchase') {
+          var id = p && p.transaction_id, data = { currency: (p && p.currency) || 'AUD' };
+          if (p && typeof p.value === 'number') data.value = p.value;
+          if (!id) ev = null;  /* a real Stripe return always has one */
+          else { try { var k = 'sky_meta_buy_' + id; if (localStorage.getItem(k)) ev = null; else localStorage.setItem(k, '1'); } catch (e) {} }
+          if (ev) fbq('track', 'Purchase', data, { eventID: id });
+        } else if (ev) fbq('track', ev);
+      } catch (e) { /* tracking must never break a page */ }
+      return g.apply(this, arguments);
+    };
+  })();
+</script>`;
+function metaPass() {
+  const TAG = "gtag('config', 'G-9LYFELNSBK')";
+  let n = 0, skipped = 0;
+  for (const d of [ROOT, OUT, BLOG_DIR]) {
+    if (!fs.existsSync(d)) continue;
+    for (const name of fs.readdirSync(d)) {
+      if (!name.endsWith('.html')) continue;
+      const f = path.join(d, name);
+      const s = fs.readFileSync(f, 'utf8');
+      const at = s.indexOf(TAG);
+      if (at < 0 || s.includes("fbq('init'")) continue;
+      const end = s.indexOf('</script>', at);
+      if (end < 0) { skipped++; continue; }
+      const cut = end + '</script>'.length;
+      fs.writeFileSync(f, s.slice(0, cut) + '\n' + META_SNIPPET + s.slice(cut));
+      n++;
+    }
+  }
+  console.log(`build-suburbs: Meta pixel on ${n} pages${skipped ? ', ' + skipped + ' skipped' : ''}`);
+}
+
 /* Last, because it appends to the sitemap the block above has just written,
    and awaits a network call. Never allowed to fail the build. The guide
    links run after it either way, so committed articles are still linked when
@@ -2586,4 +2662,5 @@ function referralPass() {
 writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'))
   .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } })
   .then(() => { try { splitCards(); } catch (e) { console.warn('build-suburbs: card step failed (' + e.message + ')'); } })
-  .then(() => { try { referralPass(); } catch (e) { console.warn('build-suburbs: referral step failed (' + e.message + ')'); } });
+  .then(() => { try { referralPass(); } catch (e) { console.warn('build-suburbs: referral step failed (' + e.message + ')'); } })
+  .then(() => { try { metaPass(); } catch (e) { console.warn('build-suburbs: Meta pixel step failed (' + e.message + ')'); } });
