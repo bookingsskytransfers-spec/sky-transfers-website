@@ -156,7 +156,7 @@ const Z = {
             'From here Brisbane Airport is the closer of the two by time, and the fixed fare includes the Gateway toll. Both are published, so compare the columns before you book the flight.'],
     faq: [['{S} to Brisbane Airport?', '{BNE_KM}, about {BNE_MIN} outside peak.'],
           ['{S} to Gold Coast Airport?', '{OOL_KM}, about {OOL_MIN}.'],
-          ['Do you wait if the flight is late?', 'Yes. We track the flight and adjust the pick-up; airport pick-ups include 30 minutes of free waiting after landing, 60 for international arrivals at Brisbane.']] },
+          ['Do you wait if the flight is late?', 'Yes. We track the flight and adjust the pick-up; airport pick-ups include 30 minutes of free waiting after landing, 60 for international arrivals.']] },
   N5: { region: 'Gold Coast', label: 'Ormeau, Pimpama and Yatala',
     notes: ['{S} is at the northern end of the Gold Coast, where the M1 runs past the Yatala industrial estate towards Logan. Brisbane Airport is the nearer airport by time from here \u2014 M1 north, then the Gateway Motorway, toll included \u2014 and Gold Coast Airport is a full run down the coast.',
             'This band does a lot of early corporate and FIFO work out of the Yatala and Stapylton estates. Fixed fares, tax invoices on every trip, and monthly accounts for regular travellers.'],
@@ -803,7 +803,7 @@ ${rows}
   </p>
   <p class="fare-note">
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
-    (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30.
+    (60 for international arrivals). Child seats $15 each, luggage trailer $30.
     The cruise terminal fare is the Brisbane Airport fare plus $25.
     More than 18? Our 53-seat coach is quoted per job —
     see <a href="/charters.html">charters</a>.
@@ -997,7 +997,7 @@ const REGIONS = [
     lead: 'Private chauffeur transfers between Brisbane Airport (BNE) and every Sunshine Coast suburb we price, from Caloundra to Noosa. One fixed fare per vehicle, published below, the same at 4am as at 4pm.',
     notes: [
       'Most Sunshine Coast travellers use Brisbane Airport for international flights and for the routes Sunshine Coast Airport does not fly. The drive is the Bruce Highway south to the Gateway Motorway, about an hour from Caloundra and closer to two from Noosa outside peak; the Gateway toll is inside every fare in the table.',
-      'The Bruce is a working highway and it does slow down \u2014 Friday afternoons northbound and Sunday evenings southbound most of all \u2014 so for a departure we recommend a pick-up time with a highway margin built in and confirm it with you when we confirm the booking. On arrivals we track the flight and the driver meets you inside the terminal with a name board; international arrivals at Brisbane include 60 minutes of free waiting rather than the usual 30.',
+      'The Bruce is a working highway and it does slow down \u2014 Friday afternoons northbound and Sunday evenings southbound most of all \u2014 so for a departure we recommend a pick-up time with a highway margin built in and confirm it with you when we confirm the booking. On arrivals we track the flight and the driver meets you inside the terminal with a name board; international arrivals include 60 minutes of free waiting rather than the usual 30.',
       'Fares are per vehicle, not per person. A family or a group of friends pays one price for the trip, and a Luxury Minivan or Sprinter takes the surfboards, golf bags and prams without a trailer. Sunshine Coast Airport at Marcoola is also a priced destination for travellers connecting between the two airports.',
     ],
     faq: [
@@ -1362,7 +1362,7 @@ ${airRows}
   </div>
   <p class="fare-note">
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
-    (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30, prams free where they fit.
+    (60 for international arrivals). Child seats $15 each, luggage trailer $30, prams free where they fit.
     More than 18? Our 53-seat coach is quoted per job &mdash; see <a href="/charters.html">charters</a>.
   </p>
 
@@ -2078,7 +2078,7 @@ const ARTICLE_TEXT_FIX = [
     'Book online for an instant fixed price, or by phone, email or WhatsApp,'],
   ['gold-coast-airport-chauffeur-with-meet-and-greet',
     'Confirm before booking whether the service includes the first 60 minutes of waiting free,',
-    'Confirm before booking how long waiting is free after landing (we include 30 minutes at Gold Coast Airport, and 60 for international arrivals at Brisbane),'],
+    'Confirm before booking how long waiting is free after landing (we include 30 minutes for domestic flights, and 60 for international arrivals),'],
   ['gold-coast-airport-chauffeur-with-meet-and-greet',
     'The same applies to accessibility requirements: state them upfront so the right vehicle and driver are assigned.',
     'The same applies to accessibility requirements: state them upfront. Foldable wheelchairs travel free; if you need to stay seated in your wheelchair, call before booking.'],
@@ -2087,10 +2087,10 @@ const ARTICLE_TEXT_FIX = [
     'The sequence below is the one we recommend, with the decision rules'],
   ['real-time-flight-tracking-airport-transfers',
     '<li>Is the wait different for domestic and international flights?</li>\n</ul>\n',
-    '<li>Is the wait different for domestic and international flights?</li>\n</ul>\n<p>With us, waiting is free for 30 minutes after actual landing, or 60 minutes for international arrivals at Brisbane Airport.</p>\n'],
+    '<li>Is the wait different for domestic and international flights?</li>\n</ul>\n<p>With us, waiting is free for 30 minutes after actual landing, or 60 minutes for international arrivals.</p>\n'],
   ['guaranteed-on-time-airport-chauffeur-service-guide',
     'Ask what yours includes, and what happens if you run over.',
-    'Ask what yours includes, and what happens if you run over. With us, waiting is free for 30 minutes after actual landing, or 60 minutes for international arrivals at Brisbane Airport.'],
+    'Ask what yours includes, and what happens if you run over. With us, waiting is free for 30 minutes after actual landing, or 60 minutes for international arrivals.'],
   ['guaranteed-on-time-airport-chauffeur-service-guide',
     'Book with Sky Transfers and lock in a pickup you can count on.',
     'Book with Sky Transfers and lock in a pickup you can count on. Our <a href="/terms.html">terms</a> set out exactly what happens if something goes wrong: if we cannot supply your booked vehicle, we send a suitable alternative or refund the fare in full.'],
@@ -2111,7 +2111,7 @@ const ARTICLE_TEXT_FIX = [
     ''],
   ['reliable-airport-pickup-brisbane-flight-tracking',
     'Sky Transfers includes complimentary waiting time with every booking.',
-    'Sky Transfers includes free waiting with every airport pickup: 60 minutes after landing for international arrivals at Brisbane Airport, and 30 minutes for domestic.'],
+    'Sky Transfers includes free waiting with every airport pickup: 60 minutes after landing for international arrivals, and 30 minutes for domestic.'],
   ['reliable-airport-pickup-brisbane-flight-tracking',
     'You can book via phone, email, or WhatsApp, whichever suits you best.',
     'You can book online for an instant fixed price, or by phone, email or WhatsApp, whichever suits you best.'],
@@ -2159,7 +2159,7 @@ const ARTICLE_TEXT_FIX = [
     'See every fare on the <a href="/prices.html">price list</a>.'],
   ['book-private-airport-transfer-gold-coast',
     'include a waiting window at no extra cost.',
-    'include a waiting window at no extra cost: 30 minutes after landing at Gold Coast Airport, and 60 for international arrivals at Brisbane.'],
+    'include a waiting window at no extra cost: 30 minutes after landing for domestic flights, and 60 for international arrivals.'],
   ['book-private-airport-transfer-gold-coast',
     'Not every operator runs accessible vehicles, so confirm availability before you pay rather than assuming it can be arranged.',
     'Not every operator runs accessible vehicles, so confirm availability before you pay rather than assuming it can be arranged. We don\'t: foldable wheelchairs and walkers travel free, but if you need to stay seated in your wheelchair, call before booking.'],
@@ -2195,7 +2195,7 @@ const ARTICLE_TEXT_FIX = [
     'inside 24 hours a cancellation fee of up to the full fare may apply, as set out in our <a href="/terms.html">terms</a>.'],
   ['fixed-price-airport-transfers-brisbane-benefits',
     'Waiting time is usually built around a grace period after landing, giving you time to clear baggage and customs.',
-    'Waiting time is usually built around a grace period after landing, giving you time to clear baggage and customs. With us, waiting is free for 60 minutes after landing on international arrivals at Brisbane and 30 on domestic.'],
+    'Waiting time is usually built around a grace period after landing, giving you time to clear baggage and customs. With us, waiting is free for 60 minutes after landing on international arrivals and 30 on domestic.'],
   ['safe-airport-transport-for-families',
     'Ask whether there is an extra charge per seat</li>\n</ul>\n',
     'Ask whether there is an extra charge per seat</li>\n</ul>\n<p>With us, child seats, capsules and boosters are $15 each, fitted before we arrive. <a href="/child-seats.html">How child seats work</a>.</p>\n'],
