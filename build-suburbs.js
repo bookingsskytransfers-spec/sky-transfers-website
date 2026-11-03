@@ -79,10 +79,11 @@ const VEH = [
   ['Sprinter 10',    'up to 10 passengers · 11 bags'],
   ['Sprinter 14',    'up to 14 passengers · 15 bags'],
 ];
-/* The 18-seater is deliberately absent: it is quoted per job, so it
-   has no column in the rate tables. The fare notes point at /charters instead
-   of printing a "Quote" cell on all 373 generated pages, which would
-   contradict the published-fare promise the whole site is built on. */
+/* VEH is the point-to-point and day-tour list: the 18-seater has no fare
+   there, so it stays out of those tables. VEH_T is the airport and cruise
+   TRANSFER list, where the 18-seater has had a published fare since 3 Nov 2026
+   (the rate tables' eighth column: Sprinter 14 x 1.20, up to the next $5). */
+const VEH_T = VEH.concat([['Sprinter 18', 'up to 18 passengers · 18 bags']]);
 
 // measured distance/time; missing entries just drop the sentence that needs them
 let FACTS = {};
@@ -690,7 +691,7 @@ function suburbPage(p) {
   // fares table: one row per vehicle, one column per airport (+ cruise terminal if BNE priced)
   const cols = air.map(a => a.name + ' (' + a.code + ')');
   if (p.fares.cruise) cols.push('Brisbane Cruise Terminal');
-  const rows = VEH.map((v, i) => {
+  const rows = VEH_T.map((v, i) => {
     const cells = air.map(a => `<td>${money(a.fares[i])}</td>`);
     if (p.fares.cruise) cells.push(`<td>${money(p.fares.cruise[i])}</td>`);
     return `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${cells.join('')}</tr>`;
@@ -804,7 +805,7 @@ ${rows}
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30.
     The cruise terminal fare is the Brisbane Airport fare plus $25.
-    Need more than 14 seats? The 18-seat Sprinter and our 53-seat coach are quoted per job —
+    More than 18? Our 53-seat coach is quoted per job —
     see <a href="/charters.html">charters</a>.
   </p>
 
@@ -1134,11 +1135,11 @@ ${rows}
     </table>
   </div>
   <p class="fare-note">
-    Sedan and Luxury Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; People Mover 1&ndash;7 &middot; Luxury Minivan 1&ndash;6 &middot; Sprinter 10 and 14 seats.
+    Sedan and Luxury Sedan 1&ndash;3 passengers &middot; SUV 1&ndash;4 &middot; People Mover 1&ndash;7 &middot; Luxury Minivan 1&ndash;6 &middot; Sprinter 10, 14 and 18 seats.
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals). Child seats $15 each, luggage trailer $30. The Brisbane Cruise Terminal is the
-    airport fare plus $25. Need more than 14 seats? The 18-seat Sprinter and our
-    53-seat coach are quoted per job — see <a href="/charters.html">charters</a>.
+    airport fare plus $25. More than 18? Our 53-seat coach is quoted per job —
+    see <a href="/charters.html">charters</a>.
   </p>
 
   <h2>The drive</h2>
@@ -1290,7 +1291,7 @@ function attractionPage(a) {
   const ctaHref = '/?pu=' + encodeURIComponent(air[0].place) + '&do=' + encodeURIComponent(a.suburb) + '#book';
   const brief = v => mins(v).replace(' minutes', ' min').replace(/ h /, 'h ');
 
-  const airRows = VEH.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${air.map(x => `<td>${money(x.fares[i])}</td>`).join('')}</tr>`).join('\n');
+  const airRows = VEH_T.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${air.map(x => `<td>${money(x.fares[i])}</td>`).join('')}</tr>`).join('\n');
   const hotelRows = priced.map(r => `        <tr><th scope="row">${esc(r.from)}<span class="s"> ${r.km} km &middot; about ${r.min} min</span></th>${r.fares.map(f => `<td>${span(f)}</td>`).join('')}</tr>`).join('\n');
   const unpriced = hotel.filter(r => !r.fares).map(r => esc(r.from));
   const venueList = a.venues.length > 1 ? `<ul>\n    ${a.venues.map(v => `<li><strong>${esc(v.name)}</strong>, ${esc(a.suburb)}: ${km(v.ool.m)} (about ${mins(v.ool.s)}) from Gold Coast Airport, ${km(v.bne.m)} (about ${mins(v.bne.s)}) from Brisbane Airport.</li>`).join('\n    ')}\n  </ul>` : '';
@@ -1362,7 +1363,7 @@ ${airRows}
   <p class="fare-note">
     Included: meet &amp; greet with a name board, flight tracking, 30 minutes&rsquo; free airport waiting
     (60 for international arrivals at Brisbane). Child seats $15 each, luggage trailer $30, prams free where they fit.
-    More than 14 seats? The 18-seat Sprinter and our 53-seat coach are quoted per job &mdash; see <a href="/charters.html">charters</a>.
+    More than 18? Our 53-seat coach is quoted per job &mdash; see <a href="/charters.html">charters</a>.
   </p>
 
   <h2>From your hotel</h2>
@@ -1707,7 +1708,7 @@ function refreshPrices() {
   catch (e) { console.warn('build-suburbs: no prices.html, skipping the price list'); return; }
   const rows = pricesRows();
   const COLS = '<thead><tr><th scope="col">Suburb</th>'
-    + VEH.map((v) => '<th scope="col">' + esc(v[0]) + '</th>').join('') + '</tr></thead>';
+    + VEH_T.map((v) => '<th scope="col">' + esc(v[0]) + '</th>').join('') + '</tr></thead>';
 
   /* Brisbane -> Gold Coast Airport is a newer table than the page, so add it
      once, immediately after the Brisbane -> Brisbane Airport one. */
@@ -1741,6 +1742,12 @@ function refreshPrices() {
     /* A function replacer, not a string: every row contains text like
        "<td>$225</td>", and in a replacement string $2 means capture group 2. */
     html = html.replace(re, (m, open, close) => open + rows[id].join('\n') + '\n' + close);
+    /* The header too, from the same vehicle list, so an added column in the
+       rows can never sit under a shorter header (it did, briefly, when the
+       18-seater got fares on 3 Nov 2026). Bounded to this one table. */
+    const th = new RegExp('(id="' + id + '"(?:(?!</table>)[\\s\\S])*?)<thead>[\\s\\S]*?</thead>');
+    if (!th.test(html)) throw new Error('prices.html: no header for #' + id);
+    html = html.replace(th, (m, open) => open + COLS);
   }
   const got = (html.match(/<tr><th scope="row">/g) || []).length;
   const want = Object.keys(rows).reduce((a, k) => a + rows[k].length, 0);
@@ -1830,7 +1837,7 @@ function writeFaresJson() {
     }
   }
 
-  const vehicles = VEH.map(([name, cap]) => {
+  const vehicles = VEH_T.map(([name, cap]) => {
     /* '1-3 passengers - 2 bags' and 'up to 10 passengers - 11 bags' both end
        [..., maxPassengers, bags], so read from the right and the two shapes
        need no special-casing. */
@@ -1906,7 +1913,7 @@ function writeFaresJson() {
       prefill_url: SITE + '/?hours={hours}&pu={pickup}#book',
       longer: 'Half and full days are charters: ' + SITE + '/charters.html',
     },
-    fares_array_order: VEH.map((v) => v[0]),
+    fares_array_order: VEH_T.map((v) => v[0]),
     vehicles,
     hubs: [
       { key: 'ool', code: 'OOL', name: 'Gold Coast Airport', booking_name: OOL },
