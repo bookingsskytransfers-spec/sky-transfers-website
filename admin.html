@@ -66,6 +66,9 @@
   .pinbox .lbl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
   .pinbox .val{font-family:"Marcellus",Georgia,serif;font-size:34px;letter-spacing:.18em;margin:4px 0 6px}
   .pinbox p{margin:0;font-size:13.5px;opacity:.85}
+  .pinbox .keyval{font-family:Consolas,"Courier New",monospace;font-size:17px;letter-spacing:0;word-break:break-all;user-select:all}
+  .pinbox .act{color:inherit;border-color:rgba(255,255,255,.45)}
+  #keys-card table{min-width:760px}
   .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:9px;background:var(--card)}
   table{width:100%;border-collapse:collapse;font-size:14px;min-width:840px}
   /* The eight-column tables need that floor to stay readable. This one has
@@ -329,6 +332,30 @@
       </div>
       <button class="cta" id="s-add" type="button">Add a staff login &amp; issue a PIN</button>
       <p style="margin:14px 0 0"><button class="linkbtn" id="close-staff">Close</button></p>
+    </section>
+
+    <section class="card" id="keys-card">
+      <h2>Booking API keys</h2>
+      <div id="k-msg" class="msg" hidden></div>
+      <div id="k-new" class="pinbox" hidden>
+        <div class="lbl">API key for <span id="k-new-for"></span></div>
+        <div class="val keyval" id="k-new-val"></div>
+        <p>Copy it now and send it to the agency's developer with the developer guide &mdash; it is not shown again and is never emailed. Lost it? Switch it off and make a new one.</p>
+        <p style="margin-top:10px"><button type="button" class="act" id="k-copy">Copy</button>
+          <button type="button" class="linkbtn" id="k-hide" style="color:inherit;margin-left:12px">Done &mdash; hide it</button></p>
+      </div>
+      <p class="muted" style="margin:0 0 14px">Lets an agency's own booking system send us bookings directly, with no one typing them into the portal. Each booking is priced and checked exactly as in the portal (their rate card, notice and cancellation rules), shows in their bookings as <b>Booked by: API</b>, and you get the usual booking email. One key per system; <b>Switch off</b> stops it at once.</p>
+      <div class="scroll" style="margin-bottom:16px">
+        <table>
+          <thead><tr><th>Agency</th><th>Label</th><th>Key</th><th>Made</th><th>Last used</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="krows"><tr><td colspan="7" class="muted">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+      <div class="row3">
+        <div><label for="k-agent">Agency</label><select id="k-agent"><option value="">Choose an agency&hellip;</option></select></div>
+        <div><label for="k-label">Label <span class="muted">(optional)</span></label><input id="k-label" maxlength="80" placeholder="e.g. Their booking system" autocomplete="off"></div>
+        <div style="align-self:end"><button class="cta" id="k-make" type="button">Make a key</button></div>
+      </div>
     </section>
 
     </div>
@@ -1339,6 +1366,7 @@
     retLoad();
     nbLoad();
     affLoad();
+    keysLoad();
   }
 
   /* ---- affiliates (the referral programme, 3 Nov 2026) ----------------- */
@@ -1474,6 +1502,67 @@
     b.addEventListener("click", fn);
     return b;
   }
+
+  /* ---- booking API keys (8 Nov 2026) ----
+     One key per agency system (booking-api.js on the server). The key is
+     shown once, here, and never again - the server keeps a fingerprint only.
+     Switch off revokes it at once. */
+  var kWhen = function(s){
+    return s ? new Date(s).toLocaleString("en-AU", { timeZone: "Australia/Brisbane", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  };
+  function keysLoad(){
+    return Promise.all([api("/admin/agents"), api("/admin/api-keys")]).then(function(r){
+      var agents = r[0].agents || [], keys = r[1].keys || [], names = {};
+      var sel = $("k-agent"), cur = sel.value;
+      sel.innerHTML = '<option value="">Choose an agency…</option>';
+      agents.forEach(function(a){
+        names[a.code] = a.name;
+        if (!a.active) return;
+        var o = document.createElement("option"); o.value = a.code; o.textContent = a.code + " – " + a.name; sel.appendChild(o);
+      });
+      if (cur) sel.value = cur;
+      var tb = $("krows"); tb.innerHTML = "";
+      if (!keys.length) { tb.innerHTML = '<tr><td colspan="7" class="muted">No keys yet.</td></tr>'; return; }
+      keys.forEach(function(k){
+        var tr = document.createElement("tr");
+        if (k.revoked_at) tr.className = "off";
+        [names[k.agent_code] ? names[k.agent_code] + " (" + k.agent_code + ")" : k.agent_code, k.label || "—", k.key_hint || "",
+         kWhen(k.created_at), k.last_used_at ? kWhen(k.last_used_at) : "Never", k.revoked_at ? "Switched off " + kWhen(k.revoked_at) : "On"].forEach(function(v){
+          var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+        });
+        var act = document.createElement("td");
+        if (!k.revoked_at) act.appendChild(armBtn("Switch off", "Tap again to switch off", "danger", function(){
+          show($("k-msg"), "");
+          return api("/admin/api-key/revoke", { method: "POST", body: { id: k.id } }).then(keysLoad)
+            .catch(function(e){ show($("k-msg"), e.message); throw e; });
+        }));
+        tr.appendChild(act); tb.appendChild(tr);
+      });
+    }).catch(function(e){ show($("k-msg"), e.message); });
+  }
+  $("k-make").addEventListener("click", function(){
+    var code = $("k-agent").value, b = $("k-make");
+    show($("k-msg"), ""); $("k-new").hidden = true;
+    if (!code) { show($("k-msg"), "Choose the agency first."); return; }
+    b.disabled = true;
+    api("/admin/api-key", { method: "POST", body: { code: code, label: $("k-label").value.trim() } }).then(function(d){
+      $("k-new-for").textContent = $("k-agent").options[$("k-agent").selectedIndex].textContent;
+      $("k-new-val").textContent = d.key;
+      $("k-new").hidden = false; $("k-label").value = "";
+      reveal($("k-new")); $("k-new").scrollIntoView({ behavior: "smooth", block: "center" });
+      return keysLoad();
+    }).catch(function(e){ show($("k-msg"), e.message); }).then(function(){ b.disabled = false; });
+  });
+  function kSelect(){
+    var r = document.createRange(); r.selectNodeContents($("k-new-val"));
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  $("k-copy").addEventListener("click", function(){
+    var b = $("k-copy"), v = $("k-new-val").textContent;
+    var done = function(){ b.textContent = "Copied"; setTimeout(function(){ b.textContent = "Copy"; }, 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done, kSelect); else kSelect();
+  });
+  $("k-hide").addEventListener("click", function(){ $("k-new").hidden = true; $("k-new-val").textContent = ""; });
 
   function load(){
     return api("/admin/agents").then(function(d){
