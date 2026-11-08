@@ -611,10 +611,10 @@
         <div class="ap-row">
           <h3>Google review request</h3>
           <div>
-            <p class="muted">One email after the trip asking the passenger for a Google review, with a button that opens the review box. It goes the chosen number of hours after the driver presses <b>Done</b>, between 8 am and 8 pm. <b>Direct passengers only</b> (website bookings and office jobs with no account) - never agent or account passengers. Each email address is asked once, and only trips finished after you switch this on are asked.</p>
+            <p class="muted">One email after the trip asking the passenger for a Google review, with a button that opens the review box. It goes <b>straight away</b> when the driver or the office presses <b>Done</b> (or the chosen number of hours after), between 8 am and 8 pm - a trip finished later is asked the next morning. <b>Direct passengers only</b> (website bookings and office jobs with no account) - never agent or account passengers. Each email address is asked once, and only trips finished after you switch this on are asked.</p>
             <div class="ap-ctl">
               <div><label for="ap-review">Review request</label><select id="ap-review"><option value="false">Off</option><option value="true">On</option></select></div>
-              <div><label for="ap-review-h">Hours after the trip</label><input id="ap-review-h" type="number" min="1" max="24" step="1" style="width:6em"></div>
+              <div><label for="ap-review-h">When to send</label><select id="ap-review-h"><option value="0">Straight away</option><option value="1">1 hour after</option><option value="2">2 hours after</option><option value="3">3 hours after</option><option value="4">4 hours after</option><option value="6">6 hours after</option><option value="12">12 hours after</option><option value="24">24 hours after</option></select></div>
               <span><button class="act" id="ap-review-sample">Email me a sample</button></span>
             </div>
           </div>
@@ -1806,7 +1806,9 @@
       $("ap-cal-state").textContent = d.calendar && d.calendar.ok ? (s.calOn ? "Reading the calendar." : "Ready - switch it on and save.") : "Can't read the calendar yet: " + ((d.calendar && d.calendar.why) || "not set up") + ".";
       $("ap-guest").value = String(!!s.guestOn); $("ap-guest-at").value = s.guestNoticeAt || "19:00";
       $("ap-guest-aa").value = String(!!s.guestAgentAccount); $("ap-guest-wa").value = String(!!s.guestWhatsApp);
-      $("ap-review").value = String(!!s.reviewOn); $("ap-review-h").value = s.reviewDelayH || 2;
+      $("ap-review").value = String(!!s.reviewOn); (function(){ var h = s.reviewDelayH == null ? 2 : +s.reviewDelayH, sel = $("ap-review-h");
+        if (![].some.call(sel.options, function(o){ return +o.value === h; })) { var o = document.createElement("option"); o.value = h; o.textContent = h + " hours after"; sel.appendChild(o); }
+        sel.value = String(h); })();
       api("/guest/state").then(function(g){
         var w = g.whatsapp || {};
         $("ap-wa-state").textContent = w.connected
