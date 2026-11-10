@@ -2,7 +2,7 @@
  {
   "slug": "gold-coast-airport-surfers-paradise-travel-time",
   "find": "Compare bus, taxi and transfer costs.",
-  "replace": "Compare bus, rideshare and fixed-price transfer options.",
+  "replace": "Compare bus, rideshare and transfer options.",
   "field": "meta_description"
  },
  {
