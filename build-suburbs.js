@@ -844,7 +844,7 @@ ${rows}
     <p>
       <strong>Booking from ${esc(p.name)}.</strong> Type your street address into the booking form and it
       prices the trip as ${esc(p.name)} while keeping the exact address for your chauffeur. Online bookings
-      close six hours before pick-up; inside that window, call <a href="tel:+61481437772">+61 481 437 772</a>
+      close two hours before pick-up; inside that window, call <a href="tel:+61481437772">+61 481 437 772</a>
       and we will take the job if a car is free.
     </p>
   </div>
@@ -1063,12 +1063,12 @@ const REGIONS = [
     lead: 'Pre-booked chauffeur transfers between the Ipswich region and Brisbane Airport (BNE), priced by three fare bands: the Springfield and Goodna corridor, Ipswich city, and the towns west to Rosewood and Marburg. One fixed fare per vehicle, published below.',
     notes: [
       'From Ipswich the airport is the Ipswich Motorway to the Gateway, or the Warrego and Centenary motorways to Legacy Way and the Airport Link, depending on the hour; both are toll roads and the tolls are inside the fare. Springfield and Goodna are well under an hour outside peak, Ipswich city a little over, and Rosewood or Marburg a little more again. The weekday morning peak through the Ipswich Motorway is the one thing that changes the drive, and we allow for it in the pick-up time we recommend.',
-      'We are a pre-booked chauffeur service, not an on-demand rideshare: bookings close online six hours before pick-up, and inside that window we take the job by phone only if a car is free. What you get for booking ahead is a fixed fare with no meter and no surge, a driver who tracks your flight, and a name board inside the terminal on the way home.',
+      'We are a pre-booked chauffeur service, not an on-demand rideshare: bookings close online two hours before pick-up, and inside that window we take the job by phone only if a car is free. What you get for booking ahead is a fixed fare with no meter and no surge, a driver who tracks your flight, and a name board inside the terminal on the way home.',
       'RAAF Base Amberley, the Ipswich hospitals and the Springfield Central offices generate a lot of this work, so tax invoices are issued on every trip and monthly accounts are available for regular travellers. Until recently most of Ipswich was not priced online at all \u2014 the table below is now the answer.',
     ],
     faq: [
       ['How long is Ipswich to Brisbane Airport?', 'About {MIN_LOW} from the Springfield end to about {MIN_HIGH} from the western towns, outside peak. Each suburb page shows its own measured drive time.'],
-      ['Can I book a car right now?', 'Online bookings close six hours before pick-up. Inside that window, call +61 481 437 772 and we will take the job if a car is free \u2014 but we are a pre-booked service, so please book ahead when you can.'],
+      ['Can I book a car right now?', 'Online bookings close two hours before pick-up. Inside that window, call +61 481 437 772 and we will take the job if a car is free \u2014 but we are a pre-booked service, so please book ahead when you can.'],
       ['Are the motorway tolls extra?', 'No. Tolls and GST are inside the fixed fare on every route to Brisbane Airport.'],
       ['Which suburbs are in which fare band?', 'The bands are listed below with every suburb in each. Springfield, Goodna, Redbank and Camira are the corridor band; Ipswich city and its suburbs the middle band; Rosewood, Walloon, Marburg, Amberley and Grandchester the western band.'],
     ],
@@ -1178,7 +1178,7 @@ ${rows}
   <div class="box">
     <p>
       <strong>Booking.</strong> Type your street address into the booking form; it prices the trip by suburb and keeps
-      the exact address for your chauffeur. Online bookings close six hours before pick-up; inside that window, call
+      the exact address for your chauffeur. Online bookings close two hours before pick-up; inside that window, call
       <a href="tel:+61481437772">+61 481 437 772</a> and we will take the job if a car is free.
     </p>
   </div>
@@ -1434,8 +1434,8 @@ ${pairs.filter(q => q.fares).map(q => `    <a href="${q.href}">${esc(a.name.spli
   <div class="box">
     <p>
       <strong>Booking.</strong> Choose ${esc(a.suburb)} or type the ${a.venues.length > 1 ? 'park&rsquo;s' : 'venue&rsquo;s'} address as the drop-off, and your hotel
-      or flight as the pick-up. Online bookings close six hours before pick-up; changes are free up to 24 hours before.
-      Inside six hours, call <a href="tel:+61481437772">+61 481 437 772</a> and we will take the job if a car is free.
+      or flight as the pick-up. Online bookings close two hours before pick-up; changes are free up to 24 hours before.
+      Inside two hours, call <a href="tel:+61481437772">+61 481 437 772</a> and we will take the job if a car is free.
     </p>
   </div>
 
@@ -1975,7 +1975,7 @@ function writeFaresJson() {
       required_fields: ['pickup', 'dropoff', 'vehicle', 'date', 'time', 'passengers',
                         'address', 'name', 'phone', 'email'],
       optional_fields: ['flight', 'childSeats', 'trailer', 'notes'],
-      minimum_notice_hours: 6,
+      minimum_notice_hours: 2,
       timezone: 'Australia/Brisbane, UTC+10 all year - Queensland has no daylight saving',
       booking_regularly: SITE + '/partners.html',
     },
@@ -2143,7 +2143,7 @@ const ARTICLE_TEXT_FIX = [
     'Sky Transfers builds pricing this way: upfront, with no surge fees, so the quote you receive is the price you pay. There is no night or early-morning loading either: a 4am pickup costs the same as one at midday.'],
   ['early-morning-brisbane-airport-transfer',
     'Sky Transfers handles bookings by phone, email, or WhatsApp, with free cancellation up to 24 hours before pickup.',
-    'Sky Transfers takes bookings online with an instant fixed price, or by phone, email or WhatsApp, with free cancellation up to 24 hours before pickup. Online bookings close 6 hours before pickup, so for anything sooner, call <a href="tel:+61481437772">+61 481 437 772</a>.'],
+    'Sky Transfers takes bookings online with an instant fixed price, or by phone, email or WhatsApp, with free cancellation up to 24 hours before pickup. Online bookings close 2 hours before pickup, so for anything sooner, call <a href="tel:+61481437772">+61 481 437 772</a>.'],
   ['how-to-book-reliable-airport-transfers',
     'Extras like child seats, meet and greet, or additional stops may incur a fee, so clarify upfront.',
     'Meet and greet is always included, child seats are $15 each, and any extras are added to the fixed price before you pay, never on the day.'],
