@@ -1289,5 +1289,40 @@
   "find": "Learn how to avoid surge pricing for airport rides with 7 practical steps.",
   "replace": "Airport rides surge at peak times. 7 practical ways to avoid it, plus fixed-price Gold Coast and Brisbane Airport transfers with GST and tolls included.",
   "field": "meta_description"
+ },
+ {
+  "slug": "wine-tour-activities-for-non-drinkers",
+  "find": "<li>Around one in three Australian adults know of non-alcoholic-only tasting rooms and bars.</li>\n",
+  "replace": ""
+ },
+ {
+  "slug": "wine-tour-activities-for-non-drinkers",
+  "find": " Around one in three Australian adults say they are aware of non-alcoholic-only tasting rooms and bars, and about 41% say they are interested in them, according to <a rel=\"noopener noreferrer\" target=\"_blank\" href=\"https://extension.psu.edu/alcoholic-beverage-trends-2026/\">Alcoholic Beverage Trends 2026</a>.",
+  "replace": ""
+ },
+ {
+  "slug": "how-to-pack-wine-for-a-flight-home",
+  "find": "Place the bottle in the centre of a hard-shell or sturdy checked bag, never your carry-on, and pack tight so nothing shifts.",
+  "replace": "Place the bottle in the centre of a hard-shell or sturdy checked bag and pack tight so nothing shifts."
+ },
+ {
+  "slug": "how-to-pack-wine-for-a-flight-home",
+  "find": "<li>Wine belongs in checked luggage, since carry-on liquid rules bar most bottles from the cabin.</li>",
+  "replace": "<li>On an international flight wine has to go in checked luggage, since the carry-on liquid limit stops a standard bottle at security.</li>"
+ },
+ {
+  "slug": "how-to-pack-wine-for-a-flight-home",
+  "find": "Wine belongs in your checked suitcase, never your carry-on, since liquid rules bar most bottles from the cabin.",
+  "replace": "On an international flight, wine belongs in your checked suitcase, since the carry-on liquid limit stops a standard bottle at security. Flights within Australia do not have that limit, unless yours leaves from an international terminal, but a checked bag is still the easier place for more than a bottle or two."
+ },
+ {
+  "slug": "how-to-pack-wine-for-a-flight-home",
+  "find": "Checked luggage is the only legal place for wine on most flights, since carry-on liquid restrictions block standard bottles.",
+  "replace": "Checked luggage is the only place for wine on an international flight, since carry-on liquid restrictions block standard bottles."
+ },
+ {
+  "slug": "how-to-pack-wine-for-a-flight-home",
+  "find": "Yes. Wine goes in checked luggage, not carry-on, because liquid restrictions stop most bottles at security.",
+  "replace": "Yes. On an international flight wine has to go in checked luggage, because carry-on liquid restrictions stop a standard bottle at security; flights within Australia do not have that limit."
  }
 ]
