@@ -447,7 +447,6 @@ const FOOTER = `<footer class="site">
       <p><a href="/prices.html">Prices by suburb</a></p>
       <p><a href="/blog/">Blog &amp; travel guides</a></p>
       <p><a href="/partners.html">Agent &amp; partner program</a></p>
-      <p><a href="/charters.html">Sprinter &amp; coach charters</a></p>
       <p><a href="/faq.html">Questions &amp; answers</a></p>
       <p><a href="/child-seats.html">Child seats</a></p>
       <p><a href="/rideshare-or-transfer.html">Rideshare or transfer?</a></p>
@@ -461,17 +460,26 @@ const FOOTER = `<footer class="site">
       <p><a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a></p>
       <p><a href="/brisbane-airport-to-gold-coast.html">Brisbane Airport to Gold Coast</a></p>
       <p><a href="/gold-coast-airport-to-surfers-paradise.html">Airport to Surfers Paradise</a></p>
+      <p><a href="/point-to-point-transfers.html">Point-to-point transfers</a></p>
       <p><a href="/theme-park-transfers.html">Theme park transfers</a></p>
       <p><a href="/cruise-transfers.html">Brisbane Cruise Terminal</a></p>
       <p><a href="/byron-bay-transfers.html">Byron Bay transfers</a></p>
-      <p><a href="/corporate-transfers.html">Corporate transfers</a></p>
-      <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
-      <p><a href="/funeral-transport.html">Funeral transport</a></p>
       <p><a href="/sunshine-coast-airport-transfers.html">Sunshine Coast transfers</a></p>
       <p><a href="/toowoomba-airport-transfers.html">Toowoomba transfers</a></p>
       <p><a href="/ipswich-airport-transfers.html">Ipswich transfers</a></p>
       <p><a href="/logan-airport-transfers.html">Logan transfers</a></p>
       <p><a href="/${DIR}/">Airport transfers by suburb</a></p>
+    </div>
+    <div class="foot-routes">
+      <p><a href="/corporate-transfers.html">Corporate transfers</a></p>
+      <p><a href="/wedding-transfers.html">Wedding transfers</a></p>
+      <p><a href="/event-transfers.html">Event transfers</a></p>
+      <p><a href="/christmas-party-transport-gold-coast.html">Christmas party transport</a></p>
+      <p><a href="/minibus-hire-gold-coast.html">Minibus hire Gold Coast</a></p>
+      <p><a href="/minibus-hire-brisbane.html">Minibus hire Brisbane</a></p>
+      <p><a href="/charters.html">Sprinter &amp; coach charters</a></p>
+      <p><a href="/funeral-transport.html">Funeral transport</a></p>
+      <p><a href="/gallery.html">Vehicle photo gallery</a></p>
     </div>
     <div class="foot-legal">
       <p><a href="/about.html">About us</a></p>
@@ -630,6 +638,21 @@ const hubFor = (p) => REGIONS.find(r => r.zones.includes(p.zoneKey) && (!r.only 
    page, and the attractions people from here ask about. Linked from the body
    so neither page of a pair is only reachable through the footer. */
 const CBD_GUIDE = ['/brisbane-cbd-airport-transfers.html', 'Brisbane CBD airport transfers'];
+/* Attractions people staying nearby ask about (10 Nov 2026). Until now an
+   attraction was linked only from the one suburb it stands in, so seven pages
+   had eight to ten links each from a site of 500. Nearest first; a name that
+   is not a priced suburb is simply never matched. */
+const NEAR_ATTRACTIONS = {
+  'movie-world-transfers': ['Helensvale', 'Pacific Pines', 'Hope Island', 'Coomera', 'Upper Coomera', 'Gaven', 'Maudsland', 'Sanctuary Cove', 'Arundel', 'Parkwood', 'Southport', 'Labrador', 'Runaway Bay', 'Paradise Point', 'Main Beach', 'Broadbeach', 'Nerang'],
+  'dreamworld-transfers': ['Upper Coomera', 'Oxenford', 'Pimpama', 'Helensvale', 'Hope Island', 'Willow Vale', 'Ormeau', 'Pacific Pines', 'Sanctuary Cove', 'Surfers Paradise', 'Main Beach', 'Broadbeach'],
+  'sea-world-transfers': ['Southport', 'Labrador', 'Bundall', 'Benowa', 'Broadbeach', 'Ashmore', 'Biggera Waters', 'Runaway Bay', 'Molendinar'],
+  'currumbin-wildlife-sanctuary-transfers': ['Tugun', 'Palm Beach', 'Elanora', 'Currumbin Waters', 'Currumbin Valley', 'Bilinga', 'Coolangatta', 'Kirra', 'Burleigh Heads', 'Burleigh Waters', 'Tallebudgera', 'Miami'],
+  'gold-coast-convention-centre-transfers': ['Broadbeach Waters', 'Mermaid Beach', 'Mermaid Waters', 'Main Beach', 'Miami', 'Bundall', 'Clear Island Waters', 'Burleigh Heads'],
+  'lone-pine-koala-sanctuary-transfers': ['Indooroopilly', 'Kenmore', 'Chapel Hill', 'Jindalee', 'Sherwood', 'Graceville', 'Corinda', 'Taringa', 'Toowong', 'St Lucia', 'Mount Ommaney', 'South Brisbane', 'Fortitude Valley', 'Spring Hill', 'West End', 'Milton', 'Auchenflower'],
+  'australia-zoo-transfers': ['Caloundra', 'Golden Beach', 'Pelican Waters', 'Currimundi', 'Wurtulla', 'Mooloolaba', 'Alexandra Headland', 'Maroochydore', 'Mountain Creek', 'Buderim', 'Sippy Downs', 'Caboolture', 'Morayfield', 'Burpengary', 'Narangba', 'Noosa Heads', 'Noosaville', 'Coolum Beach', 'Brisbane CBD', 'South Brisbane'],
+};
+/* The private day tour leaves from Brisbane or the Gold Coast hotel strip. */
+const TOUR_NEAR = ['Brisbane CBD', 'South Brisbane', 'Fortitude Valley', 'Spring Hill', 'Surfers Paradise', 'Broadbeach', 'Main Beach', 'Southport', 'Beerwah'];
 const SUBURB_EXTRA = {
   'Broadbeach': [['/broadbeach-airport-transfers.html', 'Broadbeach airport transfer guide'], ['/gold-coast-convention-centre-transfers.html', 'Gold Coast Convention Centre transfers']],
   'Main Beach': [['/main-beach-airport-transfers.html', 'Main Beach airport transfer guide']],
@@ -829,9 +852,16 @@ ${rows}
   <h2>Questions from ${esc(p.name)}</h2>
 ${faqs.map(([q, a]) => `  <details>\n    <summary>${q}</summary>\n    <p>${a}</p>\n  </details>`).join('\n')}
 
-  ${(() => { const here = ATTRACTIONS.filter(x => x.suburb === p.name); return here.length ? `<h2>Visiting ${here.map(x => esc(x.visit || x.name)).join(' or ')}?</h2>
+  ${(() => { const here = ATTRACTIONS.filter(x => x.suburb === p.name);
+    const already = (SUBURB_EXTRA[p.name] || []).map(x => x[0]);
+    const near = ATTRACTIONS.filter(x => x.suburb !== p.name && (NEAR_ATTRACTIONS[x.slug] || []).indexOf(p.name) !== -1 && already.indexOf('/' + x.slug + '.html') === -1)
+      .sort((x, y) => NEAR_ATTRACTIONS[x.slug].indexOf(p.name) - NEAR_ATTRACTIONS[y.slug].indexOf(p.name)).slice(0, 3);
+    const tours = TOUR_NEAR.indexOf(p.name) !== -1 ? TOURS : [];
+    return here.length || near.length || tours.length ? `<h2>${here.length ? `Visiting ${here.map(x => esc(x.visit || x.name)).join(' or ')}?` : `Attractions near ${esc(p.name)}`}</h2>
   <div class="related">
-${here.map(x => `    <a href="/${x.slug}.html">${esc(x.name)} transfers<span>From the airports and the hotel strip</span></a>`).join('\n')}
+${here.map(x => `    <a href="/${x.slug}.html">${esc(x.name)} transfers<span>From the airports and the hotel strip</span></a>`)
+  .concat(near.map(x => `    <a href="/${x.slug}.html">${esc(x.name)} transfers<span>${esc(x.suburb)} &middot; fixed price from your door</span></a>`))
+  .concat(tours.map(t => `    <a href="/${t.slug}.html">${esc(t.name)} day tour<span>Private car and chauffeur for the day</span></a>`)).join('\n')}
   </div>
   ` : ''; })()}${neighbours.length ? `<h2>Nearby, same fare band</h2>
   <div class="related">
@@ -1161,6 +1191,13 @@ ${bands.map(b => `  <h3>${esc(b.label.charAt(0).toUpperCase() + b.label.slice(1)
   <div class="related">
 ${b.list.map(p => `    <a href="${p.url}">${esc(p.name)}<span>${p.facts.bne ? mins(p.facts.bne.s) + ' to BNE' : 'From $' + p.from}</span></a>`).join('\n')}
   </div>`).join('\n')}
+${r.slug === 'sunshine-coast-airport-transfers' ? `
+  <h2>While you are on the Sunshine Coast</h2>
+  <div class="related">
+${ATTRACTIONS.filter(x => x.slug === 'australia-zoo-transfers').map(x => `    <a href="/${x.slug}.html">${esc(x.name)} transfers<span>${esc(x.suburb)} &middot; from Brisbane and the coast</span></a>`)
+  .concat(TOURS.map(t => `    <a href="/${t.slug}.html">${esc(t.name)} day tour<span>Private car and chauffeur for the day</span></a>`)).join('\n')}
+  </div>` : ''}
+  <!--guides:auto--><!--/guides:auto-->
   <p class="fare-note">
     <a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a> &middot; <a href="/${DIR}/">All suburbs</a> &middot; <a href="/prices.html">Full price list</a> &middot; <a href="/fleet.html">See the vehicles</a>
   </p>
@@ -1409,6 +1446,7 @@ ${faqs.map(([q, x]) => `  <details>\n    <summary>${q}</summary>\n    <p>${x}</p
   <div class="related">
 ${others.map(o => `    <a href="/${o.slug}.html">${esc(o.name)}<span>${esc(o.suburb)}</span></a>`).join('\n')}
   </div>
+  <!--guides:auto--><!--/guides:auto-->
   <p class="fare-note">
     ${a.themePark ? `<a href="/theme-park-transfers.html">Theme park transfers</a> &middot; ` : ''}<a href="${p.url}">${esc(a.suburb)} airport transfers</a> &middot; ${p.region === 'Gold Coast' ? '<a href="/gold-coast-airport-transfers.html">Gold Coast Airport transfers</a>' : '<a href="/brisbane-airport-transfers.html">Brisbane Airport transfers</a>'} &middot; <a href="/fleet.html">See the whole fleet</a>${/child seat/i.test(JSON.stringify(a)) ? ' &middot; <a href="/child-seats.html">Child seats</a>' : ''} &middot; <a href="/point-to-point-transfers.html">Point-to-point fares</a> &middot; <a href="/prices.html">Full price list</a>
   </p>
@@ -1776,6 +1814,12 @@ function refreshCounts() {
     bne: places.filter((p) => p.region === 'Brisbane').length,
     ool: places.filter((p) => p.region === 'Gold Coast').length,
   };
+  /* llms.txt quotes the total twice and had drifted (421 against 422). */
+  try {
+    const lf = path.join(ROOT, 'llms.txt'), lt = fs.readFileSync(lf, 'utf8');
+    const ln = lt.replace(/\b\d{3}(?= destinations\b)/g, String(counts.total));
+    if (ln !== lt) fs.writeFileSync(lf, ln);
+  } catch (e) { console.warn('build-suburbs: llms.txt count not refreshed (' + e.message + ')'); }
   const files = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'));
   /* The region pages are written by this script a few lines above, so their
      own figures are already generated and must not be reported as drift.
@@ -2509,7 +2553,49 @@ const GUIDES = {
   'brisbane-cbd-airport-transfers.html': ['brisbane-airport-chauffeur-to-city'],
   [DIR + '/brisbane-cbd.html']: ['brisbane-airport-chauffeur-to-city', 'brisbane-airport-domestic-or-international-pickup'],
   'faq.html': ['what-happens-if-flight-delayed', 'how-to-book-reliable-airport-transfers'],
+  /* 10 Nov 2026: 33 of 48 service pages linked to no article, and 11 articles
+     were linked from no service page. */
+  'partners.html': ['how-do-travel-agents-book-airport-transfers-for-clients', 'how-to-manage-corporate-travel-expenses-for-airport-transport'],
+  'theme-park-transfers.html': ['safe-airport-transport-for-families', 'gold-coast-airport-transfer-car-seats', 'gold-coast-airport-arrivals-guide'],
+  'byron-bay-transfers.html': ['gold-coast-airport-arrivals-guide', 'what-happens-if-flight-delayed', 'brisbane-airport-to-coolangatta'],
+  'point-to-point-transfers.html': ['getting-to-surfers-paradise-after-midnight', 'avoid-surge-pricing-airport-rides', '7-steps-compare-airport-transfer-quotes'],
+  'minibus-hire-brisbane.html': ['booking-private-transport-brisbane-cruise-terminal', 'early-morning-brisbane-airport-transfer', 'christmas-parties-tamborine-winery-tours-transfers-guide'],
+  'christmas-party-transport-gold-coast.html': ['christmas-parties-tamborine-winery-tours-transfers-guide', 'party-bus-vs-minibus-winery-tour-transport'],
+  'broadbeach-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'gold-coast-airport-transfer-how-to-get-from-gold-coast-airport-to-hotel', 'gold-coast-to-brisbane-airport-what-time-to-leave'],
+  'main-beach-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'gold-coast-airport-transport-options-with-luggage', 'gold-coast-to-brisbane-airport-what-time-to-leave'],
+  'burleigh-heads-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'book-private-airport-transfer-gold-coast', 'gold-coast-to-brisbane-airport-what-time-to-leave'],
+  'coolangatta-airport-transfers.html': ['gold-coast-airport-arrivals-guide', 'brisbane-airport-to-coolangatta', '7-steps-compare-airport-transfer-quotes'],
+  'sunshine-coast-airport-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'early-morning-brisbane-airport-transfer', 'what-happens-if-flight-delayed'],
+  'toowoomba-airport-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'early-morning-brisbane-airport-transfer', 'what-happens-if-flight-delayed'],
+  'ipswich-airport-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'early-morning-brisbane-airport-transfer', 'fixed-price-airport-transfers-brisbane-benefits'],
+  'logan-airport-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'gold-coast-to-brisbane-airport-what-time-to-leave', 'fixed-price-airport-transfers-brisbane-benefits'],
+  'movie-world-transfers.html': ['safe-airport-transport-for-families', 'gold-coast-airport-transfer-car-seats'],
+  'dreamworld-transfers.html': ['safe-airport-transport-for-families', 'gold-coast-airport-transfer-car-seats'],
+  'sea-world-transfers.html': ['safe-airport-transport-for-families', 'gold-coast-airport-transfer-car-seats'],
+  'currumbin-wildlife-sanctuary-transfers.html': ['gold-coast-airport-arrivals-guide', 'safe-airport-transport-for-families'],
+  'gold-coast-convention-centre-transfers.html': ['how-to-manage-corporate-travel-expenses-for-airport-transport', 'gold-coast-airport-chauffeur-with-meet-and-greet'],
+  'lone-pine-koala-sanctuary-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'safe-airport-transport-for-families'],
+  'australia-zoo-transfers.html': ['brisbane-airport-domestic-or-international-pickup', 'safe-airport-transport-for-families'],
 };
+/* Every suburb page not named above gets three guides: the one that matters
+   most for its airport first, then two from a pool, chosen by the suburb's
+   position in the list so the links are spread across the articles and stay
+   the same from one build to the next. Only 2 of 422 suburb pages linked to
+   an article before. */
+const SUBURB_GUIDES = {
+  gc: { first: 'gold-coast-airport-arrivals-guide', pool: ['gold-coast-to-brisbane-airport-what-time-to-leave', 'gold-coast-airport-transfer-car-seats', 'gold-coast-airport-transport-options-with-luggage', 'what-happens-if-flight-delayed', 'book-private-airport-transfer-gold-coast', '7-steps-compare-airport-transfer-quotes', 'avoid-surge-pricing-airport-rides', 'gold-coast-airport-chauffeur-with-meet-and-greet', 'safe-airport-transport-for-families', 'real-time-flight-tracking-airport-transfers'] },
+  bne: { first: 'brisbane-airport-domestic-or-international-pickup', pool: ['early-morning-brisbane-airport-transfer', 'what-happens-if-flight-delayed', 'reliable-airport-pickup-brisbane-flight-tracking', 'fixed-price-airport-transfers-brisbane-benefits', 'brisbane-airport-to-coolangatta', 'brisbane-airport-to-cruise-terminal', '7-steps-compare-airport-transfer-quotes', 'how-to-book-reliable-airport-transfers', 'brisbane-airport-chauffeur-corporate-travel', 'safe-airport-transport-for-families'] },
+};
+function suburbGuides() {
+  const out = {};
+  places.forEach((p, i) => {
+    const page = p.url.replace(/^\//, '');
+    if (GUIDES[page]) return;
+    const g = SUBURB_GUIDES[p.region === 'Gold Coast' || p.region === 'Byron Bay' ? 'gc' : 'bne'];
+    out[page] = [g.first, g.pool[i % g.pool.length], g.pool[(i + 3) % g.pool.length]];
+  });
+  return out;
+}
 function articleTitle(slug) {
   const f = path.join(BLOG_DIR, slug + '.html');
   if (!fs.existsSync(f)) return null;
@@ -2520,7 +2606,7 @@ function articleTitle(slug) {
 function fillGuides() {
   const open = '<!--guides:auto-->', close = '<!--/guides:auto-->';
   let pages = 0, links = 0;
-  for (const [page, slugs] of Object.entries(GUIDES)) {
+  for (const [page, slugs] of Object.entries(Object.assign(suburbGuides(), GUIDES))) {
     const f = path.join(ROOT, page);
     if (!fs.existsSync(f)) { console.warn('build-suburbs: guides - no page ' + page); continue; }
     let s = fs.readFileSync(f, 'utf8');
@@ -2589,6 +2675,57 @@ function referralPass() {
     }
   }
   console.log(`build-suburbs: referral script on ${js} pages, footer link on ${foot}`);
+}
+
+/* One footer (10 Nov 2026). The hand-written pages had drifted into twelve
+   different footers: the newer pages (point-to-point, minibus hire, event
+   transfers, the Christmas page) were linked from a handful of pages each and
+   the suburb pages - four fifths of the site - linked to none of them. Every
+   public page now carries the two route columns of FOOTER, and its first
+   links column carries the same general links; what is particular to a page
+   (the homepage's #book, the charter page's #quote, its own tagline) is left
+   alone. Runs before the referral and manage-booking passes, which add their
+   own lines. */
+function footerPass() {
+  const TAG = "gtag('config', 'G-9LYFELNSBK')";
+  const fa = FOOTER.indexOf('<div class="foot-routes">'), fb = FOOTER.indexOf('<div class="foot-legal">');
+  const routes = FOOTER.slice(fa, fb).replace(/\s+$/, '');
+  const routeHrefs = new Set([...routes.matchAll(/<a href="([^"]+)"/g)].map((m) => m[1]));
+  const general = [...FOOTER.slice(0, fa).matchAll(/^ *<p><a href="(\/[^"#]*)">[^<]*<\/a><\/p>$/gm)].map((m) => [m[1], m[0].trim()]);
+  const REVIEW = /^( *)<p><a href="https:\/\/www\.google\.com\/maps[^"]*"[^>]*>Review us on Google<\/a><\/p>$/m;
+  /* Five link columns side by side, and the legal links as one row beneath.
+     Injected, not added to site.css, because the homepage and the charter
+     page carry their own inline copy of the footer rules and never load it. */
+  const CSS = '<style id="foot-css">footer.site .foot-in{max-width:1100px}footer.site .foot-in>div:first-child{max-width:230px}'
+    + 'footer.site .foot-legal{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:4px 20px;border-top:1px solid rgba(255,255,255,.14);padding-top:14px;margin-top:8px}'
+    + 'footer.site .foot-legal p{margin:0}footer.site .foot-legal .foot-entity{margin-left:auto}'
+    + '@media (max-width:700px){footer.site .foot-legal .foot-entity{margin-left:0;flex-basis:100%}}</style>';
+  let n = 0, odd = [];
+  for (const d of [ROOT, OUT, BLOG_DIR]) {
+    if (!fs.existsSync(d)) continue;
+    for (const name of fs.readdirSync(d)) {
+      if (!name.endsWith('.html')) continue;
+      const f = path.join(d, name);
+      const s = fs.readFileSync(f, 'utf8');
+      if (!s.includes(TAG)) continue;
+      const a = s.indexOf('<footer class="site">'), b = s.indexOf('</footer>', a);
+      if (a < 0 || b < 0) continue;
+      let foot = s.slice(a, b);
+      const r0 = foot.indexOf('<div class="foot-routes">'), l0 = foot.indexOf('<div class="foot-legal">');
+      if (r0 < 0 || l0 < r0 || !REVIEW.test(foot.slice(0, r0))) { odd.push(name); continue; }
+      let top = foot.slice(0, r0);
+      /* a link that now lives in the route columns is not repeated above them */
+      top = top.replace(/^ *<p><a href="(\/[^"#]*)">[^<]*<\/a><\/p>\n/gm, (m, href) => (routeHrefs.has(href) ? '' : m));
+      const missing = general.filter(([href]) => !routeHrefs.has(href) && !top.includes('href="' + href + '"'));
+      if (missing.length) top = top.replace(REVIEW, (m, sp) => missing.map(([, line]) => sp + line).join('\n') + '\n' + m);
+      foot = top + routes + '\n    ' + foot.slice(l0);
+      let t = s.slice(0, a) + foot + s.slice(b);
+      if (t !== s) n++;
+      if (!t.includes('id="foot-css"') && t.includes('</head>')) t = t.replace('</head>', CSS + '\n</head>');
+      if (t !== s) fs.writeFileSync(f, t);
+    }
+  }
+  console.log(`build-suburbs: one footer on ${n} page(s)${odd.length ? ', left alone: ' + odd.join(', ') : ''}`);
 }
 
 /* "Manage my booking" (Recheck 7 item 12, 3 Nov 2026) in the footer of every
@@ -2706,6 +2843,7 @@ function metaPass() {
 writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.message + ')'))
   .then(() => { try { fillGuides(); } catch (e) { console.warn('build-suburbs: guides step failed (' + e.message + ')'); } })
   .then(() => { try { splitCards(); } catch (e) { console.warn('build-suburbs: card step failed (' + e.message + ')'); } })
+  .then(() => { try { footerPass(); } catch (e) { console.warn('build-suburbs: footer step failed (' + e.message + ')'); } })
   .then(() => { try { referralPass(); } catch (e) { console.warn('build-suburbs: referral step failed (' + e.message + ')'); } })
   .then(() => { try { metaPass(); } catch (e) { console.warn('build-suburbs: Meta pixel step failed (' + e.message + ')'); } })
   .then(() => { try { manageLinkPass(); } catch (e) { console.warn('build-suburbs: manage-booking step failed (' + e.message + ')'); } });

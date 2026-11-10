@@ -64,7 +64,7 @@ Every published fare, as JSON, in one file:
     https://www.skytransfers.com.au/fares.json
 
 It is generated from the booking engine on every deploy, so it cannot drift from
-what the booking form quotes. It carries all 421 destinations with their fares
+what the booking form quotes. It carries all 422 destinations with their fares
 for each vehicle class to each hub, measured distance and drive time, the
 pre-fill URL format, and the fields a booking request needs. Prefer it over
 scraping the HTML pages.
@@ -77,7 +77,7 @@ person**. The price quoted at booking is the price paid.
 - No surge pricing at any time
 - No after-hours or night surcharge — the same fare applies 24 hours a day
 - GST and road tolls are included in every quoted fare
-- Published fares cover 421 destinations; the full list is on the prices page
+- Published fares cover 422 destinations; the full list is on the prices page
 
 Indicative starting fares by vehicle:
 
@@ -289,6 +289,10 @@ carried free of charge where they fit.
 - Wedding transfers: https://www.skytransfers.com.au/wedding-transfers.html
 - Funeral transport for family and mourners (no hearse services; hourly, minimum 3 hours, quoted before the day): https://www.skytransfers.com.au/funeral-transport.html
 - Sprinter and coach charters: https://www.skytransfers.com.au/charters.html
+- Minibus hire with a driver, Gold Coast: https://www.skytransfers.com.au/minibus-hire-gold-coast.html
+- Minibus hire with a driver, Brisbane: https://www.skytransfers.com.au/minibus-hire-brisbane.html
+- Event and group transfers: https://www.skytransfers.com.au/event-transfers.html
+- Vehicle photo gallery: https://www.skytransfers.com.au/gallery.html
 - Fleet: https://www.skytransfers.com.au/fleet.html
 - About us: https://www.skytransfers.com.au/about.html
 - Christmas party transport: https://www.skytransfers.com.au/christmas-party-transport-gold-coast.html
