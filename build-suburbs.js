@@ -2258,6 +2258,13 @@ const ARTICLE_TEXT_FIX = [
 let ARTICLE_FIXES = [];
 try { ARTICLE_FIXES = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'article-fixes.json'), 'utf8')); }
 catch (e) { console.warn('build-suburbs: no data/article-fixes.json (' + e.message + ')'); }
+/* Feed articles kept off the site (11 Nov 2026) - [{slug, why}]. The content
+   service wrote a run of wine lifestyle pieces; Aman had four removed. Listed
+   here so the next build does not put them back, and so the reason stays on
+   record. To bring one back, delete its entry. A missing file blocks nothing. */
+let ARTICLE_BLOCK = new Set();
+try { ARTICLE_BLOCK = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'article-block.json'), 'utf8')).map((x) => String(x.slug))); }
+catch (e) { console.warn('build-suburbs: no data/article-block.json (' + e.message + ')'); }
 function applyArticleFixes(a) {
   let missed = 0;
   for (const f of ARTICLE_FIXES) {
@@ -2290,6 +2297,9 @@ function fixArticle(a) {
      the column (width:100%; height:auto), so the attributes only reserve the
      space. Anything that already states a size is left alone. */
   h = h.replace(/<img\b(?![^>]*\swidth=)([^>]*\ssrc=(["'])https:\/\/cdn\.grandranker\.com\/articles\/[^"']+\2[^>]*)>/gi, '<img width="1200" height="675"$1>');
+  /* A link to an article that is held back would be a dead link: keep the words, drop the link. */
+  h = h.replace(/<a\b[^>]*\shref=(["'])(?:https?:\/\/(?:www\.)?skytransfers\.com\.au)?\/blog\/([a-z0-9-]+)(?:\.html)?\/?(?:[#?][^"']*)?\1[^>]*>([\s\S]*?)<\/a>/gi,
+    (m, q, slug, text) => (ARTICLE_BLOCK.has(slug) ? text : m));
   const strip = (x) => x.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
   h = h.replace(/(<a\b[^>]*?href=)(["'])\s*https?:\/\/(?:www\.)?skytransfers\.com\.au\/?\s*\2/gi, (m, pre, q) => pre + q + esc(bookLinkFor(a)) + q);
   const bare = (u) => String(u || '').replace(/^https?:\/\/(www\.)?skytransfers\.com\.au/i, '').replace(/\.html$/, '');
@@ -2448,7 +2458,9 @@ async function writeBlog() {
       + '); /blog/ left exactly as committed');
     return;
   }
-  const list = Array.isArray(feed && feed.articles) ? feed.articles : [];
+  const fed = Array.isArray(feed && feed.articles) ? feed.articles : [];
+  const list = fed.filter((a) => !ARTICLE_BLOCK.has(blogSlug(a.slug)));
+  if (fed.length !== list.length) console.log(`build-suburbs: blog, ${fed.length - list.length} feed article(s) held back by data/article-block.json`);
   if (!list.length) { console.log('build-suburbs: blog feed has no articles; /blog/ left as committed'); return; }
 
   for (const a of list) applyArticleFixes(a);
