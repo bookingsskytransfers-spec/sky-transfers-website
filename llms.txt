@@ -174,12 +174,12 @@ departures and overnight arrivals are standard work, at the same fixed fare.
 
 ## Booking
 
-Online bookings close 6 hours before pick-up. Inside 6 hours, call — same-day
+Online bookings close 2 hours before pick-up. Inside 2 hours, call — same-day
 transfers are taken whenever a vehicle is free. Booking 24–48 hours ahead is
 recommended to guarantee a particular vehicle, especially Sprinters and during
 school holidays.
 
-The six-hour cut-off is judged in Brisbane time, which is UTC+10 all year round —
+The two-hour cut-off is judged in Brisbane time, which is UTC+10 all year round —
 Queensland does not observe daylight saving. A pick-up time is read as local
 Brisbane time regardless of where the booking is made from.
 
