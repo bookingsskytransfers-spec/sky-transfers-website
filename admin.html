@@ -1145,6 +1145,25 @@
                 }).catch(function(err){ show($("web-msg"), err.message); });
               }));
               act.appendChild(document.createTextNode(" "));
+              /* Confirm against a deposit (11 Nov 2026): the guest is emailed the
+                 confirmation with a link for the deposit only, and any link for
+                 the full fare is switched off. The balance is asked for later
+                 with Send balance link. Goes to the address in the box above. */
+              var depPct = document.createElement("input");
+              depPct.type = "number"; depPct.min = "10"; depPct.max = "90"; depPct.step = "5"; depPct.value = b.depositPct || 20;
+              depPct.setAttribute("aria-label", "Deposit percentage");
+              depPct.style.cssText = "width:58px;font:inherit;font-size:12.5px;padding:4px 6px;margin:0 2px 4px 0";
+              act.appendChild(depPct);
+              act.appendChild(document.createTextNode("% "));
+              act.appendChild(armBtn(b.depositPct ? "Resend deposit link" : "Confirm with deposit", "Email the deposit link?", "", function(){
+                return api("/admin/web-booking/deposit", { method: "POST", body: { ref: b.ref, depositPct: depPct.value, to: to.value.trim() } }).then(function(d){
+                  show($("web-msg"), d.ref + " confirmed with a " + d.depositPct + "% deposit: $" + d.deposit + " now, $" + d.balance + " balance later. " +
+                    (d.emailed ? "Deposit link emailed to " + d.emailed + ". " : "No email on the booking - send the link yourself. ") +
+                    "You can also send it by text: " + d.payUrl, true);
+                  loadWeb();
+                }).catch(function(err){ show($("web-msg"), err.message); });
+              }));
+              act.appendChild(document.createTextNode(" "));
             }
           }
           if (b.status !== "declined" && b.status !== "cancelled") {
