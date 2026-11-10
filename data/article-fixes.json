@@ -967,13 +967,13 @@
   "slug": "wheelchair-airport-transfers-chauffeur-service",
   "field": "title",
   "find": "Do Wheelchair Users Need a Chauffeur for Airport Transfers?",
-  "replace": "Airport Transfers With a Foldable Wheelchair: A Planning Guide"
+  "replace": "Airport Transfers With a Foldable Wheelchair: Planning Guide"
  },
  {
   "slug": "wheelchair-airport-transfers-chauffeur-service",
   "field": "meta_title",
   "find": "Do Wheelchair Users Need a Chauffeur for Airport Transfers?",
-  "replace": "Airport Transfers With a Foldable Wheelchair: A Planning Guide"
+  "replace": "Airport Transfers With a Foldable Wheelchair: Planning Guide"
  },
  {
   "slug": "wheelchair-airport-transfers-chauffeur-service",
@@ -1162,7 +1162,7 @@
   "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",
   "field": "meta_title",
   "find": "Christmas Parties & Tamborine Winery Tours Transfers",
-  "replace": "Christmas Party & Winery Tour Transfers, Gold Coast & Tamborine | Sky Transfers"
+  "replace": "Christmas Party & Winery Tour Transfers | Gold Coast"
  },
  {
   "slug": "christmas-parties-tamborine-winery-tours-transfers-guide",

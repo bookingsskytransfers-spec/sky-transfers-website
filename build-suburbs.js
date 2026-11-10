@@ -2284,6 +2284,12 @@ function bookAnchor(href) {
 }
 function fixArticle(a) {
   let h = String(a.content_html || '');
+  /* The content service's pictures come without a width and height, so the
+     text below jumped down when each one arrived (33 articles, 11 Nov 2026).
+     Every one of them is 1200 x 675; the inline style already scales them to
+     the column (width:100%; height:auto), so the attributes only reserve the
+     space. Anything that already states a size is left alone. */
+  h = h.replace(/<img\b(?![^>]*\swidth=)([^>]*\ssrc=(["'])https:\/\/cdn\.grandranker\.com\/articles\/[^"']+\2[^>]*)>/gi, '<img width="1200" height="675"$1>');
   const strip = (x) => x.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
   h = h.replace(/(<a\b[^>]*?href=)(["'])\s*https?:\/\/(?:www\.)?skytransfers\.com\.au\/?\s*\2/gi, (m, pre, q) => pre + q + esc(bookLinkFor(a)) + q);
   const bare = (u) => String(u || '').replace(/^https?:\/\/(www\.)?skytransfers\.com\.au/i, '').replace(/\.html$/, '');
