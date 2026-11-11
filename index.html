@@ -1131,6 +1131,15 @@
         <div><label for="bf-email">Email</label><input id="bf-email" type="email" autocomplete="email" required></div>
         <div><label for="bf-pax">Passengers</label><input id="bf-pax" type="number" min="1" value="2" required></div>
       </div>
+      <!-- How many bags (11 Nov 2026): guests had nowhere to say. The count
+           travels in the notes, which the office, dispatch and the driver
+           already read, and it changes no price. updateBagsNote() hides the
+           row for a by-the-hour hire and drops its "required" with it. -->
+      <div class="row2" id="bf-bags-row">
+        <div><label for="bf-bags">Suitcases / large bags</label><input id="bf-bags" type="number" min="0" max="40" inputmode="numeric" placeholder="e.g. 2" required></div>
+        <div><label for="bf-carry">Carry-on / small bags (optional)</label><input id="bf-carry" type="number" min="0" max="40" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="notice" id="bags-note" hidden style="margin:-4px 0 14px"></div>
       <div class="row2">
         <div><label for="bf-date">Pick-up date</label><input id="bf-date" type="date" required></div>
         <div><label for="bf-time">Pick-up time</label><input id="bf-time" type="time" required></div>
@@ -1165,7 +1174,7 @@
         <div id="bf-do-addr-wrap"><label for="bf-do-addr">Drop-off address (street &amp; number, or hotel name)</label><input id="bf-do-addr" autocomplete="off"></div>
       </div>
       <div><label for="bf-ref">Referral code (optional)</label><input id="bf-ref" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="30"></div>
-      <div><label for="bf-notes">Notes (optional)</label><textarea id="bf-notes" rows="2" placeholder="Extra luggage, return trip, special requests&hellip;"></textarea></div>
+      <div><label for="bf-notes">Notes (optional)</label><textarea id="bf-notes" rows="2" placeholder="Golf bags, prams, oversize items, special requests&hellip;"></textarea></div>
       <button class="cta" type="button" id="pay-btn" hidden style="margin-bottom:10px">Pay securely &amp; confirm now</button>
       <button class="cta" type="submit" id="submit-btn">Request this booking</button>
       <div class="notice confirm" id="auto-ok" hidden style="margin-top:14px">
@@ -2244,6 +2253,7 @@ function currentTotal(){
        + (state.stopX ? (state.stopExtra || 0) : 0);
 }
 function updateTotal(){
+  updateBagsNote();
   if(state.price == null) return;
   var nst = state.stopX ? pickedStops().length : 0;
   $("total-label").textContent = "Total — " + state.vehicle + (isReturn() ? " (return)" : state.hourly ? " (" + hoursSel() + " h)" : "") +
@@ -2263,6 +2273,41 @@ function updateVehFine(){
 }
 $("bf-seats").addEventListener("change", updateTotal);
 $("bf-trailer").addEventListener("change", updateTotal);
+
+/* Luggage count (11 Nov 2026). Large bags each vehicle carries, the same
+   numbers as the capacity line on its card - explicit, like SEATS, so a copy
+   edit to the wording cannot change them. The note is advice only: it never
+   blocks a booking and never changes the price. */
+var BAG_CAP = {"Sedan":2,"SUV":4,"People Mover":6,"Luxury Sedan":2,"Luxury Minivan":6,"Mercedes Sprinter 10-Seater":11,"Mercedes Sprinter 14-Seater":15,"Mercedes Sprinter 18-Seater":18};
+function bagCount(id){
+  var el = $(id), n = el ? parseInt(el.value, 10) : NaN;
+  return (isNaN(n) || n < 0) ? null : Math.min(n, 40);
+}
+function luggageLine(){
+  if (state.hourly) return "";
+  var big = bagCount("bf-bags"), small = bagCount("bf-carry");
+  if (big === null) return "";
+  return "Luggage: " + big + (big === 1 ? " large bag" : " large bags") + (small ? ", " + small + " carry-on" : "") + ".";
+}
+/* What the booking carries as its notes: the bag count first, so it survives
+   wherever notes are shortened, then whatever the guest typed. */
+function notesWithLuggage(){
+  var l = luggageLine(), n = $("bf-notes").value.trim();
+  return l ? (n ? l + " " + n : l) : n;
+}
+function updateBagsNote(){
+  var row = $("bf-bags-row"), note = $("bags-note"), inp = $("bf-bags");
+  if (!row || !note || !inp) return;
+  row.hidden = !!state.hourly;
+  inp.required = !state.hourly;
+  var big = bagCount("bf-bags"), cap = BAG_CAP[state.vehicle];
+  var over = !state.hourly && big !== null && !!cap && big > cap && !$("bf-trailer").checked;
+  note.hidden = !over;
+  if (over) note.textContent = "The " + state.vehicle + " carries about " + cap + " large bags. For " + big +
+    ", choose a larger vehicle above or add the luggage trailer (+$" + TRAILER_PRICE + ") below.";
+}
+$("bf-bags").addEventListener("input", updateBagsNote);
+$("bf-trailer").addEventListener("change", updateBagsNote);
 
 /* Ticking the return changes every price on the page, so the vehicle grid is
    redrawn. refresh() drops the chosen vehicle on purpose — the figure the
@@ -2335,7 +2380,7 @@ function bookingPayload(){
     name: $("bf-name").value, phone: $("bf-phone").value,
     email: $("bf-email").value,
     pickupAddress: addrPair().pu, dropoffAddress: addrPair().dro, address: addrPair().line,
-    notes: $("bf-notes").value,
+    notes: notesWithLuggage(),
     /* A referral (the affiliate programme): a code typed here counts ahead of
        one remembered from a ?ref= link by /ref.js. The server decides whether
        either is real and ignores it if not - the guest never sees an error. */
@@ -2520,7 +2565,7 @@ function buildRequest(){
     "Phone: " + $("bf-phone").value,
     "Email: " + $("bf-email").value,
     "Exact pick-up/drop-off address: " + addrPair().line,
-    "Notes: " + ($("bf-notes").value || "-")
+    "Notes: " + (notesWithLuggage() || "-")
   ];
   var subject = "Booking request: " + state.pu + " -> " + state.dro + " (" + $("bf-date").value + ")";
   return {subject: subject, body: lines.join("\n")};
