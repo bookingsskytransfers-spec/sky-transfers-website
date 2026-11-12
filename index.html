@@ -701,6 +701,12 @@
   .extras-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--gold);flex:none}
   .x-price{color:var(--gold-deep);font-weight:700;margin-left:4px}
   .x-sub{color:var(--muted);font-size:12px;font-weight:400}
+  .seat-rows{padding:4px 0 6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+  .seat-rows p{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+  .seat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .seat-row>div{min-width:0}
+  .seat-row select{width:100%}
+  @media (max-width:420px){.seat-row{grid-template-columns:1fr;gap:6px;margin-bottom:14px}}
   .total-line{
     display:flex;justify-content:space-between;align-items:baseline;
     border-top:1px solid var(--line);margin-top:8px;padding-top:10px;
@@ -1161,6 +1167,9 @@
           <label for="bf-seats" style="margin:0">Baby / child seats <span class="x-price">$15 each</span></label>
           <select id="bf-seats" style="width:auto"><option value="0">None</option><option>1</option><option>2</option><option>3</option></select>
         </div>
+        <!-- One row per seat (12 Nov 2026): the child's age and the seat type, so
+             the right restraint is loaded. Drawn by drawSeatRows(). -->
+        <div class="seat-rows" id="bf-seat-rows" hidden></div>
         <label class="extras-row check" for="bf-trailer">
           <span>Luggage trailer <span class="x-price">+$30</span><br><small class="x-sub">Recommended for oversize or extra luggage, golf bags &amp; prams</small></span>
           <input type="checkbox" id="bf-trailer">
@@ -2292,9 +2301,64 @@ function luggageLine(){
 /* What the booking carries as its notes: the bag count first, so it survives
    wherever notes are shortened, then whatever the guest typed. */
 function notesWithLuggage(){
-  var l = luggageLine(), n = $("bf-notes").value.trim();
-  return l ? (n ? l + " " + n : l) : n;
+  return [seatLine(), luggageLine(), $("bf-notes").value.trim()].filter(Boolean).join(" ");
 }
+
+/* Child seat details (12 Nov 2026). The booking used to say only how many
+   seats, so a driver could not tell a capsule from a booster. Each seat now
+   asks the child's age (required) and the seat type (optional - left on "not
+   sure" we fit the one that suits the age). The answer travels as the first
+   line of the notes, which the office, the dispatch board and the driver
+   already read. It never changes the count or the price. The three types are
+   the ones on the child seats page. */
+var SEAT_AGES = ["Under 6 months", "6 to 12 months", "1 year", "2 years", "3 years", "4 years", "5 years", "6 years", "7 years or older"];
+var SEAT_TYPES = [["", "Not sure - we'll pick by age"], ["capsule", "Capsule (rear-facing, baby)"],
+  ["convertible", "Convertible seat (with harness)"], ["booster", "Booster seat"]];
+function seatCount(){ return Math.min(Math.max(parseInt($("bf-seats").value, 10) || 0, 0), 3); }
+function drawSeatRows(){
+  var box = $("bf-seat-rows"); if (!box) return;
+  var n = seatCount(), keep = [], i;
+  for (i = 1; i <= 3; i++) {
+    var a0 = $("bf-seat-age-" + i), t0 = $("bf-seat-type-" + i);
+    keep.push([a0 ? a0.value : "", t0 ? t0.value : ""]);
+  }
+  while (box.firstChild) box.removeChild(box.firstChild);
+  box.hidden = !n;
+  if (!n) return;
+  var p = document.createElement("p");
+  p.textContent = n === 1 ? "How old is the child? The right seat is fitted before the car leaves for you."
+                          : "How old is each child? The right seats are fitted before the car leaves for you.";
+  box.appendChild(p);
+  function field(id, label, opts, val, required){
+    var d = document.createElement("div"), l = document.createElement("label"), sel = document.createElement("select");
+    l.htmlFor = id; l.textContent = label; sel.id = id; sel.required = !!required;
+    opts.forEach(function(o){
+      var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op);
+    });
+    sel.value = val || "";
+    d.appendChild(l); d.appendChild(sel); return d;
+  }
+  var ages = [["", "Choose the age"]].concat(SEAT_AGES.map(function(a){ return [a, a]; }));
+  for (i = 1; i <= n; i++) {
+    var row = document.createElement("div"); row.className = "seat-row";
+    row.appendChild(field("bf-seat-age-" + i, (n > 1 ? "Child " + i + ": age" : "Child's age"), ages, keep[i - 1][0], true));
+    row.appendChild(field("bf-seat-type-" + i, "Seat type (optional)", SEAT_TYPES, keep[i - 1][1], false));
+    box.appendChild(row);
+  }
+}
+function seatLine(){
+  var n = seatCount(), out = [];
+  for (var i = 1; i <= n; i++) {
+    var a = $("bf-seat-age-" + i), t = $("bf-seat-type-" + i);
+    var age = a && a.value ? a.value.toLowerCase() : "age not given";
+    out.push(n > 1 ? i + ") " + age + (t && t.value ? ", " + t.value : "") : age + (t && t.value ? ", " + t.value : ""));
+  }
+  return out.length ? "Child seat" + (n > 1 ? "s" : "") + ": " + out.join("; ") + "." : "";
+}
+$("bf-seats").addEventListener("change", drawSeatRows);
+/* a browser that restores the form after Back sets the count without a change event */
+window.addEventListener("pageshow", drawSeatRows);
+drawSeatRows();
 function updateBagsNote(){
   var row = $("bf-bags-row"), note = $("bags-note"), inp = $("bf-bags");
   if (!row || !note || !inp) return;
