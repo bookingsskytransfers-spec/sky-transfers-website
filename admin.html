@@ -961,15 +961,20 @@
       $("nb-mode-wrap").hidden = !!ref;
       $("nb-manual-wrap").hidden = !amendPaid;
       $("nb-manual").checked = false;
+      /* 12 Nov 2026: a change to the date, time or passenger details no longer
+         re-prices the booking - the server keeps the stored total and tells the
+         guest what changed. Only what the price is built from re-prices it. */
+      var KEEPS = "Changing only the date, time, flight, passengers, contact details, address or notes keeps the price exactly as it is: nothing is re-priced, refunded or charged, and the guest's email says what changed. ";
+      var PRICED = "Changing the route, vehicle, child seats, trailer, stops, return trip or hours re-prices it";
       $("nb-amend-how").textContent = amendPaid && b.depositPct && b.balance > 0 && !b.balanceLinkUrl
-        ? "the DEPOSIT is paid ($" + Math.round(Number(b.total || 0) - Number(b.balance || 0)) + " of $" + Number(b.total || 0).toFixed(0) + "). Saving re-prices it and the balance owing changes to match; nothing is asked for until you press Send balance link. If the new price is below what's been paid, the difference is refunded automatically."
+        ? "the DEPOSIT is paid ($" + Math.round(Number(b.total || 0) - Number(b.balance || 0)) + " of $" + Number(b.total || 0).toFixed(0) + "). " + KEEPS + PRICED + " and the balance owing changes to match; nothing is asked for until you press Send balance link. If the new price is below what's been paid, the difference is refunded automatically."
         : !amendPaid && b && b.depositPct
-        ? "saving re-prices it and sends a new " + b.depositPct + "% deposit link for the new total; the old link is switched off."
+        ? "the " + b.depositPct + "% deposit is not paid yet. " + KEEPS + PRICED + " and the deposit follows the new total. Either way the guest gets a fresh deposit link and the old one is switched off."
         : amendPaid
-        ? "this booking is PAID ($" + Number(b.total || 0).toFixed(0) + "). If the new price is lower, the difference is refunded to the guest's card automatically; if higher, the guest is emailed a link for the difference only. Either way they get the updated confirmation."
-        : "saving re-prices it, switches off the old payment link, makes a new one and emails the guest the updated confirmation.";
+        ? "this booking is PAID ($" + Number(b.total || 0).toFixed(0) + "). " + KEEPS + PRICED + ": a lower price is refunded to the guest's card automatically, a higher one emails the guest a link for the difference only."
+        : "not paid yet. " + KEEPS + PRICED + ". Either way the guest gets a fresh payment link and the old one is switched off.";
       $("nb-submit").textContent = ref
-        ? (amendPaid ? "Save changes, settle the difference and re-send" : "Save changes and re-send the confirmation")
+        ? "Save changes and re-send the confirmation"
         : "Book it and send the confirmation";
     }
     $("nb-amend-cancel").addEventListener("click", function(){ setAmend(null); show($("nb-msg"), ""); });
@@ -1021,9 +1026,12 @@
       if (amendRef) { body.ref = amendRef; if (amendPaid) body.manualMoney = $("nb-manual").checked; }
       api(path, { method: "POST", body: body }).then(function(d){
         show($("nb-msg"), amendRef
-          ? ("Changed " + d.ref + ": was $" + d.was + ", now $" + d.total + ". " +
+          ? ((d.priceKept
+               ? "Changed " + d.ref + ": " + (d.changes && d.changes.length ? d.changes.join("; ") : "no trip details changed") +
+                 ". Price unchanged at $" + d.total + " - nothing re-priced, refunded or charged. "
+               : "Changed " + d.ref + ": was $" + d.was + ", now $" + d.total + ". ") +
              (d.refunded ? "$" + d.refunded + " refunded to the guest's card. " : "") +
-             (d.balance && d.balanceLink ? "Guest emailed a link for the $" + d.balance + " balance. "
+             (d.balance && d.balanceLink ? (d.priceKept ? "The $" + d.balance + " balance is still owing; the email repeats its link. " : "Guest emailed a link for the $" + d.balance + " balance. ")
               : d.balance ? "$" + d.balance + " balance owing - not asked for yet (Send balance link when ready). " : "") +
              (d.deposit ? "Deposit now $" + d.deposit + " (" + d.depositPct + "%). " : "") +
              (d.manual ? "Money to be settled by hand. " : "") +
