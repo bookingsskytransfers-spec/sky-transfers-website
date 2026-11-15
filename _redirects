@@ -256,5 +256,12 @@
 # terminal"; its two fare tables and its two fare-list FAQ answers were removed so
 # it stops competing with the money page on the transactional term. Added in Render:
 /blog/seamless-airport-transfers-for-cruise-passengers.html   /cruise-transfers.html   301
-# Note the ordering: Render never applies a redirect where a file is found, so this
-# rule does nothing until the article-block entry stops the file being built.
+/blog/seamless-airport-transfers-for-cruise-passengers        /cruise-transfers.html   301
+# Two sources because the extensionless rule already existed (p6), pointing at the
+# .html file - which would have become a redirect into a 404 once the block landed.
+# It was repointed at the money page. Note also that a single-route PATCH on the
+# Render API returns 200 and silently ignores a changed destination: the rule had to
+# be deleted and recreated. Live priorities 6 and 8, 167 rules in total.
+#
+# Ordering matters: Render never applies a redirect where a file is found, so these
+# rules do nothing until the article-block entry stops the file being built.
