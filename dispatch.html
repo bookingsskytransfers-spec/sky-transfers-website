@@ -175,7 +175,7 @@
     <div id="login-msg" class="msg" hidden></div>
     <form id="login-form">
       <div style="margin-bottom:12px">
-        <label for="pin">Admin PIN</label>
+        <label for="pin">Your PIN</label>
         <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
       </div>
       <button class="cta block" type="submit" id="login-btn">Sign in</button>
@@ -1997,7 +1997,9 @@
   });
 
   function enter(){
-    $("signin").hidden = true; $("app").hidden = false; $("who").hidden = false; $("who").textContent = "· signed in as office";
+    $("signin").hidden = true; $("app").hidden = false; $("who").hidden = false; $("who").textContent = "· signed in";
+    /* each person has their own login now (15 Nov 2026); an older server has no /admin/whoami */
+    api("/admin/whoami").then(function(d){ $("who").textContent = "· signed in as " + d.name; }).catch(function(){});
     var t = bneToday(), want = (/[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search) || [])[1];
     if (want) { $("j-from").value = want; $("j-to").value = want; }
     else if (!$("j-from").value) { $("j-from").value = t; $("j-to").value = addDays(t, 1); }

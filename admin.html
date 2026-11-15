@@ -154,7 +154,7 @@
     <div id="login-msg" class="msg" hidden></div>
     <form id="login-form">
       <div class="field">
-        <label for="pin">Admin PIN</label>
+        <label for="pin">Your PIN</label>
         <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
       </div>
       <button class="cta" type="submit" id="login-btn">Sign in</button>
@@ -171,6 +171,7 @@
       <button type="button" role="tab" data-tab="affiliates">Affiliates</button>
       <button type="button" role="tab" data-tab="gallery">Photo gallery</button>
       <button type="button" role="tab" data-tab="records">Old records</button>
+      <button type="button" role="tab" data-tab="staff" id="tab-staff" hidden>Staff</button>
     </nav>
 
     <div class="pane" data-pane="dash" role="tabpanel">
@@ -573,6 +574,53 @@
 
     </div>
 
+    <!-- Office staff logins and the activity log (15 Nov 2026). Only the main
+         admin login is shown this tab; the server refuses it to anyone else. -->
+    <div class="pane" data-pane="staff" role="tabpanel" hidden>
+    <section class="card" id="os-card">
+      <h2>Office staff logins</h2>
+      <div id="os-msg" class="msg" hidden></div>
+      <div id="os-pin" class="pinbox" hidden>
+        <div class="lbl">PIN for <span id="os-pin-for"></span></div>
+        <div class="val" id="os-pin-val"></div>
+        <p>Give this to them now — it is not shown again and is never emailed. They sign in with this PIN alone, on this page and on the dispatch page.</p>
+      </div>
+      <p class="muted" style="margin:0 0 14px">Each person gets their own PIN and signs in at the same box you do. A staff login can do everything in the office except this tab: only the main admin PIN can add or remove logins and read the activity log. Switching a login off signs that person out at once.</p>
+      <div class="scroll" style="margin-bottom:16px">
+        <table>
+          <thead><tr><th>Name</th><th>Status</th><th>Last signed in</th><th>Actions</th></tr></thead>
+          <tbody id="os-rows"></tbody>
+        </table>
+      </div>
+      <div class="row3">
+        <div><label for="os-name">Name</label><input id="os-name" maxlength="60" autocomplete="off"></div>
+      </div>
+      <button class="cta" id="os-add" type="button">Add a staff login &amp; issue a PIN</button>
+    </section>
+
+    <section class="card" id="oa-card">
+      <h2>Activity log</h2>
+      <div id="oa-msg" class="msg" hidden></div>
+      <p class="muted" style="margin:0 0 14px">Every sign-in and every change made in the office, newest first, with who made it. Opening or looking at a screen is not logged. Anything done with the main admin PIN shows as &ldquo;Main admin login&rdquo;. Kept for 400 days.</p>
+      <div class="row3">
+        <div><label for="oa-who">Who</label><select id="oa-who"><option value="">Everyone</option></select></div>
+        <div><label for="oa-from">From</label><input id="oa-from" type="date"></div>
+        <div><label for="oa-to">To</label><input id="oa-to" type="date"></div>
+      </div>
+      <div class="row3">
+        <div><label for="oa-q">Booking reference or word</label><input id="oa-q" maxlength="60" autocomplete="off" placeholder="e.g. ST-261205 or cancelled"></div>
+        <div style="align-self:end"><button class="cta" id="oa-show" type="button" style="margin:0">Show</button></div>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>When</th><th>Who</th><th>What</th><th>Booking</th><th>Details</th></tr></thead>
+          <tbody id="oa-rows"></tbody>
+        </table>
+      </div>
+      <p style="margin:12px 0 0"><button class="linkbtn" id="oa-more" hidden>Show older</button></p>
+    </section>
+    </div>
+
     <p><button class="linkbtn" id="signout">Sign out</button></p>
   </div>
 </div>
@@ -681,7 +729,137 @@
     $("admin").hidden = true;
     $("signin").hidden = false;
     $("who").hidden = true;
+    staffTab(false);
   }
+
+  /* ---- office staff logins and the activity log (15 Nov 2026) -----------
+     The server says who this session is. A staff login never sees the Staff
+     tab, and the server refuses its routes to them whatever the page shows.
+     Against a server from before this change /admin/whoami is not there:
+     the page then just says "Signed in" and the tab stays hidden. */
+  function staffTab(on){
+    $("tab-staff").hidden = !on;
+    var i = TABS.indexOf("staff");
+    if (on && i === -1) TABS.push("staff");
+    if (!on && i !== -1) TABS.splice(i, 1);
+    if (!on) {
+      $("os-rows").innerHTML = ""; $("oa-rows").innerHTML = ""; $("os-pin").hidden = true;
+      if (!document.querySelector('.pane[data-pane="staff"]').hidden) showTab("dash", true);
+    }
+  }
+  function whoLoad(){
+    return api("/admin/whoami").then(function(d){
+      $("who").textContent = "Signed in as " + d.name;
+      var owner = d.role === "owner";
+      staffTab(owner);
+      if (owner) {
+        osLoad(); oaLoad(true);
+        if (String(location.hash || "").slice(1) === "staff") showTab("staff", true);
+      }
+    }).catch(function(){ staffTab(false); });
+  }
+  function bneWhen(v){
+    if (!v) return "never";
+    try { return new Date(v).toLocaleString("en-AU", { timeZone: "Australia/Brisbane", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }); }
+    catch (e) { return String(v).slice(0, 16).replace("T", " "); }
+  }
+  function osPin(name, pin){
+    $("os-pin-for").textContent = name;
+    $("os-pin-val").textContent = pin;
+    $("os-pin").hidden = false;
+    $("os-pin").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function osCall(path, body, done){
+    show($("os-msg"), "");
+    return api(path, { method: "POST", body: body })
+      .then(function(d){ if (done) done(d); return osLoad(); })
+      .catch(function(err){ show($("os-msg"), err.message); });
+  }
+  function osLoad(){
+    return api("/admin/staff").then(function(d){
+      var tb = $("os-rows");
+      if (!d.staff.length) { tb.innerHTML = '<tr><td colspan="4" class="muted">No staff logins yet — everyone is using the main admin PIN.</td></tr>'; return; }
+      tb.innerHTML = "";
+      d.staff.forEach(function(u){
+        var tr = document.createElement("tr");
+        if (!u.active) tr.className = "off";
+        [u.name, u.active ? "On" : "Switched off", bneWhen(u.lastLoginAt)].forEach(function(v){
+          var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+        });
+        var acts = document.createElement("td");
+        if (u.active) {
+          acts.appendChild(armBtn("New PIN", "Issue a new PIN?", "", function(){
+            return osCall("/admin/staff/pin", { id: u.id }, function(r){ osPin(u.name, r.pin); });
+          }));
+          acts.appendChild(armBtn("Switch off", "Sign them out now?", "danger", function(){
+            return osCall("/admin/staff/update", { id: u.id, active: false }, function(){ $("os-pin").hidden = true; });
+          }));
+        } else {
+          acts.appendChild(actionBtn("Switch back on", "", function(){
+            osCall("/admin/staff/update", { id: u.id, active: true }, function(r){ if (r.pin) osPin(u.name, r.pin); });
+          }));
+        }
+        tr.appendChild(acts);
+        tb.appendChild(tr);
+      });
+    }).catch(function(err){ show($("os-msg"), err.message); });
+  }
+  $("os-add").addEventListener("click", function(){
+    var btn = $("os-add"), name = $("os-name").value.trim();
+    if (!name) { show($("os-msg"), "Enter the person's name."); $("os-name").focus(); return; }
+    btn.disabled = true;
+    osCall("/admin/staff/add", { name: name }, function(r){
+      $("os-name").value = "";
+      osPin(r.user.name, r.pin);
+      oaPeople = null;
+    }).then(function(){ btn.disabled = false; });
+  });
+
+  var oaLast = null, oaPeople = null;
+  function oaQuery(before){
+    var p = [];
+    if ($("oa-who").value) p.push("who=" + encodeURIComponent($("oa-who").value));
+    if ($("oa-from").value) p.push("from=" + encodeURIComponent($("oa-from").value));
+    if ($("oa-to").value) p.push("to=" + encodeURIComponent($("oa-to").value));
+    if ($("oa-q").value.trim()) p.push("q=" + encodeURIComponent($("oa-q").value.trim()));
+    if (before) p.push("before=" + before);
+    return "/admin/activity" + (p.length ? "?" + p.join("&") : "");
+  }
+  function oaLoad(fresh){
+    show($("oa-msg"), "");
+    return api(oaQuery(fresh ? null : oaLast)).then(function(d){
+      var tb = $("oa-rows");
+      if (fresh) tb.innerHTML = "";
+      if (!oaPeople) {
+        oaPeople = d.people;
+        var sel = $("oa-who"), keep = sel.value;
+        sel.innerHTML = "";
+        [["", "Everyone"], ["owner", d.ownerName]].concat(d.people.map(function(p){ return [String(p.id), p.name + (p.active ? "" : " (switched off)")]; }))
+          .forEach(function(o){ var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+        sel.value = keep;
+      }
+      if (fresh && !d.rows.length) tb.innerHTML = '<tr><td colspan="5" class="muted">Nothing logged for that.</td></tr>';
+      d.rows.forEach(function(r){
+        var tr = document.createElement("tr");
+        if (!r.ok) tr.className = "off";
+        [bneWhen(r.at), r.who, r.action + (r.ok ? "" : " — not done"), r.ref, r.detail].forEach(function(v, i){
+          var td = document.createElement("td"); td.textContent = v || "";
+          if (i === 0 || i === 3) td.style.whiteSpace = "nowrap";
+          if (i === 2) td.style.whiteSpace = "normal";
+          if (i === 4) { td.style.fontSize = "13px"; td.style.minWidth = "260px"; td.style.whiteSpace = "normal"; }
+          tr.appendChild(td);
+        });
+        tb.appendChild(tr);
+        oaLast = r.id;
+      });
+      $("oa-more").hidden = !d.more;
+    }).catch(function(err){ show($("oa-msg"), err.message); });
+  }
+  $("oa-show").addEventListener("click", function(){ oaLoad(true); });
+  $("oa-more").addEventListener("click", function(){ oaLoad(false); });
+  $("oa-q").addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); oaLoad(true); } });
+  /* the log is read when the tab is opened, so it is never a stale copy */
+  $("tab-staff").addEventListener("click", function(){ if (!$("tab-staff").hidden) { osLoad(); oaLoad(true); } });
 
   /* ---- vehicle photo gallery ---------------------------------------------
      Each picture is drawn onto a canvas and re-encoded before it is sent.
@@ -1385,7 +1563,8 @@
     $("signin").hidden = true;
     $("admin").hidden = false;
     $("who").hidden = false;
-    $("who").textContent = "Signed in as office";
+    $("who").textContent = "Signed in";
+    whoLoad();
     dashStart();
     load();
     loadWeb();
