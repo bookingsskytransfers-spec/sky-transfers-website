@@ -265,3 +265,26 @@
 #
 # Ordering matters: Render never applies a redirect where a file is found, so these
 # rules do nothing until the article-block entry stops the file being built.
+
+# 15 Nov 2026 - Gold Coast cluster, same treatment as the cruise one above.
+# Two fed articles were competing with /gold-coast-airport-transfers.html across
+# the whole commercial Gold Coast set, neither earning a click:
+#   /blog/book-private-airport-transfer-gold-coast.html          190 imp, pos 68
+#   /blog/gold-coast-airport-transport-options-with-luggage.html  77 imp, pos 66
+# Unlike the cruise post, neither held an informational ranking worth keeping -
+# every query the first one appeared for was transactional, and the second's only
+# distinct queries were bag wrapping and lockers, which are not our business.
+# Both are now held back in data/article-block.json. Added in Render:
+/blog/book-private-airport-transfer-gold-coast.html            /gold-coast-airport-transfers.html   301
+/blog/book-private-airport-transfer-gold-coast                 /gold-coast-airport-transfers.html   301
+/blog/gold-coast-airport-transport-options-with-luggage.html   /gold-coast-airport-transfers.html   301
+/blog/gold-coast-airport-transport-options-with-luggage        /gold-coast-airport-transfers.html   301
+# The two extensionless rules already existed (p30 and p17) pointing at the .html
+# files, so both were deleted and recreated against the service page - a PATCH
+# would have returned 200 and changed nothing. 169 rules live after this.
+#
+# NOT fixed by this, and bigger: for "gold coast airport transfers" Google serves
+# the HOMEPAGE at position 42 and /gold-coast-airport-transfers.html at 96. The
+# service page is being beaten by our own homepage by 54 places. No redirect can
+# fix that - it needs the service page to be the better answer, or the homepage to
+# stop targeting the term. Worth looking at before writing anything new.

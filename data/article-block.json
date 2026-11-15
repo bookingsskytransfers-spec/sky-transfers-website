@@ -18,5 +18,13 @@
  {
   "slug": "seamless-airport-transfers-for-cruise-passengers",
   "why": "Duplicate of /blog/brisbane-airport-to-cruise-terminal.html and /cruise-transfers.html. Held back 15 Nov 2026: it was a third URL competing for 'brisbane cruise terminal transfers' (16 impressions at position 85, no clicks) and added nothing the other two do not say better. Redirected to /cruise-transfers.html in Render - the rule only fires once this block removes the file."
+ },
+ {
+  "slug": "book-private-airport-transfer-gold-coast",
+  "why": "Held back 15 Nov 2026. 190 impressions, zero clicks, and all 26 of its queries were transactional Gold Coast terms it ranked 70-100 for while the real service page sat below it - it had no informational query of its own. It also surfaced for the brand term 'sky transfers' at position 9, where the homepage belongs. Redirected to /gold-coast-airport-transfers.html."
+ },
+ {
+  "slug": "gold-coast-airport-transport-options-with-luggage",
+  "why": "Held back 15 Nov 2026. 77 impressions, zero clicks, competing with the service page on the same Gold Coast terms. Its only distinct queries were bag wrapping and airport lockers (4 impressions between them) - airport services we do not provide, so the readers it did attract could never book. Redirected to /gold-coast-airport-transfers.html."
  }
 ]
