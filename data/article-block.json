@@ -14,5 +14,9 @@
  {
   "slug": "how-to-prepare-for-a-guided-winery-tour",
   "why": "Repeats the clothing and packing advice; the transport part is covered by the three group-day articles that stay."
+ },
+ {
+  "slug": "seamless-airport-transfers-for-cruise-passengers",
+  "why": "Duplicate of /blog/brisbane-airport-to-cruise-terminal.html and /cruise-transfers.html. Held back 15 Nov 2026: it was a third URL competing for 'brisbane cruise terminal transfers' (16 impressions at position 85, no clicks) and added nothing the other two do not say better. Redirected to /cruise-transfers.html in Render - the rule only fires once this block removes the file."
  }
 ]

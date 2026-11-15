@@ -239,3 +239,22 @@
 
 # 3 Nov 2026 - affiliate programme. Added in Render (rdr-dbkgqds9v7es739t0ib0):
 #   /referral.html -> /affiliates.html
+
+# 15 Nov 2026 - cruise terminal consolidation. Search Console showed three of our
+# own URLs competing for "brisbane cruise terminal transfers" (146 impressions,
+# zero clicks, all at position 75-85):
+#   /blog/brisbane-airport-to-cruise-terminal.html        75 imp, pos 75
+#   /cruise-transfers.html                                55 imp, pos 83
+#   /blog/seamless-airport-transfers-for-cruise-passengers.html  16 imp, pos 85
+# The two older WordPress cruise URLs were already redirected here (see
+# /services/cruise-transfers/ and the "comparing-different-options" rule above),
+# so those needed nothing.
+#
+# The fed article was the pure duplicate and is now held back in
+# data/article-block.json. The hand-written post keeps the informational cluster,
+# where it is already position 1 for "how to get from brisbane airport to cruise
+# terminal"; its two fare tables and its two fare-list FAQ answers were removed so
+# it stops competing with the money page on the transactional term. Added in Render:
+/blog/seamless-airport-transfers-for-cruise-passengers.html   /cruise-transfers.html   301
+# Note the ordering: Render never applies a redirect where a file is found, so this
+# rule does nothing until the article-block entry stops the file being built.
