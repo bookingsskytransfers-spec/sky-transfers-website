@@ -205,6 +205,8 @@
   </section>
 
   <div id="portal" hidden>
+    <!-- shown only to Sky's own office, working here for the agency (17 Nov 2026) -->
+    <div id="office-banner" class="msg ok" hidden></div>
 
     <p class="muted" style="margin:0 0 14px;text-align:center">
       First time here, or want the whole thing written down?
@@ -521,6 +523,18 @@
      machine, and a wallet balance should not still be there tomorrow. */
   var token = null;
   try { token = sessionStorage.getItem("sky_agent_token"); } catch (e) {}
+  /* An office session (admin "Book for this agent", 17 Nov 2026) normally
+     arrives in sessionStorage. When the admin page could not reach this tab's
+     storage it comes after the # instead: keep it, and wipe it from the
+     address at once so it is not left in view or in history. */
+  try {
+    var officeHash = /^#office=(.+)$/.exec(location.hash || "");
+    if (officeHash) {
+      token = decodeURIComponent(officeHash[1]);
+      history.replaceState(null, "", location.pathname);
+      sessionStorage.setItem("sky_agent_token", token);
+    }
+  } catch (e) {}
 
   /* pu / dro hold the NAME the fare engine prices on (one of our places, or
      the suburb Google gives an address we have no zone for); puEnd / droEnd
@@ -585,6 +599,7 @@
     $("portal").hidden = true;
     $("signin").hidden = false;
     $("who").hidden = true;
+    $("office-banner").hidden = true;
   }
   $("signout").addEventListener("click", signOut);
 
@@ -639,7 +654,10 @@
       $("inv-basis").textContent = d.rateCard ? "Invoices are at the full fare, and rate card trips at your rate card price" : "Invoices are at the full fare";
       applyRole();
       $("who").hidden = false;
-      $("who").textContent = (state.me.role !== "owner" && state.me.name ? state.me.name + " · " : "") + d.agent.name + " · " + d.agent.code;
+      $("who").textContent = (state.me.office ? "Sky office · " : "") + (state.me.role !== "owner" && state.me.name ? state.me.name + " · " : "") + d.agent.name + " · " + d.agent.code;
+      $("office-banner").hidden = !state.me.office;
+      if (state.me.office) $("office-banner").textContent = "Sky Transfers office: you are booking for " + d.agent.name + " (" + d.agent.code + "), signed in as " + state.me.office +
+        ". Everything here is the agent's own: their prices, their bookings, their wallet. Bookings you make are marked Sky Transfers office and the agent is emailed as usual. This tab signs out after two hours.";
       if (d.wallet) {
         $("w-balance").textContent = money(d.wallet.balance);
         $("w-earned").textContent = money(d.wallet.earned);
