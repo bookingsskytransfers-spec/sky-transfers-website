@@ -362,6 +362,18 @@
     </div>
 
     <div class="pane" data-pane="new" role="tabpanel" hidden>
+    <!-- Booking for an agent (17 Nov 2026): opens the agent's own booking page,
+         signed in for them, so their prices, rate card and tours all apply. -->
+    <section class="card" id="bfa-card">
+      <h2>Booking for an agent?</h2>
+      <div id="bfa-msg" class="msg" hidden></div>
+      <p class="muted" style="margin:0 0 12px">This opens that agent&rsquo;s own booking page in a new tab, already signed in for them &mdash; their prices, their rate card, tours and vouchers. The agent is emailed the confirmation as usual, the booking is marked &ldquo;Sky Transfers office&rdquo;, and it is logged under your name. The tab signs itself out after two hours. The form below is for direct guests only.</p>
+      <div class="row3">
+        <div><label for="bfa-agent">Agent</label><select id="bfa-agent"><option value="">Choose the agent</option></select></div>
+        <div style="align-self:end"><button class="cta" type="button" id="bfa-open" style="margin:0">Open their booking page</button></div>
+      </div>
+    </section>
+
     <section class="card" id="nb-card">
       <h2>New booking for a guest</h2>
       <div id="nb-msg" class="msg" hidden></div>
@@ -1772,6 +1784,7 @@
 
   function load(){
     return api("/admin/agents").then(function(d){
+      bfaFill(d.agents);
       var tb = $("rows");
       if (!d.agents.length) {
         tb.innerHTML = '<tr><td colspan="8" class="muted">No agents yet — add the first one below.</td></tr>';
@@ -1793,6 +1806,7 @@
 
         var acts = document.createElement("td");
         acts.appendChild(actionBtn("Edit", "", function(){ editAgent(a); }));
+        if (a.active) acts.appendChild(actionBtn("Book for them", "", function(){ bookForAgent(a, $("list-msg")); }));
         acts.appendChild(armBtn("New PIN", "Issue a new PIN?", "", function(){ return resetPin(a); }));
         acts.appendChild(actionBtn("Bookings", "", function(){ showBookings(a); }));
         acts.appendChild(actionBtn("Staff" + (a.staff ? " (" + a.staff + ")" : ""), "", function(){ showStaff(a); }));
@@ -1858,6 +1872,43 @@
       })
       .catch(function(err){ show($("form-msg"), err.message); })
       .then(function(){ btn.disabled = false; btn.textContent = label; });
+  });
+
+  /* ---- booking for an agent (17 Nov 2026) --------------------------------
+     The server gives this office login a two-hour session on the agent portal
+     as that agency. The new tab is opened inside the click (a tab opened
+     after waiting for the server is blocked as a pop-up), then handed the
+     session through its own sessionStorage, where the portal page keeps it -
+     so it is never in an address. If the browser will not let this page reach
+     the new tab's storage, it goes in the address after the #, which is never
+     sent anywhere, and the portal page wipes it from the address at once. */
+  var bfaAgents = [];
+  function bfaFill(list){
+    bfaAgents = (list || []).filter(function(a){ return a.active; });
+    var sel = $("bfa-agent"), keep = sel.value;
+    sel.innerHTML = "";
+    [["", bfaAgents.length ? "Choose the agent" : "No active agents"]].concat(bfaAgents.map(function(a){ return [a.code, a.name + " (" + a.code + ")" + (a.rateCard ? " · rate card" : "")]; }))
+      .forEach(function(o){ var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+    sel.value = keep; if (sel.selectedIndex < 0) sel.value = "";
+  }
+  function bookForAgent(a, msgEl){
+    show(msgEl, "");
+    var w = null;
+    try { w = window.open("", "_blank"); } catch (e) {}
+    if (!w) { show(msgEl, "Your browser blocked the new tab. Allow pop-ups for this page, then press it again."); return; }
+    try { w.document.title = "Opening…"; w.document.body.style.font = "16px system-ui, sans-serif"; w.document.body.style.padding = "24px"; w.document.body.textContent = "Opening the booking page for " + a.name + "…"; } catch (e) {}
+    api("/admin/agent/act-as", { method: "POST", body: { code: a.code } }).then(function(d){
+      var handed = false;
+      try { w.sessionStorage.setItem("sky_agent_token", d.token); w.sessionStorage.removeItem("sky_agent_tour"); handed = true; } catch (e) {}
+      w.location.replace(location.origin + "/agent.html" + (handed ? "" : "#office=" + encodeURIComponent(d.token)));
+      show(msgEl, "Opened " + d.name + "'s booking page in a new tab. It signs itself out after " + d.hours + " hours.", true);
+    }).catch(function(err){ try { w.close(); } catch (e) {} show(msgEl, err.message); });
+  }
+  $("bfa-open").addEventListener("click", function(){
+    var code = $("bfa-agent").value, a = null;
+    bfaAgents.forEach(function(x){ if (x.code === code) a = x; });
+    if (!a) { show($("bfa-msg"), "Choose the agent first."); $("bfa-agent").focus(); return; }
+    bookForAgent(a, $("bfa-msg"));
   });
 
   function resetPin(a){
