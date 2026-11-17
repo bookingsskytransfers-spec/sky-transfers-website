@@ -1486,6 +1486,23 @@ function gpReady(){
     return true;
   } catch (e) { return false; }
 }
+/* Tells the booking server whether Google's address search answered, so the
+   office is emailed when it stops (18 Nov 2026): the status word only - no
+   address, nothing typed, nothing about the guest - and at most once per
+   page load for "answered" and once for "refused". */
+var gpSaid = {};
+function gpSignal(status){
+  try {
+    var s = String(status || "");
+    var kind = (s === "OK" || s === "ZERO_RESULTS") ? "ok" : (s === "REQUEST_DENIED" || s === "OVER_QUERY_LIMIT" || s === "UNKNOWN_ERROR") ? "bad" : "";
+    if (!kind || gpSaid[kind] || !SERVER_URL || !window.fetch) return;
+    gpSaid[kind] = 1;
+    fetch(SERVER_URL + "/site-signal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ k: "address", s: s }), keepalive: true })
+      .catch(function(){});
+  } catch (e) { /* a report must never get in the way of a booking */ }
+}
+/* Google calls this itself when it rejects the page's key outright. */
+window.gm_authFailure = function(){ gpSignal("REQUEST_DENIED"); };
 function gpToken(){
   if (!GP.token && window.google && google.maps && google.maps.places) {
     GP.token = new google.maps.places.AutocompleteSessionToken();
@@ -1587,6 +1604,7 @@ function attachAC(inputId, listId, onPick){
       componentRestrictions: { country: "au" },
       sessionToken: gpToken()
     }, function(preds, status){
+      gpSignal(status);
       if (input.value.trim() !== q) return;
       if (status !== google.maps.places.PlacesServiceStatus.OK || !preds) return;
       var have = {};
@@ -1616,6 +1634,7 @@ function attachAC(inputId, listId, onPick){
       sessionToken: gpToken()
     }, function(place, status){
       GP.token = null;                                  // session ends with getDetails
+      gpSignal(status);
       if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
         note("Could not check that address — please pick a suburb from the list.");
         return;
