@@ -1021,20 +1021,23 @@ const REGIONS = [
   },
   {
     slug: 'sunshine-coast-airport-transfers', name: 'Sunshine Coast', zones: ['SC1', 'SC2', 'SC3', 'SC4'],
-    title: 'Sunshine Coast Airport Transfers | From Brisbane Airport',
-    desc: 'Brisbane Airport to the Sunshine Coast from $280 per vehicle: Caloundra, Mooloolaba, Maroochydore, Coolum and Noosa. Fixed fares, toll and GST in.',
+    title: 'Sunshine Coast Airport Transfers | To and From Brisbane',
+    desc: 'Sunshine Coast to Brisbane Airport and back, from $280 per vehicle: Caloundra, Mooloolaba, Maroochydore, Coolum and Noosa. One fare per vehicle, not per person, tolls and GST in.',
     h1: 'Sunshine Coast airport transfers, fixed price',
     lead: 'Private chauffeur transfers between Brisbane Airport (BNE) and every Sunshine Coast suburb we price, from Caloundra to Noosa. One fixed fare per vehicle, published below, the same at 4am as at 4pm.',
     notes: [
       'Most Sunshine Coast travellers use Brisbane Airport for international flights and for the routes Sunshine Coast Airport does not fly. The drive is the Bruce Highway south to the Gateway Motorway, about an hour from Caloundra and closer to two from Noosa outside peak; the Gateway toll is inside every fare in the table.',
       'The Bruce is a working highway and it does slow down \u2014 Friday afternoons northbound and Sunday evenings southbound most of all \u2014 so for a departure we recommend a pick-up time with a highway margin built in and confirm it with you when we confirm the booking. On arrivals we track the flight and the driver meets you inside the terminal with a name board; international arrivals include 60 minutes of free waiting rather than the usual 30.',
       'Fares are per vehicle, not per person. A family or a group of friends pays one price for the trip, and a Luxury Minivan or Sprinter takes the surfboards, golf bags and prams without a trailer. Sunshine Coast Airport at Marcoola is also a priced destination for travellers connecting between the two airports.',
+      'Most of this run is travelled in the Sunshine Coast to Brisbane direction \u2014 a flight out of Brisbane that the coast cannot reach directly \u2014 and the fare is identical either way. The shared airport shuttles are the main alternative on this route and the two suit different trips. A shuttle seat is priced per person and runs to a timetable, collecting and setting down other passengers along the way, which makes it the cheaper choice for one or two people travelling light. A private transfer is one fixed fare for the whole vehicle, leaves when you want it, and runs from your address to the terminal with nobody else aboard \u2014 which is what makes it work for groups, for real luggage, and for the 3am departures no timetable covers.',
     ],
     faq: [
       ['How long is the drive from Brisbane Airport to the Sunshine Coast?', 'It depends where on the coast: about {MIN_LOW} to Caloundra and the southern end, about {MIN_HIGH} to Noosa, outside peak. Every suburb page shows its own measured drive time.'],
       ['Is the fare the same for an early-morning or late-night flight?', 'Yes. The published fare applies at any hour, any day, including public holidays. There is no after-hours loading and no surge.'],
       ['Can you carry surfboards and golf bags?', 'Yes. A Luxury Minivan or Sprinter takes them without a trailer; a trailer is available for $30 if a sedan or SUV needs it.'],
       ['Do you go to Sunshine Coast Airport?', 'Yes, it is priced like any Sunshine Coast suburb \u2014 see the Sunshine Coast Airport (MCY) page \u2014 for travellers connecting between Brisbane and Marcoola.'],
+      ['Do you pick up from the domestic or the international terminal?', 'Whichever one your flight uses. Give us the flight number when you book and we track it, so the chauffeur is waiting at the right terminal with a name board and you never cross between them \u2014 Brisbane\u2019s two terminals are about four kilometres apart. International arrivals include 60 minutes of free waiting, domestic 30.'],
+      ['Is a private transfer cheaper than the Sunshine Coast shuttle?', 'Usually not for one or two people travelling light \u2014 a shuttle is priced per seat, so for a couple it is normally the cheaper fare. Ours is priced per vehicle from $280, which improves the larger the group: a Sprinter carrying a family or a work party is one fare rather than eight seats. The real difference is not the price but the trip \u2014 no timetable, no other passengers\u2019 stops, and door to door at any hour.'],
     ],
   },
   {
