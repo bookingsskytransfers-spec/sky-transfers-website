@@ -288,3 +288,21 @@
 # service page is being beaten by our own homepage by 54 places. No redirect can
 # fix that - it needs the service page to be the better answer, or the homepage to
 # stop targeting the term. Worth looking at before writing anything new.
+
+# 17 Nov 2026 - found through Bing Webmaster Tools' AI Performance report, not
+# Search Console. /brisbane-to-movie-world-transfer-fast-easy-family-friendly-options/
+# was one of the ~90 thin legacy posts deliberately left to 404 in the note above -
+# but it is being CITED BY AI ASSISTANTS 34 times in 90 days, the fifth most cited
+# URL on the whole site. Every one of those citations sent a reader to a 404.
+#
+# That is exactly the trigger the note above describes ("if Search Console later
+# shows one of them earning impressions or holding real referring domains"), with
+# AI citations as the signal instead of impressions. Added in Render at p178/p179,
+# both with and without the trailing slash:
+/brisbane-to-movie-world-transfer-fast-easy-family-friendly-options/   /theme-park-transfers.html   301
+/brisbane-to-movie-world-transfer-fast-easy-family-friendly-options    /theme-park-transfers.html   301
+#
+# WORTH REPEATING THE CHECK: the AI Performance > Pages report lists every URL an
+# assistant has cited. Run the list against the live site for 404s now and then -
+# a dead URL with citations is worth more than a dead URL with impressions, because
+# the assistant is actively recommending it to someone who asked.
