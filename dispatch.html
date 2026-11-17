@@ -423,6 +423,8 @@
       <div class="card" id="i-new-card">
         <h2>New invoice</h2>
         <div id="i-new-msg" class="msg" hidden></div>
+        <!-- shown while a sent invoice is being amended (18 Nov 2026) -->
+        <div id="in-amend" class="msg ok" hidden><span id="in-amend-text"></span> <span id="in-amend-acts" style="white-space:nowrap"></span></div>
         <div class="toolbar">
           <div style="min-width:220px"><label for="in-party">Account</label><select id="in-party"></select></div>
           <div><label for="in-from">Jobs from</label><input id="in-from" type="date"></div>
@@ -1456,6 +1458,57 @@
   $("in-thismonth").addEventListener("click", function(){ var r = monthRange(0); $("in-from").value = r[0]; $("in-to").value = r[1]; showDraft(); });
   $("in-show").addEventListener("click", showDraft);
   var DRAFT = null;
+  /* Amending a sent invoice (18 Nov 2026). The server voids it and hands back
+     what was on it; AMEND remembers that until the replacement is issued or
+     the old one is put back. Nothing here edits an issued invoice. */
+  var AMEND = null;
+  function ensureParty(val, label){
+    var sel = $("in-party");
+    if (!Array.prototype.some.call(sel.options, function(o){ return o.value === val; })) sel.appendChild(new Option(label, val));
+    sel.value = val;
+  }
+  function drawAmend(note){
+    var box = $("in-amend"); box.hidden = !AMEND; if (!AMEND) return;
+    $("in-amend-text").textContent = "Amending " + AMEND.number + " — it is now void, and the " + AMEND.refs.length + (AMEND.refs.length === 1 ? " job" : " jobs") +
+      " that were on it are ticked below. Untick a job to take it off, tick another to add it, press “change” beside an amount to fix a price, then press Issue invoice. " +
+      "The new invoice will say it replaces " + AMEND.number + (AMEND.sentTo ? " (emailed to " + AMEND.sentTo + ")" : "") +
+      ". A job that is not listed: add it on the Jobs tab, or widen the dates, then press Show jobs." + (note ? " " + note : "");
+    var acts = $("in-amend-acts"); acts.innerHTML = "";
+    var a = AMEND;
+    acts.appendChild(armBtn("Put " + a.number + " back as it was", "Put it back?", "", function(){
+      return restoreInvoice(a.id, a.number, function(text, ok){ show($("i-new-msg"), text, ok); });
+    }));
+  }
+  function startAmend(inv, say){
+    return api("/ops/invoice/amend", { method: "POST", body: { id: inv.id } }).then(function(d){
+      var val = d.partyType + ":" + d.partyKey, label = d.partyName + (d.partyType === "agent" ? " (agent)" : "");
+      AMEND = { id: d.id, number: d.number, party: val, label: label, refs: d.refs || [], sentTo: d.sentTo };
+      if (d.from && d.to) { $("in-from").value = d.from; $("in-to").value = d.to; }
+      return loadBilling().then(function(){
+        ensureParty(val, label); drawAmend();
+        $("i-new-card").scrollIntoView({ behavior: "smooth" });
+        showDraft();
+      });
+    }).catch(function(err){ say(err.message); });
+  }
+  function restoreInvoice(id, number, say){
+    return api("/ops/invoice/restore", { method: "POST", body: { id: id } }).then(function(){
+      if (AMEND && AMEND.id === id) { AMEND = null; drawAmend(); $("in-draft").hidden = true; }
+      say(number + " is back as it was: open, with its card link on.", true);
+      return loadBilling();
+    }).catch(function(err){ say(err.message); });
+  }
+  /* in the draft, tick only what was on the invoice being amended */
+  function amendTicks(d){
+    if (!AMEND || AMEND.party !== $("in-party").value) return;
+    var seen = {}, all = true;
+    Array.prototype.forEach.call(document.querySelectorAll("#in-rows input[type=checkbox]"), function(c){
+      c.checked = AMEND.refs.indexOf(c.dataset.ref) !== -1; seen[c.dataset.ref] = true; if (!c.checked) all = false;
+    });
+    $("in-all").checked = all;
+    var gone = AMEND.refs.filter(function(r){ return !seen[r]; });
+    drawAmend(gone.length ? "Not in this list (cancelled, or outside these dates): " + gone.join(", ") + "." : "");
+  }
   function partyOf(){ var v = $("in-party").value.split(":"); return { partyType: v[0], partyKey: v.slice(1).join(":") }; }
   function showDraft(){
     show($("i-new-msg"), ""); $("in-draft").hidden = true;
@@ -1479,7 +1532,7 @@
           ch.addEventListener("click", function(){ changeJobAmount(l.ref, l.amount, function(err){ if (err) show($("i-new-msg"), err.message); else showDraft(); }); });
           am.appendChild(ch);
         });
-        $("in-all").checked = true; draftTotals(); $("in-draft").hidden = false;
+        $("in-all").checked = true; amendTicks(d); draftTotals(); $("in-draft").hidden = false;
       }).catch(function(err){ show($("i-new-msg"), err.message); });
   }
   $("in-all").addEventListener("change", function(){
@@ -1494,9 +1547,12 @@
     var refs = Array.prototype.map.call(document.querySelectorAll("#in-rows input:checked"), function(c){ return c.dataset.ref; });
     if (!refs.length) { show($("i-new-msg"), "Tick at least one job."); return; }
     var b = $("in-issue"); b.disabled = true; var p = partyOf();
-    api("/ops/invoice", { method: "POST", body: { partyType: p.partyType, partyKey: p.partyKey, from: $("in-from").value, to: $("in-to").value, refs: refs } })
+    var replaces = AMEND && AMEND.party === $("in-party").value ? AMEND.number : undefined;
+    api("/ops/invoice", { method: "POST", body: { partyType: p.partyType, partyKey: p.partyKey, from: $("in-from").value, to: $("in-to").value, refs: refs, replaces: replaces } })
       .then(function(d){
-        show($("i-new-msg"), "Issued " + d.invoice.number + " to " + d.invoice.partyName + " for " + money(d.invoice.total) + " — download or email it below.", true);
+        show($("i-new-msg"), "Issued " + d.invoice.number + " to " + d.invoice.partyName + " for " + money(d.invoice.total) +
+          (d.invoice.replaces ? ", replacing " + d.invoice.replaces + ". Email it below — the email tells them to disregard " + d.invoice.replaces + "." : " — download or email it below."), true);
+        if (d.invoice.replaces) { AMEND = null; drawAmend(); }
         $("in-draft").hidden = true; $("il-status").value = "issued"; return loadBilling();
       }).catch(function(err){ show($("i-new-msg"), err.message); })
       .then(function(){ b.disabled = false; });
@@ -1518,7 +1574,7 @@
     var st = $("il-status").value;
     return api("/ops/invoices" + (st ? "?status=" + st : "")).then(function(d){
       var tb = $("il-rows"); tb.innerHTML = "";
-      if (!d.invoices.length) { var r0 = tb.insertRow(); var c0 = r0.insertCell(); c0.colSpan = 7; c0.className = "muted"; c0.textContent = "No invoices here yet."; return; }
+      if (!d.invoices.length) { var r0 = tb.insertRow(); var c0 = r0.insertCell(); c0.colSpan = 7; c0.className = "muted"; c0.textContent = "No invoices here yet."; }
       d.invoices.forEach(function(inv){
         var tr = tb.insertRow(); if (inv.status === "void") tr.className = "off";
         tr.insertCell().textContent = inv.number + " · " + inv.lineCount + " job" + (inv.lineCount === 1 ? "" : "s");
@@ -1531,6 +1587,9 @@
           inv.status === "paid" ? "Paid" : inv.status === "void" ? "Void" : inv.overdue ? "Overdue" : "Open"));
         if (inv.sentAt) stc.appendChild(el("div", "muted", "Sent to " + inv.sentTo));
         if (inv.paidNote && inv.status === "paid") stc.appendChild(el("div", "muted", inv.paidNote));
+        if (inv.replaces) stc.appendChild(el("div", "muted", "Replaces " + inv.replaces));
+        if (inv.replacedBy) stc.appendChild(el("div", "muted", "Replaced by " + inv.replacedBy));
+        if (inv.amending) stc.appendChild(el("div", "muted", "Being amended — not re-issued yet"));
         var act = tr.insertCell(); act.style.whiteSpace = "nowrap";
         var msg = el("div", "muted");
         var pdf = el("button", "act", "PDF"); pdf.addEventListener("click", function(){ downloadPdf(inv).catch(function(err){ msg.textContent = err.message; }); });
@@ -1555,6 +1614,8 @@
             return api("/ops/invoice/paid", { method: "POST", body: { id: inv.id } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
           }));
           act.appendChild(document.createTextNode(" "));
+          act.appendChild(armBtn("Amend", "Void it & amend?", "", function(){ return startAmend(inv, function(t){ msg.textContent = t; }); }));
+          act.appendChild(document.createTextNode(" "));
           act.appendChild(armBtn("Void", "Void it?", "danger", function(){
             return api("/ops/invoice/void", { method: "POST", body: { id: inv.id } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
           }));
@@ -1562,8 +1623,20 @@
           act.appendChild(armBtn("Re-open", "Mark unpaid?", "", function(){
             return api("/ops/invoice/paid", { method: "POST", body: { id: inv.id, paid: false } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
           }));
+        } else if (inv.amending) {
+          /* voided by Amend and not re-issued: carry on, or put it back */
+          var go = el("button", "act", "Continue amending");
+          go.addEventListener("click", function(){ startAmend(inv, function(t){ msg.textContent = t; }); });
+          act.appendChild(go); act.appendChild(document.createTextNode(" "));
+          act.appendChild(armBtn("Put it back", "Put it back?", "", function(){
+            return restoreInvoice(inv.id, inv.number, function(t){ msg.textContent = t; });
+          }));
         }
         act.appendChild(msg);
+      });
+      return api("/ops/invoices?status=void").then(function(v){
+        var open = v.invoices.filter(function(x){ return x.amending; }).map(function(x){ return x.number; });
+        show($("i-list-msg"), open.length ? open.join(", ") + (open.length === 1 ? " is" : " are") + " void, waiting for the amended invoice to be issued. Choose Show: Void to continue or to put " + (open.length === 1 ? "it" : "them") + " back." : "", true);
       });
     }).catch(function(err){ show($("i-list-msg"), err.message); });
   }
