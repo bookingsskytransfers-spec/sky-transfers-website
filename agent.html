@@ -1452,6 +1452,12 @@
   var GP = { svc: null, det: null, token: null };
   var GP_ALIAS = { "brisbane airport": BNE, "brisbane airport (bne)": BNE, "gold coast airport": OOL,
                    "coolangatta airport": OOL, "gold coast airport (ool)": OOL, "pinkenba": CRUISE };
+  /* Google calls the CBD "Brisbane City" (or plain "Brisbane"); the fare tables
+     call it "Brisbane CBD". Used for the suburb of a Google address only - never
+     the council area, which is also named "Brisbane City" and covers every
+     Brisbane suburb - and for what a guest types into the box. (18 Nov 2026) */
+  var SUBURB_ALIAS = { "brisbane city": "Brisbane CBD", "brisbane": "Brisbane CBD" };
+  var ALSO_TYPED = { "Brisbane CBD": "brisbane city" };
   function gpReady(){
     if (GP.svc) return true;
     if (!window.google || !google.maps || !google.maps.places) return false;
@@ -1475,6 +1481,8 @@
           var key = (c.long_name || "").toLowerCase();
           if (GP_ALIAS[key]) return GP_ALIAS[key];
           var p = placeByKey(key); if (p) return p;
+          /* suburb types only, and only if this agent's list has the place */
+          if (i < 3 && SUBURB_ALIAS[key]) { p = placeByKey(SUBURB_ALIAS[key].toLowerCase()); if (p) return p; }
         }
       }
     }
@@ -1522,7 +1530,7 @@
     }
     function render(){
       var q = input.value.trim(), lower = q.toLowerCase();
-      items = state.places.filter(function(p){ return !lower || p.toLowerCase().indexOf(lower) !== -1; })
+      items = state.places.filter(function(p){ return !lower || p.toLowerCase().indexOf(lower) !== -1 || (ALSO_TYPED[p] && ALSO_TYPED[p].indexOf(lower) !== -1); })
         .slice(0, 30).map(function(p){ return { label: p, place: p }; });
       draw();
       clearTimeout(gpTimer);
