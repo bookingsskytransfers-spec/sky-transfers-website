@@ -258,6 +258,8 @@
       <div class="pane-head"><h2>Agents</h2>
         <button type="button" class="cta small" id="agents-add">+ Add an agent</button></div>
       <div id="list-msg" class="msg" hidden></div>
+      <!-- suspended agents are hidden until this is ticked (18 Nov 2026) -->
+      <p style="margin:0 0 10px"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer;font-weight:400;margin:0"><input type="checkbox" id="ag-show-off" style="width:auto"> Show suspended agents <span class="muted" id="ag-off-n"></span></label></p>
       <div class="scroll">
         <table>
           <thead><tr>
@@ -1791,7 +1793,11 @@
         return;
       }
       tb.innerHTML = "";
+      /* suspended agents stay out of the way unless asked for (18 Nov 2026) */
+      var showOff = $("ag-show-off").checked, offN = 0, shown = 0;
       d.agents.forEach(function(a){
+        if (!a.active) { offN++; if (!showOff) return; }
+        shown++;
         var tr = document.createElement("tr");
         if (!a.active) tr.className = "off";
         [a.code, a.name + (a.rateCard ? " · rate card" : "") + (a.active ? "" : " (suspended)"), a.commissionPct + "%"].forEach(function(v){
@@ -1811,11 +1817,28 @@
         acts.appendChild(actionBtn("Bookings", "", function(){ showBookings(a); }));
         acts.appendChild(actionBtn("Staff" + (a.staff ? " (" + a.staff + ")" : ""), "", function(){ showStaff(a); }));
         if (a.owing > 0) acts.appendChild(armBtn("Mark paid", "Confirm " + money(a.owing) + " paid?", "pay", function(){ return settle(a); }));
+        /* only an agent that has never had a booking or an invoice: the server decides */
+        if (a.canDelete) acts.appendChild(armBtn("Delete", "Delete for good?", "danger", function(){ return deleteAgent(a); }));
         tr.appendChild(acts);
         tb.appendChild(tr);
       });
+      $("ag-off-n").textContent = offN ? "(" + offN + ")" : "(none)";
+      if (!shown) tb.innerHTML = '<tr><td colspan="8" class="muted">Every agent is suspended — tick “Show suspended agents” to see them.</td></tr>';
     }).catch(function(err){ show($("list-msg"), err.message); });
   }
+  function deleteAgent(a){
+    return api("/admin/agent/delete", { method: "POST", body: { code: a.code } })
+      .then(function(d){ show($("list-msg"), "Deleted " + d.name + " (" + d.code + ").", true); return load(); })
+      .catch(function(err){ show($("list-msg"), err.message); });
+  }
+  (function(){
+    var c = $("ag-show-off");
+    try { c.checked = localStorage.getItem("sky_admin_show_off") === "1"; } catch (e) {}
+    c.addEventListener("change", function(){
+      try { localStorage.setItem("sky_admin_show_off", c.checked ? "1" : "0"); } catch (e) {}
+      if (token) load();
+    });
+  })();
 
   function editAgent(a){
     editingCode = a.code;
