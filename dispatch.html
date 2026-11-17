@@ -388,6 +388,8 @@
         <h2>Accounts</h2>
         <div id="i-acc-msg" class="msg" hidden></div>
         <div class="summary" id="i-summary" style="margin:0 0 12px"></div>
+        <!-- inactive accounts and suspended agents are hidden until this is ticked (18 Nov 2026) -->
+        <p style="margin:0 0 10px"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer;font-weight:400;margin:0"><input type="checkbox" id="acc-show-off" style="width:auto"> Show inactive accounts and suspended agents <span class="muted" id="acc-off-n"></span></label></p>
         <div class="scroll">
           <table class="tight">
             <thead><tr><th>Account</th><th class="num">Not invoiced yet</th><th class="num">Owing</th><th class="num">Overdue</th><th></th></tr></thead>
@@ -1373,6 +1375,8 @@
       loadAccounts();
       $("i-bank").hidden = !!d.bankDetailsSet;
       var tb = $("i-acc-rows"); tb.innerHTML = "";
+      /* switched-off ones stay out of the way unless asked for (18 Nov 2026) */
+      var showOff = $("acc-show-off").checked, offN = 0, shownN = 0;
       var owing = 0, overdue = 0, unb = 0;
       PARTIES.forEach(function(p){ owing += p.open; overdue += p.overdue; unb += p.unbilled; });
       var s = $("i-summary"); s.innerHTML = "";
@@ -1381,6 +1385,8 @@
       if (overdue) s.appendChild(el("span", "chip unpaid", "Overdue: " + money(overdue)));
       PARTIES.concat((d.unknown || []).map(function(u){ return { type: "unknown", name: u.name, unbilledCount: u.unbilledCount, unbilled: u.unbilled, open: 0, overdue: 0, active: true }; }))
         .forEach(function(p){
+          if (p.active === false) { offN++; if (!showOff) return; }
+          shownN++;
           var tr = tb.insertRow(); if (p.active === false) tr.className = "off";
           var c0 = tr.insertCell(); c0.appendChild(document.createTextNode(p.name + " "));
           c0.appendChild(el("span", "chip " + (p.type === "agent" ? "agent" : p.type === "unknown" ? "unpaid" : "web"), p.type === "agent" ? "Agent" : p.type === "unknown" ? "Not set up" : "Account"));
@@ -1397,6 +1403,15 @@
             });
             act.appendChild(iv);
             if (p.type === "account") { act.appendChild(document.createTextNode(" ")); var ed = el("button", "act", "Edit"); ed.addEventListener("click", function(){ accountFormFill(p); }); act.appendChild(ed); }
+            /* only an account that has never had a job or an invoice: the server decides */
+            if (p.type === "account" && p.canDelete) {
+              act.appendChild(document.createTextNode(" "));
+              act.appendChild(armBtn("Delete", "Delete for good?", "danger", function(){
+                return api("/ops/account/delete", { method: "POST", body: { id: p.id } })
+                  .then(function(r){ return loadBilling().then(function(){ show($("i-acc-msg"), "Deleted " + r.name + ".", true); }); })
+                  .catch(function(err){ show($("i-acc-msg"), err.message); });
+              }));
+            }
             if (p.type === "account" && p.active !== false) {
               act.appendChild(document.createTextNode(" "));
               var vl = el("button", "act", "Job view link"); vl.addEventListener("click", function(){
@@ -1410,6 +1425,8 @@
             }
           }
         });
+      $("acc-off-n").textContent = offN ? "(" + offN + ")" : "(none)";
+      if (!shownN) { var r0 = tb.insertRow(), c00 = r0.insertCell(); c00.colSpan = 5; c00.className = "muted"; c00.textContent = offN ? "Everything here is switched off — tick the box above to see it." : "No accounts yet."; }
       var sel = $("in-party"), keep = sel.value; sel.innerHTML = "";
       PARTIES.filter(function(p){ return p.active !== false; }).forEach(function(p){ sel.appendChild(new Option(p.name + (p.type === "agent" ? " (agent)" : ""), p.type + ":" + p.key)); });
       if (keep) sel.value = keep;
@@ -1418,6 +1435,14 @@
     }).catch(function(err){ show($("i-acc-msg"), err.message); });
   }
   window.__loadBilling = loadBilling;
+  (function(){
+    var c = $("acc-show-off");
+    try { c.checked = localStorage.getItem("sky_dispatch_show_off") === "1"; } catch (e) {}
+    c.addEventListener("change", function(){
+      try { localStorage.setItem("sky_dispatch_show_off", c.checked ? "1" : "0"); } catch (e) {}
+      if (token) loadBilling();
+    });
+  })();
 
   /* An account's read-only job view (account.html). The link never changes
      unless "Reset link" is pressed. */
