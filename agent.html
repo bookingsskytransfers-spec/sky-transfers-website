@@ -651,13 +651,14 @@
       $("book-note-cut").textContent = d.rateCard
         ? "Bookings close 6 hours before pick-up; changes close 12 hours before. Cancelling inside 12 hours is charged at 50% of the fare, inside 6 hours at 100%."
         : "Bookings close 6 hours before pick-up; changes and cancellations close " + (d.changeCutoffHours || 24) + " hours before.";
+      if (state.me.office) $("book-note-cut").textContent = "Office session: the agent's cut-off times do not apply to you. You can book, change or cancel at any time before the pick-up, and a late cancellation that carries a charge can be charged or waived. Each override is logged under your name.";
       $("inv-basis").textContent = d.rateCard ? "Invoices are at the full fare, and rate card trips at your rate card price" : "Invoices are at the full fare";
       applyRole();
       $("who").hidden = false;
       $("who").textContent = (state.me.office ? "Sky office · " : "") + (state.me.role !== "owner" && state.me.name ? state.me.name + " · " : "") + d.agent.name + " · " + d.agent.code;
       $("office-banner").hidden = !state.me.office;
       if (state.me.office) $("office-banner").textContent = "Sky Transfers office: you are booking for " + d.agent.name + " (" + d.agent.code + "), signed in as " + state.me.office +
-        ". Everything here is the agent's own: their prices, their bookings, their wallet. Bookings you make are marked Sky Transfers office and the agent is emailed as usual. This tab signs out after two hours.";
+        ". Everything here is the agent's own: their prices, their bookings, their wallet. Bookings you make are marked Sky Transfers office and the agent is emailed as usual. The agent's cut-off times do not apply to you. This tab signs out after two hours.";
       if (d.wallet) {
         $("w-balance").textContent = money(d.wallet.balance);
         $("w-earned").textContent = money(d.wallet.earned);
@@ -698,7 +699,18 @@
           acts.appendChild(actionBtn("Voucher", "", function(){ downloadVoucher(b.ref); }));
           if (b.tourRef) acts.appendChild(actionBtn("Tour voucher", "", function(){ downloadTourVoucher(b.tourRef); }));
           if (!b.cardPaid) acts.appendChild(actionBtn("Pay by card", "", function(){ payByCard(b); }));
-          if (b.changeable) {
+          if (b.changeable && state.me && state.me.office) {
+            /* the office is not held to the agency's cut-offs (18 Nov 2026): the
+               server lets it change or cancel right up to the pick-up, and a
+               late cancellation with a charge can be charged or waived */
+            acts.appendChild(actionBtn("Change", "", function(){ startEdit(b); }));
+            if (b.lateCancel) {
+              acts.appendChild(officeArm("Cancel, charge " + b.lateCancel.pct + "%", "Charge " + money(b.lateCancel.amount) + "?", function(){ officeCancel(b, { acceptCharge: true }); }));
+              acts.appendChild(officeArm("Cancel, no charge", "Cancel with no charge?", function(){ officeCancel(b, { waiveCharge: true }); }));
+            } else {
+              acts.appendChild(officeArm("Cancel", "Cancel it?", function(){ officeCancel(b, {}); }));
+            }
+          } else if (b.changeable) {
             acts.appendChild(actionBtn("Change", "", function(){ startEdit(b); }));
             acts.appendChild(actionBtn("Cancel", "danger", function(){ cancelBooking(b); }));
           } else {
@@ -839,6 +851,33 @@
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     }).catch(function(err){ show($("book-msg"), err.message); });
+  }
+
+  /* An office session (admin "Book for this agent"). Cancelling takes two
+     presses of the same button rather than a confirm box, which some browsers
+     never show; the button goes back to its label after six seconds. */
+  function officeArm(label, armed, run){
+    var timer = null;
+    var b = actionBtn(label, "danger", function(){
+      if (b.getAttribute("data-armed") !== "1") {
+        b.setAttribute("data-armed", "1"); b.textContent = armed;
+        timer = setTimeout(function(){ b.removeAttribute("data-armed"); b.textContent = label; }, 6000);
+        return;
+      }
+      if (timer) clearTimeout(timer);
+      b.disabled = true; run();
+    });
+    return b;
+  }
+  function officeCancel(b, how){
+    api("/agent/booking/cancel", { method: "POST", body: { ref: b.ref, acceptCharge: !!how.acceptCharge, waiveCharge: !!how.waiveCharge } })
+      .then(function(d){
+        show($("book-msg"), b.ref + " is cancelled" +
+          (d && d.charged ? " — " + money(d.charged) + " (" + d.pct + "%) goes on the agent's invoice" : how.waiveCharge ? " with the late charge waived" : "") +
+          ". Dispatch has been told.", true);
+        refresh();
+      })
+      .catch(function(err){ show($("book-msg"), err.message); refresh(); });
   }
 
   function cancelBooking(b){
