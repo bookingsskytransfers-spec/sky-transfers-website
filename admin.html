@@ -260,6 +260,8 @@
       <div id="list-msg" class="msg" hidden></div>
       <!-- suspended agents are hidden until this is ticked (18 Nov 2026) -->
       <p style="margin:0 0 10px"><label style="display:inline-flex;gap:8px;align-items:center;cursor:pointer;font-weight:400;margin:0"><input type="checkbox" id="ag-show-off" style="width:auto"> Show suspended agents <span class="muted" id="ag-off-n"></span></label></p>
+      <!-- a staff login sees commission only for the agents it looks after (18 Nov 2026) -->
+      <p class="muted" id="ag-money-note" style="margin:0 0 10px;font-size:13px" hidden>A dash (&mdash;) means that agent's commission is hidden from your login. You see it for agents you set up yourself, or ones the main admin login has given you. You can still book for any agent.</p>
       <div class="scroll">
         <table>
           <thead><tr>
@@ -290,6 +292,12 @@
           <select id="f-card"><option value="false">No - website fares + commission</option><option value="true">Yes - the rate card, net, on card trips</option></select></div>
         <div class="muted" style="align-self:end;font-size:13px">On the rate card, trips the card covers are priced from it with no commission; every other trip stays at the website fare plus their commission. Cancelling inside 12 hours is charged (50%, or 100% inside 6 hours).</div>
       </div>
+      <div class="row2" id="f-keeper-wrap" hidden>
+        <div><label for="f-keeper">Commission can be seen by</label>
+          <select id="f-keeper"><option value="">Main admin login only</option></select></div>
+        <div class="muted" style="align-self:end;font-size:13px">The staff login chosen here sees this agent's rate, what it has earned and what is owing, and can change the rate or mark it paid. Every other staff login sees the agent and can book for it, without the money. You always see everything.</div>
+      </div>
+      <p class="muted" id="f-pct-note" style="margin:0 0 12px;font-size:13px" hidden>This agent's commission rate is hidden from your login, so it can't be changed here. Everything else can.</p>
       <button class="cta" id="save-btn">Create agent &amp; issue a PIN</button>
       <p style="margin:10px 0 0" hidden id="clear-wrap">
         <button class="linkbtn" id="clear-form">Cancel — go back to adding a new agent</button>
@@ -1497,7 +1505,7 @@
     if (N.invoicesOpen.count) item("", txt(whole(N.invoicesOpen.amount) + " owed to us", "on " + N.invoicesOpen.count + " open invoice" + (N.invoicesOpen.count === 1 ? "" : "s")));
     if (N.balancesOwing.count) item("", txt(whole(N.balancesOwing.amount) + " in balances", "still to collect on " + N.balancesOwing.count + " deposit booking" + (N.balancesOwing.count === 1 ? "" : "s")));
     if (N.driverPayOwed.count) item("", txt(whole(N.driverPayOwed.amount) + " driver pay owed", "for " + N.driverPayOwed.count + " finished job" + (N.driverPayOwed.count === 1 ? "" : "s")));
-    if (N.commissionOwed) item("", txt(whole(N.commissionOwed) + " agent commission", "to pay out from wallets"));
+    if (N.commissionOwed) item("", txt(whole(N.commissionOwed) + " agent commission", "to pay out from wallets" + (N.commissionYoursOnly ? " - the agents you look after" : "")));
     N.papers.slice(0, 6).forEach(function(p){ item(p.overdue ? "bad" : "", txt(p.who, p.what + (p.overdue ? " expired " : " due ") + dShort(p.date))); });
     if (!attn.children.length) item("ok", txt("All clear", "- nothing needs you right now."));
     /* headline figures */
@@ -1784,8 +1792,26 @@
   });
   $("k-hide").addEventListener("click", function(){ $("k-new").hidden = true; $("k-new-val").textContent = ""; });
 
+  /* What the server said about this login: whether it is the main admin
+     login, and (only then) the staff logins an agent can be given to. */
+  var agView = { owner: false, keepers: [] };
+  var hid = function(v, f){ return v == null ? "\u2014" : f(v); };
+  function keeperFill(){
+    var sel = $("f-keeper"), keep = sel.value;
+    $("f-keeper-wrap").hidden = !agView.owner;
+    sel.innerHTML = "";
+    var o0 = document.createElement("option"); o0.value = ""; o0.textContent = "Main admin login only"; sel.appendChild(o0);
+    agView.keepers.forEach(function(u){
+      var o = document.createElement("option"); o.value = String(u.id); o.textContent = u.name + (u.active ? "" : " (switched off)"); sel.appendChild(o);
+    });
+    sel.value = keep;
+    if (sel.value !== keep) sel.value = "";
+  }
   function load(){
     return api("/admin/agents").then(function(d){
+      agView = { owner: d.owner === true, keepers: d.keepers || [] };
+      keeperFill();
+      $("ag-money-note").hidden = !d.agents.some(function(a){ return a.moneyHidden; });
       bfaFill(d.agents);
       var tb = $("rows");
       if (!d.agents.length) {
@@ -1800,14 +1826,17 @@
         shown++;
         var tr = document.createElement("tr");
         if (!a.active) tr.className = "off";
-        [a.code, a.name + (a.rateCard ? " · rate card" : "") + (a.active ? "" : " (suspended)"), a.commissionPct + "%"].forEach(function(v){
-          var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+        [a.code, a.name + (a.rateCard ? " · rate card" : "") + (a.active ? "" : " (suspended)"), hid(a.commissionPct, function(v){ return v + "%"; })].forEach(function(v, i){
+          var td = document.createElement("td"); td.textContent = v;
+          /* the main admin login is shown who looks after the agent */
+          if (i === 1 && agView.owner && a.keeperName) { var ks = document.createElement("span"); ks.className = "sub"; ks.textContent = "Commission seen by " + a.keeperName; td.appendChild(ks); }
+          tr.appendChild(td);
         });
-        [String(a.trips), money(a.gross), money(a.earned)].forEach(function(v){
+        [String(a.trips), money(a.gross), hid(a.earned, money)].forEach(function(v){
           var td = document.createElement("td"); td.className = "num"; td.textContent = v; tr.appendChild(td);
         });
         var owe = document.createElement("td");
-        owe.className = "num owing"; owe.textContent = money(a.owing);
+        owe.className = "num owing"; owe.textContent = hid(a.owing, money);
         tr.appendChild(owe);
 
         var acts = document.createElement("td");
@@ -1844,7 +1873,10 @@
     editingCode = a.code;
     $("form-title").textContent = "Edit " + a.name;
     $("f-code").value = a.code; $("f-code").readOnly = true;
-    $("f-name").value = a.name; $("f-pct").value = a.commissionPct;
+    $("f-name").value = a.name; $("f-pct").value = a.moneyHidden ? "" : a.commissionPct;
+    $("f-pct").disabled = !!a.moneyHidden; $("f-pct").placeholder = a.moneyHidden ? "Hidden" : "";
+    $("f-pct-note").hidden = !a.moneyHidden;
+    $("f-keeper").value = a.keeperId != null ? String(a.keeperId) : "";
     $("f-email").value = a.email || "";
     $("f-active").value = a.active ? "true" : "false";
     $("f-card").value = a.rateCard ? "true" : "false";
@@ -1859,6 +1891,8 @@
     $("form-title").textContent = "Add an agent";
     $("f-code").value = ""; $("f-code").readOnly = false;
     $("f-name").value = ""; $("f-pct").value = 10; $("f-email").value = "";
+    $("f-pct").disabled = false; $("f-pct").placeholder = ""; $("f-pct-note").hidden = true;
+    $("f-keeper").value = "";
     $("f-active").value = "true";
     $("f-card").value = "false";
     $("save-btn").textContent = "Create agent & issue a PIN";
@@ -1878,10 +1912,12 @@
       code: $("f-code").value.trim().toUpperCase(),
       name: $("f-name").value.trim(),
       email: $("f-email").value.trim(),
-      commissionPct: Number($("f-pct").value),
+      commissionPct: $("f-pct").disabled ? null : Number($("f-pct").value),
       active: $("f-active").value === "true",
       rateCard: $("f-card").value === "true"
     };
+    /* only the main admin login is offered the choice, and only it is listened to */
+    if (agView.owner) body.keeperId = $("f-keeper").value === "" ? null : Number($("f-keeper").value);
     if (!body.code || !body.name) { show($("form-msg"), "Agent code and agency name are both needed."); return; }
     var btn = $("save-btn"), label = btn.textContent;
     btn.disabled = true; btn.textContent = "Saving…";
@@ -1972,11 +2008,11 @@
             if (v[1]) { var s = document.createElement("span"); s.className = "sub"; s.textContent = v[1]; td.appendChild(s); }
             tr.appendChild(td);
           });
-          [money(b.total), money(b.commission)].forEach(function(v){
+          [money(b.total), hid(b.commission, money)].forEach(function(v){
             var td = document.createElement("td"); td.className = "num"; td.textContent = v; tr.appendChild(td);
           });
           var st = document.createElement("td");
-          st.textContent = b.status !== "confirmed" ? "cancelled" : (b.settled ? "paid" : "in wallet");
+          st.textContent = b.status !== "confirmed" ? "cancelled" : b.settled == null ? "confirmed" : (b.settled ? "paid" : "in wallet");
           tr.appendChild(st);
           tb.appendChild(tr);
         });
