@@ -1022,7 +1022,7 @@ const REGIONS = [
   {
     slug: 'sunshine-coast-airport-transfers', name: 'Sunshine Coast', zones: ['SC1', 'SC2', 'SC3', 'SC4'],
     title: 'Sunshine Coast Airport Transfers | To and From Brisbane',
-    desc: 'Sunshine Coast to Brisbane Airport and back, from $280 per vehicle: Caloundra, Mooloolaba, Maroochydore, Coolum and Noosa. One fare per vehicle, not per person, tolls and GST in.',
+    desc: 'Sunshine Coast to Brisbane Airport and back, from $280 per vehicle, not per person: Caloundra, Mooloolaba, Maroochydore, Coolum, Noosa. Tolls and GST included.',
     h1: 'Sunshine Coast airport transfers, fixed price',
     lead: 'Private chauffeur transfers between Brisbane Airport (BNE) and every Sunshine Coast suburb we price, from Caloundra to Noosa. One fixed fare per vehicle, published below, the same at 4am as at 4pm.',
     notes: [

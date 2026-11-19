@@ -1454,6 +1454,13 @@ document.addEventListener("click", function(e){
    which is what keeps Places billed per session rather than per keystroke. */
 
 var GP = { svc: null, det: null, token: null };
+/* Address suggestions are kept to where we drive: south-east Queensland and
+   northern NSW, roughly Hervey Bay down to Yamba and west to Dalby. Without
+   this Google ranked Sydney first for a hotel name or a street ("Marriott",
+   "12 George St"). It limits suggestions only - the suburb list, the fares and
+   what can be booked are untouched, and a place outside it is still quoted by
+   hand on the phone. */
+var GP_AREA = window.GP_AREA = { south: -30.0, west: 150.5, north: -25.0, east: 153.75 };   /* on window too: the street-address boxes are set up by a later script */
 
 /* Suburbs Google names differently from our rate tables. */
 var GP_ALIAS = {
@@ -1602,6 +1609,7 @@ function attachAC(inputId, listId, onPick){
     GP.svc.getPlacePredictions({
       input: q,
       componentRestrictions: { country: "au" },
+      locationRestriction: GP_AREA,
       sessionToken: gpToken()
     }, function(preds, status){
       gpSignal(status);
@@ -2681,7 +2689,7 @@ function buildRequest(){
     <div class="fact"><span class="k">Coverage</span><span class="v">421<!--c:total--> places</span><span class="s">Gold Coast, Brisbane, Tweed &amp; Byron</span></div>
     <div class="fact"><span class="k">Booking</span><span class="v">Online to 6 h</span><span class="s">Free cancellation to 24 h</span></div>
     <div class="fact"><span class="k">Waiting</span><span class="v">30 / 60 min</span><span class="s">Domestic / international</span></div>
-    <div class="fact"><span class="k">Contact</span><span class="v">24/7</span><span class="s">Phone or WhatsApp 0481 437 772</span></div>
+    <div class="fact"><span class="k">Contact</span><span class="v">24/7</span><span class="s">Phone or WhatsApp +61 481 437 772</span></div>
   </div>
 </section>
 
@@ -2937,6 +2945,7 @@ window.initGPlaces = function(){
       if(!el) return;
       var ac = new google.maps.places.Autocomplete(el, {
         componentRestrictions: { country: "au" },
+        bounds: window.GP_AREA, strictBounds: !!window.GP_AREA,
         fields: ["formatted_address", "name"],
         types: ["geocode", "establishment"]
       });

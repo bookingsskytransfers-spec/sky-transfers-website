@@ -1450,6 +1450,13 @@
      the zone fare applies; otherwise it keeps Google's suburb and its
      coordinates and is priced by road distance, as on the website. */
   var GP = { svc: null, det: null, token: null };
+  /* Address suggestions are kept to where we drive: south-east Queensland and
+     northern NSW, roughly Hervey Bay down to Yamba and west to Dalby. Without
+     this Google ranked Sydney first for a hotel name or a street ("Marriott",
+     "12 George St"). It limits suggestions only - the suburb list, the fares and
+     what can be booked are untouched, and a place outside it is still quoted by
+     hand on the phone. */
+  var GP_AREA = window.GP_AREA = { south: -30.0, west: 150.5, north: -25.0, east: 153.75 };
   var GP_ALIAS = { "brisbane airport": BNE, "brisbane airport (bne)": BNE, "gold coast airport": OOL,
                    "coolangatta airport": OOL, "gold coast airport (ool)": OOL, "pinkenba": CRUISE };
   /* Google calls the CBD "Brisbane City" (or plain "Brisbane"); the fare tables
@@ -1555,7 +1562,7 @@
     }
     function predict(q){
       if (!gpReady() || input.value.trim() !== q) return;
-      GP.svc.getPlacePredictions({ input: q, componentRestrictions: { country: "au" }, sessionToken: gpToken() }, function(preds, status){
+      GP.svc.getPlacePredictions({ input: q, componentRestrictions: { country: "au" }, locationRestriction: GP_AREA, sessionToken: gpToken() }, function(preds, status){
         gpSignal(status);
         if (input.value.trim() !== q || status !== google.maps.places.PlacesServiceStatus.OK || !preds) return;
         var have = {}; items.forEach(function(it){ have[it.label.toLowerCase()] = 1; });
@@ -1963,6 +1970,7 @@ window.initGPlaces = function(){
     if(!el || !window.google || !google.maps || !google.maps.places) return;
     var ac = new google.maps.places.Autocomplete(el, {
       componentRestrictions: { country: "au" },
+      bounds: window.GP_AREA, strictBounds: !!window.GP_AREA,
       fields: ["formatted_address", "name"],
       types: ["geocode", "establishment"]
     });
