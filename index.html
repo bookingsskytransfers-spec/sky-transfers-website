@@ -2256,7 +2256,11 @@ if(SERVER_URL){
 var POST_TIMEOUT_MS = 15000;
 function postJSON(path, body){
   var ctrl = typeof AbortController === "function" ? new AbortController() : null;
-  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, POST_TIMEOUT_MS) : null;
+  /* "|| 15000": a pre-filled link (/?pu=..&do=..) asks for a distance price
+     while this script is still running, before the line above has set the
+     limit - without the fallback the timer fired at once and every such link
+     said "We couldn't fix a price". */
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, POST_TIMEOUT_MS || 15000) : null;
   var opts = {
     method: "POST",
     headers: {"Content-Type": "application/json"},
