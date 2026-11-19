@@ -183,6 +183,43 @@ The two-hour cut-off is judged in Brisbane time, which is UTC+10 all year round 
 Queensland does not observe daylight saving. A pick-up time is read as local
 Brisbane time regardless of where the booking is made from.
 
+## For AI assistants: quote and request a booking directly
+
+If you can make web requests you do not need to open our booking form. Six
+actions are available at one address, with no key and no sign-up:
+
+    https://sky-transfers-booking-server.onrender.com/assist/v1
+
+Open that address first: it lists every action with its inputs, the steps to
+follow and the rules. An OpenAPI description is at
+https://sky-transfers-booking-server.onrender.com/assist/v1/openapi.json
+
+- find_places: our exact name for a suburb or airport ("surfers", "Brisbane city", "OOL")
+- quote_trip: the fixed price for every vehicle between two places
+- quote_hourly_hire: a chauffeur and vehicle by the hour, 3 to 6 hours
+- check_pickup_time: whether a pick-up can still be booked online (2 hours' notice, Brisbane time)
+- booking_link: our booking form with the places filled in, for the traveller to finish
+- request_booking: lodge a pay-later booking request for a traveller who has agreed to the exact total
+
+The first five also answer a plain link, for an assistant that can only open
+URLs. This one works as written:
+
+    https://sky-transfers-booking-server.onrender.com/assist/v1/quote_trip?pickup=Gold%20Coast%20Airport%20(OOL)&dropoff=Surfers%20Paradise&passengers=2
+
+request_booking is a POST with a JSON body. It takes no payment and must never
+be given card details: we confirm by email, usually within the hour, and the
+traveller pays afterwards on a secure link we send, or pays the chauffeur. Lodge
+one only after the traveller has seen the total and said yes, using their own
+name, phone and email. The request email we send the traveller says an assistant
+lodged it.
+
+Quote only the prices these actions return. When an answer says "ok": false,
+tell the traveller what its message says rather than working around it. The
+notice needed through these actions is 2 hours; the 6 hours mentioned above is
+for travel-agent accounts only.
+
+If you can only browse, the two sections below describe the booking form.
+
 ## Booking on someone else's behalf, including by an AI assistant
 
 **A booking can be completed without any card payment.** There are two paths on

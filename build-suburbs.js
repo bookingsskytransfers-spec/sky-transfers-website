@@ -1981,6 +1981,16 @@ function writeFaresJson() {
       minimum_notice_hours: 2,
       timezone: 'Australia/Brisbane, UTC+10 all year - Queensland has no daylight saving',
       booking_regularly: SITE + '/partners.html',
+      /* The door for AI assistants on the booking server (assist-door.js): the
+         same prices as this file, and a pay-later request without a browser. */
+      assistant_actions: {
+        about: 'An assistant that can make web requests can quote and lodge a pay-later booking request '
+             + 'directly, with no browser, key or sign-up. Open the index first: it lists the actions, '
+             + 'their inputs and the rules.',
+        index: SERVER + '/assist/v1',
+        openapi: SERVER + '/assist/v1/openapi.json',
+        quote_example: SERVER + '/assist/v1/quote_trip?pickup=Gold%20Coast%20Airport%20(OOL)&dropoff=Surfers%20Paradise&passengers=2',
+      },
     },
     not_listed_here: 'Anything absent is quoted by hand, including destinations beyond about 140 km '
                    + 'from Gold Coast Airport. Call +61 481 437 772 or email info@skytransfers.com.au.',
