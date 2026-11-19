@@ -218,6 +218,12 @@ tell the traveller what its message says rather than working around it. The
 notice needed through these actions is 2 hours; the 6 hours mentioned above is
 for travel-agent accounts only.
 
+The same six actions are also offered over the Model Context Protocol (MCP),
+for an assistant or app that connects to outside tools that way. Add this
+address as a remote MCP server (Streamable HTTP, no key and no sign-in):
+
+    https://sky-transfers-booking-server.onrender.com/mcp
+
 If you can only browse, the two sections below describe the booking form.
 
 ## Booking on someone else's behalf, including by an AI assistant

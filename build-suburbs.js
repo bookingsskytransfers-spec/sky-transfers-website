@@ -1986,10 +1986,12 @@ function writeFaresJson() {
       assistant_actions: {
         about: 'An assistant that can make web requests can quote and lodge a pay-later booking request '
              + 'directly, with no browser, key or sign-up. Open the index first: it lists the actions, '
-             + 'their inputs and the rules.',
+             + 'their inputs and the rules. The same actions are offered as tools over the Model Context '
+             + 'Protocol at the mcp address (a remote MCP server: Streamable HTTP, no key).',
         index: SERVER + '/assist/v1',
         openapi: SERVER + '/assist/v1/openapi.json',
         quote_example: SERVER + '/assist/v1/quote_trip?pickup=Gold%20Coast%20Airport%20(OOL)&dropoff=Surfers%20Paradise&passengers=2',
+        mcp: SERVER + '/mcp',
       },
     },
     not_listed_here: 'Anything absent is quoted by hand, including destinations beyond about 140 km '
