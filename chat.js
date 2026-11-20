@@ -7,16 +7,19 @@
    assistant answers, quotes and hands over that link - it cannot make or
    change a booking and never takes payment.
 
-   PUBLIC = false: the button only appears on a page opened with ?chat=preview
-   (remembered for the browser session), so it can be tried on the live site
-   before visitors see it. Nothing is fetched and nothing is drawn otherwise.
+   PUBLIC = true (20 Nov 2026): every visitor to a page that loads this file
+   sees the button, as long as the server says the chat is on. Set it back to
+   false and the button only appears on a page opened with ?chat=preview
+   (remembered for the browser session). To switch the chat off without a
+   website change, set ASSIST_CHAT=off on the booking server: the button then
+   stays hidden.
 
    The conversation is kept in this browser tab only (sessionStorage), so it
    survives the reload when a booking button is pressed. No cookies, no
    tracking, no other script. */
 (function () {
   "use strict";
-  var PUBLIC = false;
+  var PUBLIC = true;
   var SERVER = "https://sky-transfers-booking-server.onrender.com";
   var PHONE = "+61 481 437 772", EMAIL = "info@skytransfers.com.au", SITE = "https://www.skytransfers.com.au";
   var STORE = "skyChat", MAX_CHARS = 1000;
