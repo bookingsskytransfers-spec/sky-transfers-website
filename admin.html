@@ -266,6 +266,20 @@
       <p class="muted" style="margin:14px 0 0">Revenue is the value of trips by travel date, GST included, as on the dispatch board (a return counts each leg). It isn't cash received. Margin is revenue less driver pay, before fuel, tolls and other running costs. Own fleet means an employee in one of our cars; subcontracted means a subcontractor, or any driver in a subcontractor's car.</p>
     </section>
 
+    <section class="card" id="ai-card">
+      <div class="pane-head"><h2>Website chat and AI assistants</h2>
+        <button type="button" class="act" id="ai-refresh">Refresh</button></div>
+      <div id="ai-msg" class="msg" hidden></div>
+      <p class="muted" id="ai-state" style="margin:0 0 12px"></p>
+      <div class="kpis" id="ai-kpis"></div>
+      <div class="dash-grid">
+        <div><h3>The chat, day by day</h3><div class="scroll"><table id="ai-days"></table></div></div>
+        <div><h3>What was asked for</h3><div class="scroll"><table id="ai-actions"></table></div>
+          <p class="muted" id="ai-door" style="margin:10px 0 0"></p></div>
+      </div>
+      <p class="muted" style="margin:14px 0 0">The last 30 days. A chat is one visitor's conversation; a message is one thing they typed. <b>At limit</b> counts messages turned away by the per-visitor or daily limit, <b>Corrected</b> counts replies the website's own check sent back before the visitor saw them. The cost is an estimate in US dollars: the tokens used, at Anthropic's list price on 25 November 2026. The billed figure is in your Anthropic console. Nothing a visitor types is kept; these are counts only.</p>
+    </section>
+
     </div>
 
     <div class="pane" data-pane="web" role="tabpanel" hidden>
@@ -1642,6 +1656,66 @@
   });
   function dashStart(){ var r = dashRange(DASH.preset); $("dash-from").value = r[0]; $("dash-to").value = r[1]; dashLoad(); }
 
+  /* ---- the website chat and the assistants: usage (25 Nov 2026) --------
+     Reads two routes the server already has. The cost is worked out here from
+     the token counts: US dollars per million tokens, from Anthropic's price
+     list on 25 Nov 2026, for prompts up to 100,000 tokens (the chat's are far
+     smaller). A model that is not listed gets no estimate rather than a guess. */
+  var AI_PRICES = { "claude-haiku-5-5": { input: 0.10, cacheWrite: 0.125, cacheRead: 0.01, output: 0.50 } };
+  var AI_ACTIONS = { quote_trip: "Trip quotes", quote_hourly_hire: "Hourly hire quotes", find_places: "Place look-ups",
+    check_pickup_time: "Pick-up time checks", booking_link: "Booking links", request_booking: "Booking requests" };
+  function aiCost(x, model){
+    var p = AI_PRICES[model]; if (!p || !x) return null;
+    return ((x.input_tokens || 0) * p.input + (x.cache_write_tokens || 0) * p.cacheWrite + (x.cache_read_tokens || 0) * p.cacheRead + (x.output_tokens || 0) * p.output) / 1e6;
+  }
+  function aiUsd(n){ return n == null ? "-" : n === 0 ? "US$0.00" : n < 0.005 ? "under US$0.01" : "US$" + n.toFixed(2); }
+  function aiTile(k, cls, label, value, sub){
+    var c = document.createElement("div"); c.className = "kpi " + cls;
+    var l = document.createElement("div"); l.className = "l"; l.textContent = label;
+    var v = document.createElement("div"); v.className = "v"; v.textContent = value;
+    var s2 = document.createElement("div"); s2.className = "s"; s2.textContent = sub;
+    c.appendChild(l); c.appendChild(v); c.appendChild(s2); k.appendChild(c);
+  }
+  function aiLoad(){
+    show($("ai-msg"), "");
+    var chat = api("/admin/assist-chat-stats?days=30").catch(function(){ return null; });
+    var door = api("/admin/assist-stats?days=30").catch(function(){ return null; });
+    return Promise.all([chat, door]).then(function(r){
+      var c = r[0], d = r[1];
+      if (!c && !d) { show($("ai-msg"), "The chat figures could not be read just now."); return; }
+      var k = $("ai-kpis"); k.innerHTML = "";
+      if (c) {
+        var T = c.totals || {}, cost = aiCost(T, c.model);
+        $("ai-state").textContent = (c.on ? "The chat is on" : "The chat is off" + (c.why ? ": " + c.why : "")) + " (" + c.model + "). " +
+          (c.usage_table ? "" : "Usage is not being recorded on the server. ");
+        aiTile(k, "k2", "Chats", String(T.chats || 0), "conversations, last 30 days");
+        aiTile(k, "k7", "Messages", String(T.messages || 0), T.chats ? (T.messages / T.chats).toFixed(1) + " per chat" : "typed by visitors");
+        aiTile(k, "k1", "Estimated cost", aiUsd(cost), cost == null ? "no list price on file for this model" : "last 30 days, list price");
+        aiTile(k, "k3", "Today", (c.requests_today || 0) + " of " + c.daily_max, "requests used of the daily cap");
+        var days = (c.by_day || []).filter(function(x){ return x.chats || x.messages || x.requests || x.limited || x.errors; }).slice(0, 14);
+        dashTable("ai-days", ["Day", "Chats", "Messages", "Est. cost", "At limit", "Corrected", "Errors"], days.map(function(x){
+          return [dShort(x.day), String(x.chats), String(x.messages), aiUsd(aiCost(x, c.model)), String(x.limited), String(x.corrected), String(x.errors)]; }));
+      } else {
+        $("ai-state").textContent = "The chat's own figures could not be read just now.";
+        dashTable("ai-days", ["Day", "Chats", "Messages", "Est. cost", "At limit", "Corrected", "Errors"], []);
+      }
+      if (d) {
+        var names = Object.keys(d.byAction || {}).sort(function(a, b){ return d.byAction[b].calls - d.byAction[a].calls; });
+        dashTable("ai-actions", ["Asked for", "Times", "Answered", "Refused"], names.map(function(n){
+          var a = d.byAction[n]; return [AI_ACTIONS[n] || n, String(a.calls), String(a.ok), String(a.refused)]; }));
+        var who = (d.agents || []).slice(0, 5).map(function(a){ return String(a.agent).slice(0, 40) + " (" + a.calls + ")"; }).join(", ");
+        var bk = d.bookingRequests || [];
+        $("ai-door").textContent = d.calls + " request" + (d.calls === 1 ? "" : "s") + " in 30 days, from " + d.differentCallers + " different caller" + (d.differentCallers === 1 ? "" : "s") + " (visitors and assistants). " +
+          (who ? "Asked by: " + who + ". " : "") +
+          (bk.length ? bk.length + " booking request" + (bk.length === 1 ? "" : "s") + " lodged by an assistant: " + bk.slice(0, 8).map(function(b){ return b.ref; }).join(", ") + "." : "No booking has been lodged by an assistant.");
+      } else {
+        dashTable("ai-actions", ["Asked for", "Times", "Answered", "Refused"], []);
+        $("ai-door").textContent = "The assistants' log could not be read just now.";
+      }
+    });
+  }
+  $("ai-refresh").addEventListener("click", function(){ var b = $("ai-refresh"); b.disabled = true; aiLoad().then(function(){ b.disabled = false; }, function(){ b.disabled = false; }); });
+
   function enter(){
     $("signin").hidden = true;
     $("admin").hidden = false;
@@ -1649,6 +1723,7 @@
     $("who").textContent = "Signed in";
     whoLoad();
     dashStart();
+    aiLoad();
     load();
     loadWeb();
     galLoad();
