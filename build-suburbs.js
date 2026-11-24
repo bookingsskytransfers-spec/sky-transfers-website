@@ -2869,6 +2869,36 @@ function metaPass() {
   console.log(`build-suburbs: Meta pixel on ${n} pages${skipped ? ', ' + skipped + ' skipped' : ''}`);
 }
 
+/* The chat box on every public page (25 Nov 2026). Until now only the home
+   page loaded /chat.js, the "Ask a question" button. Every page that carries
+   the Google tag - the same set as the referral script and the Meta pixel -
+   now loads it too, just before </body>. The home page has the tag in its own
+   source and is left as it is; back-office pages (admin, dispatch, agent,
+   driver, track, account, affiliate) carry no Google tag and never get it.
+   The button only shows while the booking server says the chat is on.
+   CHAT_V must match the ?v= on the home page: bump both with chat.js. */
+const CHAT_V = '2';
+function chatPass() {
+  const TAG = "gtag('config', 'G-9LYFELNSBK')";
+  const SRC = `<script defer src="/chat.js?v=${CHAT_V}"></script>`;
+  let n = 0, had = 0, skipped = 0;
+  for (const d of [ROOT, OUT, BLOG_DIR]) {
+    if (!fs.existsSync(d)) continue;
+    for (const name of fs.readdirSync(d)) {
+      if (!name.endsWith('.html')) continue;
+      const f = path.join(d, name);
+      const s = fs.readFileSync(f, 'utf8');
+      if (!s.includes(TAG)) continue;
+      if (s.includes('src="/chat.js')) { had++; continue; }
+      const at = s.lastIndexOf('</body>');
+      if (at < 0) { skipped++; continue; }
+      fs.writeFileSync(f, s.slice(0, at) + SRC + '\n' + s.slice(at));
+      n++;
+    }
+  }
+  console.log(`build-suburbs: chat box on ${n} more page(s), ${had} had it already${skipped ? ', ' + skipped + ' skipped' : ''}`);
+}
+
 /* Last, because it appends to the sitemap the block above has just written,
    and awaits a network call. Never allowed to fail the build. The guide
    links run after it either way, so committed articles are still linked when
@@ -2879,4 +2909,5 @@ writeBlog().catch((e) => console.warn('build-suburbs: blog step failed (' + e.me
   .then(() => { try { footerPass(); } catch (e) { console.warn('build-suburbs: footer step failed (' + e.message + ')'); } })
   .then(() => { try { referralPass(); } catch (e) { console.warn('build-suburbs: referral step failed (' + e.message + ')'); } })
   .then(() => { try { metaPass(); } catch (e) { console.warn('build-suburbs: Meta pixel step failed (' + e.message + ')'); } })
-  .then(() => { try { manageLinkPass(); } catch (e) { console.warn('build-suburbs: manage-booking step failed (' + e.message + ')'); } });
+  .then(() => { try { manageLinkPass(); } catch (e) { console.warn('build-suburbs: manage-booking step failed (' + e.message + ')'); } })
+  .then(() => { try { chatPass(); } catch (e) { console.warn('build-suburbs: chat step failed (' + e.message + ')'); } });
