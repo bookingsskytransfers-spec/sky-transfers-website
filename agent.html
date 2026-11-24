@@ -12,25 +12,34 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
   :root{
-    --ground:#F7F4ED; --card:#FFFFFF; --ink:#141D30; --text:#333B4C; --muted:#68707F;
-    --line:#E5E0D2; --gold:#C9A227; --gold-deep:#6F5510; --gold-soft:#F6EED9;
+    --ground:#EEF1F7; --card:#FFFFFF; --ink:#0F172A; --text:#334155; --muted:#64748B;
+    --line:#E0E5EE; --gold:#C9A227; --gold-deep:#7A5D0C; --gold-soft:#FBF4DF;
     --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --err:#B0392F;
-    --shadow:0 1px 3px rgba(20,29,48,.06), 0 6px 20px rgba(20,29,48,.06);
+    --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px rgba(15,23,42,.07);
+    --band1:#0A101E; --band2:#1D2E57; --band-text:#F6F2E8; --band-sub:#D9B44A; --band-link:#E7C65A; --band-muted:rgba(246,242,232,.72);
+    --accent:#C9A227; --accent-soft:#FBF4DF; --tab-on:#101828; --tab-on-text:#F3D77A;
+    --th-bg:#101828; --th-text:#F6F2E8; --row-hover:#F7F9FC; --h3:#7A5D0C;
     color-scheme:light dark;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
-      --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
-      --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
-      --shadow:0 2px 14px rgba(0,0,0,.4);
+      --ground:#0A0F1D; --card:#131A2C; --ink:#F1F5F9; --text:#CBD5E1; --muted:#8B98AD;
+      --line:#232E47; --gold:#E0B84C; --gold-deep:#E8C86A; --gold-soft:#2A2616;
+      --navy:#22304F; --navy-text:#F1F5F9; --ok:#4CC08A; --err:#F08A80;
+      --shadow:0 2px 16px rgba(0,0,0,.45);
+      --band1:#0A0F1D; --band2:#1B2A66; --band-text:#F6F2E8; --band-sub:#E0B84C; --band-link:#E8C86A; --band-muted:rgba(241,245,249,.7);
+      --accent:#E0B84C; --accent-soft:#2A2616; --tab-on:#E0B84C; --tab-on-text:#141D30;
+      --th-bg:#1A2440; --th-text:#B4C0D4; --row-hover:#182138; --h3:#E0B84C;
     }
   }
   :root[data-theme="dark"]{
-    --ground:#0F1626; --card:#182031; --ink:#F0EBDD; --text:#D8D4C8; --muted:#98A0B0;
-    --line:#2A3549; --gold:#D9B44A; --gold-deep:#E2C46B; --gold-soft:#2C2A1E;
-    --navy:#1B2A47; --ok:#4CC08A; --err:#E28078;
-    --shadow:0 2px 14px rgba(0,0,0,.4);
+    --ground:#0A0F1D; --card:#131A2C; --ink:#F1F5F9; --text:#CBD5E1; --muted:#8B98AD;
+    --line:#232E47; --gold:#E0B84C; --gold-deep:#E8C86A; --gold-soft:#2A2616;
+    --navy:#22304F; --navy-text:#F1F5F9; --ok:#4CC08A; --err:#F08A80;
+    --shadow:0 2px 16px rgba(0,0,0,.45);
+    --band1:#0A0F1D; --band2:#1B2A66; --band-text:#F6F2E8; --band-sub:#E0B84C; --band-link:#E8C86A; --band-muted:rgba(241,245,249,.7);
+    --accent:#E0B84C; --accent-soft:#2A2616; --tab-on:#E0B84C; --tab-on-text:#141D30;
+    --th-bg:#1A2440; --th-text:#B4C0D4; --row-hover:#182138; --h3:#E0B84C;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--text);
@@ -169,6 +178,20 @@
   .veh .bags{display:block;font-size:11px;color:var(--muted);margin-top:2px}
   .ix-notes{margin:14px 0 0;padding-left:18px;font-size:13px;color:var(--muted)}
   .ix-notes li{margin:2px 0}
+  /* ---- the look (Nov 2026): the same navy band and colours as the office pages ----
+     The band is painted by the header itself, so it is exactly as tall as the
+     header however the header wraps, and nothing under it is ever covered. */
+  header.brand{margin:-26px 0 22px;padding:26px 0 18px;align-items:center;
+    border-image:linear-gradient(120deg,var(--band1),var(--band2)) fill 0 / 0 / 0 100vw}
+  .brand h1{color:var(--band-text)}
+  .brand .sub{color:var(--band-sub)}
+  header.brand .muted{color:var(--band-muted)}
+  .card{border-radius:14px}
+  .wallet{border-radius:14px;border-top:3px solid var(--gold)}
+  th{background:var(--th-bg);color:var(--th-text)}
+  tbody tr:hover td{background:var(--row-hover)}
+  .scroll{border-radius:11px}
+  .veh,.prod,.trip span{border-radius:10px}
   [hidden]{display:none!important}
 </style>
 </head>
