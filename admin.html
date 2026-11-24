@@ -532,7 +532,7 @@
     <div id="aff-pin" class="pinbox" hidden>
       <div class="lbl">PIN for <span id="aff-pin-for"></span></div>
       <div class="val" id="aff-pin-val"></div>
-      <p>Give this to them now with their link - it is not shown again and is never emailed. They sign in at skytransfers.com.au/affiliate.html with their code and this PIN.</p>
+      <p>Give this PIN to them yourself - it is not shown again and is never emailed. The welcome email has their link and details, but not this PIN. They sign in at skytransfers.com.au/affiliate.html with their code and this PIN.</p>
     </div>
 
     <section class="card">
@@ -593,6 +593,7 @@
       </div>
       <div><label for="af-notes">Notes (office only)</label><input id="af-notes"></div>
       <p class="muted" id="af-link" style="margin:10px 0"></p>
+      <p class="muted" id="af-welcome" hidden style="margin:0 0 12px"></p>
       <button class="cta" id="af-save">Create affiliate</button>
       <p class="muted" style="margin:12px 0 0">There is no default rate: an account can't go Active until one is entered. Changing a rate only affects bookings made from then on. A code can be changed until the first booking under it.</p>
     </section>
@@ -1658,10 +1659,30 @@
   }
 
   /* ---- affiliates (the referral programme, 3 Nov 2026) ----------------- */
-  var affEditing = null;
+  var affEditing = null, affByCode = {};
+  /* The welcome email line under the form: when it went, and a two-press
+     button to send it - the only way for an account that was already active
+     before the email existed. The server sends to the saved address. */
+  function affWelcome(a){
+    var p = $("af-welcome"); p.textContent = ""; p.hidden = !(a && a.active);
+    if (!a || !a.active) return;
+    var when = a.welcomedAt
+      ? "Welcome email sent " + new Date(a.welcomedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) + ". "
+      : "Welcome email not sent yet. ";
+    if (!a.email) { p.textContent = when + "Add their email address and save, then send it from here."; return; }
+    p.appendChild(document.createTextNode(when));
+    p.appendChild(armBtn(a.welcomedAt ? "Send it again" : "Email them their link and details", "Send to " + a.email + "? Press again", "", function(){
+      return api("/admin/affiliate-welcome", { method: "POST", body: { code: a.code } }).then(function(r){
+        show($("af-msg"), "Welcome email sent to " + r.to + ", with a copy to the office. It has their link, code and rate - not the PIN.", true);
+        return affLoad();
+      }).catch(function(e){ show($("af-msg"), e.message); });
+    }));
+  }
   function affTd(tr, text, right){ var td = document.createElement("td"); td.textContent = text == null ? "" : text; if (right) td.style.textAlign = "right"; tr.appendChild(td); return td; }
   function affLoad(){
     return api("/admin/affiliates").then(function(d){
+      affByCode = {}; d.affiliates.forEach(function(a){ affByCode[a.code] = a; });
+      if (affEditing) affWelcome(affByCode[affEditing] || null);
       var tb = $("aff-rows"); tb.innerHTML = "";
       if (!d.affiliates.length) tb.innerHTML = '<tr><td colspan="9" class="muted">No affiliates yet.</td></tr>';
       d.affiliates.forEach(function(a){
@@ -1719,6 +1740,7 @@
     $("af-promote").hidden = !(a && (a.promote || a.website));
     $("af-promote").textContent = a ? "From their application - " + (a.website ? "website: " + a.website + ". " : "") + (a.promote ? "How they'll promote us: " + a.promote : "") : "";
     $("af-link").textContent = a ? "Their link: " + a.link : "";
+    affWelcome(a);
     show($("af-msg"), "");
     reveal($("af-title"));
     $("af-title").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1733,7 +1755,9 @@
       accountName: $("af-acname").value, bsb: $("af-bsb").value.trim(), accountNo: $("af-acno").value.replace(/\s/g, ""), notes: $("af-notes").value } })
       .then(function(r){
         affEditing = r.code;
-        show($("af-msg"), "Saved. Their link: " + r.link, true);
+        show($("af-msg"), "Saved." + (r.welcome === "sent" ? " The welcome email has gone to them, with a copy to the office (link, code and rate - not the PIN)."
+          : r.welcome === "no-email" ? " No welcome email went: there is no email address on this account."
+          : r.welcome === "failed" ? " The welcome email could not be sent - use the button under the form." : "") + " Their link: " + r.link, true);
         $("af-link").textContent = "Their link: " + r.link; $("af-reset").checked = false;
         if (r.pin) {
           $("aff-pin-for").textContent = r.code; $("aff-pin-val").textContent = r.pin; $("aff-pin").hidden = false;
