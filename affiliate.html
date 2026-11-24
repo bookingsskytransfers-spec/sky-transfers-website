@@ -34,6 +34,37 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap"></noscript>
 <style>
+  /* ---- the look (Nov 2026): this page takes the office pages' colours for itself.
+     It comes after site.css, so these win here and the public site is untouched. */
+  :root{
+    --ground:#EEF1F7; --card:#FFFFFF; --ink:#0F172A; --text:#334155; --muted:#64748B;
+    --line:#E0E5EE; --gold:#C9A227; --gold-deep:#7A5D0C; --gold-soft:#FBF4DF;
+    --navy:#101828; --navy-text:#F6F2E8; --ok:#1E7F4F; --err:#B0392F;
+    --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px rgba(15,23,42,.07);
+    --band1:#0A101E; --band2:#1D2E57; --band-text:#F6F2E8; --band-sub:#D9B44A; --band-link:#E7C65A; --band-muted:rgba(246,242,232,.72);
+    --accent:#C9A227; --accent-soft:#FBF4DF; --tab-on:#101828; --tab-on-text:#F3D77A;
+    --th-bg:#101828; --th-text:#F6F2E8; --row-hover:#F7F9FC; --h3:#7A5D0C;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0A0F1D; --card:#131A2C; --ink:#F1F5F9; --text:#CBD5E1; --muted:#8B98AD;
+      --line:#232E47; --gold:#E0B84C; --gold-deep:#E8C86A; --gold-soft:#2A2616;
+      --navy:#22304F; --navy-text:#F1F5F9; --ok:#4CC08A; --err:#F08A80;
+      --shadow:0 2px 16px rgba(0,0,0,.45);
+      --band1:#0A0F1D; --band2:#1B2A66; --band-text:#F6F2E8; --band-sub:#E0B84C; --band-link:#E8C86A; --band-muted:rgba(241,245,249,.7);
+      --accent:#E0B84C; --accent-soft:#2A2616; --tab-on:#E0B84C; --tab-on-text:#141D30;
+      --th-bg:#1A2440; --th-text:#B4C0D4; --row-hover:#182138; --h3:#E0B84C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0A0F1D; --card:#131A2C; --ink:#F1F5F9; --text:#CBD5E1; --muted:#8B98AD;
+    --line:#232E47; --gold:#E0B84C; --gold-deep:#E8C86A; --gold-soft:#2A2616;
+    --navy:#22304F; --navy-text:#F1F5F9; --ok:#4CC08A; --err:#F08A80;
+    --shadow:0 2px 16px rgba(0,0,0,.45);
+    --band1:#0A0F1D; --band2:#1B2A66; --band-text:#F6F2E8; --band-sub:#E0B84C; --band-link:#E8C86A; --band-muted:rgba(241,245,249,.7);
+    --accent:#E0B84C; --accent-soft:#2A2616; --tab-on:#E0B84C; --tab-on-text:#141D30;
+    --th-bg:#1A2440; --th-text:#B4C0D4; --row-hover:#182138; --h3:#E0B84C;
+  }
   .af-form{display:grid;gap:12px;margin:8px 0 6px}
   .af-form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media (max-width:640px){ .af-form .two{grid-template-columns:1fr} }
@@ -57,6 +88,17 @@
   .linkbox code{font-size:15px;word-break:break-all;flex:1 1 240px}
   .tbl{overflow-x:auto} .tbl table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
   .tbl th,.tbl td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)} .tbl td.r,.tbl th.r{text-align:right}
+  /* ---- the look (Nov 2026): figures as tiles, the table and link box as cards ---- */
+  .tot div{border-top:3px solid var(--gold);box-shadow:var(--shadow)}
+  .tot div:nth-child(2){border-top-color:var(--ok)}
+  .tot small{display:block;color:var(--muted);font-size:12.5px}
+  .linkbox{box-shadow:var(--shadow)}
+  .tbl{background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow)}
+  .tbl th{background:var(--th-bg);color:var(--th-text);font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:9px 11px;white-space:nowrap}
+  .tbl td{padding:9px 11px}
+  .tbl thead th:first-child{border-top-left-radius:10px} .tbl thead th:last-child{border-top-right-radius:10px}
+  .tbl tbody tr:last-child td{border-bottom:0}
+  .tbl tbody tr:hover td{background:var(--row-hover)}
 </style>
 </head>
 <body>
@@ -111,7 +153,7 @@
       <tbody id="ac-rows"></tbody>
     </table></div>
     <p class="fare-note">Only bookings that have been paid are shown. A cancelled booking earns nothing. Payments go out monthly by bank transfer.</p>
-    <p><button type="button" id="ac-out" style="background:none;border:0;padding:0;color:var(--gold);cursor:pointer;font:inherit;text-decoration:underline">Sign out</button></p>
+    <p><button type="button" id="ac-out" style="background:none;border:0;padding:0;color:var(--gold-deep);cursor:pointer;font:inherit;text-decoration:underline">Sign out</button></p>
   </section>
 </div>
 <script>
@@ -211,41 +253,6 @@
     </div>
   </div>
 </footer>
-<script>
-/* The quote form posts to the booking server's /charter-enquiry, which emails
-   info@skytransfers.com.au (and the sender, if they gave an email). */
-(function(){
-  var $ = function(id){ return document.getElementById(id); };
-  var t = new Date(); $("ft-date").min = t.toISOString().slice(0, 10);
-  function msg(html, err){ var m = $("ft-msg"); m.hidden = false; m.className = "ft-msg" + (err ? " err" : ""); m.innerHTML = html; }
-  $("ft-form").addEventListener("submit", function(e){
-    e.preventDefault();
-    var need = [["ft-name", "your name"], ["ft-phone", "a phone number"], ["ft-date", "the date"]];
-    for (var i = 0; i < need.length; i++) { if (!$(need[i][0]).value.trim()) { $(need[i][0]).focus(); msg("Please add " + need[i][1] + ".", true); return; } }
-    var b = $("ft-send"); b.disabled = true; b.textContent = "Sending…";
-    var v = function(id){ return $(id).value.trim(); };
-    var body = {
-      occasion: "Funeral / mourner transport",
-      vehicle: v("ft-veh"), date: v("ft-date"), pax: v("ft-pax"),
-      name: v("ft-name"), phone: v("ft-phone"), email: v("ft-email"),
-      itinerary: "Service venue: " + (v("ft-service") || "-") + "\nWake venue: " + (v("ft-wake") || "-") +
-        "\nPick-up address(es): " + (v("ft-pickups") || "-") + (v("ft-notes") ? "\nNotes: " + v("ft-notes") : "")
-    };
-    var ctl = window.AbortController ? new AbortController() : null, timer = ctl ? setTimeout(function(){ ctl.abort(); }, 15000) : null;
-    fetch("https://sky-transfers-booking-server.onrender.com/charter-enquiry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
-      .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || "failed"); return d; }); })
-      .then(function(d){
-        if (window.gtag) gtag("event", "funeral_enquiry", {});
-        $("ft-form").reset();
-        msg("Thank you. We have your details (reference <strong>" + d.ref + "</strong>) and will be in touch shortly. If it is urgent, please call +61 481 437 772.");
-      })
-      .catch(function(){
-        msg('We could not send that just now. Please call <a href="tel:+61481437772">+61 481 437 772</a> or email info@skytransfers.com.au.', true);
-      })
-      .then(function(){ if (timer) clearTimeout(timer); b.disabled = false; b.textContent = "Request a quote"; });
-  });
-})();
-</script>
 <script>
 /* Contact-click tracking, shared by the pages that have no booking widget of
    their own. Inert until a GA4 or Ads tag is installed — see the fuller
