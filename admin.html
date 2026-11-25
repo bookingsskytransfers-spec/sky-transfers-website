@@ -553,6 +553,12 @@
       <div class="pane-head"><h2>Affiliates</h2>
         <button type="button" class="cta small" id="aff-add">+ Add an affiliate</button></div>
       <p class="muted" style="margin:0 0 12px">The referral programme: hosts, hotels, planners and bloggers share a link (?ref=code); the guest books and pays on the website. Commission is the rate x the fare paid, excluding GST, child seats and the trailer. <b>Pending</b> once paid, <b>owed</b> once every leg is Done on the dispatch board, reversed if cancelled. Applications from the referral page land here inactive.</p>
+      <div class="row3" style="align-items:end;margin:0 0 12px">
+        <div><label for="aff-chk-code">Check a referral code</label><input id="aff-chk-code" placeholder="e.g. palmbeachhost" autocapitalize="none" spellcheck="false" maxlength="60"></div>
+        <div><label for="aff-chk-guest">Guest's email or phone (optional)</label><input id="aff-chk-guest" placeholder="to test for a self-referral" maxlength="160"></div>
+        <div><button type="button" class="cta small" id="aff-chk-btn">Check this code</button></div>
+      </div>
+      <div id="aff-chk-msg" class="msg" hidden></div>
       <div id="aff-list-msg" class="msg" hidden></div>
       <div class="scroll">
         <table>
@@ -1754,6 +1760,24 @@
     }));
   }
   function affTd(tr, text, right){ var td = document.createElement("td"); td.textContent = text == null ? "" : text; if (right) td.style.textAlign = "right"; tr.appendChild(td); return td; }
+  /* Check a code (25 Nov 2026): would a website booking carrying it be
+     credited? The server answers with the same test a real booking gets, so
+     this is a true check with no booking made. A row's Check button puts that
+     affiliate's code in the box and runs it. */
+  function affCheck(code){
+    if (code != null) $("aff-chk-code").value = code;
+    var c = $("aff-chk-code").value.trim(), g = $("aff-chk-guest").value.trim();
+    if (!c) { show($("aff-chk-msg"), "Type a referral code to check."); $("aff-chk-code").focus(); return Promise.resolve(); }
+    var body = { code: c }; if (g) body[g.indexOf("@") !== -1 ? "email" : "phone"] = g;
+    var b = $("aff-chk-btn"); b.disabled = true;
+    return api("/admin/affiliate-check", { method: "POST", body: body })
+      .then(function(r){ show($("aff-chk-msg"), r.message, r.credited && !r.selfReferral); })
+      .catch(function(e){ show($("aff-chk-msg"), e.message); })
+      .then(function(){ b.disabled = false; $("aff-chk-msg").scrollIntoView({ behavior: "smooth", block: "nearest" }); });
+  }
+  $("aff-chk-btn").addEventListener("click", function(){ affCheck(null); });
+  $("aff-chk-code").addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); affCheck(null); } });
+  $("aff-chk-guest").addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); affCheck(null); } });
   function affLoad(){
     return api("/admin/affiliates").then(function(d){
       affByCode = {}; d.affiliates.forEach(function(a){ affByCode[a.code] = a; });
@@ -1772,6 +1796,7 @@
         affTd(tr, money(a.paid), true);
         var td = affTd(tr, "");
         td.appendChild(actionBtn("Edit", "", function(){ affFill(a); }));
+        td.appendChild(actionBtn("Check", "", function(){ affCheck(a.code); }));
         if (a.owed > 0) td.appendChild(armBtn("Mark paid", "Paid " + money(a.owed) + "? Press again", "", function(){
           return api("/admin/affiliate-paid", { method: "POST", body: { code: a.code } }).then(function(r){
             show($("aff-list-msg"), "Recorded " + money(r.amount) + " paid to " + a.code + " for " + r.trips + " trip" + (r.trips === 1 ? "" : "s") + ".", true);
