@@ -99,6 +99,12 @@
   .tbl thead th:first-child{border-top-left-radius:10px} .tbl thead th:last-child{border-top-right-radius:10px}
   .tbl tbody tr:last-child td{border-bottom:0}
   .tbl tbody tr:hover td{background:var(--row-hover)}
+  /* change your PIN (26 Nov 2026) */
+  .pinchange{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin:22px 0 14px}
+  .pinchange summary{cursor:pointer;padding:13px 16px;font-weight:700;color:var(--ink)}
+  .pinchange[open] summary{border-bottom:1px solid var(--line)}
+  .pinchange .af-form{padding:14px 16px 16px;margin:0}
+  .pinchange .pin-hint{margin:0;color:var(--muted);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -153,6 +159,19 @@
       <tbody id="ac-rows"></tbody>
     </table></div>
     <p class="fare-note">Only bookings that have been paid are shown. A cancelled booking earns nothing. Payments go out monthly by bank transfer.</p>
+    <details class="pinchange" id="pin-box">
+      <summary>Change your PIN</summary>
+      <form class="af-form" id="pin-form" style="max-width:460px">
+        <p class="pin-hint" id="pin-hint">Choose a PIN of 4 to 8 digits that only you know. Avoid one repeated digit and runs like 1234.</p>
+        <div><label for="pin-cur">Your current PIN</label><input id="pin-cur" type="password" inputmode="numeric" autocomplete="current-password" required maxlength="8"></div>
+        <div class="two">
+          <div><label for="pin-new">New PIN</label><input id="pin-new" type="password" inputmode="numeric" autocomplete="new-password" required maxlength="8"></div>
+          <div><label for="pin-new2">New PIN again</label><input id="pin-new2" type="password" inputmode="numeric" autocomplete="new-password" required maxlength="8"></div>
+        </div>
+        <button class="cta-gold" type="submit" id="pin-btn">Change my PIN</button>
+        <div class="af-msg" id="pin-msg" hidden role="status"></div>
+      </form>
+    </details>
     <p><button type="button" id="ac-out" style="background:none;border:0;padding:0;color:var(--gold-deep);cursor:pointer;font:inherit;text-decoration:underline">Sign out</button></p>
   </section>
 </div>
@@ -183,6 +202,7 @@
       $("t-pending").textContent = money(d.totals.pending); $("t-earned").textContent = money(d.totals.earned);
       $("t-paid").textContent = money(d.totals.paid);
       $("t-review-w").hidden = !(d.totals.review > 0); $("t-review").textContent = money(d.totals.review);
+      $("pin-box").querySelector("summary").textContent = d.pinOwn ? "Change your PIN" : "Change your PIN - you are still using the one we gave you";
       var tb = $("ac-rows"); tb.innerHTML = "";
       if (!d.bookings.length) { var tr = document.createElement("tr"); td(tr, "No paid bookings yet. Share your link and they will show here."); tr.firstChild.colSpan = 6; tb.appendChild(tr); }
       d.bookings.forEach(function(b){
@@ -205,6 +225,25 @@
     var t = $("ac-link").textContent, b = $("ac-copy");
     function done(){ b.textContent = "Copied"; setTimeout(function(){ b.textContent = "Copy link"; }, 2000); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function(){});
+  });
+  /* Change your PIN (26 Nov 2026): the current PIN again, the new one twice.
+     The server checks all of it too; a good change hands back a fresh sign-in,
+     because the old one stops working everywhere. */
+  $("pin-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var cur = $("pin-cur").value.trim(), a = $("pin-new").value.trim(), b = $("pin-new2").value.trim(), btn = $("pin-btn");
+    if (!/^\d{4,8}$/.test(a)) { say($("pin-msg"), "A PIN is 4 to 8 digits, numbers only."); $("pin-new").focus(); return; }
+    if (a !== b) { say($("pin-msg"), "The two new PINs do not match."); $("pin-new2").focus(); return; }
+    btn.disabled = true; say($("pin-msg"), "");
+    call("/affiliate/pin", { method: "POST", body: { current: cur, next: a } })
+      .then(function(d){
+        token = d.token; try { sessionStorage.setItem(KEY, token); } catch (e) {}
+        $("pin-form").reset();
+        say($("pin-msg"), "Your PIN is changed. Use the new one next time you sign in.", true);
+        $("pin-box").querySelector("summary").textContent = "Change your PIN";
+      })
+      .catch(function(err){ if (token) say($("pin-msg"), err.message); })
+      .then(function(){ btn.disabled = false; });
   });
   $("ac-out").addEventListener("click", out);
   if (token) load();
