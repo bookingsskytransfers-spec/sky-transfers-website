@@ -143,6 +143,23 @@
     <p class="fare-note">Not an affiliate yet? See the <a href="/affiliates.html">referral programme</a>. Forgotten your PIN? Call <a href="tel:+61481437772">+61 481 437 772</a>.</p>
   </section>
 
+  <!-- The PIN we send is temporary (26 Nov 2026): the first sign-in stops here
+       until they have chosen their own. Nothing else is shown before that. -->
+  <section id="firstpin" hidden>
+    <h2>Choose your own PIN</h2>
+    <p class="fare-note">The PIN we sent you is temporary. Choose your own now and you go straight to your account. Use 4 to 8 digits that only you know, and avoid one repeated digit and runs like 1234.</p>
+    <form class="af-form" id="fp-form" style="max-width:460px">
+      <div id="fp-cur-w"><label for="fp-cur">The temporary PIN we sent you</label><input id="fp-cur" type="password" inputmode="numeric" autocomplete="current-password" required maxlength="8"></div>
+      <div class="two">
+        <div><label for="fp-new">Your new PIN</label><input id="fp-new" type="password" inputmode="numeric" autocomplete="new-password" required maxlength="8"></div>
+        <div><label for="fp-new2">Your new PIN again</label><input id="fp-new2" type="password" inputmode="numeric" autocomplete="new-password" required maxlength="8"></div>
+      </div>
+      <button class="cta-gold" type="submit" id="fp-btn">Save my PIN and continue</button>
+      <div class="af-msg" id="fp-msg" hidden role="status"></div>
+    </form>
+    <p><button type="button" id="fp-out" style="background:none;border:0;padding:0;color:var(--gold-deep);cursor:pointer;font:inherit;text-decoration:underline">Sign out</button></p>
+  </section>
+
   <section id="acct" hidden>
     <h2 id="ac-name"></h2>
     <div class="linkbox"><code id="ac-link"></code><button class="cta-gold" type="button" id="ac-copy" style="border:0;cursor:pointer;font:inherit">Copy link</button></div>
@@ -189,10 +206,18 @@
     return fetch(SERVER + path, { method: opts.method || "GET", headers: h, body: opts.body ? JSON.stringify(opts.body) : undefined })
       .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){
         if (r.status === 401 && path !== "/affiliate/login") { out(); }
-        if (!r.ok) throw new Error(d.error || "Something went wrong - please call +61 481 437 772.");
+        if (!r.ok) { var er = new Error(d.error || "Something went wrong - please call +61 481 437 772."); er.mustChangePin = !!d.mustChangePin; throw er; }
         return d; }); });
   }
-  function out(){ token = null; try { sessionStorage.removeItem(KEY); } catch (e) {} $("acct").hidden = true; $("signin").hidden = false; }
+  function out(){ token = null; try { sessionStorage.removeItem(KEY); } catch (e) {} $("acct").hidden = true; $("firstpin").hidden = true; $("signin").hidden = false; }
+  /* On a temporary PIN: show only the "choose your own" step. The PIN they
+     just typed is carried over so they are not asked for it twice; after a
+     reload it is gone from memory, so the box for it comes back. */
+  function first(pin){
+    $("signin").hidden = true; $("acct").hidden = true; $("firstpin").hidden = false;
+    $("fp-cur").value = pin || ""; $("fp-cur-w").hidden = !!pin;
+    say($("fp-msg"), ""); (pin ? $("fp-new") : $("fp-cur")).focus();
+  }
   function td(tr, t, cls){ var c = document.createElement("td"); c.textContent = t; if (cls) c.className = cls; tr.appendChild(c); }
   function load(){
     return call("/affiliate/me").then(function(d){
@@ -211,13 +236,18 @@
         td(tr, money(b.fare), "r"); td(tr, money(b.commission), "r"); td(tr, STATE[b.state] || b.state);
         tb.appendChild(tr);
       });
-    }).catch(function(e){ if (token) say($("si-msg"), e.message); });
+    }).catch(function(e){ if (e.mustChangePin && token) first(""); else if (token) say($("si-msg"), e.message); });
   }
   $("si-form").addEventListener("submit", function(e){
     e.preventDefault();
     var btn = $("si-btn"); btn.disabled = true; say($("si-msg"), "");
     call("/affiliate/login", { method: "POST", body: { code: $("si-code").value, pin: $("si-pin").value } })
-      .then(function(d){ token = d.token; try { sessionStorage.setItem(KEY, token); } catch (e) {} $("si-pin").value = ""; return load(); })
+      .then(function(d){
+        var typed = $("si-pin").value;
+        token = d.token; try { sessionStorage.setItem(KEY, token); } catch (e) {} $("si-pin").value = "";
+        if (d.mustChangePin) { first(typed); return; }
+        return load();
+      })
       .catch(function(err){ say($("si-msg"), err.message); })
       .then(function(){ btn.disabled = false; });
   });
@@ -245,6 +275,24 @@
       .catch(function(err){ if (token) say($("pin-msg"), err.message); })
       .then(function(){ btn.disabled = false; });
   });
+  /* The first sign-in on a temporary PIN: the new PIN twice, then straight in. */
+  $("fp-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var cur = $("fp-cur").value.trim(), a = $("fp-new").value.trim(), b = $("fp-new2").value.trim(), btn = $("fp-btn");
+    if (!cur) { $("fp-cur-w").hidden = false; say($("fp-msg"), "Type the temporary PIN we sent you."); $("fp-cur").focus(); return; }
+    if (!/^\d{4,8}$/.test(a)) { say($("fp-msg"), "A PIN is 4 to 8 digits, numbers only."); $("fp-new").focus(); return; }
+    if (a !== b) { say($("fp-msg"), "The two new PINs do not match."); $("fp-new2").focus(); return; }
+    btn.disabled = true; say($("fp-msg"), "");
+    call("/affiliate/pin", { method: "POST", body: { current: cur, next: a } })
+      .then(function(d){
+        token = d.token; try { sessionStorage.setItem(KEY, token); } catch (e) {}
+        $("fp-form").reset(); $("firstpin").hidden = true;
+        return load();
+      })
+      .catch(function(err){ if (token) { if (/current PIN/.test(err.message)) $("fp-cur-w").hidden = false; say($("fp-msg"), err.message); } })
+      .then(function(){ btn.disabled = false; });
+  });
+  $("fp-out").addEventListener("click", out);
   $("ac-out").addEventListener("click", out);
   if (token) load();
 })();

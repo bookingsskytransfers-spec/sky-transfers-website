@@ -546,7 +546,7 @@
     <div id="aff-pin" class="pinbox" hidden>
       <div class="lbl">PIN for <span id="aff-pin-for"></span></div>
       <div class="val" id="aff-pin-val"></div>
-      <p>Give this PIN to them yourself - it is not shown again and is never emailed. The welcome email has their link and details, but not this PIN. They sign in at skytransfers.com.au/affiliate.html with their code and this PIN.</p>
+      <p id="aff-pin-note">This is a temporary PIN. They must choose their own the first time they sign in at skytransfers.com.au/affiliate.html, and it expires in 7 days if it is not used. It is not shown again.</p>
     </div>
 
     <section class="card">
@@ -604,7 +604,7 @@
         <div><label for="af-pct">Commission %</label><input id="af-pct" type="number" min="0.5" max="50" step="0.5" placeholder="required to go live"></div>
         <div><label for="af-active">Status</label>
           <select id="af-active"><option value="false">Inactive</option><option value="true">Active</option></select></div>
-        <div><label for="af-reset"><input id="af-reset" type="checkbox" style="width:auto;margin-right:6px">Issue a new PIN</label></div>
+        <div><label for="af-reset"><input id="af-reset" type="checkbox" style="width:auto;margin-right:6px">Issue a new temporary PIN on screen (not emailed)</label></div>
       </div>
       <div class="row3">
         <div><label for="af-acname">Account name</label><input id="af-acname"></div>
@@ -1750,11 +1750,22 @@
     var when = a.welcomedAt
       ? "Welcome email sent " + new Date(a.welcomedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) + ". "
       : "Welcome email not sent yet. ";
+    /* A PIN from the office is temporary (26 Nov 2026): they must choose their
+       own at first sign-in, and it lapses after 7 days unused. Until they
+       have, sending the email again issues a new temporary PIN with it. */
+    when += a.pinOwn ? "They have chosen their own PIN. "
+      : a.pinExpired ? "Their temporary PIN has expired without being used. "
+      : a.hasPin ? "They are on a temporary PIN and have not chosen their own yet. " : "";
     if (!a.email) { p.textContent = when + "Add their email address and save, then send it from here."; return; }
     p.appendChild(document.createTextNode(when));
-    p.appendChild(armBtn(a.welcomedAt ? "Send it again" : "Email them their link and details", "Send to " + a.email + "? Press again", "", function(){
+    var label = a.pinOwn ? (a.welcomedAt ? "Email their details again" : "Email them their link and details")
+      : (a.welcomedAt ? "Email a new temporary PIN and their details" : "Email them their link and a temporary PIN");
+    var armed = a.pinOwn ? "Send to " + a.email + "? Press again" : "Send " + a.email + " a new temporary PIN? Press again";
+    p.appendChild(armBtn(label, armed, "", function(){
       return api("/admin/affiliate-welcome", { method: "POST", body: { code: a.code } }).then(function(r){
-        show($("af-msg"), "Welcome email sent to " + r.to + ", with a copy to the office. It has their link, code and rate - not the PIN.", true);
+        show($("af-msg"), r.tempPin
+          ? "Sent to " + r.to + " with their link and a new temporary PIN, and a copy to the office. Any PIN they had before no longer works; they choose their own when they first sign in."
+          : "Sent to " + r.to + " with their link and details, and a copy to the office. They already have their own PIN, so none was sent.", true);
         return affLoad();
       }).catch(function(e){ show($("af-msg"), e.message); });
     }));
@@ -1855,12 +1866,14 @@
       accountName: $("af-acname").value, bsb: $("af-bsb").value.trim(), accountNo: $("af-acno").value.replace(/\s/g, ""), notes: $("af-notes").value } })
       .then(function(r){
         affEditing = r.code;
-        show($("af-msg"), "Saved." + (r.welcome === "sent" ? " The welcome email has gone to them, with a copy to the office (link, code and rate - not the PIN)."
+        show($("af-msg"), "Saved." + (r.welcome === "sent" ? " The welcome email has gone to them with their link and a temporary PIN, and a copy to the office."
           : r.welcome === "no-email" ? " No welcome email went: there is no email address on this account."
           : r.welcome === "failed" ? " The welcome email could not be sent - use the button under the form." : "") + " Their link: " + r.link, true);
         $("af-link").textContent = "Their link: " + r.link; $("af-reset").checked = false;
         if (r.pin) {
           $("aff-pin-for").textContent = r.code; $("aff-pin-val").textContent = r.pin; $("aff-pin").hidden = false;
+          $("aff-pin-note").textContent = (r.welcome === "sent" ? "This temporary PIN has been emailed to them with their link. " : "This temporary PIN was NOT emailed - give it to them yourself. ") +
+            "They must choose their own PIN the first time they sign in at skytransfers.com.au/affiliate.html, and this one expires in 7 days if it is not used. It is not shown again.";
           reveal($("aff-pin")); $("aff-pin").scrollIntoView({ behavior: "smooth", block: "start" });
         }
         return affLoad();
