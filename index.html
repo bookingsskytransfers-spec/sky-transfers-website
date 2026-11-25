@@ -1766,6 +1766,20 @@ function refresh(){
     qc.hidden = true; bc.hidden = true;
     $("custom-msg").textContent = res.custom;
     cc.hidden = false;
+    /* Two different addresses that fall in the same suburb are turned away
+       here as "the same place" (26 Nov 2026). Nothing changes for the guest;
+       the server is told the suburb, and only the suburb, so the office can
+       see how often such a trip is asked for. Its reply is not used. Once
+       for each pair of addresses, however often the form redraws. */
+    try {
+      if (state.pu === state.dro && state.pu !== OOL && state.pu !== BNE && state.pu !== CRUISE &&
+          state.puAddr && state.droAddr && state.puAddr !== state.droAddr &&
+          refresh.sameSeen !== state.puAddr + "|" + state.droAddr) {
+        refresh.sameSeen = state.puAddr + "|" + state.droAddr;
+        track("p2p_same_suburb", {suburb: state.pu});
+        postJSON("/p2p-quote", { pickup: { suburb: state.pu }, dropoff: { suburb: state.dro } }).catch(function(){});
+      }
+    } catch (e) {}
     return;
   }
   cc.hidden = true;
