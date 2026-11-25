@@ -1643,11 +1643,22 @@
         tr.insertCell().textContent = niceFull(inv.issued);
         var due = tr.insertCell(); due.textContent = niceFull(inv.due) + (inv.overdue ? " · " + inv.daysOverdue + " days overdue" : ""); if (inv.overdue) due.className = "overdue";
         var tot = tr.insertCell(); tot.className = "num"; tot.textContent = money(inv.total);
+        /* part paid (26 Nov 2026): what has come in and what is left */
+        if (inv.status === "issued" && inv.received > 0) tot.appendChild(el("div", "muted", money(inv.received) + " received, " + money(inv.balance) + " owing"));
         var stc = tr.insertCell();
         stc.appendChild(el("span", "st " + (inv.status === "paid" ? "st-done" : inv.status === "void" ? "st-unassigned" : inv.overdue ? "st-declined" : "st-assigned"),
           inv.status === "paid" ? "Paid" : inv.status === "void" ? "Void" : inv.overdue ? "Overdue" : "Open"));
         if (inv.sentAt) stc.appendChild(el("div", "muted", "Sent to " + inv.sentTo));
         if (inv.paidNote && inv.status === "paid") stc.appendChild(el("div", "muted", inv.paidNote));
+        /* each amount received; one typed in by mistake can be removed while the invoice is open */
+        (inv.payments || []).forEach(function(p){
+          var pl = el("div", "muted", niceFull(p.received) + ": " + money(p.amount) + (p.how ? " " + (/[A-Z].*[A-Z]/.test(p.how) ? p.how : p.how.toLowerCase()) : "") + " ");
+          if (inv.status === "issued") pl.appendChild(armBtn("remove", "Remove it?", "", function(){
+            return api("/ops/invoice/payment/remove", { method: "POST", body: { id: inv.id, paymentId: p.id } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
+          }));
+          stc.appendChild(pl);
+        });
+        if (inv.remindedAt && inv.status === "issued") stc.appendChild(el("div", "muted", "Reminder sent " + new Date(inv.remindedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" }) + (inv.reminders > 1 ? " (" + inv.reminders + " so far)" : "")));
         if (inv.replaces) stc.appendChild(el("div", "muted", "Replaces " + inv.replaces));
         if (inv.replacedBy) stc.appendChild(el("div", "muted", "Replaced by " + inv.replacedBy));
         if (inv.amending) stc.appendChild(el("div", "muted", "Being amended — not re-issued yet"));
@@ -1673,6 +1684,31 @@
           }
           act.appendChild(armBtn("Mark paid", "Paid in full?", "", function(){
             return api("/ops/invoice/paid", { method: "POST", body: { id: inv.id } }).then(loadBilling).catch(function(err){ msg.textContent = err.message; });
+          }));
+          act.appendChild(document.createTextNode(" "));
+          /* Part of it came in (26 Nov 2026): type the amount, say how, record
+             it. The invoice stays open for the rest, its card link now asks
+             for the balance, and the payment that clears it marks it paid. */
+          var amt = document.createElement("input"); amt.type = "number"; amt.min = "0"; amt.step = "0.01"; amt.placeholder = "amount $";
+          amt.setAttribute("aria-label", "Amount received on " + inv.number);
+          amt.style.cssText = "width:92px;padding:5px 8px;font-size:13px;margin:4px 4px 0 0";
+          var how = document.createElement("select"); how.setAttribute("aria-label", "How it was paid");
+          how.style.cssText = "width:auto;padding:5px 8px;font-size:13px;margin:4px 4px 0 0";
+          ["Bank transfer", "Cash", "Card machine", "PayID", "Other"].forEach(function(o){ var op = document.createElement("option"); op.value = op.textContent = o; how.appendChild(op); });
+          act.appendChild(document.createElement("br"));
+          act.appendChild(amt); act.appendChild(how);
+          act.appendChild(armBtn("Record payment", "Record it?", "", function(){
+            if (!(Number(amt.value) > 0)) { msg.textContent = "Type the amount received first."; return Promise.resolve(); }
+            return api("/ops/invoice/payment", { method: "POST", body: { id: inv.id, amount: amt.value, how: how.value } }).then(function(r){
+              msg.textContent = r.paid ? r.number + " is now paid in full." : money(r.amount) + " recorded on " + r.number + " - " + money(r.balance) + " still owing.";
+              return loadBilling();
+            }).catch(function(err){ msg.textContent = err.message; });
+          }));
+          act.appendChild(document.createTextNode(" "));
+          act.appendChild(armBtn("Send reminder", "Email the reminder?", "", function(){
+            return api("/ops/invoice/remind", { method: "POST", body: { id: inv.id, to: to.value.trim() } }).then(function(r){
+              msg.textContent = "Reminder for " + money(r.balance) + " sent to " + r.to + "."; setTimeout(loadInvoices, 600);
+            }).catch(function(err){ msg.textContent = err.message; });
           }));
           act.appendChild(document.createTextNode(" "));
           act.appendChild(armBtn("Amend", "Void it & amend?", "", function(){ return startAmend(inv, function(t){ msg.textContent = t; }); }));

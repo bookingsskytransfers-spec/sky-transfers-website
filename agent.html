@@ -797,7 +797,7 @@
         cell(tr, niceDate(inv.issued));
         cell(tr, inv.from && inv.to ? niceDate(inv.from) + " – " + niceDate(inv.to) : "");
         cell(tr, niceDate(inv.due));
-        cell(tr, money(inv.total), "GST " + money(inv.gst), "num");
+        cell(tr, money(inv.total), inv.status !== "paid" && inv.received > 0 ? money(inv.received) + " received, " + money(inv.balance) + " to pay" : "GST " + money(inv.gst), "num");
         var stc = document.createElement("td"), pill = document.createElement("span");
         if (inv.status === "paid") { pill.className = "pill paid"; pill.textContent = "paid"; }
         else if (inv.overdue) { pill.className = "pill void"; pill.textContent = inv.daysOverdue + (inv.daysOverdue === 1 ? " day" : " days") + " overdue"; }
