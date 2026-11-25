@@ -280,6 +280,18 @@
       <p class="muted" style="margin:14px 0 0">The last 30 days. A chat is one visitor's conversation; a message is one thing they typed. <b>At limit</b> counts messages turned away by the per-visitor or daily limit, <b>Corrected</b> counts replies the website's own check sent back before the visitor saw them. The cost is an estimate in US dollars: the tokens used, at Anthropic's list price on 25 November 2026. The billed figure is in your Anthropic console. Nothing a visitor types is kept; these are counts only.</p>
     </section>
 
+    <section class="card" id="qm-card">
+      <div class="pane-head"><h2>Quotes the website could not price</h2>
+        <button type="button" class="act" id="qm-refresh">Refresh</button></div>
+      <div id="qm-msg" class="msg" hidden></div>
+      <p class="muted" id="qm-state" style="margin:0 0 12px"></p>
+      <div class="dash-grid">
+        <div><h3>Why</h3><div class="scroll"><table id="qm-reasons"></table></div></div>
+        <div><h3>Which trips</h3><div class="scroll"><table id="qm-trips"></table></div></div>
+      </div>
+      <p class="muted" style="margin:14px 0 0">The last 30 days, counted on the server. Each row is a trip someone asked the booking form to price and was told to contact us instead. <b>Point to point</b> is a trip with no airport at either end; <b>Airport by distance</b> is an airport trip to an address that is not on the fare list. <b>Outside the area priced online</b> means the Sunshine Coast, Toowoomba, Byron and northern NSW, or a suburb that is not on the fare list. Only the two suburbs are kept: no street address and nothing about the visitor. Everyone who uses the form is counted, including overseas visitors and anyone testing it.</p>
+    </section>
+
     </div>
 
     <div class="pane" data-pane="web" role="tabpanel" hidden>
@@ -1736,6 +1748,26 @@
   }
   $("ai-refresh").addEventListener("click", function(){ var b = $("ai-refresh"); b.disabled = true; aiLoad().then(function(){ b.disabled = false; }, function(){ b.disabled = false; }); });
 
+  /* ---- quotes the website could not price (26 Nov 2026) ------------------
+     Read from the server's own record: how many quotes were priced and how
+     many refused, why, and between which suburbs. */
+  var QM_KIND = { p2p: "Point to point", km: "Airport by distance" };
+  function qmLoad(){
+    show($("qm-msg"), "");
+    return api("/admin/quote-misses?days=30").then(function(d){
+      var parts = [];
+      ["p2p", "km"].forEach(function(k){
+        var c = (d.counts || {})[k] || { priced: 0, missed: 0 }, all = c.priced + c.missed;
+        parts.push(QM_KIND[k] + ": " + (all ? c.missed + " of " + all + " quotes refused (" + Math.round(100 * c.missed / all) + "%)" : "no quotes yet"));
+      });
+      $("qm-state").textContent = parts.join(". ") + "." + (d.recordingSince ? " Counting since " + dShort(d.recordingSince) + "." : " Nothing has been counted yet - this record starts from the day it was switched on.");
+      dashTable("qm-reasons", ["Why", "Kind", "Times"], (d.byReason || []).map(function(r){ return [r.label.split(" (")[0], QM_KIND[r.kind] || r.kind, String(r.n)]; }));
+      dashTable("qm-trips", ["From", "To", "Why", "Times"], (d.trips || []).slice(0, 40).map(function(t){
+        return [t.pickup || "-", t.dropoff || "-", (t.reason === "over_max_km" && t.km ? Math.round(t.km) + " km - " : "") + t.label.split(" (")[0], String(t.n)]; }));
+    }).catch(function(e){ show($("qm-msg"), "The quote record could not be read just now."); });
+  }
+  $("qm-refresh").addEventListener("click", function(){ var b = $("qm-refresh"); b.disabled = true; qmLoad().then(function(){ b.disabled = false; }, function(){ b.disabled = false; }); });
+
   function enter(){
     $("signin").hidden = true;
     $("admin").hidden = false;
@@ -1744,6 +1776,7 @@
     whoLoad();
     dashStart();
     aiLoad();
+    qmLoad();
     load();
     loadWeb();
     galLoad();
