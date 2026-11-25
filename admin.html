@@ -1432,6 +1432,20 @@
                 }).catch(function(err){ show($("web-msg"), err.message); });
               }));
               act.appendChild(document.createTextNode(" "));
+              /* The deposit came in outside Stripe - a bank transfer, usually
+                 (26 Nov 2026). The booking becomes "Deposit paid, $X owing",
+                 the deposit link is switched off, and the guest is sent the
+                 deposit-paid confirmation. Uses the "how" box beside it. */
+              if (b.depositPct && b.depositDue > 0) {
+                act.appendChild(armBtn("Deposit paid another way ($" + Number(b.depositDue).toFixed(0) + ")", "Mark the deposit paid?", "", function(){
+                  return api("/admin/web-booking/deposit-paid", { method: "POST", body: { ref: b.ref, how: how.value, notifyGuest: !!b.email } }).then(function(d){
+                    show($("web-msg"), "Marked the $" + d.deposit + " deposit on " + d.ref + " as paid by " + d.how.toLowerCase() + ". $" + d.balance + " balance still owing; the deposit link is switched off. " +
+                      (d.emailed ? "Deposit-paid confirmation sent to " + d.emailed + "." : "The guest was not emailed (no address on the booking)."), true);
+                    loadWeb();
+                  }).catch(function(err){ show($("web-msg"), err.message); });
+                }));
+                act.appendChild(document.createTextNode(" "));
+              }
               /* Confirm against a deposit (11 Nov 2026): the guest is emailed the
                  confirmation with a link for the deposit only, and any link for
                  the full fare is switched off. The balance is asked for later
