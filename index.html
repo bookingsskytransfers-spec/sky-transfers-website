@@ -1697,9 +1697,29 @@ function attachAC(inputId, listId, onPick){
 function isAirport(p){ return p === OOL || p === BNE; }
 function money(n){ return "$" + n; }
 
+/* Two different street addresses in one suburb - a hotel to a restaurant -
+   are a real trip (26 Nov 2026). Both ends carry the same suburb name, so the
+   form used to call it "the same place"; now the server measures it and
+   prices it like any other point-to-point trip. It needs a street address at
+   both ends, and never applies to an airport or the cruise terminal. */
+function sameSuburbTrip(p){
+  return p !== OOL && p !== BNE && p !== CRUISE && !!state.puAddr && !!state.droAddr && state.puAddr !== state.droAddr;
+}
+/* The route line for such a trip: the two streets, not the suburb twice. */
+function sameSuburbRoute(km){
+  var first = function(a){ return String(a || "").split(",")[0]; };
+  var el = $("route-line"), b1 = document.createElement("b"), b2 = document.createElement("b");
+  b1.textContent = first(state.puAddr); b2.textContent = first(state.droAddr);
+  el.textContent = "";
+  el.appendChild(b1); el.appendChild(document.createTextNode(" to ")); el.appendChild(b2);
+  el.appendChild(document.createTextNode(" (" + state.pu + ")" + (km ? " - " + km + " km" : "")));
+}
+
 function getRates(pu, dro){
   // returns {rates:[..]} or {custom:"message"}
-  if(pu === dro) return {custom:"Pick-up and drop-off are the same place — please choose two different locations."};
+  if(pu === dro && pu !== OOL && pu !== BNE && pu !== CRUISE && !(state.puAddr && state.droAddr))
+    return {custom:"For a trip within " + pu + ", choose the street address for both the pick-up and the drop-off from the suggestions and we will price it."};
+  if(pu === dro && !sameSuburbTrip(pu)) return {custom:"Pick-up and drop-off are the same place — please choose two different locations."};
   var isHub = function(p){ return p === OOL || p === BNE || p === CRUISE; };
   var bump = (pu === CRUISE || dro === CRUISE) ? CRUISE_EXTRA : 0;
   function plus(r){ return bump ? r.map(function(x){ return x + bump; }) : r; }
@@ -1766,20 +1786,6 @@ function refresh(){
     qc.hidden = true; bc.hidden = true;
     $("custom-msg").textContent = res.custom;
     cc.hidden = false;
-    /* Two different addresses that fall in the same suburb are turned away
-       here as "the same place" (26 Nov 2026). Nothing changes for the guest;
-       the server is told the suburb, and only the suburb, so the office can
-       see how often such a trip is asked for. Its reply is not used. Once
-       for each pair of addresses, however often the form redraws. */
-    try {
-      if (state.pu === state.dro && state.pu !== OOL && state.pu !== BNE && state.pu !== CRUISE &&
-          state.puAddr && state.droAddr && state.puAddr !== state.droAddr &&
-          refresh.sameSeen !== state.puAddr + "|" + state.droAddr) {
-        refresh.sameSeen = state.puAddr + "|" + state.droAddr;
-        track("p2p_same_suburb", {suburb: state.pu});
-        postJSON("/p2p-quote", { pickup: { suburb: state.pu }, dropoff: { suburb: state.dro } }).catch(function(){});
-      }
-    } catch (e) {}
     return;
   }
   cc.hidden = true;
@@ -1828,6 +1834,7 @@ function quoteP2P(){
       : "All prices AUD, one-way, GST inclusive.") +
       " Tolls included. A fixed price for this exact route — the same fare at any hour, no surge. Child seats $15 each.";
     renderGrid(r.data.fares);
+    if (state.pu === state.dro) sameSuburbRoute(r.data.km);
     track("p2p_quote", {route: state.pu + " -> " + state.dro, km: r.data.km});
   }).catch(function(err){
     if (seq !== p2pSeq) return;
