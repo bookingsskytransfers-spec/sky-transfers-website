@@ -33,9 +33,9 @@
 ## Charter rates (per vehicle, GST included; half day up to 4 h, full day up to 8 h)
 
 - Mercedes V-Class: airport from AUD 115, half day AUD 530, full day AUD 970
-- Sprinter 10-seater: airport from AUD 165, half day AUD 640, full day AUD 1,160
-- Sprinter 14-seater: airport from AUD 240, half day AUD 730, full day AUD 1,320
-- Sprinter 18-seater: airport from AUD 290, half and full day quoted
+- Sprinter 10-seater: airport from AUD 165, half day AUD 540, full day AUD 980
+- Sprinter 14-seater: airport from AUD 240, half day AUD 590, full day AUD 1,070
+- Sprinter 18-seater: airport from AUD 290, by the hour AUD 165 an hour, half and full day quoted
 - 53-seat coach: transfers from AUD 700, half day AUD 1,550, full day AUD 2,300
 - No after-hours or late-night surcharge on any transfer or charter
 - Multi-day tours: quoted individually
@@ -148,7 +148,7 @@ online; longer is a charter. The rate is per hour by vehicle class and is the
 same at any hour - no evening or late-night loading on hourly hire booked
 online:
 
-- Sedan 90/h, SUV 100/h, People Mover 115/h, Luxury Sedan 125/h, Luxury Minivan 135/h, Sprinter 10-seater 160/h, Sprinter 14-seater 185/h; the 18-seater is quoted per job
+- Sedan 90/h, SUV 100/h, People Mover 100/h, Luxury Sedan 110/h, Luxury Minivan 125/h, Sprinter 10-seater 135/h, Sprinter 14-seater 150/h, Sprinter 18-seater 165/h
 - Pre-fill: https://www.skytransfers.com.au/?hours=3&pu=<pick-up>#book
 
 ## Where we operate
@@ -334,6 +334,7 @@ carried free of charge where they fit.
 - Sprinter and coach charters: https://www.skytransfers.com.au/charters.html
 - Minibus hire with a driver, Gold Coast: https://www.skytransfers.com.au/minibus-hire-gold-coast.html
 - Minibus hire with a driver, Brisbane: https://www.skytransfers.com.au/minibus-hire-brisbane.html
+- Mercedes Sprinter hire with a driver (10, 14 and 18 seats; no self-drive): https://www.skytransfers.com.au/mercedes-sprinter-hire.html
 - Event and group transfers: https://www.skytransfers.com.au/event-transfers.html
 - Vehicle photo gallery: https://www.skytransfers.com.au/gallery.html
 - Fleet: https://www.skytransfers.com.au/fleet.html
