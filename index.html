@@ -336,7 +336,7 @@
         "@type": "PriceSpecification",
         "priceCurrency": "AUD",
         "valueAddedTaxIncluded": true,
-        "price": 640
+        "price": 540
       }
     },
     {
@@ -350,7 +350,7 @@
         "@type": "PriceSpecification",
         "priceCurrency": "AUD",
         "valueAddedTaxIncluded": true,
-        "price": 1160
+        "price": 980
       }
     },
     {
@@ -364,7 +364,7 @@
         "@type": "PriceSpecification",
         "priceCurrency": "AUD",
         "valueAddedTaxIncluded": true,
-        "price": 730
+        "price": 590
       }
     },
     {
@@ -378,7 +378,7 @@
         "@type": "PriceSpecification",
         "priceCurrency": "AUD",
         "valueAddedTaxIncluded": true,
-        "price": 1320
+        "price": 1070
       }
     },
     {
@@ -1347,10 +1347,10 @@ var VEHICLES = [
    something parsed out of the cap strings, so a copy edit to the wording can
    never change what the form believes a vehicle holds. */
 var VEH_CAP = [3, 4, 7, 3, 6, 10, 14, 18];
-/* Hourly hire, per hour, index-for-index with VEHICLES (no hourly rate for the 18-seater).
+/* Hourly hire, per hour, index-for-index with VEHICLES (rates set 27-28 Nov 2026).
    MUST match HOURLY_RATES in stripe-server.js - the server re-prices every
    booking and its figure wins. */
-var HOURLY_RATES = [90, 100, 115, 125, 135, 160, 185, null];
+var HOURLY_RATES = [90, 100, 100, 110, 125, 135, 150, 165];
 function hoursSel(){ var s = $("hours"); return Math.min(Math.max(parseInt(s && s.value, 10) || 3, 3), 6); }
 var PLACES = [OOL, BNE, CRUISE].concat(Object.keys(SUBURBS).sort()).concat(Object.keys(BM_SUBURB).sort())
   .concat(LD_LIVE ? Object.keys(LD_SUBURB).sort() : []);
@@ -2038,7 +2038,7 @@ function renderGrid(rates){
        a customer wants is what this trip costs each of them. Suppressed below
        three, where halving the fare tells nobody anything they cannot see. */
     /* A null fare means this vehicle is quoted by hand on this route - the
-       18-seater on hourly and point-to-point trips, and anything the
+       18-seater on point-to-point trips, and anything the
        point-to-point engine declined. */
     var sx = state.stopX ? state.stopX[i] : 0;
     var byHand = v.quote || res.rates[i] == null || sx == null;
@@ -2067,7 +2067,7 @@ function renderGrid(rates){
         if (pcard) pcard.scrollIntoView({behavior: "smooth", block: "nearest"});
         return;
       }
-      /* A vehicle with no fare on this trip (the 18-seat Sprinter by the hour or
+      /* A vehicle with no fare on this trip (the 18-seat Sprinter
          point-to-point) never touches Stripe — hand the guest to the custom-quote panel. */
       if (byHand) {
         state.vehicle = null; state.price = null;

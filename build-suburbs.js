@@ -1569,7 +1569,8 @@ ${FOOTER}
 // ---------------------------------------------------------------------------
 /* Hourly hire, per vehicle class in VEH order. MUST match HOURLY_RATES in
    index.html and stripe-server.js; fares.json publishes this same array. */
-const HOURLY = [90, 100, 115, 125, 135, 160, 185];
+const HOURLY = [90, 100, 100, 110, 125, 135, 150];
+const HOURLY_18 = 165;             // the 18-seater by the hour (27 Nov 2026); the tour tables stay on the seven above
 const TOUR_DISCOUNT = 0.9;          // what the full-day charters carry
 const tourFares = (hours) => HOURLY.map(r => Math.round(r * hours * TOUR_DISCOUNT / 5) * 5);
 const SERVER = 'https://sky-transfers-booking-server.onrender.com';
@@ -2048,7 +2049,7 @@ function writeFaresJson() {
       available: true,
       how: 'Chauffeur and vehicle as directed, booked from the form by choosing "By the hour". Rate per hour by vehicle class, no evening loading.',
       min_hours: 3, max_hours_online: 6,
-      rate_per_hour_in_fares_array_order: HOURLY.concat([null]),
+      rate_per_hour_in_fares_array_order: HOURLY.concat([HOURLY_18]),
       prefill_url: SITE + '/?hours={hours}&pu={pickup}#book',
       longer: 'Half and full days are charters: ' + SITE + '/charters.html',
     },
