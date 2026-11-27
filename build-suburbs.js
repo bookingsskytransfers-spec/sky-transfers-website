@@ -41,6 +41,22 @@ const RETURN_DISCOUNT = 0.10;
 const returnFare = (f) => Math.round(f * 2 * (1 - RETURN_DISCOUNT));
 const DIR     = 'airport-transfers';
 const LASTMOD = '2026-11-02';               // bump when the template or the copy changes
+/* Route-led suburb pages (27 Nov 2026). The pages named here lead with ONE
+   route - the airport the page already names first - and put that route's
+   exact sedan fare and measured drive time in the title, the description,
+   the heading and the opening line, with one fare table per route (option /
+   drive time / fixed price). They were built for a test of whether Google's
+   AI answers cite a page in that shape more often. The test was called off
+   before anything shipped: Google was already citing these pages in their
+   standard shape. They ship as an accuracy fix instead - on a Gold Coast-side
+   page the standard title put the Gold Coast fare beside a Brisbane-first
+   heading. Nothing is being measured and no page is held back to compare.
+   No figure is new: they are the fares and times the standard page already
+   prints. Remove a name and its page is generated in the standard shape. */
+const TRIAL = new Set(["Molendinar","Labrador","Helensvale","Kallangur","Eagleby","Ripley","Tewantin","Minyama","Highfields","Bribie Island"]);
+/* Trial pages that lead with Gold Coast Airport rather than the first-named airport. */
+const TRIAL_OOL_FIRST = new Set([]);
+const TRIAL_LASTMOD = '2026-11-27';
 const OUT     = path.join(ROOT, DIR);
 
 // ---------------------------------------------------------------------------
@@ -392,7 +408,9 @@ for (const p of places) {
   if (p.fares.ool) fromCandidates.push(p.fares.ool[0]);
   if (p.fares.bne) fromCandidates.push(p.fares.bne[0]);
   p.from = Math.min.apply(null, fromCandidates);
+  p.trial = TRIAL.has(p.name);
 }
+for (const n of TRIAL) if (!places.some(p => p.name === n)) throw new Error('build-suburbs: trial suburb is not a priced suburb: ' + n);
 
 function fill(text, p) {
   const f = p.facts;
@@ -675,7 +693,7 @@ function suburbPage(p) {
   const z = Z[p.zoneKey];
   const air = airportsFor(p);
   const primary = air[0];
-  const ctaHref = '/?pu=' + encodeURIComponent(p.name) + '&do=' + encodeURIComponent(primary.place) + '#book';
+  let ctaHref = '/?pu=' + encodeURIComponent(p.name) + '&do=' + encodeURIComponent(primary.place) + '#book';
   const state = p.region === 'Byron Bay' ? 'NSW' : 'QLD';
   const f = p.facts;
 
@@ -690,7 +708,7 @@ function suburbPage(p) {
   const named = (p.region === 'Byron Bay' || air.length < 2) ? air : air.slice().sort((a, b) => (a.key === 'bne' ? -1 : 1) - (b.key === 'bne' ? -1 : 1));
   const shortAir = named.length > 1 ? named.map(a => a.name.replace(/ Airport$/, '')).join(' & ') + ' Airport' : named[0].name;
   const fullAir = named.map(a => a.name).join(' & ');
-  const title = fitTitle(isAirport ? [
+  let title = fitTitle(isAirport ? [
     `Transfers to ${p.name} | Fixed Price from $${p.from}`,
     `Transfers to ${p.name} | From $${p.from}`,
     `Transfers to ${p.name}`,
@@ -702,7 +720,7 @@ function suburbPage(p) {
     `${p.name} to ${shortAir}`,
     `${p.name} Airport Transfers`,
   ]);
-  const desc = metaDesc([
+  let desc = metaDesc([
     isAirport ? `${p.name} to ${primary.name} (${primary.code}) from $${p.from} per vehicle.`
       : `${p.name} to ` + named.map(a => `${a.name} from $${a.fares[0]}`).join(', ') + (named.length > 1 ? ',' : '') + ' per vehicle.',
     'Fixed price, GST and tolls included.',
@@ -732,6 +750,80 @@ function suburbPage(p) {
     if (d && d.s) return `<div class="fact"><span class="k">To ${primary.code}</span><span class="v">${mins(d.s).replace(' minutes', ' min').replace(/ h /, 'h ')}</span><span class="s">${km(d.m)}, typical</span></div>`;
     return `<div class="fact"><span class="k">Airports</span><span class="v">${air.map(a => a.code).join(' &amp; ')}</span><span class="s">Fixed fares to each</span></div>`;
   })();
+
+  /* ---- the route-led trial (see TRIAL at the top) -------------------------
+     A trial page leads with one route: the airport this page already names
+     first. Its exact sedan fare and its measured drive time go in the title,
+     the description, the heading and the opening line, and the single
+     vehicle-by-airport table becomes one table per route in the shape of
+     option / drive time / fixed price. Nothing here is a new figure: the
+     fares are the same arrays and the times the same measurements the
+     standard page prints. A page with no measured time for its lead route
+     stays standard. A trial page listed in TRIAL_OOL_FIRST leads with Gold
+     Coast Airport instead of the first-named airport. */
+  const lead = (TRIAL_OOL_FIRST.has(p.name) && named.find(a => a.key === 'ool')) || named[0];
+  const leadFact = f[lead.key];
+  const trial = p.trial && !isAirport && !!(leadFact && leadFact.m && leadFact.s);
+  const briefMin = (a) => { const d = f[a.key]; return d && d.s ? mins(d.s).replace(' minutes', ' min') : ''; };
+  let trialH1 = '', trialIntro = '', routeTables = '';
+  let factFrom = `<div class="fact"><span class="k">From</span><span class="v">$${p.from}</span><span class="s">Sedan, one way, to ${esc(primary.code)}</span></div>`;
+  let factNear = nearestFact;
+  let returnFrom = p.from;
+  if (trial) {
+    const x = lead.fares[0], t = briefMin(lead), other = named.find(a => a !== lead);
+    const otherMin = other ? briefMin(other) : '';
+    title = fitTitle([
+      `${p.name} to ${lead.name}: ${t}, $${x} fixed`,
+      `${p.name} to ${lead.name}: $${x} fixed`,
+      `${p.name} to ${lead.code}: ${t}, $${x} fixed`,
+      `${p.name} to ${lead.code}: $${x} fixed`,
+    ]);
+    desc = metaDesc([
+      `${p.name} to ${lead.name}: about ${t}, $${x} fixed for a sedan, per vehicle.`,
+      other ? `${other.name} $${other.fares[0]}${otherMin ? ', about ' + otherMin : ''}.` : '',
+      'GST and tolls included.',
+      'Flight tracked, meet and greet.',
+      '24/7.',
+    ]);
+    ctaHref = '/?pu=' + encodeURIComponent(p.name) + '&do=' + encodeURIComponent(lead.place) + '#book';
+    returnFrom = x;
+    trialH1 = `${esc(p.name)} to ${esc(lead.name)}: about ${mins(leadFact.s)}, $${x} fixed`;
+    trialIntro = `A private chauffeur transfer from ${esc(p.name)} to ${esc(lead.name)} is <strong>$${x} one way</strong> for a sedan:
+    a fixed price per vehicle, GST and tolls included, at any hour. The drive is ${km(leadFact.m)}, about ${mins(leadFact.s)} in normal traffic.${other ? `
+    ${esc(other.name)} is $${other.fares[0]}${otherMin ? ', about ' + otherMin : ''}.` : ''} Every vehicle is priced below.`;
+    factFrom = `<div class="fact"><span class="k">To ${esc(lead.code)}</span><span class="v">$${x}</span><span class="s">Sedan, one way, fixed</span></div>`;
+    factNear = `<div class="fact"><span class="k">Drive</span><span class="v">${t.replace(/ h /, 'h ')}</span><span class="s">${km(leadFact.m)}, typical</span></div>`;
+    const routeTable = (a) => {
+      const d = f[a.key], has = !!(d && d.m && d.s), am = has ? 'about ' + briefMin(a) : '';
+      return `<h3>${esc(p.name)} to ${esc(a.name)} (${a.code})</h3>
+  <p>${has ? `${esc(p.name)} to ${esc(a.name)} is ${km(d.m)}, about ${mins(d.s)} in normal traffic. ` : ''}A sedan is <strong>${money(a.fares[0])} one way</strong>, fixed${a.key === 'bne' ? ', Gateway toll included' : ''}.</p>
+  <div class="faretable-wrap">
+    <table class="lpfare" style="min-width:0">
+      <caption>${esc(p.name)} to ${esc(a.name)} (${a.code}) &mdash; one way, per vehicle, AUD</caption>
+      <thead>
+        <tr><th scope="col">Option</th>${has ? '<th scope="col">Drive time</th>' : ''}<th scope="col">Fixed price</th></tr>
+      </thead>
+      <tbody>
+${VEH_T.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th>${has ? `<td style="white-space:nowrap">${am}</td>` : ''}<td>${money(a.fares[i])}</td></tr>`).join('\n')}
+      </tbody>
+    </table>
+  </div>`;
+    };
+    const cruiseTable = p.fares.cruise ? `<h3>${esc(p.name)} to Brisbane Cruise Terminal</h3>
+  <p>The Brisbane Airport fare plus $${CRUISE_EXTRA}, Gateway toll included.</p>
+  <div class="faretable-wrap">
+    <table class="lpfare" style="min-width:0">
+      <caption>${esc(p.name)} to Brisbane Cruise Terminal &mdash; one way, per vehicle, AUD</caption>
+      <thead>
+        <tr><th scope="col">Option</th><th scope="col">Fixed price</th></tr>
+      </thead>
+      <tbody>
+${VEH_T.map((v, i) => `        <tr><th scope="row">${esc(v[0])}<span class="s"> ${esc(v[1])}</span></th><td>${money(p.fares.cruise[i])}</td></tr>`).join('\n')}
+      </tbody>
+    </table>
+  </div>` : '';
+    routeTables = [lead].concat(named.filter(a => a !== lead)).map(routeTable).concat(cruiseTable ? [cruiseTable] : []).join('\n\n  ');
+  }
 
   // neighbours: same fare band, excluding self
   if (!NEIGHBOURS.size) buildNeighbours();
@@ -782,20 +874,20 @@ function suburbPage(p) {
 <header class="fares-hero photo" id="top">
   ${heroBg(heroImg(p.region, p.zoneKey))}
   <div class="hero-in">
-  <h1>${isAirport ? `Transfers to ${esc(p.name)}` : `${esc(p.name)} to ${named.map(a => esc(a.name)).join(' and ')}`}, fixed price</h1>
+  <h1>${trial ? trialH1 : (isAirport ? `Transfers to ${esc(p.name)}` : `${esc(p.name)} to ${named.map(a => esc(a.name)).join(' and ')}`) + ', fixed price'}</h1>
   <p>
-    Private chauffeur transfers between ${esc(p.name)} and ${air.map(a => esc(a.name)).join(' or ')},
-    priced per vehicle and published below. From $${p.from} one way, GST and tolls included, at any hour.
+    ${trial ? trialIntro : `Private chauffeur transfers between ${esc(p.name)} and ${air.map(a => esc(a.name)).join(' or ')},
+    priced per vehicle and published below. From $${p.from} one way, GST and tolls included, at any hour.`}
   </p>
-  <a class="cta-gold" href="${ctaHref}">Book ${esc(p.name)} to ${esc(primary.code)}</a>
+  <a class="cta-gold" href="${ctaHref}">Book ${esc(p.name)} to ${esc(trial ? lead.code : primary.code)}</a>
   </div>
 </header>
 
 <div class="lp">
 
   <div class="facts">
-    <div class="fact"><span class="k">From</span><span class="v">$${p.from}</span><span class="s">Sedan, one way, to ${esc(primary.code)}</span></div>
-    ${nearestFact}
+    ${factFrom}
+    ${factNear}
     <div class="fact"><span class="k">Vehicles</span><span class="v">1&ndash;18</span><span class="s">Sedan to 18-seat Sprinter</span></div>
     <div class="fact"><span class="k">Changes</span><span class="v">Free</span><span class="s">Up to 24 hours before pick-up</span></div>
   </div>
@@ -807,7 +899,7 @@ function suburbPage(p) {
     include the Gateway toll. The same fare applies at any hour of any day.
   </p>
 
-  <div class="faretable-wrap">
+  ${trial ? routeTables : `<div class="faretable-wrap">
     <table class="lpfare">
       <caption>${esc(p.name)} &rarr; ${cols.map(esc).join(' / ')} &mdash; one way, AUD</caption>
       <thead>
@@ -817,11 +909,11 @@ function suburbPage(p) {
 ${rows}
       </tbody>
     </table>
-  </div>
+  </div>`}
   <p class="fare-note">
     <strong>Coming back as well?</strong> Book the return in the same booking and the whole trip
-    is 10% cheaper &mdash; $${p.from} each way is <strong>$${returnFare(p.from)} return</strong>
-    instead of $${p.from * 2}. Tick &ldquo;coming back as well&rdquo; in the
+    is 10% cheaper &mdash; $${returnFrom} each way is <strong>$${returnFare(returnFrom)} return</strong>
+    instead of $${returnFrom * 2}. Tick &ldquo;coming back as well&rdquo; in the
     <a href="${ctaHref}">booking form</a> and the return price shows on every vehicle.
   </p>
   <p class="fare-note">
@@ -2555,7 +2647,7 @@ const entries = REGIONS.map(r => `  <url>\n    <loc>${SITE}/${r.slug}.html</loc>
   .concat(ATTRACTIONS.map(a => `  <url>\n    <loc>${SITE}/${a.slug}.html</loc>\n    <lastmod>${a.lastmod || ATTR_LASTMOD}</lastmod>\n  </url>`))
   .concat(TOURS.map(t => `  <url>\n    <loc>${SITE}/${t.slug}.html</loc>\n    <lastmod>${t.lastmod}</lastmod>\n  </url>`))
   .concat([`  <url>\n    <loc>${SITE}/${DIR}/</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`])
-  .concat(places.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${LASTMOD}</lastmod>\n  </url>`));
+  .concat(places.map(p => `  <url>\n    <loc>${SITE}${p.url}</loc>\n    <lastmod>${p.trial ? TRIAL_LASTMOD : LASTMOD}</lastmod>\n  </url>`));
 sm = sm.replace(/\s*<\/urlset>\s*$/, '\n' + entries.join('\n') + '\n</urlset>\n');
 fs.writeFileSync(smPath, sm);
 
